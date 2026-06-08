@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,6 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Learnverse — Developers ke liye, Hinglish mein",
     template: "%s — Learnverse",
@@ -26,6 +28,21 @@ export const metadata = {
     "interview questions",
     "mern",
   ],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: "Learnverse — Developers ke liye, Hinglish mein",
+    description:
+      "Programming concepts in English + Hinglish, with daily-life examples, code, quizzes and interview questions.",
+    url: SITE_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Learnverse — Developers ke liye, Hinglish mein",
+    description:
+      "Programming concepts in English + Hinglish, with daily-life examples, code, quizzes and interview questions.",
+  },
 };
 
 export default function RootLayout({ children }) {

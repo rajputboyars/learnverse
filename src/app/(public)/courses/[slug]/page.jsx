@@ -21,13 +21,33 @@ async function getCourse(slug) {
   return { course, topics, concepts };
 }
 
+export async function generateStaticParams() {
+  try {
+    await connectDB();
+    const courses = await Course.find({ status: 'published' }).select('slug').lean();
+    return courses.map((c) => ({ slug: c.slug }));
+  } catch {
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   try {
     await connectDB();
     const course = await Course.findOne({ slug }).lean();
     if (!course) return { title: 'Course not found' };
-    return { title: course.title, description: course.description };
+    return {
+      title: course.title,
+      description: course.description,
+      alternates: { canonical: `/courses/${slug}` },
+      openGraph: {
+        type: 'website',
+        title: course.title,
+        description: course.description,
+        url: `/courses/${slug}`,
+      },
+    };
   } catch {
     return { title: 'Course' };
   }
