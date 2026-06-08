@@ -15,6 +15,13 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-1 sm:gap-4 text-sm font-medium text-slate-600">
+          <form action="/search" className="hidden md:block">
+            <input
+              name="q"
+              placeholder="Search…"
+              className="w-40 rounded-full border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-indigo-400 lg:w-52"
+            />
+          </form>
           <Link href="/courses" className="hidden sm:block hover:text-indigo-600">Courses</Link>
           <Link href="/interview-questions" className="hidden sm:block hover:text-indigo-600">Interview</Link>
           <Link href="/leaderboard" className="hidden sm:block hover:text-indigo-600">Leaderboard</Link>
