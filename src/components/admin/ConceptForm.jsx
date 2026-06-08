@@ -18,12 +18,34 @@ const EMPTY = {
   tags: '',
 };
 
-export default function ConceptForm() {
+// Turn a DB concept doc into the form shape (arrays -> textareas/strings).
+function toForm(initial) {
+  if (!initial) return EMPTY;
+  return {
+    courseId: initial.courseId?.toString() || '',
+    topicId: initial.topicId?.toString() || '',
+    title: initial.title || '',
+    slug: initial.slug || '',
+    explanation: {
+      english: initial.explanation?.english || '',
+      hinglish: initial.explanation?.hinglish || '',
+    },
+    dailyLifeExample: initial.dailyLifeExample || '',
+    codeExample: initial.codeExample || '',
+    codeLanguage: initial.codeLanguage || 'javascript',
+    keyPoints: (initial.keyPoints || []).join('\n'),
+    difficulty: initial.difficulty || 'easy',
+    tags: (initial.tags || []).join(', '),
+  };
+}
+
+export default function ConceptForm({ initial = null, conceptId = null }) {
   const router = useRouter();
+  const isEdit = !!conceptId;
   const [courses, setCourses] = useState([]);
   const [topics, setTopics] = useState([]);
-  const [form, setForm] = useState(EMPTY);
-  const [quiz, setQuiz] = useState([]);
+  const [form, setForm] = useState(() => toForm(initial));
+  const [quiz, setQuiz] = useState(() => initial?.quiz || []);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
 
@@ -61,8 +83,8 @@ export default function ConceptForm() {
       quiz: quiz.filter((q) => q.question && q.options.every((o) => o)),
       status,
     };
-    const res = await fetch('/api/concepts', {
-      method: 'POST',
+    const res = await fetch(isEdit ? `/api/concepts/${conceptId}` : '/api/concepts', {
+      method: isEdit ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
@@ -168,7 +190,7 @@ export default function ConceptForm() {
             Save draft
           </button>
           <button onClick={() => save('published')} disabled={saving} className="rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white hover:bg-indigo-700 disabled:opacity-50">
-            {saving ? 'Saving…' : 'Publish'}
+            {saving ? 'Saving…' : isEdit ? 'Update & Publish' : 'Publish'}
           </button>
         </div>
       </div>

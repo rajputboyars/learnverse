@@ -45,6 +45,7 @@ export default function AdminConceptsPage() {
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <Link href={`/concepts/${c.slug}`} className="text-slate-500 hover:text-indigo-600">View</Link>
+                <Link href={`/admin/concepts/${c._id}/edit`} className="font-medium text-indigo-600 hover:underline">Edit</Link>
                 <button onClick={() => remove(c._id)} className="text-red-500 hover:underline">Delete</button>
               </div>
             </div>
