@@ -16,6 +16,12 @@ import * as reactCourse from './content/react.mjs';
 import * as nodejsCourse from './content/nodejs.mjs';
 import * as expressCourse from './content/express.mjs';
 import * as mongodbCourse from './content/mongodb.mjs';
+import * as typescriptCourse from './content/typescript.mjs';
+import * as nextjsCourse from './content/nextjs.mjs';
+import * as reduxCourse from './content/redux.mjs';
+import * as gitCourse from './content/git.mjs';
+import * as restapiCourse from './content/restapi.mjs';
+import * as dockerCourse from './content/docker.mjs';
 
 const COURSES = [
   javascriptCourse,
@@ -27,6 +33,12 @@ const COURSES = [
   nodejsCourse,
   expressCourse,
   mongodbCourse,
+  typescriptCourse,
+  nextjsCourse,
+  reduxCourse,
+  gitCourse,
+  restapiCourse,
+  dockerCourse,
 ];
 
 // Code-fence language label per course slug.
@@ -40,6 +52,12 @@ const CODE_LANG = {
   nodejs: 'javascript',
   express: 'javascript',
   mongodb: 'javascript',
+  typescript: 'typescript',
+  nextjs: 'jsx',
+  redux: 'javascript',
+  git: 'bash',
+  restapi: 'javascript',
+  docker: 'dockerfile',
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
