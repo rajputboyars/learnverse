@@ -236,7 +236,7 @@ const beginner = [
             'Type alias kisi bhi type ko ek naam deta hai — objects, unions, intersections, ya primitives. Union types (A | B) ka matlab hai value kai types mein se koi ek ho sakti hai. Intersection types (A & B) kai types ko ek mein combine karte hain.',
         },
         dailyLifeExample:
-          'Union type ek ऐसा box jaisa hai jisme ya toh book aa sakti hai ya magazine — dono allow hain. Intersection type woh person jaisa hai jo doctor bhi hai aur engineer bhi — dono qualifications ek saath.',
+          'Union type ek aisa box jaisa hai jisme ya toh book aa sakti hai ya magazine — dono allow hain. Intersection type woh person jaisa hai jo doctor bhi hai aur engineer bhi — dono qualifications ek saath.',
         codeExample:
           'type ID = string | number; // union\ntype Status = "pending" | "active" | "inactive"; // literal union\n\ntype Point = { x: number; y: number };\ntype Named = { name: string };\ntype NamedPoint = Point & Named; // intersection\n\nfunction printId(id: ID) {\n  if (typeof id === "string") {\n    console.log("String ID:", id.toUpperCase());\n  } else {\n    console.log("Number ID:", id);\n  }\n}',
         keyPoints: [
