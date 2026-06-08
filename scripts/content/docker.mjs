@@ -30,6 +30,72 @@ const beginner = [
     description: 'Docker kya hai, containers aur images.',
     concepts: [
       {
+        title: 'The Story of Docker — What, Why & How',
+        difficulty: 'easy',
+        tags: ['docker', 'story', 'intro', 'basics'],
+        explanation: {
+          english:
+            '📖 THE STORY\n\nMeet Raju, a developer. On his laptop he builds an app — Node 20, a specific MongoDB version, a few system libraries. On his machine, it runs perfectly. 🎉\n\nHe sends the code to his teammate Aisha. On her laptop it crashes — she has Node 18 and a different OS. Then they deploy to the server: crash again — a missing library. The dreaded sentence is born: "But it works on MY machine!" 😩\n\nEvery machine is a different kitchen with different ingredients and a different stove. Same recipe (code), different result.\n\nThen Docker enters the story. Raju packs his app AND its entire kitchen — exact Node version, libraries, config, everything — into one sealed box called a CONTAINER. He ships that box. Aisha runs the box; the server runs the box. Everywhere, the SAME box → the SAME result. The "works on my machine" problem disappears. 🚢\n\n──────────\n\n❓ WHAT is Docker?\nDocker is a tool that packages your app together with everything it needs to run (code + runtime + libraries + config) into a portable, isolated box called a container. That container runs identically on any machine that has Docker.\n\n🤔 WHY Docker? (the problem it solves)\n• "Works on my machine" → now it works on EVERY machine, because the environment travels with the app.\n• Easy onboarding → a new developer runs one command instead of installing 10 tools.\n• Isolation → each app has its own container, so two apps needing different Node versions never clash.\n• Lightweight → unlike a full virtual machine, containers share the host OS, so they start in seconds and use little memory.\n\n⚙️ HOW does Docker work? (3 simple words)\n1. Dockerfile — a recipe: step-by-step instructions to build your app box.\n2. Image — the packed box itself (a read-only blueprint built from the Dockerfile).\n3. Container — a running copy of that image (the box, opened and in action).\n\nFlow: write a Dockerfile → `docker build` makes an Image → `docker run` starts a Container. One recipe, build once, run the same box anywhere. That is the whole magic.',
+          hinglish:
+            '📖 KAHANI\n\nMilo Raju se, ek developer. Apne laptop pe wo ek app banata hai — Node 20, ek specific MongoDB version, kuch system libraries. Uske machine pe app perfect chalti hai. 🎉\n\nWo code apni teammate Aisha ko bhejta hai. Uske laptop pe app crash ho jaati hai — uske paas Node 18 hai aur alag OS. Phir wo server pe deploy karte hain: phir crash — ek library missing. Aur janm hota hai us famous line ka: "Par MERE machine pe toh chal raha tha!" 😩\n\nHar machine ek alag kitchen hai — alag saamaan, alag chulha. Same recipe (code), alag result.\n\nTabhi kahani mein Docker ki entry hoti hai. Raju apni app KE SAATH uski poori kitchen — exact Node version, libraries, config, sab kuch — ek sealed dabbe mein pack kar deta hai jise CONTAINER kehte hain. Wo dabba ship kar deta hai. Aisha dabba chalati hai; server dabba chalata hai. Har jagah, WAHI dabba → WAHI result. "Mere machine pe chal raha tha" wali problem gayab. 🚢\n\n──────────\n\n❓ WHAT — Docker hai kya?\nDocker ek tool hai jo tumhari app ko uske chalne ke liye zaroori har cheez (code + runtime + libraries + config) ke saath ek portable, isolated dabbe mein pack kar deta hai jise container kehte hain. Wo container kisi bhi Docker-wale machine pe bilkul same chalta hai.\n\n🤔 WHY — Docker kyun? (kaunsi problem solve karta hai)\n• "Mere machine pe chal raha tha" → ab HAR machine pe chalega, kyunki environment app ke saath hi safar karta hai.\n• Easy onboarding → naya developer 10 tools install karne ke bajaye ek command chalata hai.\n• Isolation → har app ka apna container, isliye alag Node version wali do apps kabhi clash nahi karti.\n• Lightweight → poore virtual machine ke unlike, containers host OS share karte hain, isliye seconds mein start aur kam memory.\n\n⚙️ HOW — Docker kaise kaam karta hai? (3 simple shabd)\n1. Dockerfile — ek recipe: step-by-step instructions tumhara app dabba banane ke liye.\n2. Image — packed dabba khud (Dockerfile se bana read-only blueprint).\n3. Container — us image ki running copy (dabba, khula aur action mein).\n\nFlow: Dockerfile likho → `docker build` se Image banti hai → `docker run` se Container chalta hai. Ek recipe, ek baar build, wahi dabba kahin bhi chalao. Yahi poora jaadu hai.',
+        },
+        dailyLifeExample:
+          'Socho tum ek chef ho jiska paratha sirf apne ghar ke chulhe pe perfect banta hai. Doosre ke ghar le jaao toh swaad badal jaata hai. Docker tumhe poora tiffin pack karke deta hai — paratha + masala + chutney sab seal. Ab chahe Mumbai ho ya New York, tiffin kholo aur WAHI paratha, WAHI swaad. Container = wo seal-pack tiffin jo har jagah same result deta hai.',
+        codeExample:
+          '# The 3-step Docker flow from the story\n\n# 1) Dockerfile = the recipe (build your app box)\n#    FROM node:20-alpine\n#    WORKDIR /app\n#    COPY . .\n#    RUN npm install\n#    CMD ["node", "server.js"]\n\n# 2) Build the IMAGE (the packed box) from the recipe\ndocker build -t my-app .\n\n# 3) Run a CONTAINER (the box in action) from the image\ndocker run -p 3000:3000 my-app\n\n# Same box runs identically on a laptop, a server, or the cloud 🚢',
+        keyPoints: [
+          'WHAT: Docker packs app + its environment into a portable container',
+          'WHY: kills "works on my machine", easy setup, isolation, lightweight',
+          'HOW: Dockerfile (recipe) → Image (packed box) → Container (running box)',
+          'Build once, run the same box everywhere',
+        ],
+        quiz: [
+          {
+            question: 'In the story, what core problem does Docker solve?',
+            options: [
+              'It makes code run faster',
+              'The "it works on my machine" problem — same app, different results on different machines',
+              'It writes the code for you',
+              'It replaces the database',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the correct order of the Docker flow?',
+            options: [
+              'Container → Image → Dockerfile',
+              'Image → Container → Dockerfile',
+              'Dockerfile → Image → Container',
+              'Dockerfile → Container → Image',
+            ],
+            correctIndex: 2,
+          },
+          {
+            question: 'Using the tiffin analogy, a container is like…',
+            options: [
+              'The recipe written on paper',
+              'A sealed tiffin that gives the same food everywhere',
+              'The kitchen itself',
+              'The shopping list',
+            ],
+            correctIndex: 1,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'In one line, what is Docker and why do teams use it?',
+            difficulty: 'easy',
+            frequency: 'very-common',
+            answer: {
+              english:
+                'Docker packages an app together with its entire environment into a portable container that runs the same on any machine — so teams use it to eliminate "works on my machine" bugs, onboard developers fast, and deploy consistently from laptop to production.',
+              hinglish:
+                'Docker ek app ko uske poore environment ke saath ek portable container mein pack kar deta hai jo har machine pe same chalta hai — isliye teams ise "mere machine pe chal raha tha" bugs khatam karne, developers ko jaldi onboard karne, aur laptop se production tak consistent deploy karne ke liye use karti hain.',
+            },
+          },
+        ],
+      },
+      {
         title: 'What is Docker',
         difficulty: 'easy',
         tags: ['docker', 'containers', 'intro', 'basics'],
