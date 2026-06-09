@@ -6,8 +6,9 @@ export function generateStaticParams() {
   return ROADMAPS.map((r) => ({ slug: r.slug }));
 }
 
-export function generateMetadata({ params }) {
-  const roadmap = ROADMAPS.find((r) => r.slug === params.slug);
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const roadmap = ROADMAPS.find((r) => r.slug === slug);
   if (!roadmap) return {};
   return {
     title: `${roadmap.title} Roadmap — Learnverse`,
@@ -27,8 +28,9 @@ const LEVEL_META = {
   advanced:     { label: 'Advanced',     icon: '🏆' },
 };
 
-export default function RoadmapDetailPage({ params }) {
-  const roadmap = ROADMAPS.find((r) => r.slug === params.slug);
+export default async function RoadmapDetailPage({ params }) {
+  const { slug } = await params;
+  const roadmap = ROADMAPS.find((r) => r.slug === slug);
   if (!roadmap) notFound();
 
   const colors = ROADMAP_COLORS[roadmap.color] ?? ROADMAP_COLORS.indigo;
