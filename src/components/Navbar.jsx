@@ -16,6 +16,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-1 sm:gap-4 text-sm font-medium text-slate-600">
           <Link href="/courses" className="hidden sm:block hover:text-indigo-600">Courses</Link>
+          <Link href="/roadmaps" className="hidden sm:block hover:text-indigo-600">Roadmaps</Link>
           <Link href="/interview-questions" className="hidden sm:block hover:text-indigo-600">Interview</Link>
           <Link href="/leaderboard" className="hidden sm:block hover:text-indigo-600">Leaderboard</Link>
 
