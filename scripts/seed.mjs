@@ -31,6 +31,9 @@ import * as numpyCourse from './content/numpy.mjs';
 import * as pandasCourse from './content/pandas.mjs';
 import * as dsaCourse from './content/dsa.mjs';
 import * as dsaJsCourse from './content/dsa-javascript.mjs';
+import * as genAiCourse from './content/gen-ai.mjs';
+import * as dataScienceCourse from './content/data-science.mjs';
+import * as postgresqlCourse from './content/postgresql.mjs';
 
 const COURSES = [
   javascriptCourse,
@@ -57,6 +60,9 @@ const COURSES = [
   pandasCourse,
   dsaCourse,
   dsaJsCourse,
+  genAiCourse,
+  dataScienceCourse,
+  postgresqlCourse,
 ];
 
 // Code-fence language label per course slug.
@@ -85,6 +91,9 @@ const CODE_LANG = {
   pandas: 'python',
   dsa: 'javascript',
   'dsa-javascript': 'javascript',
+  'gen-ai': 'python',
+  'data-science': 'python',
+  postgresql: 'sql',
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
