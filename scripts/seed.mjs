@@ -34,6 +34,7 @@ import * as dsaJsCourse from './content/dsa-javascript.mjs';
 import * as genAiCourse from './content/gen-ai.mjs';
 import * as dataScienceCourse from './content/data-science.mjs';
 import * as postgresqlCourse from './content/postgresql.mjs';
+import * as aiMlCourse from './content/ai-ml.mjs';
 
 const COURSES = [
   javascriptCourse,
@@ -63,6 +64,7 @@ const COURSES = [
   genAiCourse,
   dataScienceCourse,
   postgresqlCourse,
+  aiMlCourse,
 ];
 
 // Code-fence language label per course slug.
@@ -94,6 +96,7 @@ const CODE_LANG = {
   'gen-ai': 'python',
   'data-science': 'python',
   postgresql: 'sql',
+  'ai-ml': 'python',
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
