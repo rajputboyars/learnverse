@@ -30,6 +30,7 @@ import * as phpCourse from './content/php.mjs';
 import * as numpyCourse from './content/numpy.mjs';
 import * as pandasCourse from './content/pandas.mjs';
 import * as dsaCourse from './content/dsa.mjs';
+import * as dsaJsCourse from './content/dsa-javascript.mjs';
 
 const COURSES = [
   javascriptCourse,
@@ -55,6 +56,7 @@ const COURSES = [
   numpyCourse,
   pandasCourse,
   dsaCourse,
+  dsaJsCourse,
 ];
 
 // Code-fence language label per course slug.
@@ -82,6 +84,7 @@ const CODE_LANG = {
   numpy: 'python',
   pandas: 'python',
   dsa: 'javascript',
+  'dsa-javascript': 'javascript',
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
