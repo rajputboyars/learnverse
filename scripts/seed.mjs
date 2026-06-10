@@ -22,6 +22,13 @@ import * as reduxCourse from './content/redux.mjs';
 import * as gitCourse from './content/git.mjs';
 import * as restapiCourse from './content/restapi.mjs';
 import * as dockerCourse from './content/docker.mjs';
+import * as sqlCourse from './content/sql.mjs';
+import * as mysqlCourse from './content/mysql.mjs';
+import * as pythonCourse from './content/python.mjs';
+import * as javaCourse from './content/java.mjs';
+import * as phpCourse from './content/php.mjs';
+import * as numpyCourse from './content/numpy.mjs';
+import * as pandasCourse from './content/pandas.mjs';
 
 const COURSES = [
   javascriptCourse,
@@ -39,6 +46,13 @@ const COURSES = [
   gitCourse,
   restapiCourse,
   dockerCourse,
+  sqlCourse,
+  mysqlCourse,
+  pythonCourse,
+  javaCourse,
+  phpCourse,
+  numpyCourse,
+  pandasCourse,
 ];
 
 // Code-fence language label per course slug.
@@ -58,6 +72,13 @@ const CODE_LANG = {
   git: 'bash',
   restapi: 'javascript',
   docker: 'dockerfile',
+  sql: 'sql',
+  mysql: 'sql',
+  python: 'python',
+  java: 'java',
+  php: 'php',
+  numpy: 'python',
+  pandas: 'python',
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
