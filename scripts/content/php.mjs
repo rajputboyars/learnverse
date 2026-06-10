@@ -582,7 +582,7 @@ const advanced = [
             'Object-oriented PHP related data (properties) aur behaviour (methods) ko ek class mein bundle karne deta hai — ek blueprint. Tum usse new se objects banate ho. Methods ke andar, $this current object ko refer karta hai taaki uski apni properties padh/likh sako ($this->name). __construct() method object banate hi apne aap chalta hai, initial values set karne ke liye perfect. Properties aur methods arrow -> se access hote hain (dot se nahi).',
         },
         dailyLifeExample:
-          'Class ek halwai ka recipe-card hai "Samosa". Har banaya hua samosa ek object hai. $this kehta hai "is wale samose ki bात kar raha hoon" — har samosa apni filling rakhta hai, doosre se alag.',
+          'Class ek halwai ka recipe-card hai "Samosa". Har banaya hua samosa ek object hai. $this kehta hai "is wale samose ki baat kar raha hoon" — har samosa apni filling rakhta hai, doosre se alag.',
         codeExample:
           '<?php\nclass Student {\n  public $name;\n  public $marks;\n\n  public function __construct($name, $marks) {\n    $this->name  = $name;\n    $this->marks = $marks;\n  }\n\n  public function report() {\n    return "$this->name scored $this->marks";\n  }\n}\n\n$s = new Student("Kiran", 88);\necho $s->report();   // Kiran scored 88',
         keyPoints: [

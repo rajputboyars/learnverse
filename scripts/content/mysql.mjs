@@ -360,7 +360,7 @@ const intermediate = [
             'Relational databases tab chamakte hain jab tables data repeat karne ke bajaye ek doosre se relate karti hain. Har order mein poori customer detail rakhne ke bajaye, orders table sirf ek customer_id rakhti hai jo customers table ko point karti hai.\n\nFOREIGN KEY ek column hai jo doosri table ki PRIMARY KEY ko reference karta hai, aur ensure karta hai ki referenced row sach mein exist karti ho (referential integrity). Ye "orphan" rows rokta hai — tum aise customer_id ke liye order nahi bana sakte jo exist hi nahi karta, aur (ON DELETE rules ke saath) MySQL deletes ko rok ya cascade kar sakta hai. Ye one-to-many link (ek customer, kai orders) relational design ka dil hai.',
         },
         dailyLifeExample:
-          'School mein har student ko roll number deते ho. Library register mein poora student record likhne ke bajaye sirf roll number likhte ho. Foreign key wahi roll number hai — wo asli student record se juda rehta hai, bina dohraaye.',
+          'School mein har student ko roll number dete ho. Library register mein poora student record likhne ke bajaye sirf roll number likhte ho. Foreign key wahi roll number hai — wo asli student record se juda rehta hai, bina dohraaye.',
         codeExample:
           'CREATE TABLE orders (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  customer_id INT,\n  amount DECIMAL(10,2),\n  FOREIGN KEY (customer_id) REFERENCES customers(id)\n);\n\n-- This works only if customer 1 exists in customers:\nINSERT INTO orders (customer_id, amount) VALUES (1, 499.00);',
         keyPoints: [
