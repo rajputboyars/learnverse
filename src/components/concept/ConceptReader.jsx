@@ -4,7 +4,12 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import CodeBlock from './CodeBlock';
+import CodePlayground from './CodePlayground';
+import BookmarkButton from './BookmarkButton';
+import CommentsSection from './CommentsSection';
 import Quiz from './Quiz';
+
+const RUNNABLE = new Set(['javascript', 'html']);
 
 export default function ConceptReader({ concept }) {
   const { data: session } = useSession();
@@ -76,7 +81,12 @@ export default function ConceptReader({ concept }) {
             </span>
           ))}
         </div>
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{concept.title}</h1>
+        <div className="flex items-start justify-between gap-4">
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{concept.title}</h1>
+          <div className="shrink-0 pt-1">
+            <BookmarkButton conceptId={concept._id} />
+          </div>
+        </div>
       </header>
 
       {/* Language toggle — the USP, kept at the top */}
@@ -111,11 +121,15 @@ export default function ConceptReader({ concept }) {
         </div>
       )}
 
-      {/* Code */}
+      {/* Code — runnable playground for JS/HTML, static block otherwise */}
       {concept.codeExample && (
         <div className="my-8">
           <h2 className="mb-3 text-lg font-semibold">Code example</h2>
-          <CodeBlock code={concept.codeExample} language={concept.codeLanguage} />
+          {RUNNABLE.has(concept.codeLanguage) ? (
+            <CodePlayground code={concept.codeExample} language={concept.codeLanguage} />
+          ) : (
+            <CodeBlock code={concept.codeExample} language={concept.codeLanguage} />
+          )}
         </div>
       )}
 
@@ -193,6 +207,9 @@ export default function ConceptReader({ concept }) {
           </div>
         </div>
       )}
+
+      {/* Community Q&A */}
+      <CommentsSection conceptId={concept._id} />
     </article>
   );
 }

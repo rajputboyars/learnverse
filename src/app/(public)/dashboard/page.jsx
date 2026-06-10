@@ -6,13 +6,13 @@ import Link from 'next/link';
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
-  const [stats, setStats] = useState(null);
+  const [data, setData] = useState(null);
 
   useEffect(() => {
     if (status !== 'authenticated') return;
-    fetch('/api/me/stats')
+    fetch('/api/me/dashboard')
       .then((r) => r.json())
-      .then(setStats)
+      .then(setData)
       .catch(() => {});
   }, [status]);
 
@@ -35,24 +35,20 @@ export default function DashboardPage() {
     );
   }
 
-  const cards = stats
+  const cards = data
     ? [
-        { label: 'Total XP', value: stats.totalXP, icon: '⚡' },
-        { label: 'Level', value: stats.level, icon: '🏆' },
-        { label: 'Current streak', value: `${stats.currentStreak} 🔥`, icon: '' },
-        { label: 'Concepts done', value: stats.conceptsCompleted, icon: '✅' },
+        { label: 'Total XP', value: data.totalXP },
+        { label: 'Level', value: data.level },
+        { label: 'Current streak', value: `${data.currentStreak} 🔥` },
+        { label: 'Concepts done', value: data.conceptsCompleted },
       ]
     : [];
 
-  const pct = stats
-    ? Math.min(100, Math.round((stats.totalXP / stats.nextLevelAt) * 100))
-    : 0;
+  const pct = data ? Math.min(100, Math.round((data.totalXP / data.nextLevelAt) * 100)) : 0;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
-      <h1 className="text-3xl font-bold">
-        Hi {session.user.name?.split(' ')[0]} 👋
-      </h1>
+      <h1 className="text-3xl font-bold">Hi {session.user.name?.split(' ')[0]} 👋</h1>
       <p className="mt-2 text-slate-600">Aaj kuch naya seekha?</p>
 
       <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -64,24 +60,70 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {stats && (
+      {data && (
         <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6">
           <div className="flex justify-between text-sm">
-            <span className="font-medium">Level {stats.level}</span>
-            <span className="text-slate-500">
-              {stats.totalXP} / {stats.nextLevelAt} XP
-            </span>
+            <span className="font-medium">Level {data.level}</span>
+            <span className="text-slate-500">{data.totalXP} / {data.nextLevelAt} XP</span>
           </div>
           <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-100">
-            <div
-              className="h-full rounded-full bg-indigo-600 transition-all"
-              style={{ width: `${pct}%` }}
-            />
+            <div className="h-full rounded-full bg-indigo-600 transition-all" style={{ width: `${pct}%` }} />
           </div>
         </div>
       )}
 
-      <div className="mt-8 flex gap-3">
+      {/* Course progress */}
+      <div className="mt-10">
+        <h2 className="text-xl font-bold">Course progress</h2>
+        {!data ? (
+          <p className="mt-3 text-slate-400">Loading…</p>
+        ) : data.courseProgress.length === 0 ? (
+          <p className="mt-3 rounded-2xl border border-dashed border-slate-300 p-6 text-center text-slate-500">
+            Abhi koi course start nahi kiya. <Link href="/courses" className="font-semibold text-indigo-600 underline">Explore courses</Link>
+          </p>
+        ) : (
+          <div className="mt-4 space-y-3">
+            {data.courseProgress.map((c) => (
+              <Link
+                key={c.slug}
+                href={`/courses/${c.slug}`}
+                className="block rounded-2xl border border-slate-200 bg-white p-4 hover:border-indigo-300"
+              >
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium">{c.icon} {c.title}</span>
+                  <span className="text-slate-500">{c.completed}/{c.total} · {c.pct}%</span>
+                </div>
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+                  <div className="h-full rounded-full bg-green-500" style={{ width: `${c.pct}%` }} />
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Bookmarks */}
+      <div className="mt-10">
+        <h2 className="text-xl font-bold">🔖 Bookmarks</h2>
+        {!data ? (
+          <p className="mt-3 text-slate-400">Loading…</p>
+        ) : data.bookmarks.length === 0 ? (
+          <p className="mt-3 rounded-2xl border border-dashed border-slate-300 p-6 text-center text-slate-500">
+            Koi bookmark nahi. Kisi concept pe 🏷️ Bookmark dabao taaki yahan save ho.
+          </p>
+        ) : (
+          <div className="mt-4 divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200">
+            {data.bookmarks.map((b) => (
+              <Link key={b.slug} href={`/concepts/${b.slug}`} className="flex items-center justify-between px-4 py-3 hover:bg-slate-50">
+                <span className="font-medium">{b.title}</span>
+                <span className="text-xs capitalize text-slate-400">{b.difficulty}</span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-10 flex gap-3">
         <Link href="/courses" className="rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white hover:bg-indigo-700">
           Keep learning
         </Link>
