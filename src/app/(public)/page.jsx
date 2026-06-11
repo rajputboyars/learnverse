@@ -41,6 +41,20 @@ const FEATURES = [
   },
 ];
 
+// Interactive features available across the platform.
+const FEATURE_HIGHLIGHTS = [
+  { icon: '🧠', title: 'Practice Quiz', desc: 'Har course ka timed quiz — khud ko test karo, score + retry.', href: '/courses' },
+  { icon: '🎤', title: 'Mock Interview', desc: 'Course ke interview questions flip-card se practice karo.', href: '/courses' },
+  { icon: '💬', title: 'Discussion Board', desc: 'Har course pe doubts discuss karo, community se seekho.', href: '/courses' },
+  { icon: '💻', title: 'Code Playground', desc: 'Concept page pe code browser mein hi run karo.', href: '/courses' },
+  { icon: '💪', title: 'Code Challenges', desc: 'Coding challenges solve karke XP kamao.', href: '/challenges' },
+  { icon: '💼', title: 'Interview Questions', desc: 'EN + Hinglish answers, course aur level se filter.', href: '/interview-questions' },
+  { icon: '🔁', title: 'Spaced Revision', desc: 'Seekha hua flashcards se revise — yaad rakho.', href: '/revise' },
+  { icon: '🔥', title: 'XP, Streaks & Leaderboard', desc: 'Gamified learning — top rank ke liye compete karo.', href: '/leaderboard' },
+  { icon: '🏅', title: 'Badges & Certificates', desc: 'Achievements unlock karo, certificate LinkedIn pe share karo.', href: '/dashboard' },
+  { icon: '🗺️', title: 'Roadmaps', desc: 'Structured learning paths — kya, kis order mein padhna hai.', href: '/roadmaps' },
+];
+
 export default async function Home() {
   const [courses, daily] = await Promise.all([getCourses(), getDailyConcept()]);
 
@@ -113,6 +127,34 @@ export default async function Home() {
               <p className="mt-2 text-sm text-slate-600">{f.desc}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Everything you get — interactive features showcase */}
+      <section className="border-y border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/40">
+        <div className="mx-auto max-w-6xl px-4 py-14">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold sm:text-3xl">Sirf padhna nahi — pura learning toolkit 🚀</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-slate-600">
+              Har course ke andar interactive features — practice karo, code chalao,
+              doubts poocho, aur progress track karo. Sab ek hi jagah.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {FEATURE_HIGHLIGHTS.map((f) => (
+              <Link
+                key={f.title}
+                href={f.href}
+                className="group flex items-start gap-4 rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-indigo-300 hover:shadow-sm"
+              >
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-indigo-50 text-2xl">{f.icon}</span>
+                <div>
+                  <h3 className="font-semibold group-hover:text-indigo-600">{f.title}</h3>
+                  <p className="mt-1 text-sm text-slate-600">{f.desc}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
