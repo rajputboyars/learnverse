@@ -8,6 +8,7 @@ import NotificationBell from './NotificationBell';
 
 const NAV_LINKS = [
   { href: '/courses', label: 'Courses' },
+  { href: '/challenges', label: 'Challenges' },
   { href: '/roadmaps', label: 'Roadmaps' },
   { href: '/interview-questions', label: 'Interview' },
   { href: '/leaderboard', label: 'Leaderboard' },
@@ -35,6 +36,7 @@ export default function Navbar() {
             />
           </form>
           <Link href="/courses" className="hover:text-indigo-600">Courses</Link>
+          <Link href="/challenges" className="hidden md:block hover:text-indigo-600">Challenges</Link>
           <Link href="/roadmaps" className="hidden lg:block hover:text-indigo-600">Roadmaps</Link>
           <Link href="/interview-questions" className="hidden lg:block hover:text-indigo-600">Interview</Link>
           {session?.user && <Link href="/revise" className="hover:text-indigo-600">Revise</Link>}

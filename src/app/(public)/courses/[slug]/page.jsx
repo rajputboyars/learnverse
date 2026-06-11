@@ -99,6 +99,12 @@ export default async function CoursePage({ params }) {
               🧠 Practice quiz
             </Link>
             <Link
+              href={`/mock-interview/${slug}`}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
+            >
+              🎤 Mock interview
+            </Link>
+            <Link
               href={`/courses/${slug}/discuss`}
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
             >
