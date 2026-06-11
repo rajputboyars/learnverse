@@ -1,8 +1,16 @@
 @import "tailwindcss";
 
+/* Class-based dark mode (toggle the .dark class on <html>) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #0f172a;
+}
+
+.dark {
+  --background: #0b1120;
+  --foreground: #e2e8f0;
 }
 
 @theme inline {
@@ -31,6 +39,33 @@ body {
 .prose-content p {
   margin-bottom: 1rem;
 }
+
+/*
+ * Dark theme: the app uses fixed light utility classes (bg-white, text-slate-*,
+ * border-slate-*). Rather than editing every component, remap those common
+ * surfaces under .dark. Two-class selectors beat single-class utilities.
+ */
+.dark body { background: var(--background); color: var(--foreground); }
+.dark .bg-white { background-color: #111827 !important; }
+.dark .bg-slate-50 { background-color: #0f172a !important; }
+.dark .bg-slate-100 { background-color: #1e293b !important; }
+.dark .bg-slate-950 { background-color: #020617 !important; }
+.dark .bg-indigo-50, .dark .bg-indigo-50\/50, .dark .bg-indigo-50\/40 { background-color: #1e1b4b !important; }
+.dark .bg-amber-50 { background-color: #422006 !important; }
+.dark .bg-green-50 { background-color: #052e1a !important; }
+.dark .bg-red-50 { background-color: #3f1d1d !important; }
+.dark .border-slate-200 { border-color: #1f2937 !important; }
+.dark .border-slate-100 { border-color: #1e293b !important; }
+.dark .border-indigo-100, .dark .border-indigo-200 { border-color: #3730a3 !important; }
+.dark .border-amber-200 { border-color: #92400e !important; }
+.dark .text-slate-900 { color: #f1f5f9 !important; }
+.dark .text-slate-800 { color: #e2e8f0 !important; }
+.dark .text-slate-700 { color: #cbd5e1 !important; }
+.dark .text-slate-600 { color: #b6c2d4 !important; }
+.dark .text-slate-500 { color: #94a3b8 !important; }
+.dark .text-slate-400 { color: #64748b !important; }
+.dark .text-amber-900 { color: #fcd9a8 !important; }
+.dark .bg-white\/80 { background-color: rgba(17, 24, 39, 0.85) !important; }
 
 /* Print: hide site chrome so certificates print cleanly */
 @media print {

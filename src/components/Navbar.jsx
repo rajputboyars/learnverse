@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
+import ThemeToggle from './ThemeToggle';
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -27,6 +28,7 @@ export default function Navbar() {
           <Link href="/interview-questions" className="hidden lg:block hover:text-indigo-600">Interview</Link>
           {session?.user && <Link href="/revise" className="hidden sm:block hover:text-indigo-600">Revise</Link>}
           <Link href="/leaderboard" className="hidden lg:block hover:text-indigo-600">Leaderboard</Link>
+          <ThemeToggle />
 
           {session?.user ? (
             <div className="flex items-center gap-3">
