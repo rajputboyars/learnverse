@@ -1,0 +1,65 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+
+export default function NotificationsPage() {
+  const { status } = useSession();
+  const [items, setItems] = useState(null);
+
+  useEffect(() => {
+    if (status !== 'authenticated') return;
+    fetch('/api/notifications')
+      .then((r) => r.json())
+      .then((d) => {
+        setItems(d.items || []);
+        // mark all read
+        fetch('/api/notifications', { method: 'POST' }).catch(() => {});
+      })
+      .catch(() => setItems([]));
+  }, [status]);
+
+  if (status === 'loading') return <p className="mx-auto max-w-2xl px-4 py-12 text-slate-400">Loading…</p>;
+
+  if (status !== 'authenticated') {
+    return (
+      <div className="mx-auto max-w-md px-4 py-20 text-center">
+        <h1 className="text-2xl font-bold">🔔 Notifications</h1>
+        <p className="mt-2 text-slate-600">Login to see your notifications.</p>
+        <Link href="/login?callbackUrl=/notifications" className="mt-6 inline-block rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700">Login</Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-12">
+      <h1 className="text-2xl font-bold">🔔 Notifications</h1>
+      {!items ? (
+        <p className="mt-4 text-slate-400">Loading…</p>
+      ) : items.length === 0 ? (
+        <p className="mt-6 rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500">
+          Abhi koi notification nahi. Jab koi tumhare comment/thread pe reply ya upvote kare, yahan dikhega.
+        </p>
+      ) : (
+        <div className="mt-6 divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200">
+          {items.map((n) => (
+            <Link
+              key={n._id}
+              href={n.link}
+              className={`flex items-start gap-3 px-4 py-3 hover:bg-slate-50 ${n.read ? '' : 'bg-indigo-50/40'}`}
+            >
+              <span className="text-lg">{n.type === 'upvote' ? '▲' : '💬'}</span>
+              <div className="min-w-0">
+                <p className="text-sm text-slate-700">
+                  <b>{n.actorName}</b> {n.message}
+                </p>
+                <p className="text-xs text-slate-400">{new Date(n.createdAt).toLocaleString()}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

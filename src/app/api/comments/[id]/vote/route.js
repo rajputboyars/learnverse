@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Comment from '@/models/Comment';
+import Concept from '@/models/Concept';
 import { requireUser } from '@/lib/guards';
+import { notify } from '@/lib/notify';
 
 // POST /api/comments/:id/vote  → toggle an upvote
 export async function POST(request, { params }) {
@@ -21,5 +23,19 @@ export async function POST(request, { params }) {
   }
   comment.votes = comment.voters.length;
   await comment.save();
+
+  if (!has) {
+    const concept = await Concept.findById(comment.conceptId).select('slug title').lean();
+    if (concept) {
+      await notify(comment.userId, {
+        actorId: uid,
+        actorName: session.user.name || 'Someone',
+        type: 'upvote',
+        message: `upvoted your comment on "${concept.title}"`,
+        link: `/concepts/${concept.slug}`,
+      });
+    }
+  }
+
   return NextResponse.json({ voted: !has, votes: comment.votes });
 }

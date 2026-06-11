@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Comment from '@/models/Comment';
+import Concept from '@/models/Concept';
 import { auth } from '@/auth';
 import { requireUser } from '@/lib/guards';
+import { notify } from '@/lib/notify';
 
 // GET /api/comments?conceptId=...  → all comments for a concept (+ your vote state)
 export async function GET(request) {
@@ -45,5 +47,21 @@ export async function POST(request) {
     body: body.trim().slice(0, 2000),
     parentId: parentId || null,
   });
+
+  // Notify the parent comment's author about the reply.
+  if (parentId) {
+    const parent = await Comment.findById(parentId).select('userId').lean();
+    const concept = await Concept.findById(conceptId).select('slug title').lean();
+    if (parent && concept) {
+      await notify(parent.userId, {
+        actorId: session.user.id,
+        actorName: session.user.name || 'Someone',
+        type: 'reply',
+        message: `replied to your comment on "${concept.title}"`,
+        link: `/concepts/${concept.slug}`,
+      });
+    }
+  }
+
   return NextResponse.json({ id: comment._id.toString() }, { status: 201 });
 }

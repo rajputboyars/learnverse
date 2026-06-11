@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Discussion from '@/models/Discussion';
+import Course from '@/models/Course';
 import { requireUser } from '@/lib/guards';
+import { notify } from '@/lib/notify';
 
 // POST /api/discussions/:id/reply  { body }  → add a reply to a thread
 export async function POST(request, { params }) {
@@ -27,6 +29,18 @@ export async function POST(request, { params }) {
   thread.replyCount = (thread.replyCount || 0) + 1;
   thread.lastActivityAt = new Date();
   await thread.save();
+
+  // Notify the thread author.
+  const course = await Course.findById(thread.courseId).select('slug').lean();
+  if (course) {
+    await notify(thread.userId, {
+      actorId: session.user.id,
+      actorName: session.user.name || 'Someone',
+      type: 'reply',
+      message: `replied to your thread "${thread.title}"`,
+      link: `/courses/${course.slug}/discuss/${thread._id}`,
+    });
+  }
 
   return NextResponse.json({ ok: true }, { status: 201 });
 }
