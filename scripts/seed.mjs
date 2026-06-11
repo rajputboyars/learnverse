@@ -35,6 +35,11 @@ import * as genAiCourse from './content/gen-ai.mjs';
 import * as dataScienceCourse from './content/data-science.mjs';
 import * as postgresqlCourse from './content/postgresql.mjs';
 import * as aiMlCourse from './content/ai-ml.mjs';
+import * as oopsCourse from './content/oops.mjs';
+import * as dbmsCourse from './content/dbms.mjs';
+import * as osCourse from './content/os.mjs';
+import * as networksCourse from './content/networks.mjs';
+import * as systemDesignCourse from './content/system-design.mjs';
 
 const COURSES = [
   javascriptCourse,
@@ -65,6 +70,11 @@ const COURSES = [
   dataScienceCourse,
   postgresqlCourse,
   aiMlCourse,
+  oopsCourse,
+  dbmsCourse,
+  osCourse,
+  networksCourse,
+  systemDesignCourse,
 ];
 
 // Code-fence language label per course slug.
@@ -97,6 +107,11 @@ const CODE_LANG = {
   'data-science': 'python',
   postgresql: 'sql',
   'ai-ml': 'python',
+  oops: 'javascript',
+  dbms: 'sql',
+  os: 'text',
+  'computer-networks': 'text',
+  'system-design': 'text',
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
