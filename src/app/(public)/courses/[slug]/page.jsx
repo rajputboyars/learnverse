@@ -91,7 +91,13 @@ export default async function CoursePage({ params }) {
           <span className="mt-2 inline-block text-sm capitalize text-slate-400">
             {course.difficulty} · {concepts.length} concepts
           </span>
-          <div className="mt-3">
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link
+              href={`/practice/${slug}`}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
+            >
+              🧠 Practice quiz
+            </Link>
             <Link
               href={`/courses/${slug}/discuss`}
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
