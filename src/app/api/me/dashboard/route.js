@@ -7,6 +7,7 @@ import Concept from '@/models/Concept';
 import Course from '@/models/Course';
 import { requireUser } from '@/lib/guards';
 import { xpForNextLevel } from '@/services/xp';
+import { evaluateBadges } from '@/lib/badges';
 
 export async function GET() {
   const { session, error } = await requireUser();
@@ -63,6 +64,18 @@ export async function GET() {
     .filter(Boolean)
     .map((c) => ({ title: c.title, slug: c.slug, difficulty: c.difficulty }));
 
+  // Badges
+  const quizzesPassed = await UserProgress.countDocuments({ userId, quizPassed: true });
+  const completedCourses = courseProgress.filter((c) => c.total > 0 && c.pct === 100);
+  const badges = evaluateBadges({
+    totalXP: stats?.totalXP || 0,
+    longestStreak: stats?.longestStreak || 0,
+    conceptsCompleted: stats?.conceptsCompleted || 0,
+    quizzesPassed,
+    bookmarks: bookmarks.length,
+    completedCourses: completedCourses.length,
+  });
+
   return NextResponse.json({
     totalXP: stats?.totalXP || 0,
     weeklyXP: stats?.weeklyXP || 0,
@@ -72,6 +85,8 @@ export async function GET() {
     conceptsCompleted: stats?.conceptsCompleted || 0,
     nextLevelAt: xpForNextLevel(stats?.totalXP || 0),
     courseProgress,
+    completedCourses: completedCourses.map((c) => ({ title: c.title, slug: c.slug, icon: c.icon })),
     bookmarks: bookmarkList,
+    badges,
   });
 }

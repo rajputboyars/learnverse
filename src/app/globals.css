@@ -31,3 +31,15 @@ body {
 .prose-content p {
   margin-bottom: 1rem;
 }
+
+/* Print: hide site chrome so certificates print cleanly */
+@media print {
+  header,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #ffffff;
+  }
+}
