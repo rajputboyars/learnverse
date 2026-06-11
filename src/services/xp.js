@@ -3,6 +3,7 @@ import Concept from '@/models/Concept';
 import UserStats from '@/models/UserStats';
 import UserProgress from '@/models/UserProgress';
 import User from '@/models/User';
+import Review from '@/models/Review';
 import { applyStreak } from '@/services/streak';
 
 export function levelFromXP(totalXP) {
@@ -74,6 +75,14 @@ export async function awardXP(userId, conceptId, action) {
   }
   applyStreak(stats); // any action keeps the streak alive
   await stats.save();
+
+  // Schedule a spaced-repetition review for this concept (first time only).
+  const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  await Review.updateOne(
+    { userId, conceptId },
+    { $setOnInsert: { dueAt: tomorrow, intervalDays: 1, ease: 2.5, reps: 0 } },
+    { upsert: true }
+  );
 
   return {
     gained,
