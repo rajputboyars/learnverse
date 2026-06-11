@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { connectDB } from '@/lib/db';
 import Course from '@/models/Course';
+import { getDailyConcept } from '@/lib/daily';
+import ContinueLearning from '@/components/ContinueLearning';
 
 export const revalidate = 3600;
 
@@ -40,7 +42,7 @@ const FEATURES = [
 ];
 
 export default async function Home() {
-  const courses = await getCourses();
+  const [courses, daily] = await Promise.all([getCourses(), getDailyConcept()]);
 
   return (
     <div>
@@ -73,6 +75,30 @@ export default async function Home() {
           </Link>
         </div>
       </section>
+
+      {/* Continue learning (logged-in users) */}
+      <ContinueLearning />
+
+      {/* Concept of the Day */}
+      {daily && (
+        <section className="mx-auto max-w-6xl px-4 py-4">
+          <Link
+            href={`/concepts/${daily.slug}`}
+            className="group block rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-white p-6 transition hover:border-indigo-300"
+          >
+            <div className="flex items-center gap-2 text-sm font-semibold text-indigo-600">
+              🎯 Concept of the Day
+            </div>
+            <h2 className="mt-2 text-xl font-bold group-hover:text-indigo-600">{daily.title}</h2>
+            <p className="mt-1 line-clamp-2 text-sm text-slate-600">{daily.hint}…</p>
+            <div className="mt-3 flex items-center gap-2 text-xs text-slate-400">
+              {daily.course && <span>{daily.course.icon} {daily.course.title}</span>}
+              <span className="capitalize">· {daily.difficulty}</span>
+              <span className="ml-auto font-semibold text-indigo-600">Aaj seekho →</span>
+            </div>
+          </Link>
+        </section>
+      )}
 
       {/* Features */}
       <section className="mx-auto max-w-6xl px-4 py-12">

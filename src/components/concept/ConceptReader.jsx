@@ -7,6 +7,7 @@ import CodeBlock from './CodeBlock';
 import CodePlayground from './CodePlayground';
 import BookmarkButton from './BookmarkButton';
 import CommentsSection from './CommentsSection';
+import Reactions from './Reactions';
 import Quiz from './Quiz';
 
 const RUNNABLE = new Set(['javascript', 'html']);
@@ -207,6 +208,9 @@ export default function ConceptReader({ concept }) {
           </div>
         </div>
       )}
+
+      {/* Reactions */}
+      <Reactions conceptId={concept._id} />
 
       {/* Community Q&A */}
       <CommentsSection conceptId={concept._id} />
