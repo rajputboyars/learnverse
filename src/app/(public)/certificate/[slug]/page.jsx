@@ -7,6 +7,7 @@ import Course from '@/models/Course';
 import Concept from '@/models/Concept';
 import UserProgress from '@/models/UserProgress';
 import PrintButton from '@/components/PrintButton';
+import ShareButtons from '@/components/ShareButtons';
 
 export const dynamic = 'force-dynamic';
 
@@ -105,7 +106,9 @@ export default async function CertificatePage({ params }) {
         </div>
       </div>
 
-      <div className="no-print mt-6 flex flex-wrap items-center justify-center gap-3">
+      <div className="no-print"><ShareButtons title={`I completed ${course.title} on Learnverse!`} text={`I just earned my ${course.title} certificate on Learnverse 🎓`} /></div>
+
+      <div className="no-print mt-2 flex flex-wrap items-center justify-center gap-3">
         <PrintButton />
         <Link href="/dashboard" className="rounded-lg border border-slate-200 px-5 py-2.5 font-semibold hover:bg-slate-50">
           Back to dashboard

@@ -8,6 +8,7 @@ import CodePlayground from './CodePlayground';
 import BookmarkButton from './BookmarkButton';
 import CommentsSection from './CommentsSection';
 import Reactions from './Reactions';
+import ShareButtons from '../ShareButtons';
 import Quiz from './Quiz';
 
 const RUNNABLE = new Set(['javascript', 'html']);
@@ -211,6 +212,9 @@ export default function ConceptReader({ concept }) {
 
       {/* Reactions */}
       <Reactions conceptId={concept._id} />
+
+      {/* Share */}
+      <ShareButtons title={`${concept.title} — Learnverse`} text={`Check out "${concept.title}" on Learnverse`} />
 
       {/* Community Q&A */}
       <CommentsSection conceptId={concept._id} />

@@ -48,8 +48,15 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
-      <h1 className="text-3xl font-bold">Hi {session.user.name?.split(' ')[0]} 👋</h1>
-      <p className="mt-2 text-slate-600">Aaj kuch naya seekha?</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-bold">Hi {session.user.name?.split(' ')[0]} 👋</h1>
+          <p className="mt-2 text-slate-600">Aaj kuch naya seekha?</p>
+        </div>
+        <Link href={`/u/${session.user.id}`} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
+          🔗 Public profile
+        </Link>
+      </div>
 
       <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {cards.map((c) => (
