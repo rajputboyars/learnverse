@@ -183,6 +183,9 @@ export default function DashboardPage() {
         <Link href="/leaderboard" className="rounded-lg border border-slate-200 px-5 py-2.5 font-semibold hover:bg-slate-50">
           Leaderboard
         </Link>
+        <Link href="/resume" className="rounded-lg border border-slate-200 px-5 py-2.5 font-semibold hover:bg-slate-50">
+          📄 Build resume
+        </Link>
       </div>
     </div>
   );
