@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useLang } from '@/components/LanguageProvider';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { pick } = useLang();
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,7 +24,7 @@ export default function RegisterPage() {
     });
     const data = await res.json();
     if (!res.ok) {
-      setError(data.error || 'Something went wrong');
+      setError(data.error || pick('Kuch galat ho gaya', 'Something went wrong'));
       setLoading(false);
       return;
     }
@@ -39,8 +41,8 @@ export default function RegisterPage() {
 
   return (
     <div className="mx-auto flex max-w-md flex-col px-4 py-16">
-      <h1 className="text-2xl font-bold">Create your account</h1>
-      <p className="mt-1 text-slate-600">Free hai. Padho, XP kamao, streak banao.</p>
+      <h1 className="text-2xl font-bold">{pick('Apna account banao', 'Create your account')}</h1>
+      <p className="mt-1 text-slate-600">{pick('Free hai. Padho, XP kamao, streak banao.', 'It’s free. Learn, earn XP, build a streak.')}</p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
         {error && (
@@ -48,7 +50,7 @@ export default function RegisterPage() {
         )}
         <input
           required
-          placeholder="Name"
+          placeholder={pick('Naam', 'Name')}
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           className="w-full rounded-lg border border-slate-200 px-4 py-2.5 outline-none focus:border-indigo-400"
@@ -65,7 +67,7 @@ export default function RegisterPage() {
           type="password"
           required
           minLength={6}
-          placeholder="Password (min 6 chars)"
+          placeholder={pick('Password (min 6 chars)', 'Password (min 6 chars)')}
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
           className="w-full rounded-lg border border-slate-200 px-4 py-2.5 outline-none focus:border-indigo-400"
@@ -75,12 +77,12 @@ export default function RegisterPage() {
           disabled={loading}
           className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
         >
-          {loading ? 'Creating…' : 'Sign up'}
+          {loading ? pick('Ban raha hai…', 'Creating…') : pick('Sign up', 'Sign up')}
         </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-slate-500">
-        Already have an account?{' '}
+        {pick('Pehle se account hai?', 'Already have an account?')}{' '}
         <Link href="/login" className="font-semibold text-indigo-600 hover:underline">
           Login
         </Link>

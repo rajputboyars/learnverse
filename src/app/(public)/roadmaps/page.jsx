@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ROADMAPS } from '@/data/roadmaps';
+import L from '@/components/L';
 
 export const metadata = {
   title: 'Roadmaps — Learnverse',
@@ -40,12 +41,14 @@ export default function RoadmapsPage() {
       {/* Header */}
       <div className="text-center">
         <span className="inline-block rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-600">
-          Step-by-step paths
+          <L hi="Step-by-step paths" en="Step-by-step paths" />
         </span>
         <h1 className="mt-3 text-3xl font-bold text-slate-900 sm:text-4xl">Learning Roadmaps</h1>
         <p className="mx-auto mt-3 max-w-xl text-slate-600">
-          Confuse mat ho — choose karo apna path aur step-by-step aage badho.
-          Har roadmap mein exact courses, skills aur timeline bataya gaya hai.
+          <L
+            hi="Confuse mat ho — choose karo apna path aur step-by-step aage badho. Har roadmap mein exact courses, skills aur timeline bataya gaya hai."
+            en="Don’t get confused — choose your path and progress step by step. Each roadmap lists the exact courses, skills and timeline."
+          />
         </p>
         <div className="mt-4 flex items-center justify-center gap-6 text-sm text-slate-500">
           <span className="flex items-center gap-1.5">
@@ -54,7 +57,7 @@ export default function RoadmapsPage() {
           </span>
           <span className="flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
-            {totalCourses} Courses covered
+            {totalCourses} <L hi="Courses covered" en="Courses covered" />
           </span>
           <span className="flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
@@ -92,13 +95,13 @@ export default function RoadmapsPage() {
               {/* Stats row */}
               <div className="mt-4 flex items-center gap-4 text-xs text-slate-500">
                 <span className="flex items-center gap-1">
-                  📚 <strong>{totalSteps}</strong> courses
+                  📚 <strong>{totalSteps}</strong> <L hi="courses" en="courses" />
                 </span>
                 <span className="flex items-center gap-1">
                   🗓️ {r.duration}
                 </span>
                 <span className="flex items-center gap-1">
-                  📈 {r.phases.length} phases
+                  📈 {r.phases.length} <L hi="phases" en="phases" />
                 </span>
               </div>
 
@@ -114,7 +117,7 @@ export default function RoadmapsPage() {
               {/* CTA */}
               <div className="mt-auto pt-5">
                 <span className="inline-flex items-center gap-1 text-sm font-medium text-indigo-600">
-                  View roadmap <span className="transition-transform group-hover:translate-x-0.5">→</span>
+                  <L hi="Roadmap dekho" en="View roadmap" /> <span className="transition-transform group-hover:translate-x-0.5">→</span>
                 </span>
               </div>
             </Link>
@@ -124,20 +127,20 @@ export default function RoadmapsPage() {
 
       {/* Bottom explainer */}
       <div className="mt-16 rounded-2xl border border-slate-200 bg-slate-50 p-8">
-        <h2 className="text-xl font-bold text-slate-900">Roadmap kaise use karein?</h2>
+        <h2 className="text-xl font-bold text-slate-900"><L hi="Roadmap kaise use karein?" en="How to use a roadmap?" /></h2>
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
           {[
-            { step: '01', title: 'Apna path choose karo', desc: 'Frontend, Backend, MERN — jo tumhara goal ho woh roadmap open karo.' },
-            { step: '02', title: 'Phase by phase aage badho', desc: 'Har phase ek building block hai — pehla phase complete karo tabhi agle pe jao.' },
-            { step: '03', title: 'Course open karo aur seekho', desc: 'Har step mein course link hai — wahan click karo aur concepts padhna shuru karo.' },
-          ].map(({ step, title, desc }) => (
+            { step: '01', titleHi: 'Apna path choose karo', titleEn: 'Choose your path', descHi: 'Frontend, Backend, MERN — jo tumhara goal ho woh roadmap open karo.', descEn: 'Frontend, Backend, MERN — open the roadmap that matches your goal.' },
+            { step: '02', titleHi: 'Phase by phase aage badho', titleEn: 'Progress phase by phase', descHi: 'Har phase ek building block hai — pehla phase complete karo tabhi agle pe jao.', descEn: 'Each phase is a building block — finish one before moving to the next.' },
+            { step: '03', titleHi: 'Course open karo aur seekho', titleEn: 'Open a course and learn', descHi: 'Har step mein course link hai — wahan click karo aur concepts padhna shuru karo.', descEn: 'Each step links to a course — click it and start reading the concepts.' },
+          ].map(({ step, titleHi, titleEn, descHi, descEn }) => (
             <div key={step} className="flex gap-4">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
                 {step}
               </span>
               <div>
-                <p className="font-semibold text-slate-800">{title}</p>
-                <p className="mt-1 text-sm text-slate-600">{desc}</p>
+                <p className="font-semibold text-slate-800"><L hi={titleHi} en={titleEn} /></p>
+                <p className="mt-1 text-sm text-slate-600"><L hi={descHi} en={descEn} /></p>
               </div>
             </div>
           ))}

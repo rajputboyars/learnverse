@@ -4,6 +4,7 @@ import { connectDB } from '@/lib/db';
 import Course from '@/models/Course';
 import Topic from '@/models/Topic';
 import Concept from '@/models/Concept';
+import L from '@/components/L';
 
 export const revalidate = 3600;
 
@@ -80,7 +81,7 @@ export default async function CoursePage({ params }) {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
       <Link href="/courses" className="text-sm text-slate-500 hover:text-indigo-600">
-        ← All courses
+        ← <L hi="Saare courses" en="All courses" />
       </Link>
 
       <div className="mt-4 flex items-start gap-4">
@@ -89,26 +90,26 @@ export default async function CoursePage({ params }) {
           <h1 className="text-3xl font-bold">{course.title}</h1>
           <p className="mt-2 text-slate-600">{course.description}</p>
           <span className="mt-2 inline-block text-sm capitalize text-slate-400">
-            {course.difficulty} · {concepts.length} concepts
+            {course.difficulty} · {concepts.length} <L hi="concepts" en="concepts" />
           </span>
           <div className="mt-3 flex flex-wrap gap-2">
             <Link
               href={`/practice/${slug}`}
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
             >
-              🧠 Practice quiz
+              🧠 <L hi="Practice quiz" en="Practice quiz" />
             </Link>
             <Link
               href={`/mock-interview/${slug}`}
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
             >
-              🎤 Mock interview
+              🎤 <L hi="Mock interview" en="Mock interview" />
             </Link>
             <Link
               href={`/courses/${slug}/discuss`}
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
             >
-              💬 Discussion board
+              💬 <L hi="Discussion board" en="Discussion board" />
             </Link>
           </div>
         </div>
@@ -117,7 +118,7 @@ export default async function CoursePage({ params }) {
       <div className="mt-10 space-y-12">
         {topics.length === 0 && (
           <p className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
-            No topics added to this course yet.
+            <L hi="Is course mein abhi koi topic add nahi hua." en="No topics added to this course yet." />
           </p>
         )}
         {LEVELS.map((lvl) => {
@@ -129,7 +130,7 @@ export default async function CoursePage({ params }) {
                 <span className="text-2xl">{lvl.icon}</span>
                 <h2 className="text-2xl font-bold">{lvl.label}</h2>
                 <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-500">
-                  {levelTopics.length} topics
+                  {levelTopics.length} <L hi="topics" en="topics" />
                 </span>
               </div>
               <div className="space-y-8">
@@ -143,7 +144,7 @@ export default async function CoursePage({ params }) {
                       )}
                       <div className="mt-3 divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200">
                         {list.length === 0 && (
-                          <p className="p-4 text-sm text-slate-400">Coming soon…</p>
+                          <p className="p-4 text-sm text-slate-400"><L hi="Jald aa raha hai…" en="Coming soon…" /></p>
                         )}
                         {list.map((c, i) => (
                           <Link

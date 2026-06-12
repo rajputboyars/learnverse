@@ -4,6 +4,7 @@ import { Suspense, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useLang } from '@/components/LanguageProvider';
 
 export default function LoginPage() {
   return (
@@ -15,6 +16,7 @@ export default function LoginPage() {
 
 function LoginForm() {
   const router = useRouter();
+  const { pick } = useLang();
   const params = useSearchParams();
   const callbackUrl = params.get('callbackUrl') || '/dashboard';
   const [form, setForm] = useState({ email: '', password: '' });
@@ -31,7 +33,7 @@ function LoginForm() {
     });
     setLoading(false);
     if (res?.error) {
-      setError('Galat email ya password.');
+      setError(pick('Galat email ya password.', 'Wrong email or password.'));
     } else {
       router.push(callbackUrl);
       router.refresh();
@@ -40,8 +42,8 @@ function LoginForm() {
 
   return (
     <div className="mx-auto flex max-w-md flex-col px-4 py-16">
-      <h1 className="text-2xl font-bold">Welcome back 👋</h1>
-      <p className="mt-1 text-slate-600">Login to track your XP and streak.</p>
+      <h1 className="text-2xl font-bold">{pick('Wapas aa gaye 👋', 'Welcome back 👋')}</h1>
+      <p className="mt-1 text-slate-600">{pick('XP aur streak track karne ke liye login karo.', 'Login to track your XP and streak.')}</p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
         {error && (
@@ -68,14 +70,14 @@ function LoginForm() {
           disabled={loading}
           className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
         >
-          {loading ? 'Logging in…' : 'Login'}
+          {loading ? pick('Login ho raha hai…', 'Logging in…') : 'Login'}
         </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-slate-500">
-        New here?{' '}
+        {pick('Naye ho?', 'New here?')}{' '}
         <Link href="/register" className="font-semibold text-indigo-600 hover:underline">
-          Create an account
+          {pick('Account banao', 'Create an account')}
         </Link>
       </p>
     </div>

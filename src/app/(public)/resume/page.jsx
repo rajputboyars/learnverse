@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import PrintButton from '@/components/PrintButton';
+import { useLang } from '@/components/LanguageProvider';
 
 const THEMES = {
   indigo: { accent: '#4f46e5', light: '#eef2ff' },
@@ -25,6 +26,7 @@ const blankCert = () => ({ name: '', issuer: '', year: '' });
 
 export default function ResumePage() {
   const { data: session, status } = useSession();
+  const { pick } = useLang();
   const [form, setForm] = useState(EMPTY);
   const [skillsText, setSkillsText] = useState('');
   const [loading, setLoading] = useState(true);
@@ -106,7 +108,7 @@ export default function ResumePage() {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <h1 className="text-2xl font-bold">Resume Builder</h1>
-        <p className="mt-2 text-slate-600">Login karke apna resume banao aur PDF download karo.</p>
+        <p className="mt-2 text-slate-600">{pick('Login karke apna resume banao aur PDF download karo.', 'Login to build your resume and download it as a PDF.')}</p>
         <Link
           href="/login?callbackUrl=/resume"
           className="mt-6 inline-block rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700"
@@ -135,18 +137,18 @@ export default function ResumePage() {
       <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold">📄 Resume Builder</h1>
-          <p className="mt-1 text-slate-600">Edit left, preview right. Print → “Save as PDF”.</p>
+          <p className="mt-1 text-slate-600">{pick('Left mein edit, right mein preview. Print → “Save as PDF”.', 'Edit left, preview right. Print → “Save as PDF”.')}</p>
         </div>
         <div className="flex items-center gap-3">
-          {savedAt && <span className="text-sm text-green-600">Saved ✓</span>}
+          {savedAt && <span className="text-sm text-green-600">{pick('Save ho gaya ✓', 'Saved ✓')}</span>}
           <button
             onClick={save}
             disabled={saving}
             className="rounded-lg border border-slate-200 px-4 py-2 font-semibold hover:bg-slate-50 disabled:opacity-60"
           >
-            {saving ? 'Saving…' : '💾 Save'}
+            {saving ? pick('Save ho raha hai…', 'Saving…') : pick('💾 Save', '💾 Save')}
           </button>
-          <PrintButton label="Download PDF" />
+          <PrintButton label={pick('Download PDF', 'Download PDF')} />
         </div>
       </div>
 
@@ -154,7 +156,7 @@ export default function ResumePage() {
         {/* ───────── Editor ───────── */}
         <div className="resume-editor no-print space-y-6">
           {/* Theme */}
-          <Section title="Theme">
+          <Section title={pick('Theme', 'Theme')}>
             <div className="flex gap-2">
               {Object.entries(THEMES).map(([key, t]) => (
                 <button
@@ -169,7 +171,7 @@ export default function ResumePage() {
           </Section>
 
           {/* Header */}
-          <Section title="Personal details">
+          <Section title={pick('Personal details', 'Personal details')}>
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Full name" value={form.fullName} onChange={set('fullName')} />
               <Field label="Headline (e.g. Full-Stack Developer)" value={form.headline} onChange={set('headline')} />
@@ -183,25 +185,25 @@ export default function ResumePage() {
           </Section>
 
           {/* Summary */}
-          <Section title="Summary">
+          <Section title={pick('Summary', 'Summary')}>
             <textarea
               value={form.summary}
               onChange={set('summary')}
               rows={3}
-              placeholder="2–3 lines about you…"
+              placeholder={pick('Apne baare mein 2–3 lines…', '2–3 lines about you…')}
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400"
             />
           </Section>
 
           {/* Skills */}
-          <Section title="Skills" action={<button onClick={importSkills} className="text-xs font-semibold text-indigo-600 hover:underline">↓ Import from my courses</button>}>
+          <Section title={pick('Skills', 'Skills')} action={<button onClick={importSkills} className="text-xs font-semibold text-indigo-600 hover:underline">{pick('↓ Mere courses se import karo', '↓ Import from my courses')}</button>}>
             <input
               value={skillsText}
               onChange={(e) => setSkillsText(e.target.value)}
               placeholder="JavaScript, React, Node.js, MongoDB"
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400"
             />
-            <p className="mt-1 text-xs text-slate-400">Comma se separate karo.</p>
+            <p className="mt-1 text-xs text-slate-400">{pick('Comma se separate karo.', 'Separate with commas.')}</p>
           </Section>
 
           {/* Experience */}
@@ -422,24 +424,25 @@ function Field({ label, value, onChange }) {
 }
 
 function Repeatable({ title, items, onAdd, onRemove, render }) {
+  const { pick } = useLang();
   return (
     <Section
       title={title}
       action={
         <button onClick={onAdd} className="text-xs font-semibold text-indigo-600 hover:underline">
-          + Add
+          {pick('+ Add', '+ Add')}
         </button>
       }
     >
       {items.length === 0 ? (
-        <p className="text-sm text-slate-400">Koi entry nahi. “+ Add” dabao.</p>
+        <p className="text-sm text-slate-400">{pick('Koi entry nahi. “+ Add” dabao.', 'No entries yet. Tap “+ Add”.')}</p>
       ) : (
         <div className="space-y-4">
           {items.map((item, i) => (
             <div key={i} className="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
               <div className="mb-2 flex justify-end">
                 <button onClick={onRemove(i)} className="text-xs font-medium text-red-500 hover:underline">
-                  Remove
+                  {pick('Remove', 'Remove')}
                 </button>
               </div>
               {render(item, i)}

@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { useLang } from '@/components/LanguageProvider';
 
 export default function NotificationsPage() {
   const { status } = useSession();
+  const { pick } = useLang();
   const [items, setItems] = useState(null);
 
   useEffect(() => {
@@ -25,8 +27,8 @@ export default function NotificationsPage() {
   if (status !== 'authenticated') {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold">🔔 Notifications</h1>
-        <p className="mt-2 text-slate-600">Login to see your notifications.</p>
+        <h1 className="text-2xl font-bold">🔔 {pick('Notifications', 'Notifications')}</h1>
+        <p className="mt-2 text-slate-600">{pick('Apni notifications dekhne ke liye login karo.', 'Login to see your notifications.')}</p>
         <Link href="/login?callbackUrl=/notifications" className="mt-6 inline-block rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700">Login</Link>
       </div>
     );
@@ -34,12 +36,15 @@ export default function NotificationsPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
-      <h1 className="text-2xl font-bold">🔔 Notifications</h1>
+      <h1 className="text-2xl font-bold">🔔 {pick('Notifications', 'Notifications')}</h1>
       {!items ? (
-        <p className="mt-4 text-slate-400">Loading…</p>
+        <p className="mt-4 text-slate-400">{pick('Loading…', 'Loading…')}</p>
       ) : items.length === 0 ? (
         <p className="mt-6 rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500">
-          Abhi koi notification nahi. Jab koi tumhare comment/thread pe reply ya upvote kare, yahan dikhega.
+          {pick(
+            'Abhi koi notification nahi. Jab koi tumhare comment/thread pe reply ya upvote kare, yahan dikhega.',
+            'No notifications yet. When someone replies to or upvotes your comment/thread, it shows up here.'
+          )}
         </p>
       ) : (
         <div className="mt-6 divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200">

@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useLang } from '@/components/LanguageProvider';
 
 export default function LeaderboardPage() {
+  const { pick } = useLang();
   const [scope, setScope] = useState('weekly');
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +24,10 @@ export default function LeaderboardPage() {
     <div className="mx-auto max-w-2xl px-4 py-12">
       <h1 className="text-3xl font-bold">Leaderboard</h1>
       <p className="mt-2 text-slate-600">
-        Top learners. Weekly board har Monday reset hota hai — naye log bhi compete kar sakte hain.
+        {pick(
+          'Top learners. Weekly board har Monday reset hota hai — naye log bhi compete kar sakte hain.',
+          'Top learners. The weekly board resets every Monday — newcomers can compete too.'
+        )}
       </p>
 
       <div className="mt-6 inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1 text-sm font-medium">
@@ -34,7 +39,7 @@ export default function LeaderboardPage() {
               scope === s ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500'
             }`}
           >
-            {s === 'all' ? 'All time' : 'This week'}
+            {s === 'all' ? pick('All time', 'All time') : pick('Is hafte', 'This week')}
           </button>
         ))}
       </div>
@@ -44,7 +49,7 @@ export default function LeaderboardPage() {
           <p className="p-8 text-center text-slate-400">Loading…</p>
         ) : rows.length === 0 ? (
           <p className="p-8 text-center text-slate-400">
-            No XP earned yet. Padho, quiz do, top pe aao! 🚀
+            {pick('Abhi tak koi XP nahi. Padho, quiz do, top pe aao! 🚀', 'No XP earned yet. Learn, take quizzes, get to the top! 🚀')}
           </p>
         ) : (
           <ul className="divide-y divide-slate-100">

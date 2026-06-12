@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { useLang } from '../LanguageProvider';
 
 export default function CommentsSection({ conceptId }) {
   const { data: session } = useSession();
+  const { pick } = useLang();
   const [comments, setComments] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -39,7 +41,7 @@ export default function CommentsSection({ conceptId }) {
   }
 
   async function remove(id) {
-    if (!confirm('Delete this comment?')) return;
+    if (!confirm(pick('Ye comment delete karein?', 'Delete this comment?'))) return;
     const res = await fetch(`/api/comments/${id}`, { method: 'DELETE' });
     if (res.ok) load();
   }
@@ -64,11 +66,11 @@ export default function CommentsSection({ conceptId }) {
           </button>
           {!isReply && session?.user && (
             <button onClick={() => setReplyTo(replyTo === c._id ? null : c._id)} className="text-slate-500 hover:text-indigo-600">
-              Reply
+              {pick('Reply', 'Reply')}
             </button>
           )}
           {(c.mine || isAdmin) && (
-            <button onClick={() => remove(c._id)} className="text-red-400 hover:text-red-600">Delete</button>
+            <button onClick={() => remove(c._id)} className="text-red-400 hover:text-red-600">{pick('Delete', 'Delete')}</button>
           )}
         </div>
 
@@ -77,11 +79,11 @@ export default function CommentsSection({ conceptId }) {
             <input
               value={replyBody}
               onChange={(e) => setReplyBody(e.target.value)}
-              placeholder="Write a reply…"
+              placeholder={pick('Reply likho…', 'Write a reply…')}
               className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-indigo-400"
             />
             <button onClick={() => add(replyBody, c._id)} className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700">
-              Reply
+              {pick('Reply', 'Reply')}
             </button>
           </div>
         )}
@@ -93,24 +95,25 @@ export default function CommentsSection({ conceptId }) {
 
   return (
     <section className="my-10">
-      <h2 className="mb-4 text-lg font-semibold">💬 Community Q&amp;A</h2>
+      <h2 className="mb-4 text-lg font-semibold">💬 {pick('Community Q&A', 'Community Q&A')}</h2>
 
       {session?.user ? (
         <div className="mb-6 flex gap-2">
           <input
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="Doubt poochho ya kuch share karo…"
+            placeholder={pick('Doubt poochho ya kuch share karo…', 'Ask a doubt or share something…')}
             className="flex-1 rounded-lg border border-slate-200 px-4 py-2.5 outline-none focus:border-indigo-400"
             onKeyDown={(e) => e.key === 'Enter' && add(body)}
           />
           <button onClick={() => add(body)} className="rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white hover:bg-indigo-700">
-            Post
+            {pick('Post', 'Post')}
           </button>
         </div>
       ) : (
         <p className="mb-6 rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-          <Link href="/login" className="font-semibold text-indigo-600 underline">Login</Link> to ask a question or join the discussion.
+          <Link href="/login" className="font-semibold text-indigo-600 underline">Login</Link>{' '}
+          {pick('karke sawaal poochho ya discussion mein judo.', 'to ask a question or join the discussion.')}
         </p>
       )}
 
@@ -118,7 +121,7 @@ export default function CommentsSection({ conceptId }) {
         <p className="text-slate-400">Loading…</p>
       ) : tops.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-slate-500">
-          Abhi koi sawaal nahi. Pehle tum poochho! 🙌
+          {pick('Abhi koi sawaal nahi. Pehle tum poochho! 🙌', 'No questions yet. Be the first to ask! 🙌')}
         </p>
       ) : (
         <div className="space-y-4">

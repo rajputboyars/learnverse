@@ -1,8 +1,8 @@
-import Link from 'next/link';
 import { connectDB } from '@/lib/db';
 import Concept from '@/models/Concept';
 import Course from '@/models/Course';
 import InterviewQuestion from '@/models/InterviewQuestion';
+import SearchView from '@/components/SearchView';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,74 +46,26 @@ export default async function SearchPage({ searchParams }) {
   const sp = await searchParams;
   const q = (sp?.q || '').trim();
   const { concepts, questions, courseById } = await search(q);
-  const total = concepts.length + questions.length;
 
-  return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="text-3xl font-bold">Search</h1>
+  // Serialise to plain objects with the course resolved, for the client view.
+  const conceptItems = concepts.map((c) => {
+    const course = courseById[c.courseId?.toString()];
+    return {
+      id: c._id.toString(),
+      title: c.title,
+      slug: c.slug,
+      difficulty: c.difficulty,
+      course: course ? { icon: course.icon, title: course.title, slug: course.slug } : null,
+    };
+  });
+  const questionItems = questions.map((qn) => {
+    const course = courseById[qn.courseId?.toString()];
+    return {
+      id: qn._id.toString(),
+      question: qn.question,
+      course: course ? { icon: course.icon, slug: course.slug } : null,
+    };
+  });
 
-      <form action="/search" className="mt-6">
-        <input
-          name="q"
-          defaultValue={q}
-          autoFocus
-          placeholder="Search concepts, interview questions… (e.g. closure, flexbox)"
-          className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-400"
-        />
-      </form>
-
-      {!q ? (
-        <p className="mt-8 text-slate-500">Type something to search across all courses.</p>
-      ) : (
-        <>
-          <p className="mt-6 text-sm text-slate-500">
-            {total} result{total === 1 ? '' : 's'} for &ldquo;{q}&rdquo;
-          </p>
-
-          {concepts.length > 0 && (
-            <section className="mt-6">
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">Concepts</h2>
-              <div className="divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200">
-                {concepts.map((c) => {
-                  const course = courseById[c.courseId?.toString()];
-                  return (
-                    <Link key={c._id.toString()} href={`/concepts/${c.slug}`} className="flex items-center justify-between px-4 py-3 hover:bg-slate-50">
-                      <span className="font-medium">{c.title}</span>
-                      <span className="flex items-center gap-2 text-xs text-slate-400">
-                        {course && <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-indigo-600">{course.icon} {course.title}</span>}
-                        <span className="capitalize">{c.difficulty}</span>
-                      </span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          {questions.length > 0 && (
-            <section className="mt-6">
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">Interview Questions</h2>
-              <div className="divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200">
-                {questions.map((qn) => {
-                  const course = courseById[qn.courseId?.toString()];
-                  return (
-                    <Link key={qn._id.toString()} href={course ? `/interview-questions?course=${course.slug}` : '/interview-questions'} className="flex items-center justify-between px-4 py-3 hover:bg-slate-50">
-                      <span>{qn.question}</span>
-                      {course && <span className="shrink-0 rounded-full bg-indigo-50 px-2 py-0.5 text-xs text-indigo-600">{course.icon}</span>}
-                    </Link>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          {total === 0 && (
-            <p className="mt-8 rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500">
-              Kuch nahi mila. Doosre keywords try karo.
-            </p>
-          )}
-        </>
-      )}
-    </div>
-  );
+  return <SearchView q={q} concepts={conceptItems} questions={questionItems} />;
 }

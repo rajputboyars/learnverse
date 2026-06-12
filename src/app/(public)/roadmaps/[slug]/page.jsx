@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ROADMAPS, COURSE_META, ROADMAP_COLORS } from '@/data/roadmaps';
+import L from '@/components/L';
 
 export function generateStaticParams() {
   return ROADMAPS.map((r) => ({ slug: r.slug }));
@@ -42,7 +43,7 @@ export default async function RoadmapDetailPage({ params }) {
 
       {/* Breadcrumb */}
       <Link href="/roadmaps" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600">
-        ← All Roadmaps
+        ← <L hi="Saare Roadmaps" en="All Roadmaps" />
       </Link>
 
       {/* Hero */}
@@ -69,16 +70,16 @@ export default async function RoadmapDetailPage({ params }) {
             🗓️ {roadmap.duration}
           </span>
           <span className="rounded-full bg-white px-3 py-1 font-medium text-slate-700 border border-slate-200">
-            📚 {totalSteps} courses
+            📚 {totalSteps} <L hi="courses" en="courses" />
           </span>
           <span className="rounded-full bg-white px-3 py-1 font-medium text-slate-700 border border-slate-200">
-            📈 {roadmap.phases.length} phases
+            📈 {roadmap.phases.length} <L hi="phases" en="phases" />
           </span>
         </div>
 
         {/* Outcomes */}
         <div className="mt-6">
-          <p className="text-sm font-semibold text-slate-700 mb-2">Is roadmap ke baad tum kar sakoge:</p>
+          <p className="text-sm font-semibold text-slate-700 mb-2"><L hi="Is roadmap ke baad tum kar sakoge:" en="After this roadmap you’ll be able to:" /></p>
           <ul className="grid gap-1.5 sm:grid-cols-2">
             {roadmap.outcomes.map((o, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
@@ -92,9 +93,9 @@ export default async function RoadmapDetailPage({ params }) {
 
       {/* Full Roadmap Timeline */}
       <div className="mt-12">
-        <h2 className="text-xl font-bold text-slate-900">Complete Roadmap</h2>
+        <h2 className="text-xl font-bold text-slate-900"><L hi="Complete Roadmap" en="Complete Roadmap" /></h2>
         <p className="mt-1 text-sm text-slate-500">
-          Har phase ek building block hai — sequence follow karo for best results.
+          <L hi="Har phase ek building block hai — sequence follow karo for best results." en="Each phase is a building block — follow the sequence for best results." />
         </p>
 
         <div className="mt-8 space-y-12">
@@ -152,22 +153,22 @@ export default async function RoadmapDetailPage({ params }) {
 
       {/* Bottom CTA */}
       <div className="mt-16 rounded-2xl border border-slate-200 bg-white p-8 text-center">
-        <p className="text-2xl font-bold text-slate-900">Ready ho? Shuru karo! 🚀</p>
+        <p className="text-2xl font-bold text-slate-900"><L hi="Ready ho? Shuru karo! 🚀" en="Ready? Let’s start! 🚀" /></p>
         <p className="mt-2 text-slate-600">
-          Phase 1 se start karo — ek step ek time. Consistency hi key hai.
+          <L hi="Phase 1 se start karo — ek step ek time. Consistency hi key hai." en="Start from Phase 1 — one step at a time. Consistency is the key." />
         </p>
         <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link
             href={`/courses/${roadmap.phases[0]?.steps[0]?.courseSlug}`}
             className="rounded-xl bg-indigo-600 px-6 py-3 font-medium text-white hover:bg-indigo-700 transition"
           >
-            Start Phase 1 →
+            <L hi="Phase 1 shuru karo →" en="Start Phase 1 →" />
           </Link>
           <Link
             href="/courses"
             className="rounded-xl border border-slate-200 px-6 py-3 font-medium text-slate-700 hover:bg-slate-50 transition"
           >
-            All Courses
+            <L hi="Saare Courses" en="All Courses" />
           </Link>
         </div>
       </div>
@@ -187,7 +188,7 @@ function StepCard({ step, meta, colors, globalOrder }) {
           <div className={`flex h-11 w-11 items-center justify-center rounded-xl text-2xl ${colors.bg} shrink-0`}>
             {meta.icon}
           </div>
-          <span className="text-xs font-medium text-slate-400">Step {globalOrder}</span>
+          <span className="text-xs font-medium text-slate-400"><L hi="Step" en="Step" /> {globalOrder}</span>
         </div>
 
         {/* Content */}
@@ -204,14 +205,14 @@ function StepCard({ step, meta, colors, globalOrder }) {
 
           {/* Why this course */}
           <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-            <span className="font-medium text-slate-700">Kyun zaroori hai: </span>
+            <span className="font-medium text-slate-700"><L hi="Kyun zaroori hai: " en="Why it matters: " /></span>
             {step.why}
           </p>
 
           {/* Skills */}
           <div className="mt-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5">
-              Skills tum seekhoge
+              <L hi="Skills tum seekhoge" en="Skills you’ll learn" />
             </p>
             <div className="flex flex-wrap gap-1.5">
               {step.skills.map((s) => (
@@ -228,7 +229,7 @@ function StepCard({ step, meta, colors, globalOrder }) {
               href={`/courses/${step.courseSlug}`}
               className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white transition ${colors.dot} hover:opacity-90`}
             >
-              {meta.icon} Start {meta.title} <span className="transition-transform group-hover:translate-x-0.5">→</span>
+              {meta.icon} <L hi="Shuru karo" en="Start" /> {meta.title} <span className="transition-transform group-hover:translate-x-0.5">→</span>
             </Link>
           </div>
         </div>

@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { useLang } from '@/components/LanguageProvider';
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
+  const { t } = useLang();
   const [data, setData] = useState(null);
 
   useEffect(() => {
@@ -50,11 +52,11 @@ export default function DashboardPage() {
     <div className="mx-auto max-w-4xl px-4 py-12">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold">Hi {session.user.name?.split(' ')[0]} 👋</h1>
-          <p className="mt-2 text-slate-600">Aaj kuch naya seekha?</p>
+          <h1 className="text-3xl font-bold">{t('dash.greeting')} {session.user.name?.split(' ')[0]} 👋</h1>
+          <p className="mt-2 text-slate-600">{t('dash.sub')}</p>
         </div>
         <Link href={`/u/${session.user.id}`} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
-          🔗 Public profile
+          {t('dash.publicProfile')}
         </Link>
       </div>
 
@@ -178,13 +180,13 @@ export default function DashboardPage() {
 
       <div className="mt-10 flex gap-3">
         <Link href="/courses" className="rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white hover:bg-indigo-700">
-          Keep learning
+          {t('dash.keepLearning')}
         </Link>
         <Link href="/leaderboard" className="rounded-lg border border-slate-200 px-5 py-2.5 font-semibold hover:bg-slate-50">
-          Leaderboard
+          {t('nav.leaderboard')}
         </Link>
         <Link href="/resume" className="rounded-lg border border-slate-200 px-5 py-2.5 font-semibold hover:bg-slate-50">
-          📄 Build resume
+          {t('dash.buildResume')}
         </Link>
       </div>
     </div>

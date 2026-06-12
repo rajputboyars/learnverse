@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { useLang } from '@/components/LanguageProvider';
 
 export default function DiscussListPage() {
   const { slug } = useParams();
   const { data: session } = useSession();
+  const { pick } = useLang();
   const [data, setData] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState('');
@@ -35,30 +37,31 @@ export default function DiscussListPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
-      <Link href={`/courses/${slug}`} className="text-sm text-slate-500 hover:text-indigo-600">← Back to course</Link>
+      <Link href={`/courses/${slug}`} className="text-sm text-slate-500 hover:text-indigo-600">← {pick('Course pe wapas', 'Back to course')}</Link>
       <div className="mt-3 flex items-center justify-between">
         <h1 className="text-2xl font-bold">
-          💬 {data?.course ? `${data.course.icon} ${data.course.title}` : 'Course'} Discussion
+          💬 {data?.course ? `${data.course.icon} ${data.course.title}` : 'Course'} {pick('Discussion', 'Discussion')}
         </h1>
         {session?.user && (
           <button onClick={() => setShowForm((s) => !s)} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
-            {showForm ? 'Cancel' : '+ New thread'}
+            {showForm ? pick('Cancel', 'Cancel') : pick('+ Naya thread', '+ New thread')}
           </button>
         )}
       </div>
 
       {!session?.user && (
         <p className="mt-4 rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-          <Link href="/login" className="font-semibold text-indigo-600 underline">Login</Link> to start or join a discussion.
+          <Link href="/login" className="font-semibold text-indigo-600 underline">Login</Link>{' '}
+          {pick('karke discussion shuru karo ya join karo.', 'to start or join a discussion.')}
         </p>
       )}
 
       {showForm && (
         <form onSubmit={create} className="mt-5 space-y-3 rounded-2xl border border-slate-200 p-5">
-          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Thread title (e.g. Closures kab use karein?)" className="w-full rounded-lg border border-slate-200 px-4 py-2.5 outline-none focus:border-indigo-400" />
-          <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={4} placeholder="Apni baat detail mein likho…" className="w-full rounded-lg border border-slate-200 px-4 py-2.5 outline-none focus:border-indigo-400" />
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={pick('Thread title (jaise Closures kab use karein?)', 'Thread title (e.g. When to use closures?)')} className="w-full rounded-lg border border-slate-200 px-4 py-2.5 outline-none focus:border-indigo-400" />
+          <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={4} placeholder={pick('Apni baat detail mein likho…', 'Write your point in detail…')} className="w-full rounded-lg border border-slate-200 px-4 py-2.5 outline-none focus:border-indigo-400" />
           <button disabled={busy} className="rounded-lg bg-indigo-600 px-5 py-2 font-semibold text-white hover:bg-indigo-700 disabled:opacity-50">
-            {busy ? 'Posting…' : 'Post thread'}
+            {busy ? pick('Post ho raha hai…', 'Posting…') : pick('Thread post karo', 'Post thread')}
           </button>
         </form>
       )}
@@ -68,7 +71,7 @@ export default function DiscussListPage() {
           <p className="text-slate-400">Loading…</p>
         ) : data.threads?.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
-            Abhi koi discussion nahi. Pehla thread tum shuru karo! 🙌
+            {pick('Abhi koi discussion nahi. Pehla thread tum shuru karo! 🙌', 'No discussions yet. Start the first thread! 🙌')}
           </p>
         ) : (
           data.threads.map((t) => (
@@ -79,9 +82,9 @@ export default function DiscussListPage() {
               </div>
               <p className="mt-1 line-clamp-2 text-sm text-slate-600">{t.body}</p>
               <div className="mt-2 flex items-center gap-4 text-xs text-slate-400">
-                <span>by {t.userName}</span>
+                <span>{pick('by', 'by')} {t.userName}</span>
                 <span>▲ {t.votes}</span>
-                <span>💬 {t.replyCount} replies</span>
+                <span>💬 {t.replyCount} {pick('replies', 'replies')}</span>
               </div>
             </Link>
           ))

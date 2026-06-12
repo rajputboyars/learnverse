@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { useLang } from '@/components/LanguageProvider';
 
 export default function PracticePage() {
   const { slug } = useParams();
+  const { pick } = useLang();
   const [data, setData] = useState(null);
   const [idx, setIdx] = useState(0);
   const [picked, setPicked] = useState(null);
@@ -21,14 +23,14 @@ export default function PracticePage() {
   }
   useEffect(() => { load(); }, [slug]);
 
-  if (!data) return <p className="mx-auto max-w-2xl px-4 py-12 text-slate-400">Loading quiz…</p>;
+  if (!data) return <p className="mx-auto max-w-2xl px-4 py-12 text-slate-400">{pick('Quiz load ho raha hai…', 'Loading quiz…')}</p>;
 
   if (!data.questions || data.questions.length === 0) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold">Practice Quiz</h1>
-        <p className="mt-2 text-slate-600">Is course mein abhi quiz questions nahi hain.</p>
-        <Link href={`/courses/${slug}`} className="mt-6 inline-block font-semibold text-indigo-600 underline">Back to course</Link>
+        <h1 className="text-2xl font-bold">{pick('Practice Quiz', 'Practice Quiz')}</h1>
+        <p className="mt-2 text-slate-600">{pick('Is course mein abhi quiz questions nahi hain.', 'This course has no quiz questions yet.')}</p>
+        <Link href={`/courses/${slug}`} className="mt-6 inline-block font-semibold text-indigo-600 underline">{pick('Course pe wapas', 'Back to course')}</Link>
       </div>
     );
   }
@@ -52,13 +54,17 @@ export default function PracticePage() {
       <div className="mx-auto max-w-md px-4 py-16 text-center">
         <p className="text-5xl">{pct >= 70 ? '🎉' : pct >= 40 ? '👍' : '📚'}</p>
         <h1 className="mt-4 text-3xl font-bold">{score} / {data.questions.length}</h1>
-        <p className="mt-1 text-slate-600">{pct}% correct</p>
+        <p className="mt-1 text-slate-600">{pct}% {pick('sahi', 'correct')}</p>
         <p className="mt-3 text-slate-500">
-          {pct >= 70 ? 'Shaandaar! Concepts solid hain.' : pct >= 40 ? 'Achha — thodi aur revision karo.' : 'Koi baat nahi — concepts dobara padho aur try karo.'}
+          {pct >= 70
+            ? pick('Shaandaar! Concepts solid hain.', 'Excellent! Your concepts are solid.')
+            : pct >= 40
+            ? pick('Achha — thodi aur revision karo.', 'Good — revise a bit more.')
+            : pick('Koi baat nahi — concepts dobara padho aur try karo.', 'No worries — re-read the concepts and try again.')}
         </p>
         <div className="mt-6 flex justify-center gap-3">
-          <button onClick={load} className="rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white hover:bg-indigo-700">Retry</button>
-          <Link href={`/courses/${slug}`} className="rounded-lg border border-slate-200 px-5 py-2.5 font-semibold hover:bg-slate-50">Back to course</Link>
+          <button onClick={load} className="rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white hover:bg-indigo-700">{pick('Retry', 'Retry')}</button>
+          <Link href={`/courses/${slug}`} className="rounded-lg border border-slate-200 px-5 py-2.5 font-semibold hover:bg-slate-50">{pick('Course pe wapas', 'Back to course')}</Link>
         </div>
       </div>
     );
@@ -67,8 +73,8 @@ export default function PracticePage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-bold">🧠 {data.course?.icon} {data.course?.title} — Practice</h1>
-        <span className="text-sm text-slate-500">Q {idx + 1}/{data.questions.length} · Score {score}</span>
+        <h1 className="text-xl font-bold">🧠 {data.course?.icon} {data.course?.title} — {pick('Practice', 'Practice')}</h1>
+        <span className="text-sm text-slate-500">Q {idx + 1}/{data.questions.length} · {pick('Score', 'Score')} {score}</span>
       </div>
 
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
@@ -96,9 +102,9 @@ export default function PracticePage() {
           <div className="mt-4">
             {q.explanation && <p className="text-sm text-slate-600">💡 {q.explanation}</p>}
             <div className="mt-3 flex items-center justify-between">
-              <Link href={`/concepts/${q.conceptSlug}`} className="text-xs text-slate-400 hover:text-indigo-600">From: {q.conceptTitle}</Link>
+              <Link href={`/concepts/${q.conceptSlug}`} className="text-xs text-slate-400 hover:text-indigo-600">{pick('Source:', 'From:')} {q.conceptTitle}</Link>
               <button onClick={next} className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
-                {isLast ? 'See result' : 'Next →'}
+                {isLast ? pick('Result dekho', 'See result') : pick('Aage →', 'Next →')}
               </button>
             </div>
           </div>

@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { useLang } from '@/components/LanguageProvider';
 
 export default function ThreadPage() {
   const { slug, id } = useParams();
   const router = useRouter();
   const { data: session } = useSession();
+  const { pick } = useLang();
   const [data, setData] = useState(null);
   const [reply, setReply] = useState('');
   const [busy, setBusy] = useState(false);
@@ -38,7 +40,7 @@ export default function ThreadPage() {
     if (res.ok) { setReply(''); load(); }
   }
   async function remove(targetId, isThread) {
-    if (!confirm('Delete this?')) return;
+    if (!confirm(pick('Ise delete karein?', 'Delete this?'))) return;
     const res = await fetch(`/api/discussions/${targetId}`, { method: 'DELETE' });
     if (res.ok) {
       if (isThread) router.push(`/courses/${slug}/discuss`);
@@ -50,8 +52,8 @@ export default function ThreadPage() {
   if (data === 'missing') {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <p className="text-slate-500">Thread nahi mila ya delete ho gaya.</p>
-        <Link href={`/courses/${slug}/discuss`} className="mt-4 inline-block font-semibold text-indigo-600 underline">Back to discussions</Link>
+        <p className="text-slate-500">{pick('Thread nahi mila ya delete ho gaya.', 'Thread not found or deleted.')}</p>
+        <Link href={`/courses/${slug}/discuss`} className="mt-4 inline-block font-semibold text-indigo-600 underline">{pick('Discussions pe wapas', 'Back to discussions')}</Link>
       </div>
     );
   }
@@ -60,7 +62,7 @@ export default function ThreadPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
-      <Link href={`/courses/${slug}/discuss`} className="text-sm text-slate-500 hover:text-indigo-600">← All discussions</Link>
+      <Link href={`/courses/${slug}/discuss`} className="text-sm text-slate-500 hover:text-indigo-600">← {pick('Saari discussions', 'All discussions')}</Link>
 
       <div className="mt-3 rounded-2xl border border-slate-200 bg-white p-5">
         <h1 className="text-xl font-bold">{thread.title}</h1>
@@ -69,11 +71,11 @@ export default function ThreadPage() {
           <span className="font-medium text-slate-600">{thread.userName}</span>
           <span>{new Date(thread.createdAt).toLocaleDateString()}</span>
           <button onClick={() => vote(thread._id)} className={thread.voted ? 'font-semibold text-indigo-600' : 'hover:text-indigo-600'}>▲ {thread.votes}</button>
-          {(thread.mine || isAdmin) && <button onClick={() => remove(thread._id, true)} className="text-red-400 hover:text-red-600">Delete</button>}
+          {(thread.mine || isAdmin) && <button onClick={() => remove(thread._id, true)} className="text-red-400 hover:text-red-600">{pick('Delete', 'Delete')}</button>}
         </div>
       </div>
 
-      <h2 className="mt-8 text-sm font-semibold uppercase tracking-wide text-slate-400">{replies.length} replies</h2>
+      <h2 className="mt-8 text-sm font-semibold uppercase tracking-wide text-slate-400">{replies.length} {pick('replies', 'replies')}</h2>
       <div className="mt-3 space-y-3">
         {replies.map((r) => (
           <div key={r._id} className="rounded-2xl border border-slate-200 bg-white p-4">
@@ -82,7 +84,7 @@ export default function ThreadPage() {
               <span className="font-medium text-slate-600">{r.userName}</span>
               <span>{new Date(r.createdAt).toLocaleDateString()}</span>
               <button onClick={() => vote(r._id)} className={r.voted ? 'font-semibold text-indigo-600' : 'hover:text-indigo-600'}>▲ {r.votes}</button>
-              {(r.mine || isAdmin) && <button onClick={() => remove(r._id, false)} className="text-red-400 hover:text-red-600">Delete</button>}
+              {(r.mine || isAdmin) && <button onClick={() => remove(r._id, false)} className="text-red-400 hover:text-red-600">{pick('Delete', 'Delete')}</button>}
             </div>
           </div>
         ))}
@@ -90,12 +92,13 @@ export default function ThreadPage() {
 
       {session?.user ? (
         <form onSubmit={postReply} className="mt-6 flex gap-2">
-          <input value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Reply likho…" className="flex-1 rounded-lg border border-slate-200 px-4 py-2.5 outline-none focus:border-indigo-400" />
-          <button disabled={busy} className="rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white hover:bg-indigo-700 disabled:opacity-50">Reply</button>
+          <input value={reply} onChange={(e) => setReply(e.target.value)} placeholder={pick('Reply likho…', 'Write a reply…')} className="flex-1 rounded-lg border border-slate-200 px-4 py-2.5 outline-none focus:border-indigo-400" />
+          <button disabled={busy} className="rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white hover:bg-indigo-700 disabled:opacity-50">{pick('Reply', 'Reply')}</button>
         </form>
       ) : (
         <p className="mt-6 rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-          <Link href="/login" className="font-semibold text-indigo-600 underline">Login</Link> to reply.
+          <Link href="/login" className="font-semibold text-indigo-600 underline">Login</Link>{' '}
+          {pick('karke reply karo.', 'to reply.')}
         </p>
       )}
     </div>

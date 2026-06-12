@@ -10,21 +10,23 @@ import CommentsSection from './CommentsSection';
 import Reactions from './Reactions';
 import ShareButtons from '../ShareButtons';
 import Quiz from './Quiz';
+import { useLang } from '../LanguageProvider';
 
 const RUNNABLE = new Set(['javascript', 'html']);
 
 export default function ConceptReader({ concept }) {
   const { data: session } = useSession();
-  const [lang, setLang] = useState('english');
+  const { lang: uiLang, t } = useLang();
   const [done, setDone] = useState(false);
   const [marking, setMarking] = useState(false);
   const [toast, setToast] = useState(null);
 
   const hasHinglish = !!concept.explanation?.hinglish;
-  const explanation =
-    lang === 'hinglish' && hasHinglish
-      ? concept.explanation.hinglish
-      : concept.explanation?.english || '';
+  // Content language follows the global top-bar toggle ('hi' = Hinglish).
+  const showHinglish = uiLang === 'hi' && hasHinglish;
+  const explanation = showHinglish
+    ? concept.explanation.hinglish
+    : concept.explanation?.english || '';
 
   // Load whether this concept is already completed by the user.
   useEffect(() => {
@@ -45,7 +47,7 @@ export default function ConceptReader({ concept }) {
 
   async function markDone() {
     if (!session?.user) {
-      showToast('Login karo aur XP + streak claim karo!');
+      showToast(t('reader.loginToClaim'));
       return;
     }
     setMarking(true);
@@ -91,21 +93,16 @@ export default function ConceptReader({ concept }) {
         </div>
       </header>
 
-      {/* Language toggle — the USP, kept at the top */}
-      <div className="mb-6 inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1 text-sm font-medium">
-        <button
-          onClick={() => setLang('english')}
-          className={`rounded-md px-4 py-1.5 ${lang === 'english' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500'}`}
-        >
-          English
-        </button>
-        <button
-          onClick={() => setLang('hinglish')}
-          disabled={!hasHinglish}
-          className={`rounded-md px-4 py-1.5 ${lang === 'hinglish' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500'} disabled:opacity-40`}
-        >
-          Hinglish
-        </button>
+      {/* Reading in — language follows the global top-bar toggle (the USP). */}
+      <div className="mb-6 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500">
+        <span>🌐</span>
+        <span>
+          <span className="font-semibold text-indigo-600">{showHinglish ? 'Hinglish' : 'English'}</span>
+          {' · '}{t('reader.langNote')}
+        </span>
+        {!hasHinglish && uiLang === 'hi' && (
+          <span className="text-slate-400">(English only)</span>
+        )}
       </div>
 
       {/* Explanation */}
@@ -115,7 +112,7 @@ export default function ConceptReader({ concept }) {
       {concept.dailyLifeExample && (
         <div className="my-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:p-6">
           <div className="mb-2 flex items-center gap-2 font-semibold text-amber-800">
-            <span className="text-xl">🪔</span> Daily-life example
+            <span className="text-xl">🪔</span> {t('reader.dailyExample')}
           </div>
           <p className="prose-content text-[15px] text-amber-900">
             {concept.dailyLifeExample}
@@ -126,7 +123,7 @@ export default function ConceptReader({ concept }) {
       {/* Code — runnable playground for JS/HTML, static block otherwise */}
       {concept.codeExample && (
         <div className="my-8">
-          <h2 className="mb-3 text-lg font-semibold">Code example</h2>
+          <h2 className="mb-3 text-lg font-semibold">{t('reader.codeExample')}</h2>
           {RUNNABLE.has(concept.codeLanguage) ? (
             <CodePlayground code={concept.codeExample} language={concept.codeLanguage} />
           ) : (
@@ -138,7 +135,7 @@ export default function ConceptReader({ concept }) {
       {/* Key points */}
       {concept.keyPoints?.length > 0 && (
         <div className="my-8 rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
-          <h2 className="mb-3 text-lg font-semibold">Key points</h2>
+          <h2 className="mb-3 text-lg font-semibold">{t('reader.keyPoints')}</h2>
           <ul className="space-y-2 text-[15px] text-slate-700">
             {concept.keyPoints.map((k, i) => (
               <li key={i} className="flex gap-2">
@@ -165,7 +162,7 @@ export default function ConceptReader({ concept }) {
       <div className="my-8 flex flex-col items-start gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
         {done ? (
           <span className="inline-flex items-center gap-2 font-semibold text-green-700">
-            ✅ Completed
+            {t('reader.completed')}
           </span>
         ) : (
           <button
@@ -173,15 +170,15 @@ export default function ConceptReader({ concept }) {
             disabled={marking}
             className="rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-50"
           >
-            {marking ? 'Saving...' : `Mark as done (+${concept.xpReward || 10} XP)`}
+            {marking ? t('reader.saving') : `${t('reader.markDone')} (+${concept.xpReward || 10} XP)`}
           </button>
         )}
         {!session?.user && (
           <span className="text-sm text-slate-500">
             <Link href="/login" className="font-semibold text-indigo-600 underline">
-              Login
+              {t('nav.login')}
             </Link>{' '}
-            to save progress & earn XP
+            {t('reader.loginToSave')}
           </span>
         )}
       </div>
@@ -189,9 +186,7 @@ export default function ConceptReader({ concept }) {
       {/* Interview questions linked to this concept */}
       {concept.interviewQuestions?.length > 0 && (
         <div className="my-8">
-          <h2 className="mb-3 text-lg font-semibold">
-            💼 How this is asked in interviews
-          </h2>
+          <h2 className="mb-3 text-lg font-semibold">{t('reader.interviewHeading')}</h2>
           <div className="space-y-3">
             {concept.interviewQuestions.map((q) => (
               <details
@@ -200,7 +195,7 @@ export default function ConceptReader({ concept }) {
               >
                 <summary className="cursor-pointer font-medium">{q.question}</summary>
                 <p className="prose-content mt-3 text-sm text-slate-600">
-                  {lang === 'hinglish' && q.answer?.hinglish
+                  {showHinglish && q.answer?.hinglish
                     ? q.answer.hinglish
                     : q.answer?.english}
                 </p>

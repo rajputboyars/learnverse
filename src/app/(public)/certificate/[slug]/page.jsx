@@ -8,6 +8,7 @@ import Concept from '@/models/Concept';
 import UserProgress from '@/models/UserProgress';
 import PrintButton from '@/components/PrintButton';
 import ShareButtons from '@/components/ShareButtons';
+import L from '@/components/L';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +22,7 @@ export default async function CertificatePage({ params }) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <h1 className="text-2xl font-bold">Certificate</h1>
-        <p className="mt-2 text-slate-600">Login to view your certificate.</p>
+        <p className="mt-2 text-slate-600"><L hi="Apna certificate dekhne ke liye login karo." en="Login to view your certificate." /></p>
         <Link href={`/login?callbackUrl=/certificate/${slug}`} className="mt-6 inline-block rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700">
           Login
         </Link>
@@ -50,13 +51,13 @@ export default async function CertificatePage({ params }) {
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <h1 className="text-2xl font-bold">{course.icon} {course.title}</h1>
         <p className="mt-3 text-slate-600">
-          Certificate tab milega jab course 100% complete ho. Abhi <b>{pct}%</b> ({completed}/{total}).
+          <L hi="Certificate tab milega jab course 100% complete ho. Abhi " en="You’ll get the certificate when the course is 100% complete. Currently " /><b>{pct}%</b> ({completed}/{total}).
         </p>
         <div className="mx-auto mt-4 h-3 max-w-xs overflow-hidden rounded-full bg-slate-100">
           <div className="h-full rounded-full bg-indigo-600" style={{ width: `${pct}%` }} />
         </div>
         <Link href={`/courses/${slug}`} className="mt-6 inline-block rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700">
-          Continue course
+          <L hi="Course continue karo" en="Continue course" />
         </Link>
       </div>
     );
@@ -86,21 +87,21 @@ export default async function CertificatePage({ params }) {
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-indigo-600 text-white">L</span>
             <span className="font-bold">Learnverse</span>
           </div>
-          <p className="mt-8 text-sm uppercase tracking-[0.3em] text-slate-400">Certificate of Completion</p>
-          <p className="mt-6 text-slate-500">This certifies that</p>
+          <p className="mt-8 text-sm uppercase tracking-[0.3em] text-slate-400"><L hi="Certificate of Completion" en="Certificate of Completion" /></p>
+          <p className="mt-6 text-slate-500"><L hi="Ye certify karta hai ki" en="This certifies that" /></p>
           <h1 className="mt-2 text-3xl font-bold text-slate-800 sm:text-4xl">{session.user.name}</h1>
-          <p className="mt-4 text-slate-500">has successfully completed the course</p>
+          <p className="mt-4 text-slate-500"><L hi="ne successfully ye course complete kiya" en="has successfully completed the course" /></p>
           <h2 className="mt-2 text-2xl font-semibold text-indigo-700">{course.icon} {course.title}</h2>
-          <p className="mt-1 text-sm text-slate-500">{total} concepts mastered</p>
+          <p className="mt-1 text-sm text-slate-500">{total} <L hi="concepts master kiye" en="concepts mastered" /></p>
 
           <div className="mt-10 flex items-end justify-between text-left text-xs text-slate-500">
             <div>
               <p className="font-semibold text-slate-700">{dateStr}</p>
-              <p>Date</p>
+              <p><L hi="Date" en="Date" /></p>
             </div>
             <div className="text-right">
               <p className="font-mono font-semibold text-slate-700">{certId}</p>
-              <p>Certificate ID</p>
+              <p><L hi="Certificate ID" en="Certificate ID" /></p>
             </div>
           </div>
         </div>
@@ -111,10 +112,10 @@ export default async function CertificatePage({ params }) {
       <div className="no-print mt-2 flex flex-wrap items-center justify-center gap-3">
         <PrintButton />
         <Link href="/dashboard" className="rounded-lg border border-slate-200 px-5 py-2.5 font-semibold hover:bg-slate-50">
-          Back to dashboard
+          <L hi="Dashboard pe wapas" en="Back to dashboard" />
         </Link>
         <p className="w-full text-center text-xs text-slate-400">
-          Tip: Print → "Save as PDF" to download, ya screenshot leke LinkedIn pe share karo.
+          <L hi='Tip: Print → "Save as PDF" karke download karo, ya screenshot leke LinkedIn pe share karo.' en='Tip: Print → "Save as PDF" to download, or screenshot and share on LinkedIn.' />
         </p>
       </div>
     </div>

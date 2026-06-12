@@ -8,6 +8,7 @@ import Concept from '@/models/Concept';
 import Course from '@/models/Course';
 import { evaluateBadges } from '@/lib/badges';
 import ShareButtons from '@/components/ShareButtons';
+import L from '@/components/L';
 
 export const dynamic = 'force-dynamic';
 
@@ -85,15 +86,15 @@ export default async function PublicProfile({ params }) {
         <div className="mt-4 flex items-center justify-center gap-6 text-sm">
           <div><p className="text-2xl font-bold">{stats.totalXP || 0}</p><p className="text-slate-500">XP</p></div>
           <div><p className="text-2xl font-bold">{stats.level || 1}</p><p className="text-slate-500">Level</p></div>
-          <div><p className="text-2xl font-bold">{stats.longestStreak || 0} 🔥</p><p className="text-slate-500">Best streak</p></div>
-          <div><p className="text-2xl font-bold">{stats.conceptsCompleted || 0}</p><p className="text-slate-500">Concepts</p></div>
+          <div><p className="text-2xl font-bold">{stats.longestStreak || 0} 🔥</p><p className="text-slate-500"><L hi="Best streak" en="Best streak" /></p></div>
+          <div><p className="text-2xl font-bold">{stats.conceptsCompleted || 0}</p><p className="text-slate-500"><L hi="Concepts" en="Concepts" /></p></div>
         </div>
       </div>
 
       <div className="mt-8">
         <h2 className="text-lg font-bold">🏅 Badges ({earned.length})</h2>
         {earned.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-500">No badges yet.</p>
+          <p className="mt-2 text-sm text-slate-500"><L hi="Abhi koi badge nahi." en="No badges yet." /></p>
         ) : (
           <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4">
             {earned.map((b) => (
@@ -108,7 +109,7 @@ export default async function PublicProfile({ params }) {
 
       {completedCourses.length > 0 && (
         <div className="mt-8">
-          <h2 className="text-lg font-bold">🎓 Completed courses</h2>
+          <h2 className="text-lg font-bold">🎓 <L hi="Completed courses" en="Completed courses" /></h2>
           <div className="mt-3 flex flex-wrap gap-2">
             {completedCourses.map((c) => (
               <span key={c._id.toString()} className="rounded-full bg-amber-50 px-3 py-1.5 text-sm text-amber-800">{c.icon} {c.title}</span>
@@ -119,7 +120,7 @@ export default async function PublicProfile({ params }) {
 
       <ShareButtons title={`${stats.name || 'A learner'} on Learnverse`} text={`Check out ${stats.name || 'this'} profile on Learnverse`} />
 
-      <Link href="/courses" className="mt-2 inline-block text-sm font-medium text-indigo-600 hover:underline">Explore courses →</Link>
+      <Link href="/courses" className="mt-2 inline-block text-sm font-medium text-indigo-600 hover:underline"><L hi="Courses explore karo →" en="Explore courses →" /></Link>
     </div>
   );
 }

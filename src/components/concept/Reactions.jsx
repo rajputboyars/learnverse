@@ -3,15 +3,17 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useLang } from '../LanguageProvider';
 
 const TYPES = [
-  { key: 'helpful', emoji: '👍', label: 'Helpful' },
-  { key: 'understood', emoji: '💡', label: 'Samajh aaya' },
-  { key: 'fire', emoji: '🔥', label: 'Best' },
+  { key: 'helpful', emoji: '👍', label: 'Helpful', hi: 'Helpful' },
+  { key: 'understood', emoji: '💡', label: 'Understood', hi: 'Samajh aaya' },
+  { key: 'fire', emoji: '🔥', label: 'Best', hi: 'Best' },
 ];
 
 export default function Reactions({ conceptId }) {
   const { data: session } = useSession();
+  const { pick } = useLang();
   const router = useRouter();
   const [counts, setCounts] = useState({ helpful: 0, understood: 0, fire: 0 });
   const [mine, setMine] = useState(null);
@@ -39,7 +41,7 @@ export default function Reactions({ conceptId }) {
 
   return (
     <div className="my-8 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-6">
-      <span className="mr-1 text-sm font-medium text-slate-500">Is concept ko rate karo:</span>
+      <span className="mr-1 text-sm font-medium text-slate-500">{pick('Is concept ko rate karo:', 'Rate this concept:')}</span>
       {TYPES.map((t) => (
         <button
           key={t.key}
@@ -50,7 +52,7 @@ export default function Reactions({ conceptId }) {
               : 'border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
-          <span>{t.emoji}</span> {t.label}
+          <span>{t.emoji}</span> {pick(t.hi, t.label)}
           {counts[t.key] > 0 && <span className="text-xs text-slate-400">{counts[t.key]}</span>}
         </button>
       ))}

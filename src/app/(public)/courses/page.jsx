@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { connectDB } from '@/lib/db';
 import Course from '@/models/Course';
+import L from '@/components/L';
 
 export const revalidate = 3600;
 
@@ -25,12 +26,15 @@ export default async function CoursesPage() {
     <div className="mx-auto max-w-6xl px-4 py-12">
       <h1 className="text-3xl font-bold">Courses</h1>
       <p className="mt-2 text-slate-600">
-        Structured learning paths — concepts, code aur interview prep, sab ek jagah.
+        <L
+          hi="Structured learning paths — concepts, code aur interview prep, sab ek jagah."
+          en="Structured learning paths — concepts, code and interview prep, all in one place."
+        />
       </p>
 
       {courses.length === 0 ? (
         <div className="mt-8 rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500">
-          No courses yet. Run <code className="rounded bg-slate-100 px-1.5">npm run seed</code> to add starter content.
+          <L hi="Abhi koi course nahi. " en="No courses yet. Run " /><code className="rounded bg-slate-100 px-1.5">npm run seed</code><L hi=" chalao starter content ke liye." en=" to add starter content." />
         </div>
       ) : (
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

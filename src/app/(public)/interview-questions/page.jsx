@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { connectDB } from '@/lib/db';
 import InterviewQuestion from '@/models/InterviewQuestion';
 import Course from '@/models/Course';
+import L from '@/components/L';
 
 export const revalidate = 3600;
 
@@ -62,7 +63,10 @@ export default async function InterviewQuestionsPage({ searchParams }) {
     <div className="mx-auto max-w-3xl px-4 py-12">
       <h1 className="text-3xl font-bold">Interview Questions</h1>
       <p className="mt-2 text-slate-600">
-        Real questions, asaan jawab — English aur Hinglish dono mein. Course aur level se filter karo.
+        <L
+          hi="Real questions, asaan jawab — English aur Hinglish dono mein. Course aur level se filter karo."
+          en="Real questions, simple answers — in both English and Hinglish. Filter by course and level."
+        />
       </p>
 
       {/* Coursewise filter */}
@@ -77,7 +81,7 @@ export default async function InterviewQuestionsPage({ searchParams }) {
                 : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
             }`}
           >
-            All courses
+            <L hi="Saare courses" en="All courses" />
           </Link>
           {courses.map((c) => (
             <Link
@@ -109,19 +113,19 @@ export default async function InterviewQuestionsPage({ searchParams }) {
                   : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >
-              {l}
+              {l === 'all' ? <L hi="Sab" en="All" /> : l}
             </Link>
           ))}
         </div>
       </div>
 
       <p className="mt-6 text-sm text-slate-500">
-        {questions.length} question{questions.length === 1 ? '' : 's'} found
+        {questions.length} {questions.length === 1 ? <L hi="question" en="question" /> : <L hi="questions" en="questions" />} <L hi="mile" en="found" />
       </p>
 
       {questions.length === 0 ? (
         <p className="mt-4 rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500">
-          Is filter ke liye koi question nahi mila. Doosra course ya level try karo.
+          <L hi="Is filter ke liye koi question nahi mila. Doosra course ya level try karo." en="No questions for this filter. Try another course or level." />
         </p>
       ) : (
         <div className="mt-4 space-y-3">
