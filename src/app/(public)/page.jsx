@@ -158,6 +158,66 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Career toolkit — Resume Builder + Certificates */}
+      <section className="mx-auto max-w-6xl px-4 py-14">
+        <div className="text-center">
+          <span className="inline-block rounded-full bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
+            Naukri-ready bano 💼
+          </span>
+          <h2 className="mt-4 text-2xl font-bold sm:text-3xl">Seekho, prove karo, job pao</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-slate-600">
+            Sirf concepts nahi — course complete karke certificate kamao aur
+            apna professional resume yahin bana ke PDF download karo.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-5 md:grid-cols-2">
+          {/* Resume Builder */}
+          <div className="group flex flex-col overflow-hidden rounded-3xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-white p-8 transition hover:border-indigo-300 hover:shadow-sm">
+            <div className="text-4xl">📄</div>
+            <h3 className="mt-4 text-xl font-bold">Resume Builder</h3>
+            <p className="mt-2 text-sm text-slate-600">
+              Live preview ke saath professional resume banao — experience, projects,
+              skills sab add karo. Skills seedhe apne completed courses se import karo,
+              theme choose karo, aur ek click mein PDF download.
+            </p>
+            <ul className="mt-4 space-y-1.5 text-sm text-slate-600">
+              <li>✓ Live A4 preview, 3 colour themes</li>
+              <li>✓ Courses se skills auto-import</li>
+              <li>✓ Print → Save as PDF</li>
+            </ul>
+            <Link
+              href="/resume"
+              className="mt-6 inline-block w-fit rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700"
+            >
+              Build your resume →
+            </Link>
+          </div>
+
+          {/* Certificates */}
+          <div className="group flex flex-col overflow-hidden rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white p-8 transition hover:border-amber-300 hover:shadow-sm">
+            <div className="text-4xl">🎓</div>
+            <h3 className="mt-4 text-xl font-bold">Certificates</h3>
+            <p className="mt-2 text-sm text-slate-600">
+              Koi bhi course 100% complete karo aur ek shareable Certificate of
+              Completion pao — unique certificate ID ke saath. Download karo ya
+              LinkedIn pe share karke apni learning dikhao.
+            </p>
+            <ul className="mt-4 space-y-1.5 text-sm text-slate-600">
+              <li>✓ Course complete pe auto-unlock</li>
+              <li>✓ Unique verifiable certificate ID</li>
+              <li>✓ Download / LinkedIn pe share</li>
+            </ul>
+            <Link
+              href="/courses"
+              className="mt-6 inline-block w-fit rounded-lg bg-amber-500 px-6 py-3 font-semibold text-white hover:bg-amber-600"
+            >
+              Earn a certificate →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Courses */}
       <section className="mx-auto max-w-6xl px-4 py-12">
         <div className="mb-6 flex items-center justify-between">
