@@ -6,6 +6,7 @@ import { useSession, signOut } from 'next-auth/react';
 import ThemeToggle from './ThemeToggle';
 import LanguageToggle from './LanguageToggle';
 import NotificationBell from './NotificationBell';
+import SearchBox from './SearchBox';
 import { useLang } from './LanguageProvider';
 
 export default function Navbar() {
@@ -31,13 +32,10 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         <div className="hidden items-center gap-1 text-sm font-medium text-slate-600 sm:flex sm:gap-4">
-          <form action="/search" className="hidden md:block">
-            <input
-              name="q"
-              placeholder={t('nav.search')}
-              className="w-40 rounded-full border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-indigo-400 lg:w-52"
-            />
-          </form>
+          <SearchBox
+            placeholder={t('nav.search')}
+            className="hidden w-40 md:block lg:w-56"
+          />
           <Link href="/courses" className="hover:text-indigo-600">{t('nav.courses')}</Link>
           <Link href="/challenges" className="hidden md:block hover:text-indigo-600">{t('nav.challenges')}</Link>
           <Link href="/roadmaps" className="hidden lg:block hover:text-indigo-600">{t('nav.roadmaps')}</Link>
@@ -83,9 +81,9 @@ export default function Navbar() {
       {/* Mobile menu */}
       {open && (
         <div className="border-t border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900 sm:hidden">
-          <form action="/search" className="mb-3">
-            <input name="q" placeholder={t('nav.search')} className="w-full rounded-full border border-slate-200 px-4 py-2 text-sm outline-none focus:border-indigo-400" />
-          </form>
+          <div className="mb-3">
+            <SearchBox placeholder={t('nav.search')} className="w-full" />
+          </div>
           <div className="flex flex-col gap-1 text-sm font-medium text-slate-700">
             {NAV_LINKS.map((l) => (
               <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="rounded-md px-2 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">{l.label}</Link>
