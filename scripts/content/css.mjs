@@ -715,6 +715,105 @@ export const generalInterviewQuestions = [
         'Default (content-box) mein width/height sirf content size set karti hain, isliye padding aur border upar se jud jaate hain aur box expected se bada ho jaata hai. border-box width/height mein padding aur border include kar leta hai, isliye element utna hi rehta hai jitna set kiya. Ye predictable layouts ke liye ek common global reset hai.',
     },
   },
+  {
+    question: 'What is the difference between CSS and CSS3?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'CSS3 is the latest major revision of CSS, split into independent modules that can be updated separately. New features include: border-radius, box-shadow, text-shadow, gradients, transitions, animations (@keyframes), transforms (rotate, scale, skew), flexbox, grid, media queries, CSS variables (custom properties), and multi-column layout. Older CSS (1 and 2) had no transitions or animations; layout relied on floats and tables.',
+      hinglish:
+        'CSS3 CSS ka latest major revision hai, independent modules mein split kiya gaya jise alag-alag update kiya ja sakta hai. Nayi features: border-radius, box-shadow, text-shadow, gradients, transitions, animations (@keyframes), transforms (rotate, scale, skew), flexbox, grid, media queries, CSS variables (custom properties), aur multi-column layout. Purana CSS (1 aur 2) mein transitions ya animations nahi the; layout floats aur tables pe rely karta tha.',
+    },
+  },
+  {
+    question: 'What are CSS selectors? Name the different types.',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Selectors target elements to apply styles. Types: Universal (*), Type/element (div, p), Class (.btn), ID (#header), Attribute ([type="text"]), Pseudo-class (:hover, :nth-child, :focus), Pseudo-element (::before, ::after, ::placeholder), Descendant (div p), Child (div > p), Adjacent sibling (h1 + p), General sibling (h1 ~ p), and Group (h1, h2, h3). Specificity order: inline style > ID > class/attribute/pseudo-class > element.',
+      hinglish:
+        'Selectors elements ko style apply karne ke liye target karte hain. Types: Universal (*), Type/element (div, p), Class (.btn), ID (#header), Attribute ([type="text"]), Pseudo-class (:hover, :nth-child, :focus), Pseudo-element (::before, ::after, ::placeholder), Descendant (div p), Child (div > p), Adjacent sibling (h1 + p), General sibling (h1 ~ p), aur Group (h1, h2, h3). Specificity order: inline style > ID > class/attribute/pseudo-class > element.',
+    },
+  },
+  {
+    question: 'What is a media query in CSS?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A media query applies CSS rules only when certain conditions are true — typically the screen width. Syntax: @media (max-width: 768px) { ... }. Used to build responsive layouts that adapt to mobile, tablet, and desktop. You can also query orientation, resolution, hover capability, and more. Mobile-first: write base styles for mobile, then use min-width queries to enhance for larger screens.',
+      hinglish:
+        'Media query CSS rules sirf tab apply karta hai jab kuch conditions true hon — typically screen width. Syntax: @media (max-width: 768px) { ... }. Responsive layouts banane ke liye use hota hai jo mobile, tablet, aur desktop ke liye adapt karte hain. Orientation, resolution, hover capability, aur aur cheezein bhi query kar sakte ho. Mobile-first: mobile ke liye base styles likho, phir badi screens ke liye enhance karne ke liye min-width queries use karo.',
+    },
+  },
+  {
+    question: 'What is the Box Model in CSS?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'The CSS Box Model describes every element as a rectangular box made of four layers (outside to inside): margin (space outside the border), border, padding (space between border and content), and content. Total rendered width (content-box) = content width + padding-left + padding-right + border-left + border-right. Setting box-sizing: border-box makes width include padding and border so the box stays the declared size.',
+      hinglish:
+        'CSS Box Model har element ko char layers (bahar se andar) se bani rectangular box ke roop mein describe karta hai: margin (border ke bahar space), border, padding (border aur content ke beech space), aur content. Total rendered width (content-box) = content width + padding-left + padding-right + border-left + border-right. box-sizing: border-box set karne se width mein padding aur border include ho jaata hai isliye box declared size par rehta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between px, em, rem, and % units in CSS?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'px: absolute pixel unit — fixed size regardless of parent or browser settings. em: relative to the font-size of the parent element — compounds if nested. rem (root em): relative to the root <html> font-size (default 16px) — consistent, unaffected by nesting. %: relative to the parent element\'s corresponding property (width % is % of parent width). Best practice: use rem for font sizes (respects user browser settings), px for borders/shadows, % or fr for layout widths.',
+      hinglish:
+        'px: absolute pixel unit — parent ya browser settings se independent fixed size. em: parent element ke font-size ke relative — nested hone pe compound ho jaata hai. rem (root em): root <html> font-size ke relative (default 16px) — consistent, nesting se unaffected. %: parent element ke corresponding property ke relative (width % parent width ka % hai). Best practice: font sizes ke liye rem use karo (user browser settings respect karta hai), borders/shadows ke liye px, layout widths ke liye % ya fr.',
+    },
+  },
+  {
+    question: 'What is Flexbox in CSS and when should you use it?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Flexbox is a one-dimensional layout model (row or column). Set display: flex on a container; child items become flex items that you can align and distribute. Key properties: flex-direction (row/column), justify-content (main axis alignment), align-items (cross axis), flex-wrap, gap. Use flexbox for nav bars, centering, card rows, and any single-axis layout. Use CSS Grid for two-dimensional (rows and columns) layouts.',
+      hinglish:
+        'Flexbox ek one-dimensional layout model hai (row ya column). Container pe display: flex set karo; child items flex items ban jaate hain jinhe align aur distribute kar sakte ho. Key properties: flex-direction (row/column), justify-content (main axis alignment), align-items (cross axis), flex-wrap, gap. Flexbox nav bars, centering, card rows, aur kisi bhi single-axis layout ke liye use karo. Rows aur columns dono wale two-dimensional layouts ke liye CSS Grid use karo.',
+    },
+  },
+  {
+    question: 'What are pseudo-selectors (pseudo-classes and pseudo-elements) in CSS?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Pseudo-classes select elements based on state or position — they use a single colon: :hover, :focus, :active, :checked, :nth-child(n), :first-child, :last-child, :not(selector), :disabled. Pseudo-elements create virtual sub-parts of an element — they use double colons: ::before (insert content before), ::after (insert content after), ::placeholder, ::selection, ::first-line, ::first-letter. Pseudo-elements require content: "" to render (even if empty).',
+      hinglish:
+        'Pseudo-classes elements ko state ya position ke basis pe select karte hain — single colon use karte hain: :hover, :focus, :active, :checked, :nth-child(n), :first-child, :last-child, :not(selector), :disabled. Pseudo-elements element ke virtual sub-parts banate hain — double colons use karte hain: ::before (content se pehle insert karo), ::after (content ke baad insert karo), ::placeholder, ::selection, ::first-line, ::first-letter. Pseudo-elements ko render hone ke liye content: "" chahiye (chahe empty ho).',
+    },
+  },
+  {
+    question: 'How do you make a website responsive?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Key approaches: (1) Viewport meta tag: <meta name="viewport" content="width=device-width, initial-scale=1">. (2) Fluid layouts: use %, vw, fr instead of fixed px for widths. (3) Media queries: change layout/font sizes at breakpoints. (4) Flexbox/Grid: naturally flexible layouts. (5) Responsive images: max-width: 100%, srcset for different resolutions. (6) Mobile-first approach: design for small screens first, then enhance up with min-width queries. (7) Avoid fixed widths for containers.',
+      hinglish:
+        'Key approaches: (1) Viewport meta tag: <meta name="viewport" content="width=device-width, initial-scale=1">. (2) Fluid layouts: widths ke liye fixed px ki jagah %, vw, fr use karo. (3) Media queries: breakpoints pe layout/font sizes change karo. (4) Flexbox/Grid: naturally flexible layouts. (5) Responsive images: max-width: 100%, alag resolutions ke liye srcset. (6) Mobile-first approach: pehle small screens ke liye design karo, phir min-width queries se upar enhance karo. (7) Containers ke liye fixed widths avoid karo.',
+    },
+  },
+  {
+    question: 'What are common CSS breakpoints for responsive design?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Common breakpoints (mobile-first, using min-width): 640px (sm — large mobile), 768px (md — tablets), 1024px (lg — laptops/small desktops), 1280px (xl — large desktops), 1536px (2xl — wide screens). These match Tailwind CSS defaults. Always test on real devices rather than just specific pixel values — content-based breakpoints (where the layout breaks) are more robust than device-based ones.',
+      hinglish:
+        'Common breakpoints (mobile-first, min-width use karke): 640px (sm — large mobile), 768px (md — tablets), 1024px (lg — laptops/small desktops), 1280px (xl — large desktops), 1536px (2xl — wide screens). Ye Tailwind CSS defaults se match karte hain. Hamesha real devices pe test karo sirf specific pixel values ke bajaye — content-based breakpoints (jahan layout toot ta hai) device-based ones se zyada robust hote hain.',
+    },
+  },
 ];
 
 export const curriculum = [...beginner, ...intermediate, ...advanced];
