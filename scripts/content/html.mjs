@@ -725,6 +725,116 @@ export const generalInterviewQuestions = [
         'Void elements mein content aur closing tag nahi hota — ye kuch wrap nahi kar sakte. Examples: <img>, <br>, <hr>, <input>, <meta>, <link>. HTML5 mein trailing slash (<br/>) optional hai.',
     },
   },
+  {
+    question: 'What is <!DOCTYPE html> in HTML5?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '<!DOCTYPE html> is the document type declaration that must appear at the very top of an HTML file. It tells the browser to render the page in standards mode (instead of quirks mode). In HTML5, this is simplified to just <!DOCTYPE html> — older HTML versions required long complex DTD strings. Without it, browsers may render pages differently across versions.',
+      hinglish:
+        '<!DOCTYPE html> ek document type declaration hai jo HTML file ke bilkul upar honi chahiye. Ye browser ko page standards mode mein render karne ko kehta hai (quirks mode ki jagah). HTML5 mein ye simple hokar sirf <!DOCTYPE html> ho gaya hai — purane HTML versions mein lambi complex DTD strings chahiye thi. Iske bina, browsers alag-alag versions mein pages differently render kar sakte hain.',
+    },
+  },
+  {
+    question: 'What is the difference between div and span in HTML?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'div is a block-level element — it starts on a new line and takes the full width available. span is an inline element — it only takes the width of its content and does not force a new line. Use div to group and structure sections of a page; use span to style a portion of text or inline content without breaking the flow.',
+      hinglish:
+        'div ek block-level element hai — ye new line pe shuru hota hai aur available poori width leta hai. span ek inline element hai — sirf apne content ki width leta hai aur new line force nahi karta. Page ke sections group karne aur structure karne ke liye div use karo; text ke ek hisse ya inline content ko bina flow todne ke style karne ke liye span use karo.',
+    },
+  },
+  {
+    question: 'What are semantic and non-semantic tags in HTML?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Semantic tags have meaningful names that describe their content and role: <header>, <nav>, <main>, <article>, <section>, <footer>, <aside>. They improve accessibility, SEO, and code readability. Non-semantic tags like <div> and <span> say nothing about their content — they are generic containers. Always prefer semantic tags where the meaning fits.',
+      hinglish:
+        'Semantic tags ke meaningful names hote hain jo content aur role describe karte hain: <header>, <nav>, <main>, <article>, <section>, <footer>, <aside>. Ye accessibility, SEO, aur code readability improve karte hain. Non-semantic tags jaise <div> aur <span> content ke baare mein kuch nahi kehte — ye generic containers hain. Jahan meaning fit ho wahan hamesha semantic tags prefer karo.',
+    },
+  },
+  {
+    question: 'What is the difference between HTML and HTML5?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'HTML5 introduced: semantic elements (<header>, <article>, etc.), multimedia support (<audio>, <video> without plugins), form enhancements (date pickers, validation attributes, placeholder), Canvas and SVG for graphics, Web Storage (localStorage/sessionStorage), Web Workers, WebSockets, and Geolocation APIs. The doctype was simplified to <!DOCTYPE html>. HTML5 also deprecated or removed presentational tags like <font>, <center>, and <big>.',
+      hinglish:
+        'HTML5 ne introduce kiya: semantic elements (<header>, <article>, etc.), multimedia support (<audio>, <video> bina plugins ke), form enhancements (date pickers, validation attributes, placeholder), graphics ke liye Canvas aur SVG, Web Storage (localStorage/sessionStorage), Web Workers, WebSockets, aur Geolocation APIs. Doctype simplified hokar <!DOCTYPE html> ho gaya. HTML5 ne presentational tags jaise <font>, <center>, <big> deprecate ya remove bhi kar diye.',
+    },
+  },
+  {
+    question: 'What is the iframe tag in HTML5?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'The <iframe> (inline frame) tag embeds another HTML page inside the current page. Common uses: embedding YouTube videos, Google Maps, third-party widgets, or PDF documents. Important attributes: src (URL), width, height, title (accessibility), sandbox (restricts what the embedded content can do), and allow (controls permissions like camera, fullscreen). Iframes can be a security risk (clickjacking) — use the sandbox attribute to restrict them.',
+      hinglish:
+        '<iframe> (inline frame) tag current page ke andar ek aur HTML page embed karta hai. Common uses: YouTube videos, Google Maps, third-party widgets, ya PDF documents embed karna. Important attributes: src (URL), width, height, title (accessibility), sandbox (embedded content kya kar sakta hai restrict karta hai), aur allow (camera, fullscreen jaisi permissions control karta hai). Iframes ek security risk ho sakte hain (clickjacking) — unhe restrict karne ke liye sandbox attribute use karo.',
+    },
+  },
+  {
+    question: 'What are formatting tags in HTML?',
+    difficulty: 'easy',
+    frequency: 'rare',
+    answer: {
+      english:
+        'HTML formatting tags add text styling with semantic meaning: <b> (bold, no extra importance), <strong> (bold + important — screen readers emphasise), <i> (italic, no extra meaning), <em> (italic + emphasis), <u> (underline), <s> / <del> (strikethrough — deleted text), <ins> (inserted text), <sup> (superscript), <sub> (subscript), <mark> (highlight), <small> (fine print), <code> (inline code), <pre> (preformatted text). Prefer semantic tags over purely presentational ones.',
+      hinglish:
+        'HTML formatting tags text styling ko semantic meaning ke saath add karte hain: <b> (bold, extra importance nahi), <strong> (bold + important — screen readers emphasise karte hain), <i> (italic, extra meaning nahi), <em> (italic + emphasis), <u> (underline), <s> / <del> (strikethrough — deleted text), <ins> (inserted text), <sup> (superscript), <sub> (subscript), <mark> (highlight), <small> (fine print), <code> (inline code), <pre> (preformatted text). Purely presentational ones se zyada semantic tags prefer karo.',
+    },
+  },
+  {
+    question: 'What is the difference between <b> and <strong> in HTML?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Both render text in bold visually, but they have different semantic meanings. <b> is purely presentational — bold text with no added importance. <strong> indicates that the text is of strong importance — screen readers may change their tone and SEO tools treat it differently. Always use <strong> when you want to convey importance; use <b> only for stylistic reasons with no semantic weight.',
+      hinglish:
+        'Dono visually text bold render karte hain, par unke alag semantic meanings hain. <b> purely presentational hai — koi added importance nahi, sirf bold. <strong> indicate karta hai text strong importance ka hai — screen readers apna tone badal sakte hain aur SEO tools ise differently treat karte hain. Importance convey karne ke liye hamesha <strong> use karo; <b> sirf tab use karo jab sirf stylistic reason ho, koi semantic weight nahi.',
+    },
+  },
+  {
+    question: 'What is the viewport meta tag in HTML?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '<meta name="viewport" content="width=device-width, initial-scale=1"> controls how a page is displayed on mobile devices. Without it, mobile browsers render the page at a desktop width and zoom out — making text tiny. width=device-width tells the browser to match the screen width; initial-scale=1 sets the initial zoom to 100%. This is essential for responsive design.',
+      hinglish:
+        '<meta name="viewport" content="width=device-width, initial-scale=1"> mobile devices pe page kaise display hoga ye control karta hai. Iske bina, mobile browsers page ko desktop width pe render karte hain aur zoom out karte hain — text bahut chhota ho jata hai. width=device-width browser ko screen width match karne kehta hai; initial-scale=1 initial zoom 100% set karta hai. Ye responsive design ke liye zaroori hai.',
+    },
+  },
+  {
+    question: 'What is an attribute in HTML?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'An attribute provides additional information about an HTML element and is placed inside the opening tag as name="value" pairs. Examples: href in <a>, src in <img>, class, id, style, type, placeholder, disabled, required. Some attributes are boolean (just their presence is enough, e.g. disabled, required) — they do not need a value. Global attributes like class, id, style, and data-* work on any element.',
+      hinglish:
+        'Attribute ek HTML element ke baare mein additional information provide karta hai aur opening tag ke andar name="value" pairs ke roop mein rakha jaata hai. Examples: <a> mein href, <img> mein src, class, id, style, type, placeholder, disabled, required. Kuch attributes boolean hote hain (sirf unki presence kaafi hoti hai, jaise disabled, required) — unhe value nahi chahiye. Global attributes jaise class, id, style, aur data-* kisi bhi element pe kaam karte hain.',
+    },
+  },
+  {
+    question: 'What is the difference between block-level and inline elements in HTML?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Block-level elements start on a new line and expand to fill the full width of their container. They can contain other block and inline elements. Examples: <div>, <p>, <h1>–<h6>, <ul>, <ol>, <table>, <form>, <section>. Inline elements flow within text without forcing a new line — they only take the width of their content. Examples: <span>, <a>, <img>, <strong>, <em>, <input>. In CSS, display:block and display:inline override the default.',
+      hinglish:
+        'Block-level elements new line pe shuru hote hain aur container ki poori width fill karte hain. Ye dusre block aur inline elements contain kar sakte hain. Examples: <div>, <p>, <h1>–<h6>, <ul>, <ol>, <table>, <form>, <section>. Inline elements text ke andar flow karte hain bina new line force kiye — sirf apne content ki width lete hain. Examples: <span>, <a>, <img>, <strong>, <em>, <input>. CSS mein display:block aur display:inline default override karte hain.',
+    },
+  },
 ];
 
 export const curriculum = [...beginner, ...intermediate];

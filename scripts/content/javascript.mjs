@@ -1835,6 +1835,391 @@ export const generalInterviewQuestions = [
         'Event delegation ek parent element pe ek hi listener lagata hai aur event bubbling plus event.target se bahut saare children ke events handle karta hai. Isse listeners kam lagte hain (better performance/memory) aur baad mein DOM mein add hue elements bhi apne aap handle ho jaate hain.',
     },
   },
+  {
+    question: 'What is ECMAScript and how does it relate to JavaScript?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'ECMAScript (ES) is the official language specification maintained by ECMA International. JavaScript is the most popular implementation of that spec. ES6 (ES2015) was a landmark release that added let/const, arrow functions, classes, template literals, destructuring, modules, Promises, and more. New editions are now released every year (ES2016, ES2017, …). When people say "modern JS" they usually mean ES6+.',
+      hinglish:
+        'ECMAScript (ES) ECMA International dwara maintain ki jane wali official language specification hai. JavaScript us spec ki sabse popular implementation hai. ES6 (ES2015) ek landmark release thi jisne let/const, arrow functions, classes, template literals, destructuring, modules, Promises, aur aur cheezein add ki. Nayi editions ab har saal release hoti hain (ES2016, ES2017, …). Jab log "modern JS" kehte hain to aam taur pe ES6+ matlab hota hai.',
+    },
+  },
+  {
+    question: 'What is the difference between let, const, and var?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'var: function-scoped, hoisted with value undefined, can be redeclared and reassigned, no block scope. let: block-scoped ({} or loop), hoisted but in TDZ (ReferenceError if accessed before declaration), can be reassigned but not redeclared in same scope. const: block-scoped, must be initialised, cannot be reassigned (but object properties CAN be mutated). Best practice: use const by default; let when you need to reassign; never use var in modern code.',
+      hinglish:
+        'var: function-scoped, undefined value ke saath hoisted, redeclare aur reassign ho sakta hai, block scope nahi. let: block-scoped ({} ya loop), hoisted but TDZ mein (declaration se pehle access karo to ReferenceError), reassign ho sakta hai par same scope mein redeclare nahi. const: block-scoped, initialise zaroori, reassign nahi ho sakta (par object properties mutate HO sakti hain). Best practice: default const use karo; reassign karna ho to let; modern code mein kabhi var use mat karo.',
+    },
+  },
+  {
+    question: 'What are the spread operator, rest operator, and default parameters?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Spread (...arr): expands an iterable into individual elements — used to copy/merge arrays/objects: [...a, ...b], {...obj, key: val}. Rest (...args): collects remaining arguments into an array — used in function parameters: function fn(a, b, ...rest). Default parameters: function greet(name = "World") {} — provides a fallback value when the argument is undefined. All three use ... but context determines which one it is.',
+      hinglish:
+        'Spread (...arr): iterable ko individual elements mein expand karta hai — arrays/objects copy/merge karne ke liye: [...a, ...b], {...obj, key: val}. Rest (...args): remaining arguments ko ek array mein collect karta hai — function parameters mein: function fn(a, b, ...rest). Default parameters: function greet(name = "World") {} — argument undefined hone pe fallback value provide karta hai. Teeno ... use karte hain par context decide karta hai kaun sa hai.',
+    },
+  },
+  {
+    question: 'What is the difference between deep copy and shallow copy in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Shallow copy: copies only the top-level properties — nested objects/arrays are still shared by reference. Methods: spread { ...obj }, Object.assign(), [...arr]. If you mutate a nested object in the copy, it also changes the original. Deep copy: copies all levels recursively — no shared references. Methods: structuredClone(obj) (modern, native), JSON.parse(JSON.stringify(obj)) (loses functions, undefined, Date becomes string). Use deep copy when nested data must be fully independent.',
+      hinglish:
+        'Shallow copy: sirf top-level properties copy karta hai — nested objects/arrays reference se share hote hain. Methods: spread { ...obj }, Object.assign(), [...arr]. Agar copy mein nested object mutate karo, original bhi change hota hai. Deep copy: saare levels recursively copy karta hai — koi shared references nahi. Methods: structuredClone(obj) (modern, native), JSON.parse(JSON.stringify(obj)) (functions, undefined khota hai, Date string ban jaata hai). Deep copy tab use karo jab nested data fully independent hona chahiye.',
+    },
+  },
+  {
+    question: 'What are Promises, callbacks, and async/await in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Callback: a function passed as an argument to be called later — the old way for async. Problem: "callback hell" (deeply nested). Promise: an object representing a future value with states pending → fulfilled/rejected. Chained with .then()/.catch()/.finally(). async/await: syntactic sugar over Promises — async functions always return a Promise; await pauses execution until the Promise resolves, making async code look synchronous. Use async/await for readability; Promises for parallel operations (Promise.all).',
+      hinglish:
+        'Callback: ek function jo argument ke roop mein pass hota hai baad mein call hone ke liye — async ka purana tarika. Problem: "callback hell" (deeply nested). Promise: ek object jo future value represent karta hai states pending → fulfilled/rejected ke saath. .then()/.catch()/.finally() se chain karo. async/await: Promises pe syntactic sugar — async functions hamesha Promise return karte hain; await execution pause karta hai jab tak Promise resolve na ho, async code synchronous jaisa dikhta hai. Readability ke liye async/await use karo; parallel operations ke liye Promises (Promise.all).',
+    },
+  },
+  {
+    question: 'What is event bubbling and event capturing in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'When an event fires, it goes through three phases: (1) Capturing: travels down from window to the target. (2) Target: reaches the target element. (3) Bubbling: travels back up to window. By default, addEventListener uses bubbling (third argument false). To use the capturing phase, pass true or { capture: true }. To stop propagation: event.stopPropagation(). event.stopImmediatePropagation() also stops other listeners on the same element.',
+      hinglish:
+        'Jab event fire hota hai, teen phases se guzarta hai: (1) Capturing: window se target tak neeche travel karta hai. (2) Target: target element tak pahuncha. (3) Bubbling: wapas window tak upar travel karta hai. By default, addEventListener bubbling use karta hai (third argument false). Capturing phase ke liye true ya { capture: true } pass karo. Propagation rokne ke liye: event.stopPropagation(). event.stopImmediatePropagation() same element pe doosre listeners bhi rokta hai.',
+    },
+  },
+  {
+    question: 'What is a higher-order function in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A higher-order function is a function that takes one or more functions as arguments or returns a function. Examples: map, filter, reduce, forEach, setTimeout. They enable functional programming patterns — composing, currying, and abstracting iteration. Custom example: function withLogging(fn) { return (...args) => { console.log(args); return fn(...args); }; }.',
+      hinglish:
+        'Higher-order function ek function hai jo ek ya zyada functions arguments ke roop mein leta hai ya function return karta hai. Examples: map, filter, reduce, forEach, setTimeout. Ye functional programming patterns enable karte hain — composing, currying, aur iteration abstract karna. Custom example: function withLogging(fn) { return (...args) => { console.log(args); return fn(...args); }; }.',
+    },
+  },
+  {
+    question: 'What are the different types of functions in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Function declaration: function foo() {} — hoisted completely, can be called before declaration. Function expression: const foo = function() {} — not hoisted (only variable is). Arrow function: const foo = () => {} — no own this, arguments, or super; cannot be used as constructor. IIFE: (function(){})() — immediately invoked, creates private scope. Generator: function* gen() { yield 1; } — pauseable. Async function: async function fetchData() {} — returns a Promise.',
+      hinglish:
+        'Function declaration: function foo() {} — completely hoisted, declaration se pehle call ho sakta hai. Function expression: const foo = function() {} — hoisted nahi (sirf variable). Arrow function: const foo = () => {} — apna this, arguments, ya super nahi; constructor ke roop mein use nahi ho sakta. IIFE: (function(){})() — immediately invoked, private scope banata hai. Generator: function* gen() { yield 1; } — pauseable. Async function: async function fetchData() {} — Promise return karta hai.',
+    },
+  },
+  {
+    question: 'What is an arrow function and how does it differ from a regular function?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Arrow functions (const fn = () => {}) are more concise and have key differences: (1) No own this — they inherit this from the enclosing lexical scope (great for callbacks that need the outer this). (2) No arguments object — use rest parameters instead. (3) Cannot be used as constructors (no new). (4) No prototype property. (5) Cannot be generator functions. Use regular functions for methods, constructors; arrow functions for callbacks and closures.',
+      hinglish:
+        'Arrow functions (const fn = () => {}) zyada concise hain aur key differences hain: (1) Apna this nahi — enclosing lexical scope se this inherit karte hain (outer this chahiye wale callbacks ke liye best). (2) Arguments object nahi — rest parameters use karo. (3) Constructors ke roop mein use nahi ho sakte (no new). (4) prototype property nahi. (5) Generator functions nahi ban sakte. Regular functions methods, constructors ke liye; arrow functions callbacks aur closures ke liye use karo.',
+    },
+  },
+  {
+    question: 'Why do we use call, apply, and bind in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'All three let you explicitly set the this value of a function. call(thisArg, arg1, arg2): calls the function immediately with a given this and individual arguments. apply(thisArg, [args]): same but arguments are passed as an array. bind(thisArg, arg1...): returns a new function permanently bound to thisArg (and optionally pre-fills arguments — partial application). Use bind for event handlers that need a specific this; call/apply for borrowing methods from other objects.',
+      hinglish:
+        'Teeno function ke this value explicitly set karne dete hain. call(thisArg, arg1, arg2): given this aur individual arguments ke saath function immediately call karta hai. apply(thisArg, [args]): same hai par arguments array ke roop mein pass hote hain. bind(thisArg, arg1...): thisArg se permanently bound new function return karta hai (aur optionally arguments pre-fill karta hai — partial application). Specific this chahiye wale event handlers ke liye bind use karo; doosre objects se methods borrow karne ke liye call/apply.',
+    },
+  },
+  {
+    question: 'How many ways can you create an object in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '(1) Object literal: const obj = { key: val }. (2) Object.create(proto): sets the prototype explicitly. (3) Constructor function: function Person(n){this.name=n} new Person("A"). (4) ES6 class: class Person { constructor(n){ this.name=n } } new Person("A"). (5) Object.assign({}, src): shallow copy/merge. (6) Factory function: function makePerson(n){ return {name:n} }. (7) Spread: const copy = {...other}. Classes and constructor functions are most common in production code.',
+      hinglish:
+        '(1) Object literal: const obj = { key: val }. (2) Object.create(proto): prototype explicitly set karta hai. (3) Constructor function: function Person(n){this.name=n} new Person("A"). (4) ES6 class: class Person { constructor(n){ this.name=n } } new Person("A"). (5) Object.assign({}, src): shallow copy/merge. (6) Factory function: function makePerson(n){ return {name:n} }. (7) Spread: const copy = {...other}. Production code mein classes aur constructor functions sabse common hain.',
+    },
+  },
+  {
+    question: 'What is prototype inheritance in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Every JavaScript object has an internal [[Prototype]] link to another object. When you access a property not found on the object, JS looks up the prototype chain until it finds it or hits null. This is prototype inheritance — objects inherit properties/methods from their prototype. Constructor functions set the prototype via .prototype; ES6 classes are syntax sugar over the same mechanism. Object.getPrototypeOf(obj) or obj.__proto__ inspect the chain.',
+      hinglish:
+        'Har JavaScript object ka ek internal [[Prototype]] link hota hai doosre object se. Jab tum object pe property access karo jo nahi mili, JS prototype chain mein upar dhundhta hai jab tak nahi milti ya null pe nahi pahunchta. Ye prototype inheritance hai — objects apne prototype se properties/methods inherit karte hain. Constructor functions .prototype se prototype set karte hain; ES6 classes same mechanism pe syntax sugar hain. Object.getPrototypeOf(obj) ya obj.__proto__ chain inspect karte hain.',
+    },
+  },
+  {
+    question: 'What is throttling and debouncing in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Both limit how often a function runs. Throttle: enforces a maximum call rate — the function runs at most once per interval, no matter how many times the trigger fires. Good for scroll/resize handlers. Debounce: waits until the trigger stops firing for a set delay, then calls the function once. Good for search-as-you-type (wait until the user stops typing). Lodash\'s _.throttle and _.debounce are common implementations.',
+      hinglish:
+        'Dono limit karte hain kitni baar function run kare. Throttle: maximum call rate enforce karta hai — trigger kitni baar bhi fire ho, function most per interval ek baar hi chalega. Scroll/resize handlers ke liye accha. Debounce: wait karta hai jab tak trigger set delay ke liye fire hona band na ho, phir function ek baar call karta hai. Search-as-you-type ke liye accha (user typing band karne ka wait karo). Lodash ke _.throttle aur _.debounce common implementations hain.',
+    },
+  },
+  {
+    question: 'What are falsy values in JavaScript?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Values that coerce to false in a boolean context: false, 0, -0, 0n (BigInt zero), "" (empty string), null, undefined, NaN. Everything else is truthy — including "0", "false", [], and {}. Common pitfall: if ([]) is truthy because an empty array is an object. Use Boolean(val) or !!val to explicitly check.',
+      hinglish:
+        'Values jo boolean context mein false mein coerce hote hain: false, 0, -0, 0n (BigInt zero), "" (empty string), null, undefined, NaN. Baaki sab truthy hai — including "0", "false", [], aur {}. Common pitfall: if ([]) truthy hai kyunki empty array ek object hai. Explicitly check karne ke liye Boolean(val) ya !!val use karo.',
+    },
+  },
+  {
+    question: 'What is the execution context, event loop, call stack, callback queue, and microtask queue?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Execution context: the environment in which JS code runs (global or function) — holds variable bindings, this, and scope chain. Call stack: LIFO stack that tracks function calls; when a function is called it is pushed, when it returns it is popped. Event loop: constantly checks if the call stack is empty, then moves tasks from queues. Microtask queue: holds Promises (.then), queueMicrotask, MutationObserver callbacks — processed BEFORE the next macro-task. Callback queue (task queue): holds setTimeout, setInterval, UI events — processed after microtasks.',
+      hinglish:
+        'Execution context: environment jisme JS code run karta hai (global ya function) — variable bindings, this, aur scope chain rakhta hai. Call stack: LIFO stack jo function calls track karta hai; function call hone pe push hota hai, return pe pop. Event loop: constantly check karta hai call stack empty hai ya nahi, phir queues se tasks move karta hai. Microtask queue: Promises (.then), queueMicrotask, MutationObserver callbacks hold karta hai — next macro-task se PEHLE process hote hain. Callback queue (task queue): setTimeout, setInterval, UI events hold karta hai — microtasks ke baad process hote hain.',
+    },
+  },
+  {
+    question: 'What is the difference between setTimeout and setInterval?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'setTimeout(fn, delay): calls fn once after delay milliseconds. setInterval(fn, interval): calls fn repeatedly every interval milliseconds until clearInterval is called. Both are non-blocking — they schedule the callback via the event loop, so the actual execution may be slightly later than the specified delay. Use clearTimeout/clearInterval to cancel. Prefer recursive setTimeout over setInterval to avoid overlapping executions.',
+      hinglish:
+        'setTimeout(fn, delay): delay milliseconds ke baad fn ek baar call karta hai. setInterval(fn, interval): clearInterval call hone tak har interval milliseconds pe fn repeatedly call karta hai. Dono non-blocking hain — callback event loop ke through schedule karte hain, isliye actual execution specified delay se thoda baad ho sakta hai. Cancel karne ke liye clearTimeout/clearInterval use karo. Overlapping executions avoid karne ke liye setInterval pe recursive setTimeout prefer karo.',
+    },
+  },
+  {
+    question: 'What is the difference between Object.seal() and Object.freeze()?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Object.seal(obj): prevents adding or deleting properties, but existing properties can still be modified (if writable). Object.freeze(obj): prevents adding, deleting, AND modifying any property — the object is fully immutable at the top level. Neither is deep — nested objects are not sealed/frozen. Use freeze for constants/config objects. Check with Object.isSealed() / Object.isFrozen().',
+      hinglish:
+        'Object.seal(obj): properties add ya delete hone se rokta hai, par existing properties ab bhi modify ho sakti hain (agar writable ho). Object.freeze(obj): properties add, delete, AUR modify sabse rokta hai — object top level pe fully immutable ho jaata hai. Dono deep nahi hain — nested objects seal/freeze nahi hote. Constants/config objects ke liye freeze use karo. Object.isSealed() / Object.isFrozen() se check karo.',
+    },
+  },
+  {
+    question: 'What is the difference between Map and Set in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Map: a key-value store where keys can be any type (object, function, primitive) — unlike plain objects where keys are always strings/symbols. Maintains insertion order. Methods: set, get, has, delete, size, forEach. Set: a collection of unique values — duplicates are silently ignored. Methods: add, has, delete, size, forEach. Both are iterable. Use Map when you need non-string keys or need to know the size easily; use Set to deduplicate arrays.',
+      hinglish:
+        'Map: key-value store jahan keys koi bhi type ho sakti hain (object, function, primitive) — plain objects ke ulat jahan keys hamesha strings/symbols hoti hain. Insertion order maintain karta hai. Methods: set, get, has, delete, size, forEach. Set: unique values ka collection — duplicates silently ignore hote hain. Methods: add, has, delete, size, forEach. Dono iterable hain. Non-string keys chahiye ya size asaani se jaanna ho to Map use karo; arrays deduplicate karne ke liye Set.',
+    },
+  },
+  {
+    question: 'What are WeakMap and WeakSet in JavaScript?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'WeakMap: like Map but keys must be objects and are held weakly — if the key object has no other references, it can be garbage collected (and the entry is removed automatically). Not enumerable/iterable. WeakSet: like Set but stores only objects, held weakly. Used for: private data associated with objects, tracking DOM nodes without preventing GC. Do not use when you need to iterate or know the size — use regular Map/Set instead.',
+      hinglish:
+        'WeakMap: Map jaisa par keys objects hone chahiye aur weakly held hote hain — agar key object ke aur koi references nahi, garbage collected ho sakta hai (aur entry automatically remove hoti hai). Enumerable/iterable nahi. WeakSet: Set jaisa par sirf objects store karta hai, weakly held. Use cases: objects ke saath associated private data, DOM nodes track karna bina GC rokne ke. Jab iterate karna ho ya size jaanna ho tab use mat karo — regular Map/Set use karo.',
+    },
+  },
+  {
+    question: 'What is the difference between sessionStorage, localStorage, and cookies?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'localStorage: stores key-value strings in the browser with no expiry — persists across tabs and browser restarts (same origin). sessionStorage: same API but data is cleared when the tab/window closes — not shared across tabs. Cookies: sent with every HTTP request (server can read them), can have expiry, HttpOnly, Secure, and SameSite flags — used for auth tokens. Storage capacity: localStorage/sessionStorage ~5–10MB; cookies ~4KB. Use localStorage for preferences; cookies for session/auth managed by the server.',
+      hinglish:
+        'localStorage: browser mein key-value strings store karta hai koi expiry nahi — tabs aur browser restarts ke beech persist karta hai (same origin). sessionStorage: same API par tab/window close hone pe data clear hota hai — tabs ke across share nahi hota. Cookies: har HTTP request ke saath bheje jaate hain (server padh sakta hai), expiry, HttpOnly, Secure, aur SameSite flags ho sakte hain — auth tokens ke liye use hote hain. Storage capacity: localStorage/sessionStorage ~5–10MB; cookies ~4KB. Preferences ke liye localStorage; server dwara manage session/auth ke liye cookies.',
+    },
+  },
+  {
+    question: 'What are map, filter, and reduce in JavaScript?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'All three are array higher-order methods that take a callback and return a new value without mutating the original. map(fn): transforms each element, returns a new array of the same length. filter(fn): returns a new array with only elements where fn returns true. reduce(fn, initial): accumulates elements into a single value (sum, object, etc.) — the most flexible. Example: [1,2,3].map(x => x*2) → [2,4,6]. [1,2,3].filter(x => x>1) → [2,3]. [1,2,3].reduce((acc,x)=>acc+x,0) → 6.',
+      hinglish:
+        'Teeno array higher-order methods hain jo callback lete hain aur original mutate kiye bina new value return karte hain. map(fn): har element transform karta hai, same length ka new array return karta hai. filter(fn): sirf un elements ka new array return karta hai jahan fn true return kare. reduce(fn, initial): elements ko single value (sum, object, etc.) mein accumulate karta hai — sabse flexible. Example: [1,2,3].map(x => x*2) → [2,4,6]. [1,2,3].filter(x => x>1) → [2,3]. [1,2,3].reduce((acc,x)=>acc+x,0) → 6.',
+    },
+  },
+  {
+    question: 'What is a generator function in JavaScript?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A generator (function*) can pause its execution with yield and be resumed externally. Calling a generator returns an iterator object with a next() method. Each next() call runs until the next yield, returning { value, done }. Use cases: lazy infinite sequences, custom iterators, async flow control (before async/await), or processing large datasets without loading all at once. function* counter() { let i=0; while(true) yield i++; }',
+      hinglish:
+        'Generator (function*) apni execution yield ke saath pause kar sakta hai aur externally resume ho sakta hai. Generator call karne pe next() method wala iterator object milta hai. Har next() call agले yield tak run karta hai, { value, done } return karta hai. Use cases: lazy infinite sequences, custom iterators, async flow control (async/await se pehle), ya large datasets ko ek baar mein load kiye bina process karna. function* counter() { let i=0; while(true) yield i++; }',
+    },
+  },
+  {
+    question: 'What is closure in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A closure is a function that remembers and accesses variables from its outer scope even after the outer function has returned. The function "closes over" those variables. Example: function counter() { let n=0; return () => ++n; } — each call to the returned function increments the same n. Closures are the basis for data privacy, factory functions, memoization, and event handler state.',
+      hinglish:
+        'Closure ek function hai jo outer scope ke variables yaad rakhta hai aur access karta hai chahe outer function return ho chuka ho. Function un variables ke upar "close" ho jaata hai. Example: function counter() { let n=0; return () => ++n; } — returned function har call pe same n increment karta hai. Closures data privacy, factory functions, memoization, aur event handler state ka basis hain.',
+    },
+  },
+  {
+    question: 'What is hoisting in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Hoisting is JavaScript\'s behaviour of moving declarations to the top of their scope before execution. var declarations are hoisted with value undefined — so you can reference a var before its line (no error, but value is undefined). Function declarations are fully hoisted — you can call them before they appear in code. let and const are hoisted but stay in the Temporal Dead Zone until their declaration line — accessing them before that throws a ReferenceError.',
+      hinglish:
+        'Hoisting JavaScript ka behaviour hai jo declarations ko execution se pehle unke scope ke top pe move karta hai. var declarations undefined value ke saath hoisted hote hain — isliye var ko uski line se pehle reference kar sakte ho (error nahi, par value undefined hogi). Function declarations fully hoisted hote hain — code mein appear hone se pehle call kar sakte ho. let aur const hoisted hote hain par Temporal Dead Zone mein rehte hain unki declaration line tak — pehle access karo to ReferenceError.',
+    },
+  },
+  {
+    question: 'What is function currying in JavaScript?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Currying transforms a function with multiple arguments into a chain of functions that each take one argument: f(a, b, c) → f(a)(b)(c). It enables partial application — fix some arguments and reuse the function. Example: const multiply = a => b => a * b; const double = multiply(2); double(5) → 10. Libraries like Ramda and Lodash/fp use currying extensively. Useful for creating specialised functions from general ones.',
+      hinglish:
+        'Currying multiple arguments wale function ko functions ki chain mein transform karta hai jahan har ek ek argument leta hai: f(a, b, c) → f(a)(b)(c). Ye partial application enable karta hai — kuch arguments fix karo aur function reuse karo. Example: const multiply = a => b => a * b; const double = multiply(2); double(5) → 10. Ramda aur Lodash/fp jaisi libraries currying extensively use karti hain. General ones se specialised functions banane ke liye useful.',
+    },
+  },
+  {
+    question: 'What is memoization in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Memoization is an optimization that caches the result of a function for given inputs so the same computation is not repeated. It trades memory for speed. Implementation: function memo(fn) { const cache = {}; return (n) => cache[n] ?? (cache[n] = fn(n)); }. Commonly used for recursive algorithms (Fibonacci), expensive calculations. In React, useMemo does memoization for computed values; useCallback memoizes function references.',
+      hinglish:
+        'Memoization ek optimization hai jo given inputs ke liye function ka result cache karta hai taaki same computation repeat na ho. Speed ke liye memory trade karta hai. Implementation: function memo(fn) { const cache = {}; return (n) => cache[n] ?? (cache[n] = fn(n)); }. Recursive algorithms (Fibonacci), expensive calculations ke liye commonly use hota hai. React mein, useMemo computed values ke liye memoization karta hai; useCallback function references memoize karta hai.',
+    },
+  },
+  {
+    question: 'What is MutationObserver in JavaScript?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'MutationObserver is a native browser API that watches for changes in the DOM — added/removed nodes, attribute changes, text content changes. It is asynchronous and batches mutations. Usage: const obs = new MutationObserver(cb); obs.observe(node, { childList: true, attributes: true, subtree: true }); obs.disconnect() to stop. Used for: reacting to third-party DOM changes, implementing undo/redo, auto-saving form data, implementing virtual scroll libraries.',
+      hinglish:
+        'MutationObserver ek native browser API hai jo DOM mein changes watch karta hai — added/removed nodes, attribute changes, text content changes. Ye asynchronous hai aur mutations batch karta hai. Usage: const obs = new MutationObserver(cb); obs.observe(node, { childList: true, attributes: true, subtree: true }); rokne ke liye obs.disconnect(). Use cases: third-party DOM changes pe react karna, undo/redo implement karna, form data auto-save karna, virtual scroll libraries implement karna.',
+    },
+  },
+  {
+    question: 'Write a program to find the occurrence count of elements in an array.',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use an object as a frequency map. Iterate the array with for...of and increment the count for each element: const arr = [1,1,2,3,1,4]; const count = {}; for (const el of arr) { count[el] = (count[el] || 0) + 1; } // → { 1:3, 2:1, 3:1, 4:1 }. Alternatively, use Array.reduce: arr.reduce((acc, el) => ({ ...acc, [el]: (acc[el]||0)+1 }), {}). The reduce version is more functional but creates a new object on each iteration.',
+      hinglish:
+        'Object ko frequency map ke roop mein use karo. Array ko for...of se iterate karo aur har element ka count increment karo: const arr = [1,1,2,3,1,4]; const count = {}; for (const el of arr) { count[el] = (count[el] || 0) + 1; } // → { 1:3, 2:1, 3:1, 4:1 }. Alternative: Array.reduce use karo: arr.reduce((acc, el) => ({ ...acc, [el]: (acc[el]||0)+1 }), {}). Reduce version zyada functional hai par har iteration pe new object banata hai.',
+    },
+  },
+  {
+    question: 'Write a program to remove duplicates from an array.',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Best modern way: use a Set — [...new Set(arr)]. Set only stores unique values. Example: const arr = [1,2,3,4,1,2]; const unique = [...new Set(arr)]; // → [1,2,3,4]. Alternative with filter: arr.filter((val, idx) => arr.indexOf(val) === idx). For arrays of objects, deduplicate by a key using a Map.',
+      hinglish:
+        'Sabse achha modern tarika: Set use karo — [...new Set(arr)]. Set sirf unique values store karta hai. Example: const arr = [1,2,3,4,1,2]; const unique = [...new Set(arr)]; // → [1,2,3,4]. filter alternative: arr.filter((val, idx) => arr.indexOf(val) === idx). Objects ke arrays ke liye, Map use karke ek key se deduplicate karo.',
+    },
+  },
+  {
+    question: 'What will be the output when using let vs var inside setTimeout in a loop?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'With let: for (let i=0; i<5; i++) setTimeout(()=>console.log(i), i*1000) → logs 0,1,2,3,4 (one per second). let creates a new binding per iteration. With var: for (var i=0; i<5; i++) setTimeout(()=>console.log(i), i*1000) → logs 5,5,5,5,5. All callbacks share the same var i which is 5 by the time they execute. Fix with var: use an IIFE ((function(i){ setTimeout(...);})(i)) or replace var with let.',
+      hinglish:
+        'let ke saath: for (let i=0; i<5; i++) setTimeout(()=>console.log(i), i*1000) → 0,1,2,3,4 log karta hai (har second ek). let har iteration pe new binding banata hai. var ke saath: for (var i=0; i<5; i++) setTimeout(()=>console.log(i), i*1000) → 5,5,5,5,5 log karta hai. Saare callbacks ek hi var i share karte hain jo execute hone tak 5 ho jaata hai. var ke saath fix: IIFE use karo ((function(i){ setTimeout(...);})(i)) ya var ko let se replace karo.',
+    },
+  },
+  {
+    question: 'Write a polyfill for Array.prototype.map.',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Array.prototype.myMap = function(cb) { const result = []; for (let i = 0; i < this.length; i++) { result.push(cb(this[i], i, this)); } return result; }; // Usage: [2,3,4].myMap(x => x*2) → [4,6,8]. The callback receives (currentValue, index, array) — same signature as native map. Important: do not use an arrow function for the polyfill definition itself or "this" will not be the array.',
+      hinglish:
+        'Array.prototype.myMap = function(cb) { const result = []; for (let i = 0; i < this.length; i++) { result.push(cb(this[i], i, this)); } return result; }; // Usage: [2,3,4].myMap(x => x*2) → [4,6,8]. Callback ko (currentValue, index, array) milta hai — native map jaisi same signature. Important: polyfill definition ke liye arrow function use mat karo warna "this" array nahi hogi.',
+    },
+  },
+  {
+    question: 'Write a polyfill for Array.prototype.filter.',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Array.prototype.myFilter = function(cb) { const result = []; for (let i = 0; i < this.length; i++) { if (cb(this[i], i, this)) result.push(this[i]); } return result; }; // Usage: [2,3,4,5].myFilter(x => x > 2) → [3,4,5]. Key difference from map: push only when callback returns truthy. The result can be shorter than the original array.',
+      hinglish:
+        'Array.prototype.myFilter = function(cb) { const result = []; for (let i = 0; i < this.length; i++) { if (cb(this[i], i, this)) result.push(this[i]); } return result; }; // Usage: [2,3,4,5].myFilter(x => x > 2) → [3,4,5]. map se key difference: sirf tab push karo jab callback truthy return kare. Result original array se chhota ho sakta hai.',
+    },
+  },
+  {
+    question: 'Write a polyfill for Array.prototype.reduce.',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Array.prototype.myReduce = function(cb, initialValue) { let acc = initialValue; let startIdx = 0; if (acc === undefined) { acc = this[0]; startIdx = 1; } for (let i = startIdx; i < this.length; i++) { acc = cb(acc, this[i], i, this); } return acc; }; // Usage: [1,2,3,4].myReduce((acc, x) => acc+x, 0) → 10. If no initialValue, use first element as accumulator and start from index 1.',
+      hinglish:
+        'Array.prototype.myReduce = function(cb, initialValue) { let acc = initialValue; let startIdx = 0; if (acc === undefined) { acc = this[0]; startIdx = 1; } for (let i = startIdx; i < this.length; i++) { acc = cb(acc, this[i], i, this); } return acc; }; // Usage: [1,2,3,4].myReduce((acc, x) => acc+x, 0) → 10. Agar initialValue nahi, pehla element accumulator use karo aur index 1 se shuru karo.',
+    },
+  },
+  {
+    question: 'Write a program to multiply two numbers without using the * operator.',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Use repeated addition: function multiply(a, b) { let result = 0; for (let i = 0; i < Math.abs(b); i++) { result += a; } return b < 0 ? -result : result; } // multiply(5, 3) → 15. Handle negatives by using Math.abs and flipping the sign. Can also use recursion: multiply(a, b) = a + multiply(a, b-1) with base case b===0.',
+      hinglish:
+        'Repeated addition use karo: function multiply(a, b) { let result = 0; for (let i = 0; i < Math.abs(b); i++) { result += a; } return b < 0 ? -result : result; } // multiply(5, 3) → 15. Negatives handle karne ke liye Math.abs use karo aur sign flip karo. Recursion bhi use kar sakte ho: multiply(a, b) = a + multiply(a, b-1) base case b===0 ke saath.',
+    },
+  },
+  {
+    question: 'What will be the output when using objects as keys in another object?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'const a={}; const b={key:"b"}; const c={key:"c"}; a[b]=123; a[c]=456; console.log(a[b]); → 456. Object keys are automatically converted to strings via .toString(). Both b and c stringify to "[object Object]", so a["[object Object]"] is first set to 123, then overwritten to 456. a[b] and a[c] both read the same key "[object Object]", returning 456. Use Map if you need object keys.',
+      hinglish:
+        'const a={}; const b={key:"b"}; const c={key:"c"}; a[b]=123; a[c]=456; console.log(a[b]); → 456. Object keys automatically strings mein convert hote hain .toString() ke through. b aur c dono "[object Object]" pe stringify hote hain, isliye a["[object Object]"] pehle 123 set hota hai, phir 456 se overwrite. a[b] aur a[c] dono same key "[object Object]" padhte hain, 456 return karte hain. Agar object keys chahiye to Map use karo.',
+    },
+  },
 ];
 
 // Final ordered curriculum

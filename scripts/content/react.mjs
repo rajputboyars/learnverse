@@ -1050,6 +1050,270 @@ export const generalInterviewQuestions = [
         'React 17 aur usse pehle, React event handler ke andar setState calls ek render mein batch hoti thi, par setTimeout ya promise callback ke andar calls apna alag render karti thi. React 18 mein, automatic batching by default har jagah lagti hai, isliye update kahin se bhi aaye behaviour consistent rehta hai — agar specifically synchronous update chahiye to flushSync se batching se opt out kar sakte ho.',
     },
   },
+  {
+    question: 'What is React?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'React is an open-source JavaScript library built by Facebook for building fast, interactive user interfaces. It uses a component-based architecture where UIs are split into reusable pieces, and a Virtual DOM to minimise real DOM updates, making re-renders efficient. React is declarative — you describe what the UI should look like for a given state, and React takes care of updating the DOM.',
+      hinglish:
+        'React ek open-source JavaScript library hai jo Facebook ne banai hai fast, interactive UIs banane ke liye. Ye component-based architecture use karta hai jahan UIs reusable pieces mein divide hoti hai, aur Virtual DOM se real DOM updates minimize karta hai jisse re-renders efficient hote hain. React declarative hai — tum describe karo UI kaisi dikhni chahiye given state ke liye, aur React DOM update karta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between Virtual DOM, Shadow DOM, and the real DOM?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Real DOM: the actual browser document tree — updating it is slow because it triggers reflow/repaint. Virtual DOM: a lightweight in-memory copy of the real DOM that React keeps. On state change React diffs the old and new Virtual DOM (reconciliation), computes the minimal set of changes, and batches them into the real DOM — making updates fast. Shadow DOM: a browser standard for scoping CSS and markup inside a component (used in Web Components) — unrelated to React\'s Virtual DOM.',
+      hinglish:
+        'Real DOM: actual browser document tree — update karna slow hai kyunki reflow/repaint trigger hota hai. Virtual DOM: React ka ek lightweight in-memory copy real DOM ka. State change pe React old aur new Virtual DOM diff karta hai (reconciliation), minimum changes nikaalta hai, aur real DOM mein batch karta hai — updates fast hote hain. Shadow DOM: ek browser standard jo CSS aur markup ko component ke andar scope karta hai (Web Components mein) — React ke Virtual DOM se alag hai.',
+    },
+  },
+  {
+    question: 'What are controlled and uncontrolled components?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A controlled component\'s form value is driven by React state — every change goes through onChange and setState, so React is the single source of truth. An uncontrolled component stores its own value internally in the DOM and you read it via a ref when needed. Controlled components are preferred because they give you full control over validation, formatting, and conditional disabling.',
+      hinglish:
+        'Controlled component ki form value React state se drive hoti hai — har change onChange aur setState se guzarta hai, isliye React single source of truth hai. Uncontrolled component apni value DOM mein internally store karta hai aur tum ref se read karte ho jab zarurat ho. Controlled components prefer kiye jaate hain kyunki validation, formatting, aur conditional disabling ka full control milta hai.',
+    },
+  },
+  {
+    question: 'What are React hooks and what problem do they solve?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Hooks are functions (starting with "use") that let function components use state, lifecycle behaviour, context, refs, and other React features — things previously only available in class components. They solve the problems of complex class hierarchies, hard-to-reuse stateful logic, and confusing "this" binding. Common hooks: useState, useEffect, useContext, useRef, useMemo, useCallback.',
+      hinglish:
+        'Hooks functions hain ("use" se shuru hone wale) jo function components ko state, lifecycle behaviour, context, refs aur doosri React features use karne dete hain — jo pehle sirf class components mein available thi. Ye complex class hierarchies, hard-to-reuse stateful logic, aur confusing "this" binding ki problems solve karte hain. Common hooks: useState, useEffect, useContext, useRef, useMemo, useCallback.',
+    },
+  },
+  {
+    question: 'What is JSX? What do Babel and Webpack do in a React project?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'JSX is a syntax extension that lets you write HTML-like markup inside JavaScript. Browsers cannot run JSX directly. Babel is a transpiler that converts JSX (and modern JS) into plain browser-compatible JavaScript. Webpack is a bundler that takes all your modules (JS, CSS, images), resolves their dependencies, and outputs one or more optimised bundles for the browser. Create React App and Vite configure both for you automatically.',
+      hinglish:
+        'JSX ek syntax extension hai jo JavaScript ke andar HTML jaisi markup likhne deta hai. Browsers JSX directly run nahi kar sakte. Babel ek transpiler hai jo JSX (aur modern JS) ko plain browser-compatible JavaScript mein convert karta hai. Webpack ek bundler hai jo saare modules (JS, CSS, images) leta hai, unki dependencies resolve karta hai, aur browser ke liye optimised bundles output karta hai. Create React App aur Vite dono automatically configure karte hain.',
+    },
+  },
+  {
+    question: 'What is Redux and when should you use it?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Redux is a predictable state management library. It stores the entire app state in a single store, and state can only be changed by dispatching actions that go through pure reducer functions. Use it when multiple unrelated components share complex state, when you need time-travel debugging, or when prop drilling and Context become unwieldy. For most medium-sized apps, Context + useReducer or Zustand is sufficient.',
+      hinglish:
+        'Redux ek predictable state management library hai. Ye poori app state ek single store mein rakhta hai, aur state sirf actions dispatch karke badal sakti hai jo pure reducer functions se guzarte hain. Ise use karo jab multiple unrelated components complex state share karein, time-travel debugging chahiye, ya prop drilling aur Context unwieldy ho jaaye. Zyaadatar medium-sized apps ke liye Context + useReducer ya Zustand kaafi hai.',
+    },
+  },
+  {
+    question: 'What are reducer, action, and store in Redux?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Action: a plain JS object with a type field (and optional payload) that describes what happened — e.g. { type: "INCREMENT", payload: 1 }. Reducer: a pure function (previousState, action) => newState that returns a new state object based on the action — never mutates the old state. Store: the single container created by createStore(reducer) that holds state, lets you dispatch actions, and subscribe to changes.',
+      hinglish:
+        'Action: ek plain JS object jisme type field (aur optional payload) hota hai jo describe karta hai kya hua — e.g. { type: "INCREMENT", payload: 1 }. Reducer: ek pure function (previousState, action) => newState jo action ke basis pe new state object return karta hai — purani state kabhi mutate nahi karta. Store: createStore(reducer) se bana single container jo state rakhta hai, actions dispatch karne deta hai, aur changes subscribe karne deta hai.',
+    },
+  },
+  {
+    question: 'What is middleware in Redux? What does Redux Thunk do?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Middleware sits between dispatch and the reducer, letting you intercept actions to add logging, crash reporting, or async logic. Redux Thunk is the most common middleware — it lets you dispatch functions (thunks) instead of plain objects, so you can do async work (API calls) inside action creators and dispatch real actions when the data arrives.',
+      hinglish:
+        'Middleware dispatch aur reducer ke beech baith ta hai, actions intercept karne deta hai logging, crash reporting, ya async logic add karne ke liye. Redux Thunk sabse common middleware hai — ye plain objects ki jagah functions (thunks) dispatch karne deta hai, isliye action creators ke andar async kaam (API calls) kar sakte ho aur data aane pe real actions dispatch kar sakte ho.',
+    },
+  },
+  {
+    question: 'What is Redux Saga and how does it differ from Redux Thunk?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Redux Saga uses ES6 generators to handle side effects as a separate "saga" process that listens for actions and coordinates async flows declaratively. Thunk: simpler, co-locates async logic inside action creators using Promises. Saga: more powerful, better for complex flows (race, retry, cancel, parallel), but has a steeper learning curve and more boilerplate. Choose Thunk for simple async; Saga when you need fine-grained control over complex async sequences.',
+      hinglish:
+        'Redux Saga ES6 generators use karta hai side effects ko ek alag "saga" process ke roop mein handle karne ke liye jo actions sunta hai aur async flows declaratively coordinate karta hai. Thunk: simpler, async logic action creators ke andar Promises se colocate karta hai. Saga: zyada powerful, complex flows ke liye better (race, retry, cancel, parallel), par steeper learning curve aur zyada boilerplate. Simple async ke liye Thunk chuno; Saga jab complex async sequences pe fine-grained control chahiye.',
+    },
+  },
+  {
+    question: 'How do you implement componentWillUnmount in a function component?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Return a cleanup function from useEffect. React calls it when the component unmounts (and before re-running the effect if deps change). Example: useEffect(() => { const id = setInterval(fn, 1000); return () => clearInterval(id); }, []). The empty array means run once on mount; the return cleans up on unmount.',
+      hinglish:
+        'useEffect se ek cleanup function return karo. React ise component unmount hone pe call karta hai (aur deps change hone pe effect dobara run karne se pehle). Example: useEffect(() => { const id = setInterval(fn, 1000); return () => clearInterval(id); }, []). Empty array matlab mount pe ek baar run karo; return unmount pe clean up karta hai.',
+    },
+  },
+  {
+    question: 'Explain useEffect, useState, useMemo, and useCallback in detail.',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'useState: stores a value that persists across renders and triggers re-render on change. useEffect(fn, deps): runs fn after render when deps change — for side effects (fetch, subscriptions, timers). useMemo(fn, deps): memoises the computed result of fn, recomputing only when deps change — avoids expensive recalculations on every render. useCallback(fn, deps): returns the same function reference unless deps change — prevents child re-renders caused by new function references every render.',
+      hinglish:
+        'useState: ek value store karta hai jo renders ke beech persist hoti hai aur change hone pe re-render trigger karta hai. useEffect(fn, deps): deps change hone pe render ke baad fn run karta hai — side effects ke liye (fetch, subscriptions, timers). useMemo(fn, deps): fn ka computed result memoize karta hai, sirf deps change hone pe recompute karta hai — har render pe expensive recalculations avoid karta hai. useCallback(fn, deps): deps change na hone tak same function reference return karta hai — har render pe naye function references se caused child re-renders rokta hai.',
+    },
+  },
+  {
+    question: 'What are React lifecycle methods?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Class component lifecycle: Mounting — constructor → render → componentDidMount. Updating — render → componentDidUpdate(prevProps, prevState). Unmounting — componentWillUnmount. In function components, useEffect replaces all three phases: [] for componentDidMount, [deps] for componentDidUpdate, and the cleanup return for componentWillUnmount.',
+      hinglish:
+        'Class component lifecycle: Mounting — constructor → render → componentDidMount. Updating — render → componentDidUpdate(prevProps, prevState). Unmounting — componentWillUnmount. Function components mein useEffect teeno phases replace karta hai: [] for componentDidMount, [deps] for componentDidUpdate, aur cleanup return for componentWillUnmount.',
+    },
+  },
+  {
+    question: 'What is the difference between export default and named export in React?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Named export: export const Foo = ... — imported with the exact name in braces: import { Foo } from "./file". A file can have many named exports. Default export: export default Foo — imported without braces and with any name: import Foo from "./file" or import MyFoo from "./file". A file can have only one default export. React components typically use default exports for the main component and named exports for utilities.',
+      hinglish:
+        'Named export: export const Foo = ... — exact name curly braces mein import karo: import { Foo } from "./file". Ek file mein kai named exports ho sakte hain. Default export: export default Foo — bina braces ke aur kisi bhi naam se import karo: import Foo from "./file". Ek file mein sirf ek default export ho sakta hai. React components aam taur pe main component ke liye default export aur utilities ke liye named exports use karte hain.',
+    },
+  },
+  {
+    question: 'What is a React Portal?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A portal lets you render a child component into a different DOM node than the parent\'s DOM tree — typically used for modals, tooltips, and dropdowns that need to escape overflow: hidden or z-index stacking constraints of their container. Created with ReactDOM.createPortal(child, domNode). Events still bubble normally through the React tree even though the DOM node is elsewhere.',
+      hinglish:
+        'Portal ek child component ko parent ke DOM tree se alag DOM node mein render karne deta hai — typically modals, tooltips, aur dropdowns ke liye use hota hai jinhe container ke overflow: hidden ya z-index stacking constraints se escape karna hota hai. ReactDOM.createPortal(child, domNode) se banate hain. Events React tree mein normally bubble hote hain chahe DOM node alag jagah ho.',
+    },
+  },
+  {
+    question: 'What is useRef and when should you use it?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'useRef returns a mutable ref object { current: value } that persists across renders without causing re-renders when changed. Use cases: (1) accessing DOM elements directly (ref.current.focus()); (2) storing mutable values like timer IDs, previous state, or flags that should not trigger re-renders; (3) forwarding refs to child components. Unlike state, mutating ref.current never schedules a re-render.',
+      hinglish:
+        'useRef ek mutable ref object { current: value } return karta hai jo renders ke beech persist karta hai aur change hone pe re-renders cause nahi karta. Use cases: (1) DOM elements directly access karna (ref.current.focus()); (2) mutable values store karna jaise timer IDs, previous state, ya flags jo re-renders trigger nahi karne chahiye; (3) child components ko refs forward karna. State ke ulat, ref.current mutate karna kabhi re-render schedule nahi karta.',
+    },
+  },
+  {
+    question: 'What is server-side rendering (SSR) in React?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'SSR renders React components to HTML on the server and sends the full HTML to the browser. The browser shows content immediately (good for SEO and perceived performance), then React hydrates the HTML by attaching event listeners. Contrast with CSR (client-side rendering) where the browser receives an empty HTML shell and React builds the UI in the browser. Next.js is the main framework for SSR with React.',
+      hinglish:
+        'SSR React components ko server pe HTML mein render karta hai aur poora HTML browser ko bhejta hai. Browser turant content dikhata hai (SEO aur perceived performance ke liye accha), phir React HTML ko hydrate karta hai event listeners attach karke. CSR (client-side rendering) se contrast karo jahan browser empty HTML shell receive karta hai aur React browser mein UI banata hai. Next.js React ke saath SSR ke liye main framework hai.',
+    },
+  },
+  {
+    question: 'What is React Fragment?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A Fragment (<React.Fragment> or the shorthand <>) lets you return multiple elements from a component without adding an extra DOM node. This avoids unnecessary wrapper divs that could break styling (e.g. flex/grid layouts). The shorthand <></> cannot accept a key prop; use <React.Fragment key={id}> when rendering lists.',
+      hinglish:
+        'Fragment (<React.Fragment> ya shorthand <>) ek component se multiple elements return karne deta hai bina extra DOM node add kiye. Isse unnecessary wrapper divs avoid hote hain jo styling tod sakte hain (jaise flex/grid layouts). Shorthand <></> key prop accept nahi kar sakta; lists render karte waqt <React.Fragment key={id}> use karo.',
+    },
+  },
+  {
+    question: 'What is React Router and how does it work?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'React Router is a client-side routing library that maps URL paths to components. It uses the browser\'s History API (or hash) so navigating between routes updates the URL without a full page reload. Key components: <BrowserRouter> wraps the app, <Routes>/<Route path="/..." element={<Page />}> defines routes, <Link to="/..."> navigates, and hooks like useParams, useNavigate, useLocation access routing info.',
+      hinglish:
+        'React Router ek client-side routing library hai jo URL paths ko components se map karti hai. Ye browser ke History API (ya hash) use karta hai isliye routes ke beech navigate karna URL update karta hai bina full page reload ke. Key components: <BrowserRouter> app wrap karta hai, <Routes>/<Route path="/..." element={<Page />}> routes define karta hai, <Link to="/..."> navigate karta hai, aur useParams, useNavigate, useLocation jaise hooks routing info access karte hain.',
+    },
+  },
+  {
+    question: 'What is a Higher-Order Component (HOC) in React?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A Higher-Order Component is a function that takes a component and returns a new enhanced component — it is a pattern for reusing component logic. Example: withAuth(Component) returns a component that checks authentication before rendering the wrapped one. HOCs are a pattern from before hooks; most HOC use cases are now better handled with custom hooks.',
+      hinglish:
+        'Higher-Order Component ek function hai jo ek component leta hai aur ek naya enhanced component return karta hai — ye component logic reuse karne ka pattern hai. Example: withAuth(Component) ek component return karta hai jo wrapped component render karne se pehle authentication check karta hai. HOCs hooks se pehle ka pattern hai; zyaadatar HOC use cases ab custom hooks se better handle hote hain.',
+    },
+  },
+  {
+    question: 'What is a Pure Component in React?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'React.PureComponent is a class component base that implements shouldComponentUpdate with a shallow comparison of props and state — it skips re-rendering if neither has changed. The functional equivalent is React.memo, which wraps a function component and does a shallow prop comparison. Use them for components that render the same output given the same props, to avoid unnecessary re-renders.',
+      hinglish:
+        'React.PureComponent ek class component base hai jo shouldComponentUpdate ko props aur state ki shallow comparison ke saath implement karta hai — agar dono nahi badle to re-rendering skip karta hai. Functional equivalent React.memo hai, jo function component wrap karta hai aur shallow prop comparison karta hai. Unhe use karo jo same props pe same output render karte hain, unnecessary re-renders avoid karne ke liye.',
+    },
+  },
+  {
+    question: 'How do you optimise a React application?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Key techniques: (1) React.memo / PureComponent — skip re-renders when props unchanged. (2) useMemo / useCallback — memoize expensive values and functions. (3) Code splitting — React.lazy + Suspense to load components on demand. (4) Virtualisation — react-window/react-virtual for long lists. (5) Avoid inline objects/functions in JSX — new references every render cause children to re-render. (6) Keep state as local as possible. (7) Use production builds (tree-shaking, minification). (8) React DevTools Profiler to identify bottlenecks.',
+      hinglish:
+        'Key techniques: (1) React.memo / PureComponent — props unchanged hone pe re-renders skip karo. (2) useMemo / useCallback — expensive values aur functions memoize karo. (3) Code splitting — React.lazy + Suspense se components on demand load karo. (4) Virtualisation — long lists ke liye react-window/react-virtual. (5) JSX mein inline objects/functions avoid karo — har render pe new references children ko re-render karti hain. (6) State jitni local ho sake rakho. (7) Production builds use karo (tree-shaking, minification). (8) React DevTools Profiler se bottlenecks identify karo.',
+    },
+  },
+  {
+    question: 'What is the difference between React and Angular?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'React is a UI library (View layer only) — you compose it with other libraries for routing, state, etc. Angular is a full MVC framework with everything built in (DI, forms, HTTP, router). React uses JSX and a Virtual DOM; Angular uses TypeScript-first templates and two-way data binding. React is more flexible and has a larger ecosystem; Angular enforces a structured approach suited to large enterprise teams.',
+      hinglish:
+        'React ek UI library hai (sirf View layer) — routing, state, etc. ke liye doosri libraries ke saath compose karo. Angular ek full MVC framework hai jisme sab kuch built in hai (DI, forms, HTTP, router). React JSX aur Virtual DOM use karta hai; Angular TypeScript-first templates aur two-way data binding use karta hai. React zyada flexible hai aur bada ecosystem hai; Angular ek structured approach enforce karta hai jo badi enterprise teams ke liye suited hai.',
+    },
+  },
+  {
+    question: 'What are super() and constructor() in a React class component?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'constructor(props) is called before the component mounts — use it to initialise this.state and bind event handlers. super(props) must be the first call inside constructor to call the React.Component parent constructor, which sets up this.props. Without super(props), this.props is undefined inside the constructor. render() is the only required method — it returns JSX that describes the UI.',
+      hinglish:
+        'constructor(props) component mount hone se pehle call hota hai — this.state initialise karne aur event handlers bind karne ke liye. super(props) constructor ke andar pehla call hona chahiye jo React.Component parent constructor call karta hai, jo this.props set up karta hai. super(props) ke bina this.props constructor ke andar undefined hota hai. render() ek zaruri method hai — ye JSX return karta hai jo UI describe karta hai.',
+    },
+  },
+  {
+    question: 'What is Context API in React?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Context API lets you share values (theme, auth, language) across the component tree without passing props at every level. Create context with createContext(defaultValue), wrap the tree with <Context.Provider value={...}>, and consume it with useContext(Context) or <Context.Consumer>. It is ideal for low-frequency global state; for high-frequency updates it can cause unnecessary re-renders across all consumers.',
+      hinglish:
+        'Context API values (theme, auth, language) ko component tree mein share karne deta hai bina har level pe props pass kiye. createContext(defaultValue) se context banao, tree ko <Context.Provider value={...}> se wrap karo, aur useContext(Context) ya <Context.Consumer> se consume karo. Ye low-frequency global state ke liye ideal hai; high-frequency updates ke liye ye saare consumers mein unnecessary re-renders cause kar sakta hai.',
+    },
+  },
 ];
 
 export const curriculum = [...beginner, ...intermediate, ...advanced];
