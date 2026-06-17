@@ -43,7 +43,7 @@ export default function Navbar() {
           <Link href="/roadmaps" className="hidden lg:block hover:text-indigo-600">{t('nav.roadmaps')}</Link>
           <Link href="/interview-questions" className="hidden lg:block hover:text-indigo-600">{t('nav.interview')}</Link>
           {session?.user && <Link href="/revise" className="hover:text-indigo-600">{t('nav.revise')}</Link>}
-          {session?.user && <Link href="/resume" className="hidden lg:block hover:text-indigo-600">{t('nav.resume')}</Link>}
+          <Link href="/resume" className="hidden lg:block hover:text-indigo-600">{t('nav.resume')}</Link>
           <Link href="/leaderboard" className="hidden lg:block hover:text-indigo-600">{t('nav.leaderboard')}</Link>
           <NotificationBell />
           <LanguageToggle />
@@ -93,9 +93,7 @@ export default function Navbar() {
             {session?.user && (
               <Link href="/revise" onClick={() => setOpen(false)} className="rounded-md px-2 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">{t('nav.revise')}</Link>
             )}
-            {session?.user && (
-              <Link href="/resume" onClick={() => setOpen(false)} className="rounded-md px-2 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">{t('nav.resume')}</Link>
-            )}
+            <Link href="/resume" onClick={() => setOpen(false)} className="rounded-md px-2 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">{t('nav.resume')}</Link>
             <div className="my-2 border-t border-slate-100 dark:border-slate-800" />
             {session?.user ? (
               <>
