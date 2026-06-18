@@ -40,6 +40,11 @@ import * as dbmsCourse from './content/dbms.mjs';
 import * as osCourse from './content/os.mjs';
 import * as networksCourse from './content/networks.mjs';
 import * as systemDesignCourse from './content/system-design.mjs';
+import * as chatgptCourse from './content/chatgpt.mjs';
+import * as claudeAiCourse from './content/claude-ai.mjs';
+import * as claudeCodeCourse from './content/claude-code.mjs';
+import * as geminiCourse from './content/gemini.mjs';
+import * as codexAiCourse from './content/codex-ai.mjs';
 
 const COURSES = [
   javascriptCourse,
@@ -75,6 +80,11 @@ const COURSES = [
   osCourse,
   networksCourse,
   systemDesignCourse,
+  chatgptCourse,
+  claudeAiCourse,
+  claudeCodeCourse,
+  geminiCourse,
+  codexAiCourse,
 ];
 
 // Code-fence language label per course slug.
@@ -112,6 +122,11 @@ const CODE_LANG = {
   os: 'text',
   'computer-networks': 'text',
   'system-design': 'text',
+  chatgpt: 'javascript',
+  'claude-ai': 'javascript',
+  'claude-code': 'bash',
+  gemini: 'javascript',
+  'codex-ai': 'python',
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
