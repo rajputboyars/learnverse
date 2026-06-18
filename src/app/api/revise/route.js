@@ -5,7 +5,30 @@ import Concept from '@/models/Concept';
 import { requireUser } from '@/lib/guards';
 
 // GET /api/revise → cards due for review now (+ counts)
-export async function GET() {
+// GET /api/revise?guest=true → random concepts for unauthenticated users
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const isGuest = searchParams.get('guest') === 'true';
+
+  if (isGuest) {
+    await connectDB();
+    const concepts = await Concept.aggregate([
+      { $match: { status: 'published' } },
+      { $sample: { size: 10 } },
+      { $project: { title: 1, slug: 1, keyPoints: 1, dailyLifeExample: 1, explanation: 1, difficulty: 1 } },
+    ]);
+    const cards = concepts.map((c) => ({
+      conceptId: c._id.toString(),
+      title: c.title,
+      slug: c.slug,
+      difficulty: c.difficulty,
+      keyPoints: c.keyPoints || [],
+      dailyLifeExample: c.dailyLifeExample || '',
+      hint: (c.explanation?.english || '').slice(0, 140),
+    }));
+    return NextResponse.json({ cards, dueCount: cards.length, total: cards.length });
+  }
+
   const { session, error } = await requireUser();
   if (error) return error;
   await connectDB();

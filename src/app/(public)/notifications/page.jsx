@@ -26,10 +26,17 @@ export default function NotificationsPage() {
 
   if (status !== 'authenticated') {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center">
+      <div className="mx-auto max-w-2xl px-4 py-12">
         <h1 className="text-2xl font-bold">🔔 {pick('Notifications', 'Notifications')}</h1>
-        <p className="mt-2 text-slate-600">{pick('Apni notifications dekhne ke liye login karo.', 'Login to see your notifications.')}</p>
-        <Link href="/login?callbackUrl=/notifications" className="mt-6 inline-block rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700">Login</Link>
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-indigo-200 bg-indigo-50 px-6 py-4 dark:border-indigo-800 dark:bg-indigo-950/40">
+          <p className="text-sm text-indigo-800 dark:text-indigo-300">
+            {pick('Sign up karo taaki jab koi tumhare comments pe reply ya upvote kare, yahan notification aaye.', 'Sign up to get notified when someone replies to or upvotes your comments.')}
+          </p>
+          <div className="flex gap-2">
+            <Link href="/login" className="rounded-lg border border-indigo-300 px-4 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 dark:border-indigo-700 dark:text-indigo-300">Login</Link>
+            <Link href="/signup" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Sign up free</Link>
+          </div>
+        </div>
       </div>
     );
   }
