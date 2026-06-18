@@ -22,21 +22,7 @@ export default function DashboardPage() {
     return <p className="mx-auto max-w-4xl px-4 py-12 text-slate-400">Loading…</p>;
   }
 
-  if (status !== 'authenticated') {
-    return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold">Your dashboard</h1>
-        <p className="mt-2 text-slate-600">Login karke apni progress dekho.</p>
-        <Link
-          href="/login"
-          className="mt-6 inline-block rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700"
-        >
-          Login
-        </Link>
-      </div>
-    );
-  }
-
+  const isGuest = status !== 'authenticated';
   const cards = data
     ? [
         { label: 'Total XP', value: data.totalXP },
@@ -50,14 +36,29 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
+      {isGuest && (
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-indigo-200 bg-indigo-50 px-6 py-4 dark:border-indigo-800 dark:bg-indigo-950/40">
+          <div>
+            <p className="font-semibold text-indigo-900 dark:text-indigo-200">Track your progress</p>
+            <p className="mt-0.5 text-sm text-indigo-700 dark:text-indigo-400">Sign up free to earn XP, unlock badges, and save your learning streak.</p>
+          </div>
+          <div className="flex gap-2">
+            <Link href="/login" className="rounded-lg border border-indigo-300 px-4 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 dark:border-indigo-700 dark:text-indigo-300">Login</Link>
+            <Link href="/signup" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Sign up free</Link>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold">{t('dash.greeting')} {session.user.name?.split(' ')[0]} 👋</h1>
-          <p className="mt-2 text-slate-600">{t('dash.sub')}</p>
+          <h1 className="text-3xl font-bold">{isGuest ? 'Dashboard' : `${t('dash.greeting')} ${session.user.name?.split(' ')[0]} 👋`}</h1>
+          <p className="mt-2 text-slate-600">{isGuest ? 'Login karke apni progress dekho.' : t('dash.sub')}</p>
         </div>
-        <Link href={`/u/${session.user.id}`} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
-          {t('dash.publicProfile')}
-        </Link>
+        {!isGuest && (
+          <Link href={`/u/${session.user.id}`} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
+            {t('dash.publicProfile')}
+          </Link>
+        )}
       </div>
 
       <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">

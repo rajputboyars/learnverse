@@ -653,7 +653,7 @@ claude --dangerously-skip-permissions "fix all ESLint errors"
 #     claude --dangerously-skip-permissions \\
 #       "fix all ESLint errors and commit with message 'fix(lint): auto-fix'"
 #   env:
-#     ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+#     ANTHROPIC_API_KEY: \${{ secrets.ANTHROPIC_API_KEY }}
 
 # ── Project-level permission config ──
 # .claude/settings.json
