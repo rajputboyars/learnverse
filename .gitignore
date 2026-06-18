@@ -43,3 +43,6 @@ next-env.d.ts
 # logs
 dev.log
 *.log
+
+# Claude Code agent workspaces
+.claude/worktrees/
