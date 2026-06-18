@@ -1389,7 +1389,7 @@ if (toolResponse.stop_reason === 'tool_use') {
           '  \'<document>\\n\' +\n' +
           '  \'<code language="javascript">\\n\' +\n' +
           '  \'async function processPayment(req, res) {\\n\' +\n' +
-          \'  \'  const { cardNumber, amount } = req.body;\\n\' +\n' +
+          '  \'  const { cardNumber, amount } = req.body;\\n\' +\n' +
           '  \'  const charge = await stripe.charges.create({ amount, source: cardNumber });\\n\' +\n' +
           '  \'  await db.payments.insertOne({ cardNumber, amount, chargeId: charge.id });\\n\' +\n' +
           '  \'  res.json({ success: true });\\n\' +\n' +
@@ -1581,8 +1581,8 @@ if (toolResponse.stop_reason === 'tool_use') {
           '  \'- Keep each response under 150 words.\\n\\n\' +\n' +
           '  \'## Example Interaction\\n\' +\n' +
           '  \'User: "I forgot my password."\\n\' +\n' +
-          '  \'Lexi: "No problem! Click \\'Forgot Password\\' on the login page and enter your email.\\n\' +\n' +
-          '  \'You\'ll get a reset link within a minute. Check your spam folder if it doesn\\'t arrive.\\n\' +\n' +
+          '  \'Lexi: "No problem! Click the Forgot Password link on the login page and enter your email.\\n\' +\n' +
+          '  \'You will get a reset link within a minute. Check your spam folder if it does not arrive.\\n\' +\n' +
           '  \'Is there anything else I can help with?"\\n\';\n\n' +
           'const response = await client.messages.create({\n' +
           '  model: \'claude-sonnet-4-6\',\n' +
@@ -1813,6 +1813,39 @@ export const generalInterviewQuestions = [
         'Prompt injection mein user apna input craft karke aapke system instructions override kar sakta hai. Solutions: (1) user input ko <user_input> tags mein wrap karo; (2) server-side input sanitise karo; (3) strong system prompt likho jo Claude ko bataye ki user content ke instructions ignore kare; (4) instructions aur data clearly separate rakho.',
     },
     difficulty: 'hard',
+    frequency: 'common',
+  },
+  {
+    question: 'What is the self-critique loop and why does it produce better outputs than single-shot prompting?',
+    answer: {
+      english:
+        'The self-critique loop is a three-step meta-prompting technique: (1) generate an initial answer; (2) ask Claude to critique the answer, listing specific weaknesses; (3) ask Claude to rewrite the answer addressing every critique. This works because the critique step forces Claude to evaluate the answer against explicit criteria — surfacing errors, omissions, and clarity problems that the initial pass misses. The cost is two additional API calls, but the output quality improvement is significant for high-stakes tasks.',
+      hinglish:
+        'Self-critique loop teen steps mein kaam karta hai: (1) initial answer generate karo; (2) Claude se specific weaknesses list karwao; (3) Claude se rewrite karwao sab weaknesses fix karke. Critique step Claude ko explicit criteria ke against evaluate karne pe force karta hai — errors aur omissions jo initial pass mein miss ho jate hain wo surface ho jaate hain. Cost: sirf 2 extra API calls.',
+    },
+    difficulty: 'medium',
+    frequency: 'common',
+  },
+  {
+    question: 'How do you design a Claude automation pipeline that is cost-effective at scale?',
+    answer: {
+      english:
+        'Cost optimisation in Claude pipelines: (1) Route tasks by complexity — use Haiku for classification, routing, and simple extraction; reserve Sonnet/Opus for tasks that genuinely require intelligence. (2) Request concise structured output (JSON) rather than prose to reduce output tokens. (3) Cache your system prompt — Anthropic charges less for cached prompt tokens. (4) Chunk large documents rather than sending everything in one call when only a specific section is needed. (5) Monitor token usage via the `usage` field in every response and alert when costs spike unexpectedly.',
+      hinglish:
+        'Cost optimisation ke liye: (1) Task routing — Haiku simple tasks ke liye, Sonnet/Opus sirf complex ke liye; (2) Concise structured JSON output request karo prose ki jagah; (3) System prompt cache karo — cached tokens saste hote hain; (4) Large documents chunk karo agar sirf specific section chahiye; (5) Har response ka usage field monitor karo cost spikes track karne ke liye.',
+    },
+    difficulty: 'hard',
+    frequency: 'common',
+  },
+  {
+    question: 'What is the "constitution" pattern and when should you use it over per-query prompt tuning?',
+    answer: {
+      english:
+        'The "constitution" pattern means encoding all of a Claude deployment\'s behavioural rules — persona, capabilities, constraints, output format defaults, and few-shot examples — into a single comprehensive system prompt. It is preferred over per-query tuning whenever: (a) the deployment handles many different user queries that all need consistent behaviour; (b) multiple developers or teams use the same Claude integration; (c) the integration needs to be auditable (the system prompt is the single source of truth for Claude\'s behaviour). Per-query tuning only makes sense for one-off use cases where prompt reuse is not a goal.',
+      hinglish:
+        'Constitution pattern mein ek comprehensive system prompt mein poori behavioural rules encode karte hain — persona, capabilities, constraints, output format, examples. Ye use karo jab: (a) many different queries ek hi consistent behaviour chahti hain; (b) multiple developers ek hi integration use karte hain; (c) integration auditable honi chahiye. Per-query tuning sirf one-off use cases ke liye sahi hai.',
+    },
+    difficulty: 'medium',
     frequency: 'common',
   },
 ];
