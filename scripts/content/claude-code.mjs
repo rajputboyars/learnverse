@@ -700,6 +700,476 @@ claude --dangerously-skip-permissions "fix all ESLint errors"
       },
     ],
   },
+
+  // ─────────────────────────────────────────────
+  // Topic 4 — Daily Dev Workflow Automation
+  // ─────────────────────────────────────────────
+  {
+    title: 'Daily Dev Workflow Automation',
+    description: 'Automate your daily development workflows — standups, code review, documentation, and test writing — using Claude Code.',
+    level: 'intermediate',
+    concepts: [
+      {
+        title: 'Morning Dev Routine with Claude Code',
+        explanation: {
+          english:
+            'Claude Code can compress your entire morning standup prep into five minutes:\n\n1. **Branch summary**: `claude "summarise what changed in the last 24 hours across all branches"` — Claude runs `git log --all --since=24h`, reads diffs, and produces human-readable standup notes.\n2. **PR triage**: `claude "review open PRs assigned to me and summarise what needs attention"` — via GitHub MCP, Claude reads PR descriptions, latest review comments, and CI status, then prioritises your review queue.\n3. **CI health check**: `claude "check for any failing CI on my PRs and suggest fixes"` — Claude reads GitHub Actions run logs via MCP, identifies the failure, locates the relevant source file, and proposes a fix before you even open your laptop properly.\n\nThis pattern turns reactive morning fire-fighting into proactive, focused work.',
+          hinglish:
+            'Subah 5 minute mein poora day plan ho jaata hai Claude Code ke saath. `git log --all --since=24h` se standup notes, GitHub MCP se PR triage, failing CI fixes — sab ek ke baad ek Claude karta hai. Reactive fire-fighting ki jagah proactive focused kaam shuru ho jaata hai.',
+        },
+        dailyLifeExample:
+          'You wake up, run three Claude commands while coffee brews, and by the time you sit down you have: yesterday\'s changes summarised, your PR review queue prioritised, and a proposed fix for the failing CI — all before 9 AM.',
+        codeExample: '# Morning standup prep (run in sequence)\n\n# 1. What changed across all branches in the last 24 hours?\nclaude "summarise what changed in the last 24 hours across all branches, grouped by feature area"\n\n# 2. PR triage (requires GitHub MCP)\nclaude "review open PRs assigned to me and summarise what needs attention — flag any that are blocking others"\n\n# 3. CI health check\nclaude "check for any failing CI on my PRs and suggest fixes"\n\n# Bonus: chain them into a single morning-report command\n# Create .claude/commands/morning-report.md:\n# ---\n# Run the following three checks and combine into a morning standup report:\n# 1. Summarise git changes across all branches in the last 24 hours.\n# 2. List open PRs assigned to me with their current status and blockers.\n# 3. List any failing CI runs on my PRs and propose fixes.\n# Format as a concise bullet-point report I can paste into Slack.\n# ---\n\n# Then each morning:\n/morning-report',
+        keyPoints: [
+          'Claude reads git log --all --since=24h to produce accurate standup notes.',
+          'GitHub MCP enables PR triage directly from the terminal.',
+          'CI failure analysis + fix suggestion is a single Claude command away.',
+          'Chain multiple checks into one custom /morning-report slash command.',
+          'Transforms reactive mornings into structured, proactive days.',
+        ],
+        quiz: [
+          {
+            question: 'Which Claude Code feature enables PR triage and CI status checks in the morning routine?',
+            options: [
+              'CLAUDE.md file',
+              'GitHub MCP integration',
+              'The /compact slash command',
+              'The --dangerously-skip-permissions flag',
+            ],
+            correct: 1,
+          },
+          {
+            question: 'How would you create a reusable "morning report" command in Claude Code?',
+            options: [
+              'Add it as a function in CLAUDE.md',
+              'Create a Markdown file in .claude/commands/ named morning-report.md',
+              'Pass it as a --template flag on the CLI',
+              'Add it to package.json scripts',
+            ],
+            correct: 1,
+          },
+        ],
+        tags: ['workflow-automation', 'standup', 'git', 'github-mcp', 'productivity'],
+        difficulty: 'easy',
+        interviewQuestions: [
+          {
+            question: 'How would you use Claude Code to automate daily standup prep?',
+            answer: {
+              english:
+                'Create a custom slash command in .claude/commands/morning-report.md that chains three tasks: (1) run git log --all --since=24h and summarise changes by feature area, (2) via GitHub MCP list open PRs assigned to me with status and blockers, (3) check CI run results on my PRs and propose fixes. Running /morning-report each morning produces a paste-ready standup summary in under a minute.',
+              hinglish:
+                '.claude/commands/morning-report.md mein custom slash command banao jo teen tasks chain kare: git changes summary, GitHub MCP se PR triage, aur failing CI fixes. /morning-report command ek minute mein standup-ready report de deta hai.',
+            },
+            difficulty: 'easy',
+            frequency: 'common',
+          },
+        ],
+      },
+      {
+        title: 'Automated Code Review & Quality Gates',
+        explanation: {
+          english:
+            'Claude Code can act as a quality gate before every commit by running as a pre-commit hook. The hook runs Claude on your staged changes and blocks the commit if critical issues are found:\n\n```bash\nclaude --dangerously-skip-permissions \\\n  "review staged changes for: bugs, security issues, missing error handling. Block commit if critical issues found."\n```\n\nYou can also define a custom `/security-review` slash command that runs a full security audit on demand:\n- Checks for hardcoded secrets and credentials\n- SQL/NoSQL injection vulnerabilities\n- XSS attack vectors\n- Insecure direct object references\n- Missing authentication/authorisation checks\n\nThe pre-commit hook + custom security command together form a developer-side shift-left security practice that catches issues before they ever hit a PR.',
+          hinglish:
+            'Claude Code pre-commit hook ke roop mein quality gate ban sakta hai. Staged changes pe run karo aur critical issues milne pe commit block karo. Custom `/security-review` slash command full security audit karta hai: hardcoded secrets, SQL injection, XSS, auth bypass. Pre-commit hook + security command shift-left security practice hai.',
+        },
+        dailyLifeExample:
+          'You try to commit a new API route. The pre-commit hook triggers Claude, which spots that user-supplied input is passed directly into a MongoDB query without sanitisation. Commit is blocked with a clear explanation and a suggested fix.',
+        codeExample: '#!/bin/sh\n# .git/hooks/pre-commit\n# Make executable: chmod +x .git/hooks/pre-commit\n\necho "Running Claude Code pre-commit review..."\n\n# Get list of staged files\nSTAGED=$(git diff --cached --name-only --diff-filter=ACM)\n\nif [ -z "$STAGED" ]; then\n  echo "No staged files. Skipping Claude review."\n  exit 0\nfi\n\n# Run Claude review on staged changes\nREVIEW_RESULT=$(claude --dangerously-skip-permissions \\\n  "Review the staged git changes (run git diff --cached to see them). \\\n   Check for: (1) bugs and logic errors, (2) security issues including injection, \\\n   auth bypass, and hardcoded secrets, (3) missing error handling, \\\n   (4) violations of CLAUDE.md conventions. \\\n   If any CRITICAL issues are found, output the word BLOCK on its own line \\\n   followed by a description. If only warnings, output WARN. If clean, output OK.")\n\necho "$REVIEW_RESULT"\n\nif echo "$REVIEW_RESULT" | grep -q "^BLOCK"; then\n  echo "Pre-commit review blocked the commit. Fix issues above and try again."\n  exit 1\nfi\n\necho "Pre-commit review passed."\nexit 0\n\n# ── Custom /security-review slash command ──\n# .claude/commands/security-review.md\n# Run a full security audit on the entire src/ directory:\n# 1. Scan for hardcoded secrets, API keys, passwords.\n# 2. Check all database queries for injection vulnerabilities.\n# 3. Check all API routes for missing authentication checks.\n# 4. Scan for XSS vectors in any HTML rendering.\n# 5. Check for insecure direct object references (IDOR).\n# Return findings grouped by severity: Critical / High / Medium / Low.',
+        keyPoints: [
+          'Pre-commit hooks can run Claude on staged changes before every commit.',
+          'Claude outputs a structured BLOCK/WARN/OK to drive hook exit codes.',
+          'Custom /security-review command enables on-demand full security audits.',
+          'This is a shift-left security practice — catch issues before PRs.',
+          '--dangerously-skip-permissions is safe in hooks (sandboxed, read-heavy task).',
+        ],
+        quiz: [
+          {
+            question: 'What exit code should a pre-commit hook return to block a commit?',
+            options: [
+              '0',
+              '1',
+              '2',
+              '42',
+            ],
+            correct: 1,
+          },
+          {
+            question: 'What is the benefit of a Claude Code pre-commit quality gate over a CI check?',
+            options: [
+              'CI is slower and catches issues only after the commit is pushed',
+              'Pre-commit gates run on the developer\'s machine before the commit is even created, providing immediate feedback',
+              'Claude Code cannot run in CI',
+              'Pre-commit hooks are enforced by GitHub',
+            ],
+            correct: 1,
+          },
+        ],
+        tags: ['pre-commit', 'quality-gates', 'security', 'code-review', 'automation'],
+        difficulty: 'medium',
+        interviewQuestions: [
+          {
+            question: 'How would you set up Claude Code as a pre-commit quality gate?',
+            answer: {
+              english:
+                'Create a .git/hooks/pre-commit shell script (chmod +x) that runs `claude --dangerously-skip-permissions` with a prompt asking it to review staged changes (via git diff --cached) for bugs, security issues, and convention violations. Instruct Claude to output BLOCK, WARN, or OK on its first line. The hook reads that output: if BLOCK, exit 1 (prevents commit); otherwise exit 0. This catches critical issues before they reach PR.',
+              hinglish:
+                '.git/hooks/pre-commit script banao jo `claude --dangerously-skip-permissions` run kare staged changes review ke liye. Claude ko BLOCK/WARN/OK output karne ko kaho. Hook BLOCK pe exit 1 (commit rok deta hai), warna exit 0. Issues PR tak pahunchne se pehle hi pakad leta hai.',
+            },
+            difficulty: 'medium',
+            frequency: 'common',
+          },
+        ],
+      },
+      {
+        title: 'Documentation Generation Automation',
+        explanation: {
+          english:
+            'Claude Code can generate and maintain documentation automatically:\n\n- **JSDoc generation**: `claude "generate JSDoc for all exported functions in src/ that are missing documentation"` — Claude reads each file, identifies undocumented exports, and writes @param, @returns, and @example blocks.\n- **README sections**: `claude "update the README API section based on the current route files in src/app/api/"` — Claude reads all route files and generates accurate API documentation.\n- **Release notes**: A shell script that runs Claude Code on every release tag, comparing git log from the previous tag and generating a CHANGELOG entry.\n- **Custom `/gen-docs` command**: A reusable slash command that runs the full documentation generation pipeline.\n\nThe key insight: documentation generated from the actual code is always accurate. Claude reads the real implementation, not what someone thought they wrote.',
+          hinglish:
+            'Claude Code documentation automatically generate aur maintain kar sakta hai: JSDoc for missing exports, README sections from route files, release notes from git log. `/gen-docs` slash command poori documentation pipeline run karta hai. Real code se generate documentation always accurate hoti hai.',
+        },
+        dailyLifeExample:
+          'You finish implementing a new utility module with 12 functions. Instead of spending 30 minutes writing JSDoc manually, you run `/gen-docs` and Claude documents every function in 45 seconds, including inferred @param types from how the function is used in the codebase.',
+        codeExample: '#!/bin/bash\n# scripts/generate-docs.sh\n# Run on every release: bash scripts/generate-docs.sh v1.2.0\n\nVERSION=${1:-"latest"}\nPREV_TAG=$(git describe --abbrev=0 --tags HEAD~1 2>/dev/null || echo "initial")\n\necho "Generating documentation for release $VERSION (since $PREV_TAG)..."\n\n# 1. Generate JSDoc for undocumented exports\nclaude --dangerously-skip-permissions \\\n  "Generate JSDoc comments for all exported functions and classes in src/ \\\n   that are currently missing documentation. Follow the existing JSDoc style \\\n   in the codebase. Do not modify functions that already have JSDoc."\n\n# 2. Update API docs from route files\nclaude --dangerously-skip-permissions \\\n  "Read all route files in src/app/api/ and update the API_REFERENCE.md file \\\n   with accurate endpoint documentation: method, path, request body schema, \\\n   response schema, and authentication requirements."\n\n# 3. Generate CHANGELOG entry\nclaude --dangerously-skip-permissions \\\n  "Generate a CHANGELOG.md entry for version $VERSION. \\\n   Use git log $PREV_TAG..HEAD --oneline to get commits. \\\n   Group by: Breaking Changes, New Features, Bug Fixes, Internal. \\\n   Prepend the new entry to CHANGELOG.md without removing existing entries."\n\necho "Documentation generation complete."\n\n# ── Custom slash command: .claude/commands/gen-docs.md ──\n# Generate documentation for the current codebase:\n# 1. Add missing JSDoc to all exported functions in src/.\n# 2. Regenerate API_REFERENCE.md from current route files.\n# 3. Update README.md\'s Features section to reflect current capabilities.\n# Follow existing documentation style throughout.',
+        keyPoints: [
+          'Claude reads actual source to generate accurate docs — no hallucination.',
+          'JSDoc generation targets only undocumented exports, preserving existing docs.',
+          'README and API docs can be regenerated from route/model files on demand.',
+          'Shell script + --dangerously-skip-permissions enables release automation.',
+          '/gen-docs custom command gives the team a one-command documentation update.',
+        ],
+        quiz: [
+          {
+            question: 'Why is Claude Code-generated documentation more reliable than manually written docs?',
+            options: [
+              'Claude makes up better descriptions',
+              'Claude reads the actual implementation code, so docs reflect what the code really does',
+              'Claude writes docs faster so developers update them more often',
+              'Claude Code has access to the internet to find the latest API specs',
+            ],
+            correct: 1,
+          },
+          {
+            question: 'Where would you create a reusable /gen-docs slash command?',
+            options: [
+              'In CLAUDE.md at the project root',
+              'In .claude/commands/gen-docs.md',
+              'In package.json under "scripts"',
+              'In .github/workflows/docs.yml',
+            ],
+            correct: 1,
+          },
+        ],
+        tags: ['documentation', 'jsdoc', 'readme', 'automation', 'release-notes'],
+        difficulty: 'medium',
+        interviewQuestions: [
+          {
+            question: 'How would you automate API documentation generation using Claude Code?',
+            answer: {
+              english:
+                'Create a shell script that runs Claude Code with --dangerously-skip-permissions and prompts it to read all route files in src/app/api/ and update API_REFERENCE.md with accurate endpoint documentation (method, path, request/response schemas, auth requirements). Run this script as part of the release process or as a git pre-push hook. Claude reads the actual implementation, so the documentation is always in sync with the code.',
+              hinglish:
+                'Shell script banao jo Claude Code run kare src/app/api/ ke route files read karke API_REFERENCE.md update kare. Release process ya git pre-push hook mein run karo. Claude actual implementation padhta hai isliye documentation code ke saath always in sync rehti hai.',
+            },
+            difficulty: 'medium',
+            frequency: 'common',
+          },
+        ],
+      },
+      {
+        title: 'Test Writing Automation',
+        explanation: {
+          english:
+            'Claude Code can generate comprehensive tests, dramatically reducing one of the most tedious parts of development:\n\n- **Batch test generation**: `claude "write comprehensive tests for all functions in src/utils/ that currently have no tests"` — Claude reads each utility, understands its behaviour from implementation and usage, and writes unit tests with edge cases.\n- **TDD workflow**: `claude "write failing tests for this feature spec, then implement to make them pass"` — true red-green-refactor agentic loop.\n- **BDD-style generation**: Provide a feature description and Claude writes Gherkin-style scenarios that map to Jest/Vitest tests.\n\nClaude is particularly effective at test writing because it can infer expected behaviour from how a function is called throughout the codebase, not just from its signature.',
+          hinglish:
+            'Claude Code tests automatically generate kar sakta hai: src/utils/ ke untested functions ke liye comprehensive tests, TDD workflow (failing tests likhna phir implement karna), BDD-style scenario generation. Claude function ka usage codebase mein trace karta hai isliye accurate test cases likhta hai.',
+        },
+        dailyLifeExample:
+          'Your codebase has 40 utility functions with zero test coverage. You run one Claude command before lunch. By the time you\'re back, all 40 have tests, 3 of which immediately reveal actual bugs that have been lurking in production.',
+        codeExample: '# ── 1. Batch test generation ──\nclaude "Write comprehensive unit tests for all functions in src/utils/ that\ncurrently have no test file. Use Vitest. For each function:\n- Test the happy path\n- Test edge cases (empty input, null, boundary values)\n- Test error cases\nCreate test files in src/utils/__tests__/ mirroring the source filenames."\n\n# ── 2. TDD workflow ──\n# Step A: write failing tests from a spec\nclaude "Given this feature spec:\n  \'A user can upload a profile picture. Max size 2MB. Formats: JPG, PNG, WebP.\n   If validation fails, return a structured error. Store in /uploads/{userId}/.\'\nWrite failing Vitest tests that fully specify this behaviour.\nDo NOT implement the feature yet."\n\n# Step B: implement to make tests pass\nclaude "The failing tests are in src/lib/__tests__/uploadProfile.test.ts.\nImplement src/lib/uploadProfile.ts to make all tests pass.\nRun the tests after each change and iterate until all pass."\n\n# ── 3. BDD-style generation script ──\n#!/bin/bash\n# scripts/gen-tests.sh <feature-description>\nFEATURE_DESC="$1"\n\nclaude --dangerously-skip-permissions \\\n  "Generate BDD-style Vitest tests for this feature: $FEATURE_DESC\n   Structure: describe blocks for each scenario, it() for each step.\n   Write the test file to src/__tests__/$(echo $FEATURE_DESC | tr \' \' \'-\' | tr \'[:upper:]\' \'[:lower:]\').test.ts\n   Then run the tests and fix any syntax or import errors."',
+        keyPoints: [
+          'Claude infers test cases from usage patterns, not just function signatures.',
+          'Batch test generation can cover an entire directory in one command.',
+          'TDD workflow: Claude writes failing tests first, then implements to pass.',
+          'BDD-style tests can be generated from plain-English feature descriptions.',
+          'Claude runs the tests and iterates — you get passing tests, not just written ones.',
+        ],
+        quiz: [
+          {
+            question: 'What makes Claude Code effective at writing accurate test cases?',
+            options: [
+              'It uses a test-generation model trained on Jest documentation',
+              'It reads how functions are called throughout the codebase to infer expected behaviour',
+              'It copies test patterns from popular open-source projects',
+              'It generates only happy-path tests to avoid complexity',
+            ],
+            correct: 1,
+          },
+          {
+            question: 'In the TDD workflow with Claude Code, what is the correct order?',
+            options: [
+              'Implement → write tests → refactor',
+              'Write failing tests → implement to pass → refactor',
+              'Write tests → deploy → verify',
+              'Run linter → write tests → implement',
+            ],
+            correct: 1,
+          },
+        ],
+        tags: ['testing', 'tdd', 'bdd', 'vitest', 'jest', 'automation', 'unit-tests'],
+        difficulty: 'medium',
+        interviewQuestions: [
+          {
+            question: 'Describe how you would use Claude Code for a TDD workflow.',
+            answer: {
+              english:
+                'Step 1: Write a clear feature spec. Step 2: `claude "write failing tests for this feature spec — do NOT implement yet"`. Claude reads the spec and existing codebase patterns, writes comprehensive Vitest/Jest tests that fail. Step 3: `claude "make all tests in [test file] pass — iterate until the full test suite is green"`. Claude implements the feature, runs the tests after each change, and self-corrects until all pass. This produces both a tested implementation and tests that serve as living documentation.',
+              hinglish:
+                'Step 1: feature spec likhna. Step 2: `claude "write failing tests — implement mat karo abhi"`. Claude failing tests likhta hai. Step 3: `claude "make all tests pass — iterate karo"`. Claude implement karta hai, tests run karta hai, self-correct karta hai. Result: tested implementation aur living documentation dono milte hain.',
+            },
+            difficulty: 'medium',
+            frequency: 'common',
+          },
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  // Topic 5 — Prompt Engineering for Claude Code
+  // ─────────────────────────────────────────────
+  {
+    title: 'Prompt Engineering for Claude Code',
+    description: 'Write prompts that get Claude Code to the right answer on the first attempt — scope, constraints, verification, style, and decomposition.',
+    level: 'intermediate',
+    concepts: [
+      {
+        title: 'Writing Effective Task Prompts',
+        explanation: {
+          english:
+            'A great Claude Code prompt has four components:\n\n1. **Scope** — which files/directories are in play: "In src/app/api/courses/"\n2. **Constraint** — what NOT to change: "Do not modify the Mongoose schema. Do not change the function signature."\n3. **Verification** — how success is measured: "All existing tests must still pass. Run npm test to verify."\n4. **Style** — follow existing patterns: "Follow the same error handling pattern as getUserById in src/lib/user.js."\n\n**Bad prompt**: "Add caching to the API"\n**Good prompt**: "Add Redis caching to the GET /api/courses endpoint in src/app/api/courses/route.js. Use the existing Redis client in src/lib/redis.js. Cache with a 5-minute TTL. Do not change the response shape. Run npm test after to verify no regressions."\n\nEck achha prompt likhne se Claude Code pehli baar hi sahi kaam karta hai.',
+          hinglish:
+            'Ek achha prompt likhne se Claude Code pehli baar hi sahi kaam karta hai. Prompt ke 4 components: (1) Scope — kaun se files. (2) Constraint — kya NAHI badalna. (3) Verification — success kaise measure karein. (4) Style — existing patterns follow karo. Bad: "add caching". Good: specific file, existing Redis client, 5-min TTL, same response shape, run tests.',
+        },
+        dailyLifeExample:
+          'Vague prompt: "improve the search" → Claude refactors the wrong file, changes the API signature, breaks two tests. Specific prompt: "optimise the search query in src/lib/search.js — only the buildQuery function — to use MongoDB text indexes. Keep the function signature identical. Run npm test after." → perfect first time.',
+        codeExample: '# ── Bad vs Good Prompts ──\n\n# BAD: vague scope, no constraints, no verification\nclaude "add error handling to the API"\n# Claude may edit 15 files, change function signatures, miss the real issues\n\n# GOOD: scope + constraint + verification + style\nclaude "Add try/catch error handling to all API route handlers in\nsrc/app/api/ that are currently missing it. Each catch block should:\n- Log the error with console.error (check existing routes for the format)\n- Return NextResponse.json({ error: \'Internal server error\' }, { status: 500 })\nDo NOT change the happy-path logic. Do NOT add error handling that already exists.\nRun npm test after each file to verify no regressions."\n\n# ── Prompt anatomy template ──\n# [SCOPE] In <file or directory>,\n# [TASK] <what to do>,\n# [CONSTRAINT] without changing <what to preserve>,\n# [STYLE] following the same pattern as <reference>,\n# [VERIFICATION] then run <command> to verify.\n\n# Example using the template:\nclaude "In src/models/Course.js, add a createdBy field (ObjectId ref User)\nto the Mongoose schema, without changing any existing fields or indexes,\nfollowing the same pattern as the updatedBy field in src/models/Post.js,\nthen run npm test to verify no regressions."',
+        keyPoints: [
+          'Every good prompt has: Scope, Constraint, Verification, Style.',
+          'Scope tells Claude exactly which files/dirs to touch.',
+          'Constraint prevents Claude from over-engineering or breaking neighbours.',
+          'Verification (run npm test) gives Claude a success signal to loop on.',
+          'Style reference prevents Claude from inventing new patterns.',
+        ],
+        quiz: [
+          {
+            question: 'Which component of an effective Claude Code prompt tells it what NOT to change?',
+            options: [
+              'Scope',
+              'Constraint',
+              'Verification',
+              'Style',
+            ],
+            correct: 1,
+          },
+          {
+            question: 'Why is adding a verification step (e.g. "run npm test") to a prompt important?',
+            options: [
+              'It makes the prompt longer which improves Claude\'s understanding',
+              'It gives Claude a concrete success signal to loop on until the task is truly done',
+              'It forces Claude to use TDD',
+              'It is required for --dangerously-skip-permissions mode',
+            ],
+            correct: 1,
+          },
+        ],
+        tags: ['prompt-engineering', 'task-prompts', 'scope', 'constraints', 'best-practices'],
+        difficulty: 'medium',
+        interviewQuestions: [
+          {
+            question: 'What are the four components of an effective Claude Code task prompt?',
+            answer: {
+              english:
+                'Scope (which files/directories to work in), Constraint (what not to change — function signatures, existing behaviour, off-limits files), Verification (how to confirm success — run a test command, check a specific output), and Style (which existing code to model the solution after). Together these four components eliminate the most common failure modes: wrong file, broken neighbours, no way to know if it worked, and inconsistent coding style.',
+              hinglish:
+                'Scope (kaun se files), Constraint (kya NAHI badalna), Verification (success kaise check karein — test run karo), aur Style (kaun se existing code ko follow karo). Ye charon components sabse common failure modes eliminate karte hain: wrong file edit, neighbor code break, success confirm na kar paana, inconsistent style.',
+            },
+            difficulty: 'medium',
+            frequency: 'very-common',
+          },
+        ],
+      },
+      {
+        title: 'CLAUDE.md as a Prompt Engineering Tool',
+        explanation: {
+          english:
+            'CLAUDE.md is not just documentation — it is a permanent system prompt injected into every Claude Code session. Treat it as prompt engineering infrastructure:\n\n- **Architectural decision records (ADRs)**: "We use repository pattern, not direct DB calls in routes — see src/repositories/ for examples."\n- **Anti-patterns to explicitly forbid**: "Never use `any` in TypeScript. Never use callbacks — always async/await. Never return raw Mongoose documents — always call .toObject() first."\n- **Positive examples**: Paste 5–10 lines of the preferred coding style directly in CLAUDE.md.\n- **Links to critical docs**: "For authentication, see: https://next-auth.js.org/v5/migration"\n- **Sub-directory CLAUDE.md files**: `/src/app/api/CLAUDE.md` can contain API-specific rules that only apply when Claude is working in that directory.\n\nA well-crafted CLAUDE.md means you never have to repeat context — Claude inherits it in every session.',
+          hinglish:
+            'CLAUDE.md sirf documentation nahi hai — ye har session mein inject hone wala permanent system prompt hai. ADRs likho, anti-patterns forbid karo ("never use any"), positive code examples paste karo, critical docs link karo. Sub-directory CLAUDE.md files component-specific rules ke liye. Achha CLAUDE.md matlab context baar baar repeat nahi karna padta.',
+        },
+        dailyLifeExample:
+          'Your CLAUDE.md says "never use direct mongoose.find() in route files — always use the repository pattern (see src/repositories/)". Now Claude never introduces the anti-pattern, even when the easiest solution would be to call Mongoose directly.',
+        codeExample: '# ── Production CLAUDE.md Template ──\n\n# ProjectName — Claude Code System Prompt\n\n## Tech Stack\n- Next.js 16 (App Router). NOT Pages Router. Never use getServerSideProps.\n- MongoDB + Mongoose 8. Use the connection helper in src/lib/db.js.\n- NextAuth v5. Session via auth() from src/lib/auth.js — not getServerSession().\n- Tailwind CSS 4. No inline styles. No CSS modules unless pre-existing.\n- TypeScript strict mode. No `any`. No non-null assertions (!) without a comment.\n\n## Architecture Rules\n- Routes in src/app/api/ must ONLY call repository functions — no direct DB queries.\n- Repositories in src/repositories/ own all Mongoose calls.\n- Shared utilities go in src/lib/. Components go in src/components/.\n- Server components by default. Add "use client" only if you need hooks or event handlers.\n\n## Anti-Patterns — NEVER Do These\n- Never call mongoose.find() or Model.findOne() directly in a route file.\n- Never use callbacks. Always use async/await.\n- Never return raw Mongoose docs — call .toObject() or .lean() first.\n- Never commit anything from the .env* family of files.\n\n## Preferred Code Style (copy this pattern)\n# src/repositories/courseRepository.js — reference implementation:\n# export async function getCourseById(id) {\n#   await connectDB();\n#   const course = await Course.findById(id).lean();\n#   if (!course) throw new NotFoundError(`Course ${id} not found`);\n#   return course;\n# }\n\n## Sub-directory CLAUDE.md files\n# src/app/api/CLAUDE.md — API route-specific rules\n# src/components/CLAUDE.md — component and Tailwind rules\n\n## Commands\n# Dev: npm run dev | Tests: npm test | Lint: npm run lint | Seed: npm run seed',
+        keyPoints: [
+          'CLAUDE.md is a permanent system prompt injected automatically into every session.',
+          'Include ADRs — architectural decisions Claude should never contradict.',
+          'List anti-patterns explicitly to prevent Claude from introducing them.',
+          'Paste reference code snippets directly — Claude will pattern-match to them.',
+          'Sub-directory CLAUDE.md files let you set component-specific rules.',
+        ],
+        quiz: [
+          {
+            question: 'What is the most effective way to prevent Claude Code from using a specific anti-pattern?',
+            options: [
+              'Remind Claude in every single prompt',
+              'List it explicitly in CLAUDE.md under an "Anti-Patterns — NEVER Do These" section',
+              'Use --dangerously-skip-permissions to make Claude faster',
+              'Write a custom slash command that says "don\'t do X"',
+            ],
+            correct: 1,
+          },
+          {
+            question: 'What is the purpose of a sub-directory CLAUDE.md file?',
+            options: [
+              'To override the root CLAUDE.md completely',
+              'To add component-specific rules that apply only when Claude works in that directory',
+              'To store secret credentials for that component',
+              'Sub-directory CLAUDE.md files are not supported',
+            ],
+            correct: 1,
+          },
+        ],
+        tags: ['claude-md', 'prompt-engineering', 'anti-patterns', 'architecture', 'system-prompt'],
+        difficulty: 'medium',
+        interviewQuestions: [
+          {
+            question: 'How would you use CLAUDE.md to enforce architectural consistency across a team?',
+            answer: {
+              english:
+                'Write CLAUDE.md as a permanent system prompt that encodes your architecture: list the repository pattern requirement, name the anti-patterns to forbid (no direct DB calls in routes, no `any` types), paste a reference implementation of the preferred coding style, and link to the relevant internal docs or ADRs. Commit it to git so every developer\'s Claude sessions inherit the same rules. Add sub-directory CLAUDE.md files for component-specific rules (API routes, UI components). The result: Claude enforces architecture automatically without per-prompt reminders.',
+              hinglish:
+                'CLAUDE.md mein architecture encode karo: repository pattern requirement, forbidden anti-patterns, reference implementation, important docs links. Git mein commit karo. Sub-directory CLAUDE.md files component-specific rules ke liye. Result: Claude automatically architecture enforce karta hai bina baar baar yaad dilaaye.',
+            },
+            difficulty: 'medium',
+            frequency: 'common',
+          },
+        ],
+      },
+      {
+        title: 'Multi-Step Task Decomposition',
+        explanation: {
+          english:
+            'Complex features should be decomposed into a chain of focused Claude Code tasks rather than one giant prompt. Instead of "build the auth system", use a five-step chain:\n\n1. `claude "design the database schema for users and sessions — output as a Mongoose schema file draft"`\n2. `claude "implement the Mongoose models based on the schema draft in src/models/ — include indexes and validation"`\n3. `claude "write the API routes for signup, signin, signout, and refresh — use the models from step 2"`\n4. `claude "write comprehensive tests for all auth routes — run them and make them pass"`\n5. `claude "document all auth endpoints in API_REFERENCE.md"`\n\nUse `#` in follow-up prompts to reference previous context: `claude "#signup route — add rate limiting to it"`.\n\nEach step is independently verifiable and can be reviewed before proceeding.',
+          hinglish:
+            'Complex features ko ek giant prompt mein mat daalo — 5 focused steps mein tod do. Schema design → models implement → API routes → tests → docs. Har step independently verifiable hai. Follow-up prompts mein `#` use karo previous context reference karne ke liye.',
+        },
+        dailyLifeExample:
+          'Building a payment integration: one giant prompt produces an overwhelming mess that\'s hard to review. Five focused prompts produce five small, reviewable PRs, each adding one layer — schema, models, routes, tests, docs.',
+        codeExample: '# ── 5-Step Feature Implementation Workflow ──\n# Feature: Course Enrollment System\n\n# Step 1: Schema design\nclaude "Design the MongoDB schema for course enrollments.\nA user can enroll in a course once. Track: userId, courseId, enrolledAt,\nprogress (0-100), completedAt (nullable), paymentId.\nOutput as a commented Mongoose schema in src/models/Enrollment.js.\nDo NOT implement yet — output the schema design only for my review."\n\n# [Review and approve the schema]\n\n# Step 2: Model implementation\nclaude "Implement the Enrollment Mongoose model based on the\nschema I just approved in src/models/Enrollment.js.\nAdd: unique compound index on [userId, courseId], timestamps,\nand a static method getCourseEnrollmentCount(courseId).\nRun npm test to check for conflicts with existing models."\n\n# Step 3: API routes\nclaude "Write the API routes for the enrollment system:\n- POST /api/enrollments — enroll a user (check: not already enrolled)\n- GET /api/enrollments/my — get current user\'s enrollments\n- PATCH /api/enrollments/:id/progress — update progress\nUse the Enrollment model from Step 2.\nFollow the same auth + error handling pattern as /api/courses/route.js."\n\n# Step 4: Tests\nclaude "Write comprehensive Vitest tests for all three enrollment routes\ncreated in Step 3. Cover: happy path, already-enrolled error, auth checks.\nRun the tests and iterate until all pass."\n\n# Step 5: Documentation\nclaude "Document all three enrollment endpoints in API_REFERENCE.md,\nfollowing the same format as the existing courses section."\n\n# Referencing previous context with #\nclaude "# enrollment routes — add idempotency keys to the POST endpoint"',
+        keyPoints: [
+          'Decompose complex features into 5 focused, independently verifiable steps.',
+          'Schema → Models → Routes → Tests → Docs is a reliable feature chain.',
+          'Each step can be reviewed and approved before the next begins.',
+          'Use # in follow-up prompts to reference context from earlier in the session.',
+          'Small steps produce reviewable, mergeable PRs — not one giant diff.',
+        ],
+        quiz: [
+          {
+            question: 'Why is task decomposition important when using Claude Code for complex features?',
+            options: [
+              'Claude has a token limit that prevents it from handling more than 100 lines',
+              'Each step is independently verifiable, reviewable, and correctable before proceeding',
+              'Claude charges per task so smaller tasks cost less',
+              'Decomposition is only necessary for TypeScript projects',
+            ],
+            correct: 1,
+          },
+          {
+            question: 'How do you reference context from earlier in a Claude Code session in a follow-up prompt?',
+            options: [
+              'Use the /memory slash command',
+              'Use # before the reference (e.g. "#signup route — add rate limiting")',
+              'Claude automatically remembers all previous context without special syntax',
+              'Use the --context flag on the CLI',
+            ],
+            correct: 1,
+          },
+        ],
+        tags: ['task-decomposition', 'workflow', 'multi-step', 'feature-development', 'prompt-engineering'],
+        difficulty: 'medium',
+        interviewQuestions: [
+          {
+            question: 'How do you use Claude Code to build a complex feature without producing an unreviable giant diff?',
+            answer: {
+              english:
+                'Decompose the feature into a chain of focused tasks, each independently verifiable: (1) schema/design, (2) data models, (3) API routes, (4) tests, (5) documentation. Run each as a separate Claude prompt, review the output before proceeding, and commit each step separately. This produces a series of small, focused PRs or commits that are easy to review and easy to roll back if needed. Use # in follow-up prompts to reference earlier context without re-explaining.',
+              hinglish:
+                'Feature ko focused tasks mein decompose karo: schema → models → routes → tests → docs. Har step alag Claude prompt, review karo, phir aage badho, separate commit. Small focused PRs milte hain jo review karna easy hai. Follow-up prompts mein # use karo earlier context reference karne ke liye.',
+            },
+            difficulty: 'medium',
+            frequency: 'common',
+          },
+        ],
+      },
+      {
+        title: 'Iterative Refinement Patterns',
+        explanation: {
+          english:
+            'When Claude Code\'s first attempt isn\'t right, you have several refinement techniques:\n\n- **`--continue`**: Resume the previous session without restarting: `claude --continue "the validation is wrong — it should allow empty strings"`. Claude has full context of what it already did.\n- **Add constraints**: "Do not change the function signature. Do not rename any variables."\n- **Provide examples**: "Make the error messages look like the ones in src/lib/errors.js — same structure, same field names."\n- **Show failing tests as a spec**: Run `npm test`, paste the failure, and say "make this test pass without changing the test file."\n- **Red-green-refactor agentic loop**: Claude writes a failing test, implements until green, then refactors for clarity — you just review the refactor step.\n\nThe pattern to avoid: repeatedly asking Claude to "try again" without adding new information. Each refinement prompt should add a concrete constraint, example, or test that Claude can loop on.',
+          hinglish:
+            'Pehla attempt sahi nahi aaya? Refinement techniques: `--continue` se session resume karo, constraints add karo ("function signature mat badlo"), examples do ("errors.js jaisa format use karo"), failing tests as spec paste karo. Red-green-refactor agentic loop: test likho, pass karo, refactor karo. "Try again" mat kaho — har refinement mein concrete constraint ya example add karo.',
+        },
+        dailyLifeExample:
+          'Claude writes a validation function but it rejects valid input. Instead of "try again", you run the test, paste the failure, and say "--continue: make this failing test pass without changing the test file." Claude has a concrete target and fixes it correctly.',
+        codeExample: '# ── Iterative refinement patterns ──\n\n# 1. Resume with --continue (same session, full context)\nclaude "add input validation to the signup route"\n# [Claude writes validation, but it rejects valid email formats]\nclaude --continue "the email validation is too strict — it rejects valid\naddresses with subdomains like user@mail.example.com. Fix the regex\nwithout changing the function signature or the error response shape."\n\n# 2. Show a failing test as the spec\n# [Run npm test, see: AssertionError: expected 422, got 400]\nclaude --continue "The test src/__tests__/signup.test.ts line 34 is failing:\n  expected status 422 for missing fields, got 400.\nMake that test pass. Do NOT change the test file — only change the route handler."\n\n# 3. Provide a style reference\nclaude --continue "The error response format is wrong. It should match the\nformat in src/app/api/courses/route.js — look at how it structures { error, code, details }."\n\n# 4. Red-green-refactor agentic loop\nclaude "Write a failing test for a rate-limit utility that allows 10 requests\nper minute per IP and blocks the 11th. Do not implement the utility yet."\n# [Review the tests]\nclaude --continue "Now implement src/lib/rateLimit.js to make all the tests pass.\nRun the tests after each change and iterate."\n# [Tests pass]\nclaude --continue "Refactor rateLimit.js for clarity — better variable names,\nadd JSDoc — without changing any behaviour. Tests must still pass after."',
+        keyPoints: [
+          '--continue resumes the previous session with full context intact.',
+          'Add constraints to each refinement — never just say "try again".',
+          'Paste failing test output as a concrete spec for Claude to target.',
+          'Style references prevent Claude from inventing inconsistent patterns.',
+          'Red-green-refactor agentic loop: write test → implement → refactor separately.',
+        ],
+        quiz: [
+          {
+            question: 'What is the most effective way to guide Claude Code when its first attempt is close but not quite right?',
+            options: [
+              'Say "try again" and let Claude figure out what was wrong',
+              'Use --continue and add a specific constraint, failing test, or style reference',
+              'Start a new session and re-describe the entire task',
+              'Use /clear to reset the context and try a different approach',
+            ],
+            correct: 1,
+          },
+          {
+            question: 'In the red-green-refactor agentic loop with Claude Code, what is your role?',
+            options: [
+              'Write the failing tests yourself, then ask Claude to implement',
+              'Review the refactor step and approve or request changes',
+              'Run the test suite manually and paste results after each step',
+              'Write the implementation and let Claude write the tests',
+            ],
+            correct: 1,
+          },
+        ],
+        tags: ['iterative-refinement', 'continue', 'red-green-refactor', 'prompt-engineering', 'debugging'],
+        difficulty: 'medium',
+        interviewQuestions: [
+          {
+            question: 'How do you guide Claude Code when the first implementation attempt is incorrect?',
+            answer: {
+              english:
+                'Use --continue to resume with full context, then add new information rather than just saying "try again": add a concrete constraint ("do not change the function signature"), provide a style reference ("match the pattern in errors.js"), or paste a failing test output and say "make this test pass without modifying the test file". Each refinement prompt must add something Claude can reason about — a target, a constraint, or an example. The failing test pattern is the most powerful because it gives Claude an unambiguous success criterion.',
+              hinglish:
+                '--continue se resume karo phir new information add karo — sirf "try again" mat kaho. Constraint add karo, style reference do, ya failing test paste karo ("make this test pass without changing the test file"). Har refinement prompt mein kuch concrete add karo jis pe Claude reason kar sake. Failing test pattern sabse powerful hai kyunki Claude ko unambiguous success criterion milta hai.',
+            },
+            difficulty: 'medium',
+            frequency: 'very-common',
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 export const generalInterviewQuestions = [
@@ -787,6 +1257,39 @@ export const generalInterviewQuestions = [
         'The agentic loop is Claude Code\'s execution model: perceive (read task + context) → reason (plan approach) → act (edit file / run command) → observe (read result) → repeat. This is more powerful than chat because: Claude can observe real outcomes (test output, errors), self-correct based on actual results, take multi-step actions without human input at each step, and complete complex tasks like "fix all failing tests" by iterating until done.',
       hinglish:
         'Agentic loop Claude Code ka execution model hai: perceive → reason → act → observe → repeat. Chat se zyada powerful hai kyunki: real outcomes dekh sakta hai (test output, errors), actual results ke basis pe self-correct kar sakta hai, multi-step actions bina human input ke le sakta hai, aur "fix all failing tests" jaisi complex tasks complete kar sakta hai iterate karke.',
+    },
+    difficulty: 'medium',
+    frequency: 'common',
+  },
+  {
+    question: 'How would you automate your daily development workflow using Claude Code?',
+    answer: {
+      english:
+        'Create a custom /morning-report slash command (.claude/commands/morning-report.md) that chains three tasks: (1) git log --all --since=24h to summarise changes by feature area, (2) GitHub MCP to list assigned PRs with status and blockers, (3) GitHub MCP to read failing CI logs and propose fixes. Run once each morning to get a paste-ready standup summary. Additionally, set up a pre-commit hook that runs Claude on staged changes and blocks commits if critical issues (security vulnerabilities, missing error handling) are found.',
+      hinglish:
+        '/morning-report custom slash command banao (.claude/commands/morning-report.md) jo teen tasks chain kare: git changes summary, GitHub MCP se PR triage, failing CI fixes. Har subah ek command se standup-ready report milti hai. Plus pre-commit hook jo staged changes pe Claude run kare aur critical issues pe commit block kare.',
+    },
+    difficulty: 'medium',
+    frequency: 'common',
+  },
+  {
+    question: 'What are the four components of an effective Claude Code prompt and why does each matter?',
+    answer: {
+      english:
+        'Scope (which files/directories to work in) — prevents Claude from editing the wrong files. Constraint (what NOT to change) — prevents breaking adjacent code or changing function signatures. Verification (a command Claude can run to confirm success, e.g. npm test) — gives Claude a concrete success target to loop on. Style (a reference implementation to pattern-match against) — ensures the output is consistent with the existing codebase. Together they eliminate the most common failure modes and produce correct output on the first attempt.',
+      hinglish:
+        'Scope (kaun se files) — wrong files edit hone se bachata hai. Constraint (kya NAHI badalna) — adjacent code break hone se bachata hai. Verification (npm test jaisa command) — Claude ko success target deta hai loop karne ke liye. Style (reference implementation) — output existing codebase ke saath consistent rehta hai. Charon milake first attempt mein correct output dete hain.',
+    },
+    difficulty: 'medium',
+    frequency: 'very-common',
+  },
+  {
+    question: 'How does CLAUDE.md function as a prompt engineering tool beyond simple project documentation?',
+    answer: {
+      english:
+        'CLAUDE.md is a permanent system prompt injected into every Claude Code session. As a prompt engineering tool it encodes: architectural decision records (ADRs) that Claude must not contradict, an explicit anti-patterns list ("never use any, never use callbacks"), positive code examples that Claude pattern-matches against, and links to critical external docs. Sub-directory CLAUDE.md files add component-specific rules. The result is that every team member\'s Claude sessions share the same architectural context without any per-prompt repetition — effectively making Claude a consistent enforcer of team coding standards.',
+      hinglish:
+        'CLAUDE.md har session mein inject hone wala permanent system prompt hai. Prompt engineering tool ke roop mein: ADRs jo Claude contradict nahi karega, explicit anti-patterns list, positive code examples for pattern matching, critical docs links. Sub-directory files component-specific rules ke liye. Result: team ke sabhi Claude sessions same architectural context share karte hain bina baar baar repeat kiye — Claude team coding standards ka consistent enforcer ban jaata hai.',
     },
     difficulty: 'medium',
     frequency: 'common',
