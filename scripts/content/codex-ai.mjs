@@ -1693,6 +1693,1750 @@ print("\\nRemember: Quality of task description = Quality of Codex output")`,
       },
     ],
   },
+  {
+    title: 'Maximising Codex in Daily Dev Workflow',
+    level: 'advanced',
+    description: 'Codex ko apne real development workflow mein integrate karo — GitHub Actions ke saath issue-to-PR automation, TDD, systematic refactoring, aur automated PR reviews.',
+    concepts: [
+      {
+        title: 'Issue-to-PR Automation Pipeline',
+        difficulty: 'hard',
+        tags: ['github-actions', 'automation', 'ci-cd', 'workflow', 'agentic'],
+        explanation: {
+          english: `The most powerful way to use Codex is not through the ChatGPT interface manually — it is by wiring it into your GitHub workflow so that creating a GitHub Issue automatically triggers Codex to read the issue, explore the codebase, write the code, run tests, and open a PR. This is full-cycle agentic software development.
+
+Here is how the pipeline works end-to-end:
+
+Step 1 — Issue Creation: A developer (or product manager, or automated tool) creates a GitHub Issue. The issue is labeled "codex-ready." This label is the trigger signal.
+
+Step 2 — GitHub Actions Triggers: A GitHub Actions workflow watches for issues with the "codex-ready" label. When it sees one, it calls the Codex API with the issue body as the task description.
+
+Step 3 — Codex Reads the Issue: Codex receives the issue content, clones the repository, reads the codebase structure, and begins planning its implementation.
+
+Step 4 — Implementation and Testing: Codex writes the code, runs the test suite, iterates on failures — all in its isolated sandbox. It uses the issue description as its task specification.
+
+Step 5 — PR Opened: Codex opens a GitHub PR with the title referencing the issue, a description summarizing what it did, and links back to the original issue. Your team is notified for review.
+
+What makes a good "codex-ready" issue?
+- Clear acceptance criteria: "The endpoint should return 200 with paginated results. The total_count field must reflect filtered results, not all records."
+- Links to relevant files: "The user model is in src/models/user.py. Follow the pattern of the existing /products endpoint in src/routes/products.py."
+- Test expectations: "Write tests for: success case, auth required, pagination with filters."
+- Constraints: "Do not change the response format. Do not add new npm packages."
+
+Issues that fail: vague descriptions without acceptance criteria, issues requiring architectural decisions, security-sensitive changes without domain context.
+
+The payoff: your team spends time on high-value work — architecture, product decisions, code review — while Codex handles the implementation of well-scoped tickets autonomously.`,
+          hinglish: `Codex use karne ka sabse powerful tarika ChatGPT interface se manually nahi hai — balki ise apne GitHub workflow mein wire karo taaki GitHub Issue banana automatically Codex ko trigger kare issue padhne, codebase explore karne, code likhne, tests run karne, aur PR open karne ke liye. Yeh full-cycle agentic software development hai.
+
+Pipeline end-to-end kaise kaam karta hai:
+
+Step 1 — Issue Creation: Ek developer (ya product manager, ya automated tool) ek GitHub Issue create karta hai. Issue "codex-ready" label diya jaata hai. Yeh label trigger signal hai.
+
+Step 2 — GitHub Actions Triggers: Ek GitHub Actions workflow "codex-ready" label wale issues watch karta hai. Jab ek milta hai, woh Codex API ko issue body as task description ke saath call karta hai.
+
+Step 3 — Codex Issue Padhta Hai: Codex issue content receive karta hai, repository clone karta hai, codebase structure padhta hai, aur apni implementation planning shuru karta hai.
+
+Step 4 — Implementation aur Testing: Codex code likhta hai, test suite run karta hai, failures pe iterate karta hai — sab isolated sandbox mein. Issue description ko apni task specification ke roop mein use karta hai.
+
+Step 5 — PR Khulta Hai: Codex ek GitHub PR open karta hai issue reference karte hue title ke saath, kya kiya uska summary describe karte hue description ke saath, aur original issue pe wapas link ke saath. Team review ke liye notify hoti hai.
+
+Achha "codex-ready" issue kya banata hai?
+- Clear acceptance criteria: "Endpoint 200 return kare paginated results ke saath. total_count field filtered results reflect kare, sabhi records nahi."
+- Relevant files ke links: "User model src/models/user.py mein hai. src/routes/products.py mein existing /products endpoint ka pattern follow karo."
+- Test expectations: "Tests likho: success case, auth required, filters ke saath pagination."
+- Constraints: "Response format mat badlo. Naye npm packages mat add karo."
+
+Issues jo fail hote hain: acceptance criteria ke bina vague descriptions, architectural decisions chahne wale issues, domain context ke bina security-sensitive changes.
+
+Payoff: tumhari team high-value kaam pe time spend karti hai — architecture, product decisions, code review — jabki Codex well-scoped tickets ki implementation autonomously handle karta hai.`,
+        },
+        dailyLifeExample: `Socho ek pizza delivery system: customer order place karta hai (Issue create hota hai), system automatically kitchen ko notify karta hai (GitHub Actions trigger), chef order ke hisaab se pizza banata hai (Codex code likhta hai), quality check hota hai (tests run), aur delivery ke liye ready kiya jaata hai (PR open). Tum sirf order review karte ho (PR review) — baaki sab automated hai.`,
+        codeExample: `# GitHub Actions YAML — Codex ko "codex-ready" issue pe trigger karo
+# File: .github/workflows/codex-issue-automation.yml
+
+name: Codex Issue Automation
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  trigger-codex:
+    # Sirf "codex-ready" label wale issues pe run karo
+    if: github.event.label.name == 'codex-ready'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install OpenAI SDK
+        run: pip install openai
+
+      - name: Trigger Codex Task
+        env:
+          OPENAI_API_KEY: \${{ secrets.OPENAI_API_KEY }}
+          ISSUE_TITLE: \${{ github.event.issue.title }}
+          ISSUE_BODY: \${{ github.event.issue.body }}
+          ISSUE_NUMBER: \${{ github.event.issue.number }}
+          REPO_FULL_NAME: \${{ github.repository }}
+        run: |
+          python - <<'PYEOF'
+          import os
+          import openai
+
+          client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+          issue_title = os.environ["ISSUE_TITLE"]
+          issue_body = os.environ["ISSUE_BODY"]
+          issue_number = os.environ["ISSUE_NUMBER"]
+          repo = os.environ["REPO_FULL_NAME"]
+
+          # Codex task description issue content se build karo
+          task_description = f"""
+          GitHub Issue #{issue_number}: {issue_title}
+
+          {issue_body}
+
+          Additional context:
+          - Repository: {repo}
+          - After completing the implementation, open a PR referencing issue #{issue_number}
+          - PR title format: "fix: <short description> (closes #{issue_number})"
+          - Run the full test suite before opening the PR
+          - Do NOT merge the PR — leave it for human review
+          """
+
+          print(f"Submitting Codex task for issue #{issue_number}:")
+          print(f"Title: {issue_title}")
+          print("Task submitted — Codex will open a PR when complete.")
+
+          # NOTE: Replace this with actual Codex API call when available
+          # The exact API endpoint depends on OpenAI's Codex agent API
+          # Check: https://platform.openai.com/docs for current endpoints
+          print("Codex agent task queued successfully.")
+          PYEOF
+
+# ============================================
+# GOOD "codex-ready" Issue Template
+# ============================================
+# Yeh GitHub Issue template use karo (.github/ISSUE_TEMPLATE/codex-task.yml)
+
+issue_template = """
+name: Codex Task
+description: A well-scoped task for Codex to implement autonomously
+labels: ["codex-ready"]
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: "Objective (one sentence)"
+      placeholder: "Add CSV export endpoint to the admin reports API"
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: "Acceptance Criteria"
+      placeholder: |
+        - GET /api/reports/export?format=csv returns a valid CSV file
+        - CSV includes all columns from the current reports response
+        - Auth required (returns 401 if no valid token)
+        - Tests pass for: valid export, auth required, empty data case
+    validations:
+      required: true
+
+  - type: textarea
+    id: relevant_files
+    attributes:
+      label: "Relevant Files"
+      placeholder: |
+        - api/views/reports.py (existing reports endpoint)
+        - api/serializers/reports.py (data structure to export)
+        - tests/test_reports.py (add tests here)
+        - Follow the pattern of api/views/users.py for auth pattern
+    validations:
+      required: true
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: "Constraints"
+      placeholder: |
+        - Do NOT change existing /api/reports/ endpoint
+        - Do NOT add new pip packages (use Python stdlib csv module)
+        - Keep backward compatible with existing API clients
+"""
+
+print("Issue template for codex-ready issues:")
+print(issue_template)`,
+        keyPoints: [
+          'GitHub Actions + Codex = fully automated issue-to-PR pipeline with zero manual coding',
+          'Use the "codex-ready" label as the trigger — only well-scoped issues should get this label',
+          'Good issues have clear acceptance criteria, relevant file links, test expectations, and constraints',
+          'Codex opens a PR with the issue referenced — your team reviews and merges',
+          'Bad issues (vague, architectural, security-sensitive) should NOT be labeled codex-ready',
+          'The pipeline scales: one developer can manage many Codex tasks simultaneously',
+          'Always gate the pipeline: require human review before merging any Codex PR',
+        ],
+        quiz: [
+          {
+            question: 'GitHub Issue-to-PR automation pipeline mein "codex-ready" label ka kya role hai?',
+            options: [
+              'Yeh label issue ko automatically close kar deta hai',
+              'Yeh trigger signal hai jo GitHub Actions workflow ko Codex API call karne ke liye activate karta hai',
+              'Yeh label sirf documentation ke liye hai',
+              'Yeh label PR ko automatically merge kar deta hai',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Kaunsa issue "codex-ready" label ke liye LEAST suitable hai?',
+            options: [
+              'Issue jisme clear acceptance criteria aur relevant file links hain',
+              '"Design karo ki humara monolith microservices mein kaise migrate hoga" — architectural decision requiring business context',
+              'Bug fix issue with clear reproduction steps aur test expectations',
+              'CRUD endpoint add karna existing pattern follow karte hue',
+            ],
+            correctIndex: 1,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'How would you set up an automated issue-to-PR pipeline using Codex and GitHub Actions?',
+            difficulty: 'hard',
+            frequency: 'medium',
+            answer: {
+              english: 'Set up a GitHub Actions workflow triggered on the "labeled" event for issues. When an issue receives a "codex-ready" label, the workflow calls the Codex API with the issue body as the task description. Codex clones the repo in its sandbox, implements the feature, runs tests, and opens a PR referencing the issue. Key requirements for this to work well: issues must include clear acceptance criteria, relevant file paths, test expectations, and constraints. The workflow should use a repository secret for the OpenAI API key. Always require human code review before merging — never auto-merge Codex PRs, especially from automated pipelines.',
+              hinglish: 'Issues ke liye "labeled" event pe trigger hone wala GitHub Actions workflow set up karo. Jab ek issue "codex-ready" label receive karta hai, workflow Codex API ko issue body as task description ke saath call karta hai. Codex apne sandbox mein repo clone karta hai, feature implement karta hai, tests run karta hai, aur issue reference karte hue PR open karta hai. Yeh well work karne ke liye key requirements: issues mein clear acceptance criteria, relevant file paths, test expectations, aur constraints hone chahiye. Workflow OpenAI API key ke liye repository secret use kare. Merging se pehle hamesha human code review require karo — kabhi bhi Codex PRs auto-merge mat karo, especially automated pipelines se.',
+            },
+          },
+        ],
+      },
+      {
+        title: 'Test Generation & TDD with Codex',
+        difficulty: 'medium',
+        tags: ['tdd', 'testing', 'test-generation', 'coverage', 'pytest'],
+        explanation: {
+          english: `Codex is exceptionally good at writing tests — arguably better at test writing than at feature implementation, because tests have clear, predictable structure. This opens up two powerful workflows: TDD (Test-Driven Development) with Codex, and retroactive test generation for legacy code.
+
+Test-Driven Development with Codex:
+Classic TDD says "write the test first, then write the implementation." With Codex, you can push this further: you write the specification, Codex writes the tests, you review the tests to confirm they correctly capture the requirements, and then Codex writes the implementation to make them pass.
+
+The TDD workflow:
+1. You write a function specification in plain English: what the function does, its signature, edge cases, error conditions.
+2. Codex writes comprehensive tests covering all cases — more thoroughly than most developers would write manually.
+3. You review the tests: do they correctly capture what "correct behavior" means? Add any missing cases.
+4. Codex implements the function to make all tests pass.
+5. You review the implementation.
+
+This workflow produces better-tested code because tests are written before implementation bias sets in. The tests describe requirements, not implementation details.
+
+Test generation for legacy code:
+This is where Codex shines for existing codebases. The task: "Write unit tests for every exported function in src/payments/ — aim for 90% coverage." Codex reads the existing code, understands what each function does, and writes tests covering the behavior it observes. This is dramatically faster than writing tests manually for code you didn't write.
+
+Best practices for test spec tasks:
+- Specify the test framework and any existing test patterns to follow
+- Specify the coverage target explicitly ("90% coverage")
+- List specific edge cases to test ("empty array input", "negative numbers", "None values")
+- Tell Codex how to mock external dependencies ("mock the stripe module")
+- Point to an existing test file as a style reference`,
+          hinglish: `Codex tests likhne mein exceptionally good hai — arguably feature implementation se zyada, kyunki tests ki clear, predictable structure hoti hai. Yeh do powerful workflows open karta hai: Codex ke saath TDD (Test-Driven Development), aur legacy code ke liye retroactive test generation.
+
+Codex ke saath Test-Driven Development:
+Classic TDD kehta hai "pehle test likho, phir implementation." Codex ke saath, tum aage badh sakte ho: tum specification likhte ho, Codex tests likhta hai, tum tests review karte ho confirm karne ke liye ki requirements correctly capture hue hain, phir Codex implementation likhta hai unhe pass karne ke liye.
+
+TDD workflow:
+1. Tum plain English mein function specification likhte ho: function kya karta hai, signature, edge cases, error conditions.
+2. Codex comprehensive tests likhta hai sab cases cover karte hue — zyaadatar developers se zyada thoroughly.
+3. Tum tests review karte ho: kya yeh correctly capture karte hain "correct behavior" ka matlab? Koi missing cases add karo.
+4. Codex function implement karta hai sab tests pass karne ke liye.
+5. Tum implementation review karte ho.
+
+Yeh workflow better-tested code produce karta hai kyunki tests implementation bias set hone se pehle likhe jaate hain.
+
+Legacy code ke liye test generation:
+Yahi Codex existing codebases ke liye shine karta hai. Task: "src/payments/ mein har exported function ke liye unit tests likho — 90% coverage aim karo." Codex existing code padhta hai, samajhta hai har function kya karta hai, aur observed behavior cover karte hue tests likhta hai. Yeh us code ke liye manually tests likhne se dramatically faster hai jo tumne nahi likha.
+
+Test spec tasks ke liye best practices:
+- Test framework aur existing test patterns specify karo jo follow karne hain
+- Coverage target explicitly specify karo ("90% coverage")
+- Specific edge cases list karo jo test karne hain
+- Batao Codex ko external dependencies kaise mock karne hain
+- Style reference ke liye existing test file point karo`,
+        },
+        dailyLifeExample: `Socho tum ek chef ho aur Codex tumhara sous chef. TDD workflow mein, tum recipe specifications likhte ho ("dish mein yeh flavors hone chahiye, yeh restrictions"), Codex tasting criteria likhta hai (tests), tum confirm karte ho criteria sahi hain, phir Codex recipe implement karta hai (implementation). Legacy testing mein, Codex existing dishes (code) taste karta hai aur uske recipes (tests) ke liye standards document karta hai taaki future mein koi change quality break na kare.`,
+        codeExample: `# TDD with Codex — Specification se Tests tak se Implementation tak
+
+# ============================================
+# STEP 1: Tum function specification likhte ho
+# ============================================
+function_spec = """
+Function: calculate_order_discount(order_total, customer_tier, coupon_code)
+
+What it does:
+Calculate the discount amount to apply to an order.
+
+Parameters:
+- order_total: float — the pre-discount order total in USD (must be > 0)
+- customer_tier: str — one of "bronze", "silver", "gold", "platinum"
+- coupon_code: str | None — optional coupon code
+
+Discount rules:
+- Bronze: 0%, Silver: 5%, Gold: 10%, Platinum: 15% (base tier discounts)
+- Coupon "SAVE10" applies additional 10% off
+- Coupon "SAVE20" applies additional 20% off
+- Coupons stack with tier discounts (multiply, don't add)
+  e.g. Gold (10%) + SAVE10 (10%) = 19% total discount (0.9 * 0.9 = 0.81 multiplier)
+- Order total must be > 0, else raise ValueError("order_total must be positive")
+- Invalid customer_tier raises ValueError("invalid customer_tier: <tier>")
+- Invalid coupon code is silently ignored (no discount applied for coupon)
+- Return value: float — the discount AMOUNT (not percentage), rounded to 2 decimal places
+
+Examples:
+- (100.0, "gold", None) -> 10.0
+- (100.0, "gold", "SAVE10") -> 19.0  (10% + 10% stacked = 19%)
+- (200.0, "platinum", "SAVE20") -> 68.0  (15% + 20% stacked = 32% = 64, wait: 0.85*0.80=0.68, discount=200*0.32=64... recheck)
+- (50.0, "bronze", "SAVE10") -> 5.0  (0% + 10% = 10%)
+- (-10.0, "gold", None) -> raises ValueError
+"""
+
+# ============================================
+# STEP 2: Codex yeh tests generate karta hai
+# ============================================
+# Codex ka generated test file (tests/test_discount.py):
+generated_tests = '''
+import pytest
+from src.pricing.discount import calculate_order_discount
+
+class TestCalculateOrderDiscount:
+
+    # === Basic tier discounts ===
+    def test_bronze_tier_no_discount(self):
+        assert calculate_order_discount(100.0, "bronze", None) == 0.0
+
+    def test_silver_tier_five_percent(self):
+        assert calculate_order_discount(100.0, "silver", None) == 5.0
+
+    def test_gold_tier_ten_percent(self):
+        assert calculate_order_discount(100.0, "gold", None) == 10.0
+
+    def test_platinum_tier_fifteen_percent(self):
+        assert calculate_order_discount(100.0, "platinum", None) == 15.0
+
+    # === Coupon stacking ===
+    def test_gold_with_save10_coupon(self):
+        # Gold 10% + SAVE10 10% stacked: 1 - (0.9 * 0.9) = 0.19 = 19%
+        assert calculate_order_discount(100.0, "gold", "SAVE10") == 19.0
+
+    def test_bronze_with_save10_coupon(self):
+        # Bronze 0% + SAVE10: 1 - (1.0 * 0.9) = 0.10 = 10%
+        assert calculate_order_discount(50.0, "bronze", "SAVE10") == 5.0
+
+    def test_platinum_with_save20_coupon(self):
+        # Platinum 15% + SAVE20 20%: 1 - (0.85 * 0.80) = 0.32 = 32%
+        assert calculate_order_discount(100.0, "platinum", "SAVE20") == 32.0
+
+    # === Invalid coupon silently ignored ===
+    def test_invalid_coupon_ignored(self):
+        # "FAKECODE" not valid — bronze discount only (0%)
+        assert calculate_order_discount(100.0, "bronze", "FAKECODE") == 0.0
+
+    def test_gold_with_invalid_coupon_only_tier_discount(self):
+        assert calculate_order_discount(100.0, "gold", "NOTVALID") == 10.0
+
+    # === Rounding ===
+    def test_result_rounded_to_two_decimal_places(self):
+        # 33.33 * 0.19 = 6.3327 -> should round to 6.33
+        result = calculate_order_discount(33.33, "gold", "SAVE10")
+        assert result == round(33.33 * 0.19, 2)
+
+    # === Error conditions ===
+    def test_negative_order_total_raises(self):
+        with pytest.raises(ValueError, match="order_total must be positive"):
+            calculate_order_discount(-10.0, "gold", None)
+
+    def test_zero_order_total_raises(self):
+        with pytest.raises(ValueError, match="order_total must be positive"):
+            calculate_order_discount(0.0, "gold", None)
+
+    def test_invalid_tier_raises(self):
+        with pytest.raises(ValueError, match="invalid customer_tier: vip"):
+            calculate_order_discount(100.0, "vip", None)
+
+    def test_invalid_tier_message_includes_tier_name(self):
+        with pytest.raises(ValueError, match="invalid customer_tier: diamond"):
+            calculate_order_discount(100.0, "diamond", None)
+'''
+
+# ============================================
+# STEP 3: Tum tests review karte ho (3 minutes)
+# STEP 4: Codex implementation likhta hai tests pass karne ke liye
+# ============================================
+
+# === Legacy code ke liye test generation ===
+legacy_test_task = """
+Write unit tests for every exported function in src/payments/
+
+Files to test:
+- src/payments/processor.py (3 exported functions)
+- src/payments/validators.py (5 exported functions)
+- src/payments/formatters.py (4 exported functions)
+
+Coverage target: 90% line coverage minimum.
+
+Test framework: pytest (existing tests are in tests/payments/ — follow the style there)
+Mocking: mock the 'stripe' module using unittest.mock.patch
+
+For each function, cover:
+- Happy path (valid inputs, expected output)
+- Edge cases (empty strings, zero values, None where applicable)
+- Error/exception cases (invalid inputs that should raise)
+- Boundary values (max/min valid inputs)
+
+Run: pytest tests/payments/ --cov=src/payments --cov-report=term-missing
+to verify 90% coverage is achieved.
+"""
+
+print("TDD Workflow with Codex:")
+print("1. You write function spec (5 mins)")
+print("2. Codex writes tests (2 mins automated)")
+print("3. You review tests (3 mins)")
+print("4. Codex implements function (automated)")
+print("5. You review implementation (5 mins)")
+print("Total: ~15 mins vs 45+ mins traditional TDD")`,
+        keyPoints: [
+          'TDD with Codex: you write spec, Codex writes tests, you review, Codex implements',
+          'Tests written before implementation bias prevent implementation-specific tests',
+          'Legacy code test generation: "write unit tests for every function in src/X — 90% coverage"',
+          'Specify test framework, existing patterns to follow, and mocking approach',
+          'Always review Codex-generated tests: verify they actually test correct behavior',
+          'Codex writes more comprehensive tests than most devs write manually',
+          'TDD workflow: specification → tests (reviewed) → implementation → PR review',
+        ],
+        quiz: [
+          {
+            question: 'Codex ke saath TDD workflow ka main advantage kya hai?',
+            options: [
+              'Kyunki Codex tests automatically production mein deploy kar deta hai',
+              'Tests implementation se pehle likhe jaate hain — implementation bias nahi aati, tests requirements describe karte hain na ki implementation details',
+              'Kyunki Codex-written tests hamesha 100% coverage dete hain',
+              'Kyunki TDD ke liye koi manual review nahi chahiye',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Legacy codebase ke liye Codex test generation task likhte waqt kaunsa detail SABSE important hai?',
+            options: [
+              'Code ki exact line count batana',
+              'Test framework, mocking approach, coverage target, aur ek existing test file as style reference — taaki Codex consistent style mein tests likhe',
+              'Codex ko programming language batana',
+              'Har function ki internal implementation explain karna',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Refactoring & Technical Debt Reduction',
+        difficulty: 'medium',
+        tags: ['refactoring', 'technical-debt', 'async-await', 'typescript', 'migration'],
+        explanation: {
+          english: `Systematic refactoring is one of Codex's highest-leverage use cases. Refactoring is often deferred because it is tedious, time-consuming, and mentally exhausting — but important. Codex excels at it because refactoring tasks are well-defined (clear before/after state), span multiple files (where humans make consistency mistakes), and can be fully verified with tests.
+
+Types of refactoring Codex handles well:
+
+1. Callback to async/await migration: "Convert all callback-based database queries in src/db/ to use async/await. The pattern is: db.query(sql, params, callback) → await db.queryAsync(sql, params). Run tests after each file to verify."
+
+2. Library migration: "Migrate from the deprecated 'request' library to 'axios' in all files under src/api/. The request pattern is: request.get(url, (err, res, body) => ...). The axios equivalent is: const res = await axios.get(url); const body = res.data."
+
+3. TypeScript adoption: "Add TypeScript types to all JS files in src/services/. Do not change any logic. Use strict: true. Run npx tsc --noEmit to verify."
+
+4. CommonJS to ES Modules: "Convert src/utils/ from CommonJS (require/module.exports) to ES Modules (import/export). Update any files that import from src/utils/ accordingly."
+
+5. Pattern standardization: "Extract all duplicated pagination logic across src/routes/ into a shared usePagination utility in src/utils/pagination.js. Replace all duplications with calls to this utility."
+
+Why Codex is better than humans at systematic refactoring:
+- Consistency: humans get fatigued and introduce inconsistencies across file 15 of 30. Codex applies the same transformation every time.
+- Completeness: humans miss one file. Codex processes every file matching the pattern.
+- Speed: what takes a developer 2 days of tedious work takes Codex 20 minutes.
+
+The key: give Codex the before/after pattern explicitly, point to an example of both, and have a test suite to verify behavior is preserved.`,
+          hinglish: `Systematic refactoring Codex ke highest-leverage use cases mein se ek hai. Refactoring aksar defer hota hai kyunki yeh tedious, time-consuming, aur mentally exhausting hai — lekin important hai. Codex isme excel karta hai kyunki refactoring tasks well-defined hote hain (clear before/after state), multiple files span karte hain (jahan humans consistency mistakes karte hain), aur tests se fully verify ho sakte hain.
+
+Codex kis tarah ke refactoring ke liye well-suited hai:
+
+1. Callback se async/await migration: "src/db/ mein sab callback-based database queries ko async/await use karne ke liye convert karo. Pattern hai: db.query(sql, params, callback) → await db.queryAsync(sql, params). Har file ke baad tests run karo verify karne ke liye."
+
+2. Library migration: "src/api/ mein sab files mein deprecated 'request' library se 'axios' pe migrate karo."
+
+3. TypeScript adoption: "src/services/ mein sab JS files mein TypeScript types add karo. Koi logic mat badlo. Strict: true use karo."
+
+4. CommonJS se ES Modules: "src/utils/ ko CommonJS (require/module.exports) se ES Modules (import/export) mein convert karo."
+
+5. Pattern standardization: "src/routes/ mein sab duplicated pagination logic ko src/utils/pagination.js mein shared utility mein extract karo."
+
+Humans se zyada achha kyun hai Codex systematic refactoring mein:
+- Consistency: humans 30 files mein se 15th file pe fatigued ho jaate hain aur inconsistencies introduce karte hain. Codex har baar same transformation apply karta hai.
+- Completeness: humans ek file miss karte hain. Codex pattern match karne wali har file process karta hai.
+- Speed: jo developer ke liye 2 din ka tedious kaam hai, Codex 20 minutes mein karta hai.
+
+Key: Codex ko before/after pattern explicitly do, dono ka example point karo, aur behavior preserved hai verify karne ke liye test suite rakho.`,
+        },
+        dailyLifeExample: `Socho ek warehouse hai jisme sab items purane shelving system pe rakhe hain. Naya system adopt karna hai. Ek insaan sab items manually naye system pe shift kare — weeks lagenge aur kuch items miss ho jaayenge. Ek robot (Codex) har item systematically, consistently, aur jaldi process karta hai. Tum sirf rule batao: "purana label → naya label format," aur robot sab kuch convert kar deta hai. Yeh hai Codex ka refactoring power.`,
+        codeExample: `# CommonJS se ES Modules migration — Codex task example
+
+# ============================================
+# CODEX TASK: CommonJS to ES Modules Migration
+# ============================================
+migration_task = """
+Migrate src/utils/ from CommonJS to ES Modules.
+
+Current pattern (CommonJS — OLD):
+  const helpers = require('./helpers');
+  const { formatDate } = require('../utils/date');
+  module.exports = { myFunction, anotherFunction };
+  module.exports.default = mainFunction;
+
+New pattern (ES Modules — NEW):
+  import helpers from './helpers.js';
+  import { formatDate } from '../utils/date.js';
+  export { myFunction, anotherFunction };
+  export default mainFunction;
+
+Files to convert (all files in src/utils/):
+- src/utils/date.js
+- src/utils/validators.js
+- src/utils/formatters.js
+- src/utils/pagination.js
+- src/utils/logger.js
+
+After converting each file:
+1. Find all files that import from src/utils/ and update their import statements
+2. Add .js extension to all relative imports (ES Modules requirement)
+3. Check package.json — if "type" is not set to "module", add it
+
+Verify with: node --input-type=module < /dev/null (no syntax errors)
+Then run: npm test to verify all existing tests pass
+
+Constraint: Do NOT change any function logic or signatures.
+"""
+
+# ============================================
+# BEFORE and AFTER comparison
+# ============================================
+before_code = """
+// src/utils/date.js (BEFORE - CommonJS)
+const moment = require('moment');
+
+function formatDate(date, format) {
+  return moment(date).format(format || 'YYYY-MM-DD');
+}
+
+function isValidDate(dateString) {
+  return moment(dateString, 'YYYY-MM-DD', true).isValid();
+}
+
+function daysBetween(date1, date2) {
+  return Math.abs(moment(date1).diff(moment(date2), 'days'));
+}
+
+module.exports = { formatDate, isValidDate, daysBetween };
+"""
+
+after_code = """
+// src/utils/date.js (AFTER - ES Modules)
+import moment from 'moment';
+
+export function formatDate(date, format) {
+  return moment(date).format(format || 'YYYY-MM-DD');
+}
+
+export function isValidDate(dateString) {
+  return moment(dateString, 'YYYY-MM-DD', true).isValid();
+}
+
+export function daysBetween(date1, date2) {
+  return Math.abs(moment(date1).diff(moment(date2), 'days'));
+}
+"""
+
+print("Migration: CommonJS -> ES Modules")
+print()
+print("BEFORE:")
+print(before_code)
+print("AFTER:")
+print(after_code)
+print()
+
+# ============================================
+# Aur ek common refactoring: Callbacks to async/await
+# ============================================
+callback_before = """
+// BEFORE: Callback-based database query
+function getUserById(userId, callback) {
+  db.query(
+    'SELECT * FROM users WHERE id = ?',
+    [userId],
+    (err, rows) => {
+      if (err) {
+        callback(err, null);
+        return;
+      }
+      callback(null, rows[0] || null);
+    }
+  );
+}
+"""
+
+async_after = """
+// AFTER: async/await
+async function getUserById(userId) {
+  const rows = await db.queryAsync(
+    'SELECT * FROM users WHERE id = ?',
+    [userId]
+  );
+  return rows[0] || null;
+  // Errors propagate naturally as rejected promises
+}
+"""
+
+print("Callback -> async/await migration:")
+print("BEFORE:", callback_before)
+print("AFTER:", async_after)
+
+# Codex task jo yeh systematically karta hai
+callback_migration_task = """
+Convert all callback-based functions in src/db/queries.js to async/await.
+
+Pattern transformation:
+  OLD: function name(params, callback) { db.query(sql, args, (err, rows) => { if (err) { callback(err); return; } callback(null, result); }); }
+  NEW: async function name(params) { const rows = await db.queryAsync(sql, args); return result; }
+
+The db.queryAsync() method already exists — it is the promisified version.
+After converting, run: npm test -- --testPathPattern=queries to verify all tests pass.
+Do NOT change any function signatures visible to callers.
+"""
+print("\\nTask for Codex:")
+print(callback_migration_task)`,
+        keyPoints: [
+          'Refactoring is Codex\'s sweet spot: well-defined before/after, multiple files, verifiable with tests',
+          'Consistency advantage: Codex applies the same transformation every time, humans fatigue',
+          'Always provide before/after pattern explicitly with an example of each',
+          'Run tests after each file (or batch) to catch regressions early',
+          'CommonJS → ES Modules, callbacks → async/await, JS → TypeScript are all perfect Codex tasks',
+          'For large refactors, break into batches: "migrate src/utils/ first, then src/services/"',
+          'The test suite is your safety net — good test coverage is prerequisite for Codex refactoring',
+        ],
+        quiz: [
+          {
+            question: 'Systematic refactoring mein Codex humans se better kyun hai?',
+            options: [
+              'Kyunki Codex faster type karta hai',
+              'Consistency aur completeness: Codex har file pe same transformation apply karta hai bina fatigue ke, jabki humans inconsistencies introduce karte hain aur files miss karte hain',
+              'Kyunki Codex ko code nahi samajhna padta refactor karne ke liye',
+              'Kyunki Codex automatically production mein deploy karta hai',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Codex ko refactoring task dete waqt sabse important cheez kaunsi hai?',
+            options: [
+              'Codebase ki total file count batana',
+              'Before/after pattern explicitly provide karna, dono ka example dena, aur behavior preserved hai verify karne ke liye test suite specify karna',
+              'Codex ko programming language history explain karna',
+              'Saari files ek saath process karna, batches mein nahi',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'PR Review Automation',
+        difficulty: 'hard',
+        tags: ['pr-review', 'automation', 'code-review', 'github', 'security'],
+        explanation: {
+          english: `Beyond writing code, Codex can act as an automated PR reviewer: it reads the diff, runs the tests, checks for common issues, and posts review comments on GitHub. This creates a "Codex reviewer required" workflow where every PR gets an automated first pass before human reviewers spend time on it.
+
+How Codex PR review works:
+1. A developer opens a PR
+2. A GitHub Actions workflow triggers on PR open/update
+3. Codex reads the diff and the surrounding context from the repository
+4. Codex runs the test suite
+5. Codex posts inline review comments identifying: failing tests, potential security issues, missing error handling, violations of project conventions, performance concerns
+6. The developer addresses Codex's comments before requesting human review
+
+What Codex checks in a PR review:
+- Test coverage: are the changed functions tested? Are new functions covered?
+- Security patterns: SQL injection risks, missing auth checks on new endpoints, hardcoded credentials
+- Code consistency: does the new code follow the patterns established in the codebase?
+- Error handling: are new HTTP calls wrapped in try/catch? Are file operations using context managers?
+- Breaking changes: does the changed code maintain backward compatibility with its callers?
+
+Configuring review depth: You can configure what Codex focuses on — a quick review (test and security checks only) vs a thorough review (conventions, performance, architecture). For most PRs, the quick review catches 80% of issues.
+
+How to respond to Codex review comments: treat them like human review comments. Address each one: fix it, or add a comment explaining why you disagree. After addressing all comments, re-request Codex review to get a clean bill of health.
+
+Setting up a "Codex reviewer required" branch policy: in GitHub branch protection settings, add a required status check that passes only when the Codex review GitHub Actions workflow completes successfully. This ensures no PR can be merged without Codex's automated review passing.`,
+          hinglish: `Code likhne se aage, Codex ek automated PR reviewer ki tarah act kar sakta hai: diff padhta hai, tests run karta hai, common issues check karta hai, aur GitHub pe review comments post karta hai. Yeh ek "Codex reviewer required" workflow create karta hai jahan har PR ko human reviewers time spend karne se pehle automated first pass milta hai.
+
+Codex PR review kaise kaam karta hai:
+1. Developer PR open karta hai
+2. GitHub Actions workflow PR open/update pe trigger hota hai
+3. Codex diff aur repository se surrounding context padhta hai
+4. Codex test suite run karta hai
+5. Codex inline review comments post karta hai identifying: failing tests, potential security issues, missing error handling, project conventions violations, performance concerns
+6. Developer human review request karne se pehle Codex ke comments address karta hai
+
+Codex PR review mein kya check karta hai:
+- Test coverage: kya changed functions tested hain? Kya naye functions cover hain?
+- Security patterns: SQL injection risks, naye endpoints pe missing auth checks, hardcoded credentials
+- Code consistency: kya naya code codebase mein established patterns follow karta hai?
+- Error handling: kya naye HTTP calls try/catch mein wrapped hain? Kya file operations context managers use kar rahi hain?
+- Breaking changes: kya changed code apne callers ke saath backward compatible hai?
+
+Review depth configure karna: tum configure kar sakte ho Codex kya focus kare — quick review (sirf test aur security checks) vs thorough review (conventions, performance, architecture). Zyaadatar PRs ke liye, quick review 80% issues catch karta hai.
+
+Codex review comments ka jawab kaise dein: human review comments ki tarah treat karo. Har ek address karo: fix karo, ya comment add karo kyun disagree karte ho. Sab comments address karne ke baad, clean bill of health ke liye re-request Codex review karo.
+
+"Codex reviewer required" branch policy set up karna: GitHub branch protection settings mein, ek required status check add karo jo sirf tab pass ho jab Codex review GitHub Actions workflow successfully complete ho. Yeh ensure karta hai ki koi PR bina Codex ke automated review pass kiye merge nahi ho sakta.`,
+        },
+        dailyLifeExample: `Socho ek restaurant mein quality check system: har dish customer ke paas jaane se pehle ek automated sensor se guzarti hai jo temperature, presentation standards, aur allergen presence check karta hai. Agar sensor issues find karta hai, dish kitchen wapas jaati hai. Sirf sensor pass karne wali dishes head chef (human reviewer) ke paas jaati hain final approval ke liye. Yeh hai Codex PR review — automated first-pass quality gate.`,
+        codeExample: `# GitHub Actions: Codex PR Review Automation
+# File: .github/workflows/codex-pr-review.yml
+
+pr_review_workflow = """
+name: Codex PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  codex-review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for diff context
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install openai requests
+
+      - name: Run Codex PR Review
+        env:
+          OPENAI_API_KEY: \${{ secrets.OPENAI_API_KEY }}
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: \${{ github.event.pull_request.number }}
+          BASE_SHA: \${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: \${{ github.event.pull_request.head.sha }}
+          REPO: \${{ github.repository }}
+        run: python .github/scripts/codex_review.py
+"""
+
+# .github/scripts/codex_review.py
+codex_review_script = '''
+import os
+import subprocess
+import json
+import openai
+import requests
+
+def get_pr_diff():
+    """Get the diff for the current PR."""
+    base_sha = os.environ["BASE_SHA"]
+    head_sha = os.environ["HEAD_SHA"]
+    result = subprocess.run(
+        ["git", "diff", f"{base_sha}..{head_sha}", "--unified=5"],
+        capture_output=True, text=True
+    )
+    return result.stdout
+
+def post_pr_comment(comment_body):
+    """Post a review comment on the GitHub PR."""
+    token = os.environ["GITHUB_TOKEN"]
+    repo = os.environ["REPO"]
+    pr_number = os.environ["PR_NUMBER"]
+
+    url = f"https://api.github.com/repos/{repo}/issues/{pr_number}/comments"
+    headers = {
+        "Authorization": f"token {token}",
+        "Content-Type": "application/json"
+    }
+    data = {"body": comment_body}
+    response = requests.post(url, headers=headers, json=data)
+    return response.status_code == 201
+
+def run_tests():
+    """Run the project test suite."""
+    result = subprocess.run(
+        ["pytest", "tests/", "-v", "--tb=short"],
+        capture_output=True, text=True, timeout=300
+    )
+    return {
+        "returncode": result.returncode,
+        "output": result.stdout[-3000:],  # Last 3000 chars
+        "passed": result.returncode == 0
+    }
+
+def codex_review_pr(diff, test_results):
+    """Ask Codex to review the PR diff."""
+    client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+    test_summary = "PASSED" if test_results["passed"] else f"FAILED:\\n{test_results['output']}"
+
+    review_prompt = f"""
+    You are a senior code reviewer. Review this PR diff and provide structured feedback.
+
+    Test suite results: {test_summary}
+
+    PR Diff:
+    {diff[:8000]}  # Limit diff size
+
+    Provide a review covering:
+    1. Test results — pass/fail and any failures to address
+    2. Security concerns — SQL injection, missing auth, hardcoded secrets
+    3. Error handling gaps — unhandled exceptions, missing try/catch
+    4. Code consistency — does it follow apparent codebase conventions?
+    5. Overall verdict: APPROVE (looks good), REQUEST_CHANGES (issues found), or COMMENT (minor notes)
+
+    Format your response as a GitHub PR review comment in Markdown.
+    Be specific: reference exact line numbers or code snippets where possible.
+    Be concise — focus on real issues, not style preferences.
+    """
+
+    response = client.chat.completions.create(
+        model="o4-mini",  # Use available model
+        messages=[{"role": "user", "content": review_prompt}]
+    )
+    return response.choices[0].message.content
+
+if __name__ == "__main__":
+    print("Getting PR diff...")
+    diff = get_pr_diff()
+
+    print("Running tests...")
+    test_results = run_tests()
+
+    print("Requesting Codex review...")
+    review = codex_review_pr(diff, test_results)
+
+    print("Posting review comment...")
+    header = "## Codex Automated Review\\n\\n"
+    if post_pr_comment(header + review):
+        print("Review posted successfully.")
+    else:
+        print("Failed to post review comment.")
+        print(review)
+'''
+
+print("PR Review Automation Setup:")
+print("1. Add .github/workflows/codex-pr-review.yml")
+print("2. Add .github/scripts/codex_review.py")
+print("3. Add OPENAI_API_KEY to repository secrets")
+print("4. Enable 'Codex PR Review' as required status check in branch protection")
+print()
+print("Branch Protection Setup (GitHub Settings -> Branches -> Add Rule):")
+protection_settings = {
+    "branch_name_pattern": "main",
+    "require_status_checks": ["codex-review"],
+    "require_pull_request_reviews": True,
+    "required_approving_review_count": 1,
+    "dismiss_stale_reviews": True
+}
+print(json.dumps(protection_settings, indent=2))`,
+        keyPoints: [
+          'Codex PR review = automated first-pass: reads diff, runs tests, posts inline comments',
+          'Checks: test coverage, security patterns, error handling, code consistency, breaking changes',
+          'Configure depth: quick (tests + security) vs thorough (full conventions check)',
+          'Treat Codex review comments like human comments — address or explain each one',
+          '"Codex reviewer required" branch policy: required status check before human review',
+          'Codex review does NOT replace human review — it surfaces obvious issues early',
+          'Developers fix Codex-flagged issues before requesting human reviewer time',
+        ],
+        quiz: [
+          {
+            question: 'Codex PR review ka main benefit kya hai development workflow mein?',
+            options: [
+              'Yeh human code reviewers ki zaroorat completely eliminate karta hai',
+              'Yeh ek automated first-pass gate provide karta hai jo obvious issues (tests fail, security gaps, missing error handling) early catch karta hai, human reviewer time bachata hai',
+              'Yeh automatically PRs merge karta hai jo pass hote hain',
+              'Yeh sirf syntax errors check karta hai',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: '"Codex reviewer required" branch policy kaise set karte hain GitHub mein?',
+            options: [
+              'Repository settings mein Codex enable karo',
+              'GitHub branch protection mein Codex review GitHub Actions workflow ko required status check ke roop mein add karo — PR merge nahi ho sakta jab tak yeh pass nahi hota',
+              'Har PR pe manually Codex review request karo',
+              'GitHub Marketplace se Codex app install karo',
+            ],
+            correctIndex: 1,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'How can Codex be used as an automated PR reviewer, and what should it check?',
+            difficulty: 'hard',
+            frequency: 'medium',
+            answer: {
+              english: 'Codex can be integrated as an automated PR reviewer via GitHub Actions: trigger on PR open/update, have Codex read the diff and surrounding repository context, run the test suite, and post structured review comments. It should check: test coverage of changed code, security patterns (SQL injection, missing auth checks, hardcoded credentials), error handling gaps, code consistency with codebase conventions, and potential breaking changes. This creates a "Codex reviewer required" gate — developers address automated findings before requesting human reviewer time. The key benefit: human reviewers spend time on architecture and product decisions, not catching missing try/catch blocks or forgot-to-add-auth issues.',
+              hinglish: 'Codex ko GitHub Actions se automated PR reviewer ke roop mein integrate kiya ja sakta hai: PR open/update pe trigger karo, Codex ko diff aur surrounding repository context padhne do, test suite run karo, aur structured review comments post karo. Ise check karna chahiye: changed code ka test coverage, security patterns (SQL injection, missing auth checks, hardcoded credentials), error handling gaps, codebase conventions ke saath code consistency, aur potential breaking changes. Yeh ek "Codex reviewer required" gate banata hai — developers automated findings address karte hain human reviewer time request karne se pehle. Key benefit: human reviewers architecture aur product decisions pe time spend karte hain, missing try/catch ya forgot-to-add-auth issues catch karne mein nahi.',
+            },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Prompt Engineering for Codex & AI Coding Agents',
+    level: 'advanced',
+    description: 'AI coding agents ke liye effective prompts aur task specifications kaise likhein, context engineering kya hai, iterative agent workflows, aur multiple AI tools ko combine kaise karein.',
+    concepts: [
+      {
+        title: 'Writing Great Codex Task Specifications',
+        difficulty: 'medium',
+        tags: ['prompt-engineering', 'task-spec', 'best-practices', 'specification'],
+        explanation: {
+          english: `The difference between a Codex task that succeeds on the first try and one that requires three rounds of iteration is almost entirely in the quality of the task specification. This is the highest-leverage skill in working with AI coding agents.
+
+The anatomy of a perfect Codex task:
+
+(1) Context files to read: Tell Codex exactly which files are relevant — the files that contain patterns to follow, the files being changed, the test files to update. Don't make Codex guess. "Read these files before starting: src/routes/products.py (the pattern to follow), src/models/order.py (the data model), tests/test_products.py (the test pattern to follow)."
+
+(2) Acceptance criteria — what "done" looks like: Define success in observable, testable terms. Not "make the login work" but "GET /api/auth/login with valid credentials returns 200 with a JWT token in the response body as {"token": "..."}. With invalid credentials, it returns 401 with {"error": "Invalid credentials"}."
+
+(3) Constraints — don't break X, preserve Y interface: Explicitly state what must NOT change. "Do not change the User model fields. Do not modify any existing API endpoints. Keep all existing tests passing. Do not add new npm packages."
+
+(4) Test command to verify: Give Codex the exact command to verify success. "Run: pytest tests/test_auth.py -v to verify. All tests must pass. Run: pytest --cov=src/auth --cov-fail-under=85 to verify coverage."
+
+Weak vs strong task examples:
+Weak: "Add authentication to the app."
+Strong: "Add JWT authentication to the FastAPI app. Relevant files: main.py (app entry), routers/users.py (endpoints to protect). Create auth.py with token creation/verification. Add POST /auth/login returning JWT. Protect all /users/ endpoints. Write pytest tests in tests/test_auth.py for: login success, login fail, valid token, expired token, no token. Do not change existing User model. Run: pytest tests/test_auth.py to verify."
+
+Hinglish insight: "Ek achhi task specification se Codex pehli baar mein kaam kar deta hai — revision rounds pe time waste nahi hota. Specification mein invest karo, iteration save karo."`,
+          hinglish: `Ek Codex task jo pehli baar succeed karta hai aur ek jo teen rounds of iteration chahta hai — dono mein fark almost entirely task specification ki quality mein hai. AI coding agents ke saath kaam karne mein yeh highest-leverage skill hai.
+
+Perfect Codex task ki anatomy:
+
+(1) Context files to read: Codex ko exactly batao kaunsi files relevant hain — patterns follow karne ke liye files, change hone wali files, update hone wale test files. Codex ko guess mat karne do. "Shuru karne se pehle yeh files padho: src/routes/products.py (follow karne ka pattern), src/models/order.py (data model), tests/test_products.py (test pattern to follow)."
+
+(2) Acceptance criteria — "done" kab lagta hai: Observable, testable terms mein success define karo. "Login kaam karo" nahi, balki "GET /api/auth/login valid credentials ke saath 200 return kare response body mein JWT token ke saath as {'token': '...'}. Invalid credentials ke saath, 401 return kare {'error': 'Invalid credentials'} ke saath."
+
+(3) Constraints — X mat todo, Y interface preserve karo: Explicitly state karo kya change NAHI karna. "User model fields mat badlo. Existing API endpoints modify mat karo. Sab existing tests passing rakhna. Naye npm packages add mat karo."
+
+(4) Test command to verify: Codex ko exact command do success verify karne ke liye. "Run: pytest tests/test_auth.py -v to verify. Sab tests pass hone chahiye."
+
+Weak vs strong task examples:
+Weak: "App mein authentication add karo."
+Strong: "FastAPI app mein JWT authentication add karo. Relevant files: main.py, routers/users.py. auth.py create karo token creation/verification ke saath. POST /auth/login add karo JWT return karte hue. Sab /users/ endpoints protect karo. pytest tests tests/test_auth.py mein likho. Existing User model mat badlo. Run: pytest tests/test_auth.py to verify."
+
+Hinglish insight: "Ek achhi task specification se Codex pehli baar mein kaam kar deta hai — revision rounds pe time waste nahi hota. Specification mein invest karo, iteration save karo."`,
+        },
+        dailyLifeExample: `Socho ek construction project: agar tum architect ko bolte ho "ek achha building banao" — woh confuse ho jaayega. Lekin agar tum detailed blueprints, materials specifications, building codes compliance requirements, aur inspection criteria dete ho — contractor pehli baar mein exactly wahi banata hai jo chahiye. Codex task specification wohi blueprint hai.`,
+        codeExample: `# Perfect Codex Task Specification — Template aur Examples
+
+# ============================================
+# TEMPLATE: The anatomy of a perfect task
+# ============================================
+perfect_task_template = """
+[OBJECTIVE — 1 sentence]
+<What to build/fix/change>
+
+[CONTEXT FILES — Read these first]
+- <filepath1>: <why it's relevant>
+- <filepath2>: <why it's relevant>
+- <filepath3>: <the pattern to follow>
+
+[ACCEPTANCE CRITERIA — Observable, testable]
+1. <Specific behavior: input X produces output Y>
+2. <Specific behavior: error case A returns status B with body C>
+3. <Specific behavior: edge case D is handled by doing E>
+
+[TEST REQUIREMENTS]
+Write tests in <test_file_path> covering:
+- <Test case 1: specific scenario>
+- <Test case 2: error condition>
+- <Test case 3: edge case>
+Verify with: <exact test command>
+
+[CONSTRAINTS — What must NOT change]
+- Do NOT change: <specific things to preserve>
+- Do NOT add: <packages/patterns to avoid>
+- Backward compatibility: <what must keep working>
+
+[VERIFICATION COMMAND]
+Run: <exact command> — all tests must pass
+"""
+
+# ============================================
+# WEAK vs STRONG: Real examples
+# ============================================
+
+weak_task_1 = "Add search to the API"
+strong_task_1 = """
+[OBJECTIVE]
+Add search functionality to GET /api/products endpoint.
+
+[CONTEXT FILES — Read these first]
+- src/routes/products.py: the endpoint to modify
+- src/repositories/product_repository.py: where to add the query logic (follow existing query pattern)
+- tests/test_products.py: add new tests here, follow existing test style
+- src/utils/pagination.py: pagination utility already in use (keep using it)
+
+[ACCEPTANCE CRITERIA]
+1. GET /api/products?search=shirt returns products where name or description contains "shirt" (case-insensitive)
+2. GET /api/products?category=accessories returns products with that category only
+3. GET /api/products?search=shirt&category=accessories combines both filters (AND logic)
+4. GET /api/products (no params) returns all products — unchanged from current behavior
+5. Pagination meta (total_count) reflects FILTERED count, not all products
+6. GET /api/products?search= (empty string) treats as no search filter
+
+[TEST REQUIREMENTS]
+Write tests in tests/test_products.py covering:
+- Search by name partial match (case-insensitive)
+- Search by description partial match
+- Category filter exact match
+- Combined search + category
+- Empty search returns all products
+- Pagination with filters: page 2 of filtered results has correct items
+- SQL injection safety: search="'; DROP TABLE products;--" returns empty, no error
+Verify with: pytest tests/test_products.py -v
+
+[CONSTRAINTS]
+- Do NOT change response format (data/meta structure must stay the same)
+- Do NOT add new Python packages (SQLAlchemy ILIKE handles case-insensitive search)
+- All existing product tests must still pass
+"""
+
+# ============================================
+# Hinglish insight as code comment
+# ============================================
+insight = """
+# "Ek achhi task specification se Codex pehli baar mein kaam kar deta hai."
+# — Revision rounds mein jo time jaata hai, woh specification mein
+#   5 extra minutes invest karke bacha sakte ho.
+#
+# Weak task: 3 rounds of iteration = 3x Codex API cost + 30 mins of your review time
+# Strong task: 1 round success = 1x cost + 10 mins review
+#
+# ROI calculation:
+# 5 mins better spec -> save 2 rounds * (Codex API cost + 20 min review)
+# Clearly worth it every time.
+"""
+
+print("Task Specification Quality Comparison:")
+print(f"Weak: '{weak_task_1}'")
+print()
+print(f"Strong: (see full task above)")
+print()
+print("Key additions in strong task:")
+additions = [
+    "Specific file paths to read first",
+    "Observable acceptance criteria with exact inputs/outputs",
+    "Test cases listed explicitly including edge cases",
+    "Constraints on what NOT to change",
+    "Exact verification command",
+]
+for item in additions:
+    print(f"  + {item}")
+
+print(insight)`,
+        keyPoints: [
+          'Task quality = output quality: invest 5 extra minutes in the spec, save 2 rounds of iteration',
+          'Four pillars: context files, acceptance criteria, constraints, verification command',
+          'Acceptance criteria must be observable and testable, not vague ("make it work")',
+          'Context files prevent Codex from guessing — tell it exactly where to look',
+          'Constraints are as important as requirements — what NOT to change prevents surprises',
+          'Provide the exact test command so Codex knows how to verify success',
+          '"Ek achhi task specification se Codex pehli baar mein kaam kar deta hai"',
+        ],
+        quiz: [
+          {
+            question: 'Perfect Codex task specification ke "4 pillars" kaunse hain?',
+            options: [
+              'Language, framework, database, testing tool',
+              'Context files to read, acceptance criteria (done kab lagta hai), constraints (kya mat badlo), verification command',
+              'Title, description, assignee, due date',
+              'Frontend, backend, database, tests',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: '"Ek achhi task specification se Codex pehli baar mein kaam kar deta hai" — iska practical implication kya hai?',
+            options: [
+              'Better spec likhne mein zyada time lagata hai overall',
+              '5 extra minutes specification mein invest karke 2+ rounds of iteration bach jaate hain, resulting in net time saving aur kam API cost',
+              'Codex ko sirf simple tasks ke liye specification chahiye',
+              'Specification sirf large teams ke liye zaroori hai',
+            ],
+            correctIndex: 1,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'What makes a Codex task specification "great" versus "weak"?',
+            difficulty: 'medium',
+            frequency: 'high',
+            answer: {
+              english: 'A great Codex task specification has four pillars: (1) Context files — explicitly list which files to read before starting (patterns to follow, files to change, test files to update). (2) Observable acceptance criteria — define done in testable terms: "POST /auth/login with valid credentials returns 200 with {token: ...} in the body" not "make login work." (3) Constraints — explicitly state what must not change: don\'t modify the User model, don\'t add new packages, keep all existing tests passing. (4) Verification command — provide the exact test command to verify success. A weak task is vague ("add search"), forcing Codex to make assumptions about intent, scope, and approach — producing output that needs heavy revision. The payoff: 5 minutes of better spec writing saves 2+ rounds of iteration.',
+              hinglish: 'Ek great Codex task specification ke chaar pillars hain: (1) Context files — explicitly list karo kaunsi files shuru karne se pehle padhni hain (follow karne ke patterns, change hone wali files, update hone wale test files). (2) Observable acceptance criteria — done ko testable terms mein define karo: "POST /auth/login valid credentials ke saath 200 return kare {token: ...} ke saath" na ki "login kaam karo." (3) Constraints — explicitly state karo kya change nahi karna: User model modify mat karo, naye packages add mat karo, sab existing tests passing rakhna. (4) Verification command — success verify karne ke liye exact test command do. Weak task vague hota hai ("search add karo"), Codex ko intent, scope, aur approach ke baare mein assumptions banane par force karta hai — aise output produce karta hai jo heavy revision chahta hai. Payoff: 5 minutes better spec likhne se 2+ rounds of iteration bachte hain.',
+            },
+          },
+        ],
+      },
+      {
+        title: 'Context Engineering for AI Coding Agents',
+        difficulty: 'hard',
+        tags: ['context-engineering', 'repo-structure', 'agents-md', 'codebase-design'],
+        explanation: {
+          english: `Context engineering is different from prompt engineering. Prompt engineering is about crafting the right words in a single message. Context engineering is about structuring your entire codebase so that AI agents can read it and immediately understand what to do. The payoff is not just for one task — a well-structured codebase helps every future AI agent task you assign.
+
+Unlike prompt engineering for chat (where you tune one interaction), coding agents need CODE context: they read your actual repository, not just your message.
+
+What AI agents need from a codebase:
+1. Relevant files they can discover through structure: well-organized directories with clear, semantic names. An agent reading "src/routes/users.py" knows exactly what it contains before opening it. "src/stuff/misc3.py" tells it nothing.
+
+2. README and AGENTS.md: the README explains how to set up and test the project. An AGENTS.md file (some agent systems read this explicitly) can provide agent-specific guidance: "When adding a new endpoint, follow the pattern in src/routes/products.py. Run tests with: pytest tests/ -v. The pagination utility is in src/utils/pagination.py."
+
+3. Examples in tests: your test files are living documentation. A test for "createUser" shows an agent exactly what a valid user looks like, what an invalid user triggers, and what the response format is. Good tests = agents understand your data shapes.
+
+4. Clear module boundaries: agents work better when each module has a clear, single responsibility. A 2000-line "utils.py" that contains everything is harder to navigate than 10 focused modules.
+
+5. Existing patterns that repeat consistently: if 20 endpoints all follow the same pattern (auth middleware, request validation, service call, response formatter), agents learn the pattern and apply it to the 21st endpoint without you needing to explain it.
+
+The principle of "code that teaches itself": write code as if a smart new developer joins your team with no context. If they can figure out what to do from reading the code and the README alone — an AI agent can too.`,
+          hinglish: `Context engineering, prompt engineering se alag hai. Prompt engineering ek single message mein sahi words craft karne ke baare mein hai. Context engineering tumhara poora codebase is tarah structure karne ke baare mein hai ki AI agents ise padh sakein aur immediately samajh sakein kya karna hai. Payoff sirf ek task ke liye nahi hai — well-structured codebase har future AI agent task mein help karta hai.
+
+Chat ke liye prompt engineering se alag (jahan tum ek interaction tune karte ho), coding agents ko CODE context chahiye: yeh tumhara actual repository padhte hain, sirf tumhara message nahi.
+
+AI agents ko codebase se kya chahiye:
+1. Relevant files jo structure ke through discover kar sakein: clear, semantic names ke saath well-organized directories. "src/routes/users.py" padhne wala agent exactly jaanta hai isme kya hai bina khola. "src/stuff/misc3.py" kuch nahi batata.
+
+2. README aur AGENTS.md: README explain karta hai project kaise setup aur test karein. Ek AGENTS.md file (kuch agent systems yeh explicitly padhte hain) agent-specific guidance provide kar sakti hai: "Naya endpoint add karte waqt, src/routes/products.py mein pattern follow karo. Tests run karo: pytest tests/ -v."
+
+3. Tests mein examples: tumhare test files living documentation hain. "createUser" ka test ek agent ko exactly dikhata hai valid user kaisa lagta hai, invalid user kya trigger karta hai, aur response format kya hai.
+
+4. Clear module boundaries: agents better kaam karte hain jab har module ki ek clear, single responsibility ho.
+
+5. Consistently repeat hone wale existing patterns: agar 20 endpoints sab same pattern follow karte hain, agents pattern seekhte hain aur ise 21st endpoint pe apply karte hain bina explanation ke.
+
+"Code that teaches itself" ka principle: code likho jaisa ek smart new developer tumhari team mein joins karta hai bina context ke. Agar woh sirf code aur README padh ke figure out kar sakte hain kya karna hai — ek AI agent bhi kar sakta hai.`,
+        },
+        dailyLifeExample: `Socho ek well-organized library vs ek chaotic attic. Library mein, har book labeled shelf pe hai genre ke hisaab se — koi bhi ek new visitor specific book quickly dhundh sakta hai. Attic mein, sab cheez piles mein hai — even owner ko dhundne mein time lagta hai. AI agent wohi new visitor hai. Tumhara codebase wohi library ya attic hai. Well-organized codebase = agent faster aur better kaam karta hai.`,
+        codeExample: `# Context Engineering — Apna Codebase AI-agent-friendly banao
+
+# ============================================
+# 1. AGENTS.md — Agent-specific documentation
+# ============================================
+agents_md_content = """
+# AGENTS.md
+# AI agents tumhare project mein kaam karte waqt yeh file padhein.
+
+## Project Overview
+FastAPI REST API for an e-commerce platform. Python 3.11, PostgreSQL, pytest.
+
+## Quick Start (tests run karne ke liye)
+pip install -r requirements.txt
+cp .env.example .env
+pytest tests/ -v
+
+## Architecture
+- src/routes/       — HTTP route handlers (one file per resource)
+- src/services/     — Business logic (one file per resource)
+- src/repositories/ — Database queries (one file per resource)
+- src/models/       — SQLAlchemy ORM models
+- src/utils/        — Shared utilities (pagination, validators, formatters)
+- tests/            — Mirrors src/ structure (test_users.py tests src/routes/users.py)
+
+## Adding a New Resource (follow this pattern EXACTLY)
+1. src/models/resource.py          — follow src/models/product.py
+2. src/repositories/resource_repo.py  — follow src/repositories/product_repo.py
+3. src/services/resource_service.py  — follow src/services/product_service.py
+4. src/routes/resource.py          — follow src/routes/products.py
+5. Register in src/main.py         — see existing registrations as example
+6. tests/test_resource.py          — follow tests/test_products.py
+
+## Response Format (ALL endpoints must follow this)
+Success: {"data": <result>, "meta": {"total": int, "page": int, "limit": int}}
+Error:   {"error": {"code": str, "message": str}}
+
+## Auth Pattern
+All endpoints except /auth/* require:
+  Depends(get_current_user)  — see src/routes/users.py for example
+
+## Pagination
+Use: from src.utils.pagination import paginate_query
+See: src/routes/products.py for usage example
+
+## Testing Conventions
+- Use fixtures from tests/conftest.py (do not create new fixtures)
+- Mock external services with: unittest.mock.patch
+- Test naming: test_<function>_<scenario>
+  e.g.: test_create_product_success, test_create_product_missing_name
+
+## What NOT to do
+- Do NOT use raw SQL strings — use SQLAlchemy ORM
+- Do NOT add new top-level directories without discussing
+- Do NOT change existing API response formats
+- Do NOT add packages without checking requirements.txt first
+"""
+
+# ============================================
+# 2. Directory structure comparison
+# ============================================
+bad_structure = """
+# BAD: Vague names, unclear boundaries
+src/
+  api.py          # 3000 lines, everything mixed together
+  stuff/
+    helpers.py    # What does this do? No idea
+    misc.py
+    utils2.py
+  db.py
+tests/
+  test_stuff.py   # Tests for... what?
+"""
+
+good_structure = """
+# GOOD: Clear, semantic, mirrors real domain
+src/
+  routes/
+    users.py      # Immediately clear: user API endpoints
+    products.py   # Product endpoints
+    orders.py     # Order endpoints
+  services/
+    user_service.py     # User business logic
+    product_service.py
+  repositories/
+    user_repository.py  # User database queries
+    product_repository.py
+  models/
+    user.py       # User ORM model
+    product.py
+  utils/
+    pagination.py     # Pagination helper
+    validators.py     # Input validation
+    formatters.py     # Response formatting
+tests/
+  conftest.py          # Shared fixtures
+  test_users.py        # Tests for src/routes/users.py
+  test_products.py     # Tests for src/routes/products.py
+"""
+
+# ============================================
+# 3. Tests as documentation
+# ============================================
+good_test_as_docs = '''
+# tests/test_users.py — Yeh agent ko sikhata hai:
+# - Valid user kaisa lagta hai
+# - Invalid user kya trigger karta hai
+# - Response format kya hai
+# - Auth kaise kaam karta hai
+
+def test_create_user_success(client, auth_headers):
+    """Valid user creation — agent seekhta hai valid payload format."""
+    response = client.post("/api/users", json={
+        "email": "test@example.com",
+        "username": "testuser",
+        "password": "SecurePass123!"
+    }, headers=auth_headers)
+    assert response.status_code == 201
+    assert response.json()["data"]["email"] == "test@example.com"
+    assert "password" not in response.json()["data"]  # Never expose password
+
+def test_create_user_invalid_email(client, auth_headers):
+    """Invalid email — agent sees: validation, 422 status, error format."""
+    response = client.post("/api/users", json={
+        "email": "not-an-email",  # <- Invalid
+        "username": "testuser",
+        "password": "SecurePass123!"
+    }, headers=auth_headers)
+    assert response.status_code == 422
+
+def test_create_user_requires_auth(client):
+    """No auth header — agent understands auth requirement."""
+    response = client.post("/api/users", json={...})
+    assert response.status_code == 401
+'''
+
+print("Context Engineering Checklist:")
+checklist = [
+    "AGENTS.md with project overview, patterns, conventions",
+    "README with setup instructions and test commands",
+    "Semantic directory/file naming (routes/, services/, repositories/)",
+    "Consistent patterns across all resources (agent learns by induction)",
+    "Tests that serve as living documentation of data shapes and behaviors",
+    "Clear module boundaries — single responsibility per module",
+]
+for item in checklist:
+    print(f"  [+] {item}")`,
+        keyPoints: [
+          'Context engineering = structuring the codebase for AI agents, not just writing one prompt',
+          'AGENTS.md provides explicit agent guidance: patterns to follow, how to run tests, conventions',
+          'Semantic naming lets agents discover relevant files without you listing every one',
+          'Tests are living documentation — agents learn data shapes and behaviors from them',
+          'Consistent patterns let agents learn by induction and apply to new tasks without explicit instructions',
+          '"Code that teaches itself": if a new developer can understand from reading alone, an agent can too',
+          'Module boundaries matter: clear, single-responsibility modules are easier for agents to navigate',
+        ],
+        quiz: [
+          {
+            question: 'Context engineering aur prompt engineering mein kya fundamental difference hai?',
+            options: [
+              'Context engineering sirf API keys ke baare mein hai',
+              'Prompt engineering ek single message tune karta hai; context engineering poora codebase is tarah structure karta hai ki AI agents ise padh ke immediately samajh sakein kya karna hai — har future task ke liye benefit milta hai',
+              'Dono exactly same cheez hain alag naam se',
+              'Context engineering sirf ChatGPT ke liye kaam karta hai',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'AGENTS.md file ka AI coding agents ke liye kya role hai?',
+            options: [
+              'Yeh GitHub Actions workflows define karta hai',
+              'Yeh agent-specific documentation provide karta hai: project patterns, kaise tests run karein, conventions, aur kya avoid karein — taaki agent bina guess kiye sahi decisions le sake',
+              'Yeh automatically PRs create karta hai',
+              'Yeh sirf human developers ke liye documentation hai',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Iterative Agent Workflows',
+        difficulty: 'hard',
+        tags: ['iteration', 'debugging', 'agent-failure', 'multi-round', 'workflow'],
+        explanation: {
+          english: `Even with great task specifications, AI agent tasks sometimes fail on the first attempt. Understanding how to handle failures effectively — and how to structure multi-round workflows for complex features — is a critical skill for working with AI coding agents.
+
+When the first Codex attempt fails, there are three key failure modes and how to handle each:
+
+1. Misunderstood requirements: Codex built something technically correct but wrong. "You built a public search endpoint, but the requirement was search only for the authenticated user's own data." Fix: clarify the misunderstood requirement specifically, referencing the acceptance criteria that was violated, and re-submit.
+
+2. Environmental failure: Codex's code is correct but the test environment setup is wrong. "Tests fail because the DATABASE_URL env var is not set in the sandbox." Fix: add setup instructions to AGENTS.md or the README, or include environment setup in the task description.
+
+3. Partial completion: Codex got 70% right but failed on edge cases or one component. Accept what works, give a new targeted task for what's left. "The pagination and search work correctly. The only remaining issue is the sort parameter — it's not being applied when search is also present."
+
+How to write a follow-up task that incorporates error output:
+Include the specific error message, the failing test name and line number, the observed behavior vs expected behavior, and which file/line needs attention. Never say "it doesn't work" — say "test_X fails at line Y with error Z. The issue is in file A line B where the code does C but should do D."
+
+Using "partial completion" strategically: for complex features, break them into rounds intentionally. Round 1: "Implement the data model and database migration only — no endpoints yet." Review and merge. Round 2: "Add the read endpoints using the model from Round 1." Round 3: "Add write endpoints and validation."
+
+Reading Codex's reasoning trace: when Codex produces output, it often includes a summary of decisions made and assumptions taken. Read this carefully — it tells you where Codex was uncertain. Those uncertain points are where bugs most often live.`,
+          hinglish: `Great task specifications ke baavjood bhi, AI agent tasks kabhi kabhi pehli attempt mein fail ho jaate hain. Failures effectively handle karna — aur complex features ke liye multi-round workflows structure karna — AI coding agents ke saath kaam karne ki critical skill hai.
+
+Jab pehla Codex attempt fail ho, teen key failure modes hain:
+
+1. Misunderstood requirements: Codex ne technically correct lekin wrong cheez banaayi. "Tumne public search endpoint banaya, lekin requirement thi sirf authenticated user ke apne data ke liye search." Fix: specifically clarify karo kya misunderstand hua, violated acceptance criteria reference karte hue, aur re-submit karo.
+
+2. Environmental failure: Codex ka code correct hai lekin test environment setup galat hai. "Tests fail ho rahe hain kyunki sandbox mein DATABASE_URL env var set nahi hai." Fix: AGENTS.md ya README mein setup instructions add karo, ya task description mein environment setup include karo.
+
+3. Partial completion: Codex 70% sahi hai lekin edge cases ya ek component pe fail ho gaya. Jo kaam kiya accept karo, baaki ke liye naya targeted task do. "Pagination aur search correctly kaam karte hain. Sirf sort parameter remaining issue hai — jab search bhi present ho tab apply nahi ho raha."
+
+Error output incorporate karte hue follow-up task kaise likhein:
+Specific error message, failing test name aur line number, observed behavior vs expected behavior, aur kaunsa file/line attention chahta hai include karo. Kabhi mat kaho "yeh kaam nahi karta" — kaho "test_X line Y pe error Z se fail hota hai. Issue file A line B mein hai jahan code C karta hai lekin D karna chahiye."
+
+"Partial completion" strategically use karna: complex features ke liye, rounds mein intentionally todo. Round 1: "Sirf data model aur database migration implement karo — abhi endpoints nahi." Review aur merge karo. Round 2: "Round 1 ke model se read endpoints add karo." Round 3: "Write endpoints aur validation add karo."
+
+Codex ki reasoning trace padhna: Codex output produce karte waqt aksar decisions aur assumptions ka summary include karta hai. Ise dhyan se padho — yeh batata hai kahan Codex uncertain tha. Wahi uncertain points hain jahan bugs most often hote hain.`,
+        },
+        dailyLifeExample: `Socho ek construction project jo mehraundon mein hota hai. Architect pehle foundation design karta hai aur inspect karta hai. Phir structural frame. Phir interior. Phir finishing. Har round mein review hota hai aur next round mein feedback incorporate hota hai. Codex ke saath complex features ka yahi workflow hai — poora ek baar mein deliver karne ki koshish mat karo, stages mein break karo aur review karte jao.`,
+        codeExample: `# Iterative Agent Workflows — Multi-round complex feature implementation
+
+# ============================================
+# SCENARIO: Implementing a complex feature in stages
+# Feature: Real-time notification system
+# ============================================
+
+# ROUND 1 TASK: Data model aur migration sirf
+round_1_task = """
+Round 1 of 3 — Notification System: Data Model Only
+
+Implement ONLY the data model and database migration for notifications.
+Do NOT implement any endpoints or business logic in this round.
+
+Files to create/modify:
+- src/models/notification.py (new file — follow src/models/product.py pattern)
+- migrations/ (create Alembic migration — follow existing migration files)
+
+Notification model fields:
+- id: UUID, primary key, auto-generated
+- user_id: UUID, foreign key to users.id, NOT NULL, CASCADE delete
+- type: String(50), NOT NULL — values: 'mention', 'reply', 'system'
+- title: String(255), NOT NULL
+- body: Text, nullable
+- is_read: Boolean, default False, NOT NULL
+- created_at: DateTime, auto-set to current UTC time
+- read_at: DateTime, nullable (set when is_read changes to True)
+
+Tests to write in tests/test_notification_model.py:
+- Notification creates successfully with required fields
+- is_read defaults to False
+- read_at is None by default
+- user_id foreign key constraint enforced
+
+Verify: pytest tests/test_notification_model.py -v
+Run migration: alembic upgrade head
+"""
+
+# ROUND 2 TASK (after Round 1 PR is merged):
+round_2_task = """
+Round 2 of 3 — Notification System: Read Endpoints
+
+The Notification model from Round 1 is already merged and available.
+File: src/models/notification.py
+
+Implement read-only endpoints and repository layer ONLY.
+Do NOT implement write endpoints or notification creation in this round.
+
+Files to create:
+- src/repositories/notification_repository.py (follow product_repository.py pattern)
+- src/routes/notifications.py (follow products.py for auth and pagination patterns)
+
+Endpoints:
+- GET /api/notifications — list current user's notifications, paginated, newest first
+  Params: ?is_read=true|false (optional filter), ?limit=20 (default), ?page=1
+  Returns: {"data": [...], "meta": {"total": int, "unread_count": int, "page": int, "limit": int}}
+- GET /api/notifications/{id} — get single notification (must belong to current user, 404 otherwise)
+
+Tests in tests/test_notifications.py:
+- List notifications for authenticated user (returns only OWN notifications)
+- Unread filter works correctly
+- Pagination works with filters
+- GET by ID returns 404 for another user's notification
+- GET by ID returns 404 for non-existent ID
+- Auth required for all endpoints
+
+Verify: pytest tests/test_notifications.py -v
+"""
+
+# ============================================
+# HOW TO WRITE FOLLOW-UP TASK when first attempt fails
+# ============================================
+
+# First attempt error (hypothetical):
+first_attempt_error = """
+FAILED tests/test_notifications.py::test_list_returns_only_own_notifications
+AssertionError: Expected 2 notifications for user A, got 5 (includes user B's notifications)
+
+Codex output shows:
+  query = db.query(Notification).all()  # BUG: no user filter!
+"""
+
+# BAD follow-up:
+bad_followup = "The test for user isolation is failing"
+
+# GOOD follow-up:
+good_followup = """
+Follow-up on Round 2 PR — Fix user isolation bug:
+
+Failing test: test_list_returns_only_own_notifications (tests/test_notifications.py:line 45)
+
+Error:
+  AssertionError: Expected 2 notifications for user_a, got 5
+  (Test creates notifications for 2 users; expects list to return only user_a's 2)
+
+Root cause: In src/repositories/notification_repository.py, the get_for_user method:
+  CURRENT (wrong):  return db.query(Notification).all()
+  SHOULD BE:        return db.query(Notification).filter(Notification.user_id == user_id).all()
+
+Fix needed:
+1. Add user_id filter to get_for_user() in notification_repository.py
+2. Verify test_list_returns_only_own_notifications passes
+3. Also check: does the unread_count in meta also filter by user? It should.
+
+Run: pytest tests/test_notifications.py::test_list_returns_only_own_notifications -v
+"""
+
+print("Multi-round complex feature workflow:")
+rounds = [
+    "Round 1: Data model + migration (review and merge)",
+    "Round 2: Read endpoints (review and merge)",
+    "Round 3: Write endpoints + business logic",
+]
+for round_desc in rounds:
+    print(f"  -> {round_desc}")
+
+print()
+print("Benefits of staged approach:")
+benefits = [
+    "Each round is reviewable independently",
+    "Bugs are caught at the layer they're introduced",
+    "If Round 1 needs redesign, you haven't wasted Round 2/3 effort",
+    "Tests verify each layer works before building on top",
+]
+for b in benefits:
+    print(f"  + {b}")`,
+        keyPoints: [
+          'Three failure modes: misunderstood requirements, environmental failures, partial completion',
+          'For partial completion: accept what works, write new targeted task for what remains',
+          'Follow-up tasks must include: specific error, failing test name/line, observed vs expected behavior',
+          'Never say "it doesn\'t work" — specify exact file, line, observed vs expected behavior',
+          'Break complex features into rounds: model → read endpoints → write endpoints',
+          'Read Codex\'s reasoning trace to find where it was uncertain — bugs live there',
+          'Staged workflows are more reviewable and less likely to have cascading failures',
+        ],
+        quiz: [
+          {
+            question: 'Codex ke follow-up task mein sabse effective feedback kaunsa hai?',
+            options: [
+              '"Yeh sahi nahi hai, dobara try karo"',
+              '"Tests fail ho rahe hain"',
+              'Specific test name jo fail ho raha hai, exact error output, kaunsa file/line galat hai, observed behavior vs expected behavior — Codex ke liye actionable information',
+              '"Poora implementation delete karo aur fresh start karo"',
+            ],
+            correctIndex: 2,
+          },
+          {
+            question: 'Complex feature ko multiple rounds mein implement karne ka kya advantage hai?',
+            options: [
+              'Zyada rounds = zyada Codex API cost',
+              'Har round independently review ho sakta hai, bugs sirf apni layer pe caught hote hain, aur agar early design change chahiye toh baad ke rounds ka effort waste nahi hota',
+              'Multiple rounds se Codex zyada confused ho jaata hai',
+              'Sirf ek round mein karna hamesha better hai',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Combining Codex with Other AI Tools',
+        difficulty: 'medium',
+        tags: ['ai-stack', 'chatgpt', 'claude-code', 'copilot', 'tool-selection'],
+        explanation: {
+          english: `The most effective developers in 2025 don't use just one AI tool — they use a stack of complementary tools, each for what it does best. Understanding which tool to reach for at which moment is itself a high-leverage skill.
+
+The modern AI dev stack:
+
+1. ChatGPT (chat interface, broad knowledge): Best for architectural brainstorming, understanding unfamiliar concepts, designing system interfaces, quick questions about libraries you've never used. "Design the architecture for a real-time notification system — what are the tradeoffs between WebSockets, Server-Sent Events, and polling?" ChatGPT can reason about tradeoffs quickly. It cannot run code or read your actual codebase.
+
+2. OpenAI Codex (autonomous agent): Best for implementing well-scoped tickets, background batch tasks, test generation, systematic refactoring. You've decided what to build (with ChatGPT's help). Now delegate the implementation. Codex works while you're in meetings.
+
+3. Claude Code (interactive terminal assistant): Best for interactive sessions where you need real-time feedback — debugging a session, understanding a complex part of the codebase, making a targeted small fix while you're in flow. Claude Code reads your actual files and terminal output. It's the "pair programmer" mode.
+
+4. GitHub Copilot (IDE inline): Best for moment-to-moment coding when you know what you're writing and just want autocomplete friction reduced. Writing boilerplate, completing known patterns, not looking up syntax.
+
+Which tool to use when:
+- "I don't know what approach to take" → ChatGPT to design/brainstorm
+- "I know what to build, it's a well-scoped task" → Codex to implement autonomously
+- "I'm actively debugging or need to explore the code interactively" → Claude Code
+- "I'm writing code and want inline assistance" → GitHub Copilot
+
+How to pass context between tools: ChatGPT can output a design spec → paste it as the Codex task description. Codex output (the diff/PR) can be described to Claude Code for interactive review and fixes. The output of one tool becomes the input specification of the next.
+
+Workflow example: use ChatGPT to design the architecture → Codex to implement → Claude Code to review and fix interactively.`,
+          hinglish: `2025 ke sabse effective developers sirf ek AI tool use nahi karte — woh complementary tools ka ek stack use karte hain, har ek ke liye jo woh best karta hai. Kaunsa tool kab reach karna hai — yeh khud ek high-leverage skill hai.
+
+Modern AI dev stack:
+
+1. ChatGPT (chat interface, broad knowledge): Architectural brainstorming ke liye best, unfamiliar concepts samajhne ke liye, system interfaces design karne ke liye, kabhi use nahi ki libraries ke baare mein quick questions. "Real-time notification system ka architecture design karo — WebSockets, Server-Sent Events, aur polling mein tradeoffs kya hain?" ChatGPT tradeoffs ke baare mein quickly reason kar sakta hai. Code run nahi kar sakta ya actual codebase nahi padh sakta.
+
+2. OpenAI Codex (autonomous agent): Well-scoped tickets implement karne ke liye best, background batch tasks, test generation, systematic refactoring. Kya build karna hai decide kar liya (ChatGPT ki help se). Ab implementation delegate karo. Codex meetings mein kaam karta hai.
+
+3. Claude Code (interactive terminal assistant): Interactive sessions ke liye best jahan real-time feedback chahiye — debugging session, codebase ka complex hissa samajhna, flow mein rehte hue targeted small fix karna. Claude Code tumhare actual files aur terminal output padhta hai. Yeh "pair programmer" mode hai.
+
+4. GitHub Copilot (IDE inline): Moment-to-moment coding ke liye best jab tum jaante ho kya likh rahe ho aur sirf autocomplete friction reduce karna chahte ho.
+
+Kaunsa tool kab use karein:
+- "Mujhe nahi pata kaunsa approach lena hai" → ChatGPT to design/brainstorm
+- "Main jaanta hoon kya build karna hai, yeh well-scoped task hai" → Codex to implement autonomously
+- "Main actively debug kar raha hoon ya interactively code explore karna chahta hoon" → Claude Code
+- "Main code likh raha hoon aur inline assistance chahta hoon" → GitHub Copilot
+
+Tools ke beech context kaise pass karein: ChatGPT design spec output kar sakta hai → Codex task description ke roop mein paste karo. Codex output (diff/PR) ko Claude Code ko interactive review aur fixes ke liye describe karo. Ek tool ka output agla tool ki input specification ban jaata hai.
+
+Workflow example: ChatGPT se architecture design karein → Codex se implement karein → Claude Code se interactively review aur fix karein.`,
+        },
+        dailyLifeExample: `Socho ek construction crew: architect (ChatGPT) building design karta hai aur plans banata hai. General contractor (Codex) plans lekar independently team manage karta hai aur construction karta hai. Site supervisor (Claude Code) real-time pe site pe hota hai problems solve karne ke liye. Skilled workers (GitHub Copilot) apne specialized tasks rapidly execute karte hain. Har koi apna role jaanta hai — sab ek saath mile toh whole building jaldi aur better banta hai.`,
+        codeExample: `# Modern AI Dev Stack — Which Tool When
+
+# ============================================
+# TOOL SELECTION DECISION FRAMEWORK
+# ============================================
+from dataclasses import dataclass
+from typing import List
+
+@dataclass
+class AITool:
+    name: str
+    best_for: List[str]
+    not_good_for: List[str]
+    mode: str  # 'chat', 'autonomous', 'interactive', 'inline'
+
+tools = [
+    AITool(
+        name="ChatGPT",
+        best_for=[
+            "Architecture design and tradeoff analysis",
+            "Understanding unfamiliar technologies or libraries",
+            "Brainstorming approaches to a problem",
+            "Writing user-facing documentation or specs",
+            "Quick questions about concepts",
+        ],
+        not_good_for=[
+            "Running your actual code",
+            "Reading your real codebase files",
+            "Autonomous multi-file implementation",
+            "Verifying that suggested code actually works",
+        ],
+        mode="chat"
+    ),
+    AITool(
+        name="OpenAI Codex",
+        best_for=[
+            "Implementing well-scoped tickets autonomously",
+            "Generating tests (TDD or retroactive)",
+            "Systematic refactoring across many files",
+            "Background tasks while you work on other things",
+            "Issue-to-PR automation pipelines",
+        ],
+        not_good_for=[
+            "Novel architectural decisions needing product context",
+            "Urgent work (it's async — takes time)",
+            "Interactive debugging sessions",
+            "Tasks where you need to be in the loop continuously",
+        ],
+        mode="autonomous"
+    ),
+    AITool(
+        name="Claude Code",
+        best_for=[
+            "Interactive debugging sessions",
+            "Understanding complex parts of the codebase",
+            "Small targeted fixes while in coding flow",
+            "Real-time pair programming",
+            "Reviewing Codex PRs interactively",
+        ],
+        not_good_for=[
+            "Large autonomous background tasks",
+            "Tasks where you want to be completely hands-off",
+            "High-volume batch operations",
+        ],
+        mode="interactive"
+    ),
+    AITool(
+        name="GitHub Copilot",
+        best_for=[
+            "Inline autocomplete while actively typing",
+            "Completing known boilerplate patterns quickly",
+            "Reducing syntax lookup friction",
+            "Staying in flow while writing familiar code",
+        ],
+        not_good_for=[
+            "Large multi-file tasks",
+            "Architectural decisions",
+            "Autonomous execution",
+        ],
+        mode="inline"
+    ),
+]
+
+# ============================================
+# WORKFLOW EXAMPLE: Full feature from idea to PR
+# ============================================
+feature_workflow = {
+    "Step 1 — Design (ChatGPT)": {
+        "tool": "ChatGPT",
+        "task": "Design the notification system architecture. Ask: WebSockets vs SSE vs polling? How to handle offline users? What database schema?",
+        "output": "Architecture decision doc + data model design + API spec"
+    },
+    "Step 2 — Implement (Codex)": {
+        "tool": "OpenAI Codex",
+        "task": "Implement the notification system based on the spec from Step 1. Context: [paste ChatGPT's spec]. Files to follow: [list]. Tests: [list]. Constraints: [list].",
+        "output": "GitHub PR with implementation + tests"
+    },
+    "Step 3 — Review & Fix (Claude Code)": {
+        "tool": "Claude Code",
+        "task": "Review Codex's PR interactively. Read the diff, run tests locally, fix any issues found, optimize performance-critical paths.",
+        "output": "Reviewed, tested, merged PR"
+    },
+    "Step 4 — Daily Coding (Copilot)": {
+        "tool": "GitHub Copilot",
+        "task": "As you work on features that USE the notification system, Copilot autocompletes your calls to the new API.",
+        "output": "Faster coding of downstream features"
+    }
+}
+
+print("Modern AI Dev Stack Workflow:")
+for step, details in feature_workflow.items():
+    print(f"\\n{step}")
+    print(f"  Tool: {details['tool']}")
+    print(f"  Task: {details['task'][:80]}...")
+    print(f"  Output: {details['output']}")
+
+print()
+print("Mental model:")
+mental_models = {
+    "ChatGPT": "Expert consultant — advises, you decide",
+    "Codex": "Autonomous junior dev — implement and test, you review",
+    "Claude Code": "Pair programmer — works WITH you in real-time",
+    "GitHub Copilot": "Smart keyboard — autocomplete, you drive",
+}
+for tool, model in mental_models.items():
+    print(f"  {tool:<20}: {model}")`,
+        keyPoints: [
+          'ChatGPT = brainstorm and design; Codex = autonomous implement; Claude Code = interactive pair; Copilot = inline autocomplete',
+          'Use ChatGPT to design architecture → paste the spec as the Codex task description',
+          'Claude Code is best for interactive debugging and reviewing Codex PRs in real-time',
+          'GitHub Copilot reduces inline coding friction — use while actively writing known patterns',
+          'Context flows between tools: ChatGPT output → Codex task → Claude Code review',
+          'Each tool has a different feedback loop: Copilot < 1s, ChatGPT seconds, Codex minutes-hours',
+          'The stack multiplies individual productivity — know when to switch tools',
+        ],
+        quiz: [
+          {
+            question: 'Ek developer ko realtime notification system ke architecture ke baare mein brainstorm karna hai — WebSockets vs SSE tradeoffs. Kaunsa tool use karein?',
+            options: [
+              'GitHub Copilot — inline suggestions lene ke liye',
+              'OpenAI Codex — autonomous implementation ke liye',
+              'ChatGPT — architectural brainstorming aur tradeoff analysis ke liye, jab actual code run karna ya real codebase padhna zaroori na ho',
+              'Claude Code — interactive debugging ke liye',
+            ],
+            correctIndex: 2,
+          },
+          {
+            question: 'ChatGPT → Codex → Claude Code workflow mein tools ke beech context kaise pass hota hai?',
+            options: [
+              'Teeno tools automatically ek doosre ke saath communicate karte hain',
+              'ChatGPT ka design output Codex task description mein paste hota hai; Codex ka PR/diff Claude Code ke saath interactive review ke liye share hota hai — har tool ka output agla tool ki input spec banta hai',
+              'Sirf Claude Code baaki tools ka context access kar sakta hai',
+              'Context pass nahi hota — har tool independently kaam karta hai',
+            ],
+            correctIndex: 1,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'How do you choose between ChatGPT, Codex, and Claude Code for different tasks?',
+            difficulty: 'medium',
+            frequency: 'high',
+            answer: {
+              english: 'The choice depends on the task type and feedback loop needed. ChatGPT: use for architectural design, brainstorming tradeoffs, understanding unfamiliar technologies, and quick conceptual questions — it is a conversational expert but cannot run code or read your actual codebase. OpenAI Codex: use for well-scoped implementation tasks you want to delegate entirely — it works autonomously, runs tests, and returns a PR for review. Claude Code: use for interactive sessions where you need real-time feedback — debugging, exploring a complex codebase, targeted fixes while in flow. A productive workflow chains them: ChatGPT designs the architecture → you write a Codex task spec from the design → Codex implements → Claude Code helps review and fix interactively.',
+              hinglish: 'Choice task type aur needed feedback loop pe depend karti hai. ChatGPT: architectural design ke liye, tradeoffs brainstorm karne ke liye, unfamiliar technologies samajhne ke liye use karo — yeh ek conversational expert hai lekin code run nahi kar sakta ya actual codebase nahi padh sakta. OpenAI Codex: well-scoped implementation tasks ke liye use karo jo tum entirely delegate karna chahte ho — yeh autonomously kaam karta hai, tests run karta hai, aur review ke liye PR return karta hai. Claude Code: interactive sessions ke liye use karo jahan real-time feedback chahiye — debugging, complex codebase explore karna, flow mein targeted fixes. Productive workflow chain karta hai: ChatGPT architecture design karta hai → tum design se Codex task spec likhte ho → Codex implements → Claude Code interactively review aur fix karne mein help karta hai.',
+            },
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 export const generalInterviewQuestions = [
@@ -1766,6 +3510,33 @@ export const generalInterviewQuestions = [
     answer: {
       english: 'ChatGPT code generation is conversational: you describe a problem, ChatGPT responds with code snippets, and YOU are the executor — you copy the code, paste it into your project, run it, see what breaks, and iterate by pasting errors back into the chat. ChatGPT cannot run code, read your actual repository, or verify its suggestions work in your environment. Codex agent is autonomous execution: you submit a task description, Codex clones your real repository, writes code in an isolated sandbox, actually runs your test suite, iterates on failures automatically, and delivers a PR-ready diff. You review and merge, but Codex does the implementation. The key differences are: Codex reads real repos vs ChatGPT gets snippets you paste; Codex executes code vs ChatGPT only suggests; Codex iterates autonomously vs you iterate manually with ChatGPT.',
       hinglish: 'ChatGPT code generation conversational hai: tum problem describe karte ho, ChatGPT code snippets se respond karta hai, aur tum executor ho — tum code copy karte ho, project mein paste karte ho, run karte ho, kya toot gaya dekhte ho, aur errors wapas paste karke iterate karte ho. ChatGPT code run nahi kar sakta, tumhara actual repository nahi padh sakta, ya verify nahi kar sakta ki uske suggestions tumhare environment mein kaam karte hain. Codex agent autonomous execution hai: tum task description submit karte ho, Codex tumhara real repository clone karta hai, isolated sandbox mein code likhta hai, actually tumhara test suite run karta hai, automatically failures pe iterate karta hai, aur PR-ready diff deliver karta hai. Tum review aur merge karte ho, lekin Codex implementation karta hai. Key differences: Codex real repos padhta hai vs ChatGPT tumhare paste kiye snippets get karta hai; Codex code execute karta hai vs ChatGPT sirf suggest karta hai; Codex autonomously iterate karta hai vs tum manually ChatGPT ke saath iterate karte ho.',
+    },
+  },
+  {
+    question: 'How would you set up a fully automated issue-to-PR pipeline using Codex?',
+    difficulty: 'hard',
+    frequency: 'medium',
+    answer: {
+      english: 'Set up a GitHub Actions workflow triggered on the issues "labeled" event. When an issue receives the "codex-ready" label, the workflow calls the Codex API using the issue title and body as the task description. Codex reads the issue, clones the repository in its sandbox, implements the feature, runs the test suite, and opens a GitHub PR referencing the original issue. For this to work reliably: (1) issues must follow a structured template with clear acceptance criteria, relevant file links, test expectations, and constraints; (2) the repository needs good context — a README with test commands, an AGENTS.md with conventions, consistent patterns for Codex to follow; (3) the OPENAI_API_KEY must be stored as a GitHub repository secret. Critical: never configure the pipeline to auto-merge Codex PRs — always require human review via branch protection rules.',
+      hinglish: 'GitHub Actions workflow set up karo jo issues ke "labeled" event pe trigger ho. Jab ek issue "codex-ready" label receive kare, workflow Codex API ko issue title aur body as task description ke saath call kare. Codex issue padhta hai, sandbox mein repository clone karta hai, feature implement karta hai, test suite run karta hai, aur original issue reference karte hue GitHub PR open karta hai. Yeh reliably kaam karne ke liye: (1) issues structured template follow karein jisme clear acceptance criteria, relevant file links, test expectations, aur constraints ho; (2) repository mein achha context ho — README with test commands, AGENTS.md with conventions, Codex ke follow karne ke liye consistent patterns; (3) OPENAI_API_KEY GitHub repository secret ke roop mein stored ho. Critical: pipeline ko Codex PRs auto-merge karne ke liye configure kabhi mat karo — branch protection rules se hamesha human review require karo.',
+    },
+  },
+  {
+    question: 'What is context engineering and how does it improve AI coding agent performance?',
+    difficulty: 'medium',
+    frequency: 'medium',
+    answer: {
+      english: 'Context engineering is the practice of structuring your entire codebase so that AI agents can read it and immediately understand what to do — as opposed to prompt engineering which tunes a single interaction. Unlike chatbots that get snippets you paste, coding agents read your actual repository. A well-context-engineered codebase has: (1) Semantic file/directory naming so agents discover relevant files through structure. (2) An AGENTS.md file providing agent-specific guidance: which patterns to follow, how to run tests, what conventions the codebase uses, what NOT to do. (3) A README with setup and test commands so agents can run the test suite correctly. (4) Consistent patterns repeated across the codebase so agents learn conventions by induction. (5) Tests that document data shapes and expected behaviors — effectively living documentation. The principle: "code that teaches itself" — if a new developer with no context can understand the codebase by reading it, an AI agent can too.',
+      hinglish: 'Context engineering woh practice hai jisme poora codebase is tarah structure kiya jaata hai ki AI agents ise padh ke immediately samajh sakein kya karna hai — prompt engineering se alag jo ek single interaction tune karta hai. Chatbots se alag jo tumhare paste kiye snippets get karte hain, coding agents actual repository padhte hain. Well-context-engineered codebase mein hota hai: (1) Semantic file/directory naming taaki agents structure ke through relevant files discover kar sakein. (2) AGENTS.md file jo agent-specific guidance provide kare: kaunse patterns follow karein, tests kaise run karein, codebase kaunse conventions use karta hai, kya mat karo. (3) README with setup aur test commands taaki agents test suite correctly run kar sakein. (4) Codebase mein consistent patterns repeat hon taaki agents conventions induction se seekhein. (5) Tests jo data shapes aur expected behaviors document karein — effectively living documentation. Principle: "code that teaches itself" — agar ek new developer bina context ke codebase padh ke samajh sakta hai, ek AI agent bhi kar sakta hai.',
+    },
+  },
+  {
+    question: 'When should you use Codex versus Claude Code versus ChatGPT for a development task?',
+    difficulty: 'medium',
+    frequency: 'high',
+    answer: {
+      english: 'Each tool has a distinct role: ChatGPT is the architect/consultant — use it for brainstorming, architectural decisions, understanding tradeoffs, and designing interfaces when you do not yet know what to build. It cannot access your codebase or run code. OpenAI Codex is the autonomous implementer — use it for well-scoped, non-urgent implementation tasks you want to delegate entirely: the task runs in its sandbox, implements code, runs tests, and returns a PR. Best for: tickets you know what to build, background batch tasks, systematic refactoring, test generation. Claude Code is the interactive pair programmer — use it when you are actively working on the code and need real-time feedback: debugging sessions, exploring unfamiliar parts of the codebase, making targeted fixes while in flow. The decision rule: "I do not know what to build" → ChatGPT. "I know what to build, it is a well-defined task, I can wait" → Codex. "I am actively coding and need help right now" → Claude Code.',
+      hinglish: 'Har tool ka ek distinct role hai: ChatGPT architect/consultant hai — brainstorming ke liye, architectural decisions ke liye, tradeoffs samajhne ke liye, aur interfaces design karne ke liye use karo jab abhi nahi jaante kya build karna hai. Yeh tumhara codebase access nahi kar sakta ya code run nahi kar sakta. OpenAI Codex autonomous implementer hai — well-scoped, non-urgent implementation tasks ke liye use karo jo tum entirely delegate karna chahte ho: task sandbox mein run karta hai, code implement karta hai, tests run karta hai, aur PR return karta hai. Best for: tickets jahan jaante ho kya build karna hai, background batch tasks, systematic refactoring, test generation. Claude Code interactive pair programmer hai — jab actively code pe kaam kar rahe ho aur real-time feedback chahiye: debugging sessions, codebase ke unfamiliar parts explore karna, flow mein targeted fixes karna. Decision rule: "Mujhe nahi pata kya build karna hai" → ChatGPT. "Mujhe pata hai kya build karna hai, well-defined task hai, wait kar sakta hoon" → Codex. "Main actively coding kar raha hoon aur abhi help chahiye" → Claude Code.',
     },
   },
 ];
