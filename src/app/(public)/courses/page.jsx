@@ -23,7 +23,7 @@ export default async function CoursesPage() {
   const courses = await getCourses();
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl font-bold">Courses</h1>
       <p className="mt-2 text-slate-600">
         <L

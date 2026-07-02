@@ -143,7 +143,7 @@ export default function ResumePage() {
   const light      = THEMES[form.theme]?.light  || THEMES.indigo.light;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-8">
       <style>{`
         @media print {
           .resume-editor  { display: none !important; }

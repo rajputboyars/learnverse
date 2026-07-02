@@ -77,7 +77,7 @@ export default async function PublicProfile({ params }) {
   const earned = badges.filter((b) => b.earned);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       <div className="rounded-2xl border border-slate-200 bg-gradient-to-br from-indigo-50 to-white p-8 text-center">
         <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-indigo-600 text-3xl font-bold text-white">
           {(stats.name || 'L').charAt(0).toUpperCase()}

@@ -29,7 +29,7 @@ export default async function ChallengePage({ params }) {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       <Link href="/challenges" className="text-sm text-slate-500 hover:text-indigo-600">← All challenges</Link>
       <h1 className="mt-3 text-2xl font-bold">
         {challenge.title} <span className="text-sm font-normal capitalize text-slate-400">· {challenge.difficulty}</span>

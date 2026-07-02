@@ -73,7 +73,7 @@ export default async function InterviewQuestionsPage({ searchParams }) {
   /* ── Default view: course cards ── */
   if (!questions) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-12">
+      <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-bold">Interview Questions</h1>
         <p className="mt-2 text-slate-600 dark:text-slate-400">
           <L
@@ -136,7 +136,7 @@ export default async function InterviewQuestionsPage({ searchParams }) {
 
   /* ── Course view: questions grid ── */
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       {/* Back + breadcrumb */}
       <Link
         href="/interview-questions"

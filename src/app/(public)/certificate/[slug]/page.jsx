@@ -78,7 +78,7 @@ export default async function CertificatePage({ params }) {
     .toUpperCase();
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       {/* Certificate card */}
       <div className="relative overflow-hidden rounded-2xl border-4 border-double border-indigo-300 bg-gradient-to-br from-indigo-50 to-white p-8 text-center shadow-sm sm:p-12">
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle, #4f46e5 1px, transparent 1px)', backgroundSize: '20px 20px' }} />

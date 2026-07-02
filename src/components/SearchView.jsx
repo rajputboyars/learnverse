@@ -9,7 +9,7 @@ export default function SearchView({ q, concepts, questions }) {
   const total = concepts.length + questions.length;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl font-bold">{pick('Search', 'Search')}</h1>
 
       {/* Live search box with suggestions */}

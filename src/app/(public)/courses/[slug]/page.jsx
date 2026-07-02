@@ -79,7 +79,7 @@ export default async function CoursePage({ params }) {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       <Link href="/courses" className="text-sm text-slate-500 hover:text-indigo-600">
         ← <L hi="Saare courses" en="All courses" />
       </Link>

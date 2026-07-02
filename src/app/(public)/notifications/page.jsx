@@ -22,11 +22,11 @@ export default function NotificationsPage() {
       .catch(() => setItems([]));
   }, [status]);
 
-  if (status === 'loading') return <p className="mx-auto max-w-2xl px-4 py-12 text-slate-400">Loading…</p>;
+  if (status === 'loading') return <p className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12 text-slate-400">Loading…</p>;
 
   if (status !== 'authenticated') {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-12">
+      <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-2xl font-bold">🔔 {pick('Notifications', 'Notifications')}</h1>
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-indigo-200 bg-indigo-50 px-6 py-4 dark:border-indigo-800 dark:bg-indigo-950/40">
           <p className="text-sm text-indigo-800 dark:text-indigo-300">
@@ -42,7 +42,7 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-2xl font-bold">🔔 {pick('Notifications', 'Notifications')}</h1>
       {!items ? (
         <p className="mt-4 text-slate-400">{pick('Loading…', 'Loading…')}</p>

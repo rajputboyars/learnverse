@@ -48,10 +48,10 @@ export default function ThreadPage() {
     }
   }
 
-  if (!data) return <p className="mx-auto max-w-3xl px-4 py-12 text-slate-400">Loading…</p>;
+  if (!data) return <p className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12 text-slate-400">Loading…</p>;
   if (data === 'missing') {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-20 text-center">
+      <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-20 text-center">
         <p className="text-slate-500">{pick('Thread nahi mila ya delete ho gaya.', 'Thread not found or deleted.')}</p>
         <Link href={`/courses/${slug}/discuss`} className="mt-4 inline-block font-semibold text-indigo-600 underline">{pick('Discussions pe wapas', 'Back to discussions')}</Link>
       </div>
@@ -61,7 +61,7 @@ export default function ThreadPage() {
   const { thread, replies, isAdmin } = data;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       <Link href={`/courses/${slug}/discuss`} className="text-sm text-slate-500 hover:text-indigo-600">← {pick('Saari discussions', 'All discussions')}</Link>
 
       <div className="mt-3 rounded-2xl border border-slate-200 bg-white p-5">

@@ -23,7 +23,7 @@ export default function PracticePage() {
   }
   useEffect(() => { load(); }, [slug]);
 
-  if (!data) return <p className="mx-auto max-w-2xl px-4 py-12 text-slate-400">{pick('Quiz load ho raha hai…', 'Loading quiz…')}</p>;
+  if (!data) return <p className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12 text-slate-400">{pick('Quiz load ho raha hai…', 'Loading quiz…')}</p>;
 
   if (!data.questions || data.questions.length === 0) {
     return (
@@ -71,7 +71,7 @@ export default function PracticePage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-xl font-bold">🧠 {data.course?.icon} {data.course?.title} — {pick('Practice', 'Practice')}</h1>
         <span className="text-sm text-slate-500">Q {idx + 1}/{data.questions.length} · {pick('Score', 'Score')} {score}</span>

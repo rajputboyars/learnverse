@@ -31,9 +31,9 @@ export default function RevisePage() {
       .catch(() => setCards([]));
   }, [status]);
 
-  if (status === 'loading') return <p className="mx-auto max-w-2xl px-4 py-12 text-slate-400">Loading…</p>;
+  if (status === 'loading') return <p className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12 text-slate-400">Loading…</p>;
 
-  if (cards === null) return <p className="mx-auto max-w-2xl px-4 py-12 text-slate-400">{pick('Cards load ho rahe hain…', 'Loading cards…')}</p>;
+  if (cards === null) return <p className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12 text-slate-400">{pick('Cards load ho rahe hain…', 'Loading cards…')}</p>;
 
   if (cards.length === 0) {
     return (
@@ -68,7 +68,7 @@ export default function RevisePage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       {isGuest && (
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-indigo-200 bg-indigo-50 px-5 py-3 text-sm dark:border-indigo-800 dark:bg-indigo-950/40">
           <p className="text-indigo-800 dark:text-indigo-300">

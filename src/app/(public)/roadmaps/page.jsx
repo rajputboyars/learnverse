@@ -22,6 +22,7 @@ const COLOR_ACCENT = {
   amber:  'hover:border-amber-300  group-hover:text-amber-600',
   blue:   'hover:border-blue-300   group-hover:text-blue-600',
   teal:   'hover:border-teal-300   group-hover:text-teal-600',
+  fuchsia:'hover:border-fuchsia-300 group-hover:text-fuchsia-600',
 };
 
 const COLOR_TAG = {
@@ -31,13 +32,14 @@ const COLOR_TAG = {
   amber:  'bg-amber-50  text-amber-600',
   blue:   'bg-blue-50   text-blue-600',
   teal:   'bg-teal-50   text-teal-600',
+  fuchsia:'bg-fuchsia-50 text-fuchsia-600',
 };
 
 export default function RoadmapsPage() {
   const totalCourses = [...new Set(ROADMAPS.flatMap(r => r.phases.flatMap(p => p.steps.map(s => s.courseSlug))))].length;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       {/* Header */}
       <div className="text-center">
         <span className="inline-block rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-600">

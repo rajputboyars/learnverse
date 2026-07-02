@@ -90,7 +90,7 @@ export default function MockInterviewPage() {
   /* ── Loading / empty states ────────────────────────────────────── */
   if (!data) {
     return (
-      <p className="mx-auto max-w-2xl px-4 py-16 text-slate-400">
+      <p className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-16 text-slate-400">
         {pick('Questions load ho rahe hain…', 'Loading questions…')}
       </p>
     );
@@ -167,7 +167,7 @@ export default function MockInterviewPage() {
   const hasAnswer = userText.trim() || audioURL;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between gap-2">
         <h1 className="text-xl font-bold">

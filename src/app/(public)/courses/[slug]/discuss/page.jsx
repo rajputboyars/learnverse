@@ -36,7 +36,7 @@ export default function DiscussListPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       <Link href={`/courses/${slug}`} className="text-sm text-slate-500 hover:text-indigo-600">← {pick('Course pe wapas', 'Back to course')}</Link>
       <div className="mt-3 flex items-center justify-between">
         <h1 className="text-2xl font-bold">

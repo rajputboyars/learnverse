@@ -14,7 +14,7 @@ export default function HomeContent({ courses, daily }) {
   return (
     <div>
       {/* Hero */}
-      <section className="mx-auto max-w-6xl px-4 pt-16 pb-12 text-center sm:pt-24">
+      <section className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 pt-16 pb-12 text-center sm:pt-24">
         <span className="inline-block rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-600">
           {t('home.badge')}
         </span>
@@ -45,7 +45,7 @@ export default function HomeContent({ courses, daily }) {
 
       {/* Concept of the Day */}
       {daily && (
-        <section className="mx-auto max-w-6xl px-4 py-4">
+        <section className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-4">
           <Link
             href={`/concepts/${daily.slug}`}
             className="group block rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-white p-6 transition hover:border-indigo-300"
@@ -65,7 +65,7 @@ export default function HomeContent({ courses, daily }) {
       )}
 
       {/* Features */}
-      <section className="mx-auto max-w-6xl px-4 py-12">
+      <section className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((f) => (
             <div key={f.title} className="rounded-2xl border border-slate-200 bg-white p-6">
@@ -79,7 +79,7 @@ export default function HomeContent({ courses, daily }) {
 
       {/* Everything you get — interactive features showcase */}
       <section className="border-y border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/40">
-        <div className="mx-auto max-w-6xl px-4 py-14">
+        <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-14">
           <div className="text-center">
             <h2 className="text-2xl font-bold sm:text-3xl">{t('home.showcase.title')}</h2>
             <p className="mx-auto mt-3 max-w-2xl text-slate-600">{t('home.showcase.sub')}</p>
@@ -103,7 +103,7 @@ export default function HomeContent({ courses, daily }) {
       </section>
 
       {/* Career toolkit — Resume Builder + Certificates */}
-      <section className="mx-auto max-w-6xl px-4 py-14">
+      <section className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-14">
         <div className="text-center">
           <span className="inline-block rounded-full bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
             {t('home.career.badge')}
@@ -142,7 +142,7 @@ export default function HomeContent({ courses, daily }) {
       </section>
 
       {/* Courses */}
-      <section className="mx-auto max-w-6xl px-4 py-12">
+      <section className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold">{t('home.courses.title')}</h2>
           <Link href="/courses" className="text-sm font-medium text-indigo-600 hover:underline">

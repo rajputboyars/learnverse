@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
@@ -19,18 +19,18 @@ export default function ContinueLearning() {
   if (status !== 'authenticated' || !data?.concept) return null;
 
   return (
-    <section className="mx-auto max-w-6xl px-4 pt-4">
+    <section className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 pt-4">
       <Link
         href={`/concepts/${data.concept.slug}`}
         className="group flex items-center justify-between rounded-2xl border border-green-200 bg-green-50 p-5 transition hover:border-green-300"
       >
         <div>
-          <p className="text-sm font-semibold text-green-700">▶ Continue learning</p>
+          <p className="text-sm font-semibold text-green-700">â–¶ Continue learning</p>
           <p className="mt-1 font-bold group-hover:text-green-700">
             {data.course?.icon} {data.concept.title}
           </p>
         </div>
-        <span className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white">Resume →</span>
+        <span className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white">Resume â†’</span>
       </Link>
     </section>
   );

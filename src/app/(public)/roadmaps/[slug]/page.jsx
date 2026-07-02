@@ -39,7 +39,7 @@ export default async function RoadmapDetailPage({ params }) {
   const totalSteps = allSteps.filter((s) => !s.isExternal).length;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-10">
 
       {/* Breadcrumb */}
       <Link href="/roadmaps" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600">

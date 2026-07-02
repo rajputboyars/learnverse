@@ -45,6 +45,11 @@ import * as claudeAiCourse from './content/claude-ai.mjs';
 import * as claudeCodeCourse from './content/claude-code.mjs';
 import * as geminiCourse from './content/gemini.mjs';
 import * as codexAiCourse from './content/codex-ai.mjs';
+import * as mathForMlCourse from './content/math-for-ml.mjs';
+import * as deepLearningCourse from './content/deep-learning.mjs';
+import * as ragCourse from './content/rag.mjs';
+import * as fineTuningCourse from './content/fine-tuning.mjs';
+import * as mlopsCourse from './content/mlops.mjs';
 
 const COURSES = [
   javascriptCourse,
@@ -85,6 +90,11 @@ const COURSES = [
   claudeCodeCourse,
   geminiCourse,
   codexAiCourse,
+  mathForMlCourse,
+  deepLearningCourse,
+  ragCourse,
+  fineTuningCourse,
+  mlopsCourse,
 ];
 
 // Code-fence language label per course slug.
@@ -127,6 +137,11 @@ const CODE_LANG = {
   'claude-code': 'bash',
   gemini: 'javascript',
   'codex-ai': 'python',
+  'math-for-ml': 'python',
+  'deep-learning': 'python',
+  rag: 'python',
+  'fine-tuning': 'python',
+  mlops: 'python',
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

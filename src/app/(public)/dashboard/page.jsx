@@ -19,7 +19,7 @@ export default function DashboardPage() {
   }, [status]);
 
   if (status === 'loading') {
-    return <p className="mx-auto max-w-4xl px-4 py-12 text-slate-400">Loading…</p>;
+    return <p className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12 text-slate-400">Loading…</p>;
   }
 
   const isGuest = status !== 'authenticated';
@@ -35,7 +35,7 @@ export default function DashboardPage() {
   const pct = data ? Math.min(100, Math.round((data.totalXP / data.nextLevelAt) * 100)) : 0;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       {isGuest && (
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-indigo-200 bg-indigo-50 px-6 py-4 dark:border-indigo-800 dark:bg-indigo-950/40">
           <div>
