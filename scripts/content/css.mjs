@@ -247,6 +247,84 @@ const beginner = [
           },
         ],
       },
+      {
+        title: 'Backgrounds & Gradients',
+        difficulty: 'easy',
+        tags: ['backgrounds', 'colors'],
+        explanation: {
+          english:
+            'background-color fills a solid color. background-image adds an image or a gradient — linear-gradient() blends colors in a direction, radial-gradient() blends outward from a center point. background-size (cover/contain) controls how an image fits, and background-position places it. background-repeat controls tiling (default: repeats both ways).',
+          hinglish:
+            'background-color solid color fill karta hai. background-image image ya gradient add karta hai — linear-gradient() colors ko ek direction mein blend karta hai, radial-gradient() ek center point se bahar ki taraf blend karta hai. background-size (cover/contain) control karta hai image kaise fit ho, aur background-position use place karta hai. background-repeat tiling control karta hai (default: dono taraf repeat hota hai).',
+        },
+        dailyLifeExample:
+          'background-image ek deewar pe wallpaper lagane jaisa hai. background-size: cover poori deewar ko dhak deta hai (kuch photo crop ho sakta hai), background: contain poora photo dikhata hai (deewar ka kuch hissa khali reh sakta hai). Gradient ek sunset ke rangon ke jaise dheere-dheere ek rang se doosre mein badalna hai.',
+        codeExample:
+          "body {\n  background-color: #f8fafc;\n  background-image: url('hero.jpg');\n  background-size: cover;      /* fill, may crop */\n  background-position: center;\n  background-repeat: no-repeat;\n}\n\n.banner {\n  background: linear-gradient(135deg, #4f46e5, #ec4899);\n}\n.spotlight {\n  background: radial-gradient(circle, white, #4f46e5);\n}",
+        keyPoints: [
+          'background-color: solid fill; background-image: picture or gradient',
+          'linear-gradient(direction, color1, color2, ...) blends in a straight line',
+          'radial-gradient() blends outward from a center point',
+          'background-size: cover fills and may crop; contain fits fully, may leave gaps',
+          'background-repeat / background-position fine-tune placement',
+        ],
+        quiz: [
+          {
+            question: 'What does background-size: cover do?',
+            options: ['Shrinks the image to fit exactly with no cropping', 'Fills the whole area, cropping the image if needed', 'Repeats the image in a grid', 'Makes the background transparent'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which function creates a gradient that blends outward from a center point?',
+            options: ['linear-gradient()', 'radial-gradient()', 'conic-gradient()', 'blend()'],
+            correctIndex: 1,
+          },
+          {
+            question: 'By default, does a background image repeat?',
+            options: ['No, never', 'Yes, it tiles in both directions unless you set background-repeat: no-repeat', 'Only vertically', 'Only if you ask it to'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Borders, Border-Radius & Box-Shadow',
+        difficulty: 'easy',
+        tags: ['borders', 'effects'],
+        explanation: {
+          english:
+            "border draws a line around an element's edge — set its width, style (solid/dashed/dotted), and color in one shorthand: border: 2px solid black. border-radius rounds the corners (50% makes a perfect circle on a square box). box-shadow adds a drop shadow: offset-x, offset-y, blur-radius, and color, giving depth without any image.",
+          hinglish:
+            'border ek element ke edge ke around line kheenchta hai — width, style (solid/dashed/dotted), aur color ek shorthand mein set karo: border: 2px solid black. border-radius corners ko round karta hai (50% ek square box ko perfect circle bana deta hai). box-shadow ek drop shadow add karta hai: offset-x, offset-y, blur-radius, aur color, bina kisi image ke depth deta hai.',
+        },
+        dailyLifeExample:
+          'border ek photo frame jaisa hai. border-radius frame ke corners ko golai dena hai. box-shadow us frame ke peeche deewar pe padne wala saaya (shadow) hai jo lighting se depth ka feel deta hai.',
+        codeExample:
+          '.avatar {\n  width: 60px;\n  height: 60px;\n  border: 3px solid white;\n  border-radius: 50%;         /* perfect circle */\n  box-shadow: 0 4px 12px rgba(0,0,0,0.25); /* x, y, blur, color */\n}\n\n.card {\n  border-radius: 12px;        /* rounded corners */\n  box-shadow: 0 2px 8px rgba(0,0,0,0.1);\n}',
+        keyPoints: [
+          'border shorthand: width style color (e.g. 2px solid black)',
+          'border-radius rounds corners; 50% on a square = a circle',
+          'box-shadow: offset-x offset-y blur-radius color',
+          'box-shadow does not affect layout, unlike a real border',
+          'Multiple box-shadows can be comma-separated for layered effects',
+        ],
+        quiz: [
+          {
+            question: 'What does border-radius: 50% do to a square element?',
+            options: ['Nothing', 'Makes it a perfect circle', 'Doubles its size', 'Removes the border'],
+            correctIndex: 1,
+          },
+          {
+            question: 'In box-shadow: 0 4px 12px rgba(0,0,0,0.25), what does the 12px control?',
+            options: ['Horizontal offset', 'Vertical offset', 'Blur radius', 'Border width'],
+            correctIndex: 2,
+          },
+          {
+            question: 'Which CSS shorthand property draws a line around an element in one line?',
+            options: ['outline-style', 'border', 'edge', 'frame'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
   {
@@ -451,6 +529,56 @@ const intermediate = [
           {
             question: 'What does the fr unit represent?',
             options: ['Fixed pixels', 'A fraction of free space', 'Font ratio', 'Frames'],
+            correctIndex: 1,
+          },
+          {
+            question: 'You set grid-template-columns: repeat(3, 1fr) with 6 items, but never set grid-template-rows. What happens?',
+            options: [
+              'The layout breaks completely',
+              'Grid automatically creates as many implicit rows as needed to fit all the items',
+              'Only 3 items show, the rest are hidden',
+              'An error is thrown',
+            ],
+            correctIndex: 1,
+            explanation: 'Grid auto-generates implicit rows sized by their content unless you explicitly define grid-template-rows — for a simple item list you rarely need to specify rows at all.',
+          },
+        ],
+      },
+      {
+        title: 'Overflow & Visibility vs display:none',
+        difficulty: 'medium',
+        tags: ['layout', 'overflow'],
+        explanation: {
+          english:
+            'overflow controls what happens when content is bigger than its box: visible (default, spills out), hidden (clips extra content), scroll (always shows scrollbars), and auto (scrollbars only when needed). Separately, visibility: hidden hides an element but it STILL takes up space in the layout, unlike display: none which removes it from the layout completely — a very common point of confusion.',
+          hinglish:
+            'overflow control karta hai jab content apne box se bada ho to kya ho: visible (default, bahar chhalak jaata hai), hidden (extra content clip ho jaata hai), scroll (hamesha scrollbars dikhte hain), aur auto (scrollbars sirf zaroorat pe). Alag se, visibility: hidden element ko chhupa deta hai par wo layout mein jagah abhi bhi LETA hai, display: none ke ulat jo use layout se poori tarah hata deta hai — ye ek bahut common confusion point hai.',
+        },
+        dailyLifeExample:
+          'overflow: hidden ek chhote gilaas mein zyada paani daalna jaisa hai — jo bahar chhalka wo bas dikhta nahi, gilaas mein utna hi rehta hai. visibility: hidden ek insaan ko invisibility cloak pehnana hai — wo abhi bhi kamre mein khada hai (jagah leta hai), bas dikh nahi raha. display: none matlab wo insaan kamra hi chhod ke chala gaya.',
+        codeExample:
+          '/* clips extra content, no scrollbar */\n.box1 { width: 200px; height: 100px; overflow: hidden; }\n\n/* scrollbar shows only if needed */\n.box2 { overflow: auto; }\n\n/* hidden but still occupies its space */\n.ghost { visibility: hidden; } /* leaves a gap */\n\n/* removed entirely, no gap left */\n.gone { display: none; }',
+        keyPoints: [
+          'overflow: visible (default), hidden (clips), scroll (always), auto (as needed)',
+          'visibility: hidden HIDES the element but keeps its space in the layout',
+          'display: none REMOVES the element from the layout entirely (no space kept)',
+          'overflow-x / overflow-y control each axis separately',
+          'visibility supports transition; display cannot be animated the same way',
+        ],
+        quiz: [
+          {
+            question: 'What is the key difference between visibility:hidden and display:none?',
+            options: ['No difference, they are identical', 'visibility:hidden keeps the layout space; display:none removes it entirely', 'display:none is only for images', 'visibility:hidden deletes the element'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which overflow value shows a scrollbar only when content actually overflows?',
+            options: ['visible', 'hidden', 'scroll', 'auto'],
+            correctIndex: 3,
+          },
+          {
+            question: 'What happens to content by default when it is bigger than its box (overflow: visible)?',
+            options: ['It gets clipped', 'It spills outside the box', 'The box grows to a fixed max', 'The page crashes'],
             correctIndex: 1,
           },
         ],
@@ -674,6 +802,17 @@ const advanced = [
             question: 'A higher z-index means the element is…',
             options: ['Further back', 'In front', 'Hidden', 'Smaller'],
             correctIndex: 1,
+          },
+          {
+            question: '.child has z-index: 9999 but still appears BEHIND another element with z-index: 1. What is the most likely cause?',
+            options: [
+              'z-index only works up to 100',
+              "The child's ancestor already created its own stacking context with a low z-index, trapping the child inside it",
+              'CSS ignores z-index values above 1000',
+              'z-index requires !important to work',
+            ],
+            correctIndex: 1,
+            explanation: "A child's z-index is only compared against siblings WITHIN the same stacking context. If a parent creates a low-z-index stacking context (via position+z-index, opacity<1, transform, etc.), the child can never appear above content outside that parent — no matter how high its own z-index is.",
           },
         ],
       },
