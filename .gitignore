@@ -46,3 +46,6 @@ dev.log
 
 # Claude Code agent workspaces
 .claude/worktrees/
+
+# local dev-server preview config (Claude Code)
+.claude/launch.json

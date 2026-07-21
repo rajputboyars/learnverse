@@ -19,8 +19,9 @@ export async function connectDB() {
       .connect(MONGODB_URI, {
         bufferCommands: false,
         // Fail fast when the DB is unreachable instead of blocking SSR for the
-        // full 30s default server-selection window.
-        serverSelectionTimeoutMS: 5000,
+        // full 30s default server-selection window. 8s leaves headroom for a
+        // cold Atlas M0 cluster waking from idle without the long hang.
+        serverSelectionTimeoutMS: 8000,
       })
       .then((m) => m)
       .catch((err) => {

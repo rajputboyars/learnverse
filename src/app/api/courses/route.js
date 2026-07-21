@@ -13,7 +13,9 @@ export async function GET(request) {
     return NextResponse.json(courses);
   } catch (err) {
     // Degrade gracefully instead of throwing an unhandled 500 with a stack
-    // trace when the database is unreachable.
+    // trace when the database is unreachable — but keep the error in the logs
+    // so real outages and query bugs stay diagnosable.
+    console.error('GET /api/courses failed:', err);
     return NextResponse.json(
       { error: 'Courses temporarily unavailable' },
       { status: 503 },
