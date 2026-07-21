@@ -109,6 +109,45 @@ const beginner = [
         ],
       },
       {
+        title: 'Running Scripts, the REPL & Global Objects',
+        difficulty: 'easy',
+        tags: ['basics', 'cli'],
+        explanation: {
+          english:
+            "Run any file with node filename.js — Node executes it top to bottom and exits when done (unless something keeps it alive, like a server). Typing just node with no file opens the REPL (Read-Eval-Print Loop), an interactive prompt for trying out JS one line at a time — great for quick experiments. Inside a script, __dirname and __filename give the current folder/file's absolute path, process.argv is an array of command-line arguments, and global is Node's version of the browser's window (things attached to it are available everywhere).",
+          hinglish:
+            "Koi bhi file node filename.js se run karo — Node use upar se neeche chalata hai aur khatam hone pe exit ho jaata hai (jab tak kuch use zinda na rakhe, jaise server). Sirf node likhna (bina file ke) REPL kholta hai (Read-Eval-Print Loop), ek interactive prompt jaha ek-ek line JS try kar sakte ho — quick experiments ke liye badhiya. Script ke andar, __dirname aur __filename current folder/file ka absolute path dete hain, process.argv command-line arguments ka array hai, aur global Node ka window jaisa hai (isse jodi gayi cheezein har jagah available hoti hain).",
+        },
+        dailyLifeExample:
+          "REPL ek calculator jaisa hai — turant kuch type karo, turant result. node file.js poori recipe (script) ek saath follow karke pura dish banana hai. __dirname ek 'aap yahan hain' naksha jaisa hai jo hamesha batata hai file kis folder mein hai.",
+        codeExample:
+          '// info.js — run with: node info.js Alice 25\nconsole.log(__dirname);     // e.g. /Users/you/project\nconsole.log(__filename);    // e.g. /Users/you/project/info.js\nconsole.log(process.argv);  // [\'node\', \'.../info.js\', \'Alice\', \'25\']\nconsole.log(process.argv[2]); // "Alice" — first real CLI argument\n\nglobal.appName = "Learnverse"; // available anywhere in this process\n\n// In a terminal, typing just "node" opens the REPL:\n// > 2 + 2\n// 4\n// > .exit',
+        keyPoints: [
+          'node file.js runs a script top to bottom',
+          'node with no arguments opens the interactive REPL',
+          '__dirname / __filename give absolute folder/file paths',
+          'process.argv is an array of CLI arguments (real args start at index 2)',
+          'global is Node\'s equivalent of the browser\'s window object',
+        ],
+        quiz: [
+          {
+            question: 'What does typing just "node" (no filename) in the terminal open?',
+            options: ['An error', 'The interactive REPL', 'A file browser', 'The npm registry'],
+            correctIndex: 1,
+          },
+          {
+            question: 'In process.argv, where do the actual arguments YOU passed typically start?',
+            options: ['Index 0', 'Index 1', 'Index 2', 'The last index'],
+            correctIndex: 2,
+          },
+          {
+            question: 'What does __dirname give you?',
+            options: ['The current time', 'The absolute path of the current folder', 'The Node version', 'A random number'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
         title: 'Modules: CommonJS vs ES Modules',
         difficulty: 'medium',
         tags: ['modules', 'commonjs', 'esm'],
@@ -440,6 +479,17 @@ const intermediate = [
             options: ['Readable', 'Writable', 'Transform', 'Duplex only'],
             correctIndex: 2,
           },
+          {
+            question: 'Why would fs.readFileSync("huge-5gb-video.mp4") likely crash a server, while a readable stream would not?',
+            options: [
+              'readFileSync only works on text files',
+              'readFileSync loads the ENTIRE file into memory (RAM) at once, which can exceed available memory; a stream processes it in small chunks',
+              'Streams are always faster for any file size',
+              'There is no real difference',
+            ],
+            correctIndex: 1,
+            explanation: 'readFileSync (and readFile) buffer the WHOLE file into memory before returning. A 5GB file can exceed available RAM and crash the process. Streaming reads/writes a small chunk at a time, keeping memory usage flat regardless of file size.',
+          },
         ],
       },
       {
@@ -562,6 +612,45 @@ const intermediate = [
         ],
       },
       {
+        title: 'WebSockets: Real-Time Communication',
+        difficulty: 'medium',
+        tags: ['websockets', 'realtime'],
+        explanation: {
+          english:
+            "Regular HTTP is request-response: the client always asks first, the server can only reply. That does not work for live chat, notifications, or multiplayer games, where the SERVER also needs to push data instantly. A WebSocket starts as a normal HTTP request that 'upgrades' into a persistent, two-way connection — both client and server can send messages at any time, with far less overhead than repeatedly polling the server. Libraries like ws or Socket.IO make this easy in Node.",
+          hinglish:
+            "Normal HTTP request-response hota hai: client hamesha pehle poochta hai, server sirf jawab de sakta hai. Ye live chat, notifications, ya multiplayer games ke liye kaam nahi karta, jaha SERVER ko bhi turant data push karna hota hai. WebSocket ek normal HTTP request ki tarah shuru hoti hai jo 'upgrade' hoke ek persistent, two-way connection ban jaati hai — client aur server dono kabhi bhi message bhej sakte hain, baar-baar server ko poochne (polling) se kaafi kam overhead ke saath. Node mein ws ya Socket.IO jaisi libraries ye aasan bana deti hain.",
+        },
+        dailyLifeExample:
+          'HTTP ek chitthi bhejna hai — tumne likha, post kiya, jawab ka wait karo. WebSocket ek phone call jaisa hai — connection ek baar lagta hai, phir dono taraf se koi bhi kabhi bhi bol sakta hai, bina baar-baar dial kiye.',
+        codeExample:
+          "const { WebSocketServer } = require('ws');\nconst wss = new WebSocketServer({ port: 8080 });\n\nwss.on('connection', (socket) => {\n  console.log('Client connected');\n\n  socket.on('message', (data) => {\n    console.log('Received:', data.toString());\n    // broadcast to everyone, including the sender\n    wss.clients.forEach((client) => client.send(`Echo: ${data}`));\n  });\n\n  socket.send('Welcome!'); // server pushes a message immediately\n});",
+        keyPoints: [
+          'HTTP: client always initiates; server can only respond',
+          'WebSocket: a persistent, two-way connection after an initial HTTP "upgrade"',
+          'Either side (client OR server) can send a message at any time',
+          'Far more efficient than polling the server repeatedly for updates',
+          'Common uses: chat apps, live notifications, multiplayer games, live dashboards',
+        ],
+        quiz: [
+          {
+            question: 'What is the key limitation of plain HTTP that WebSockets solve?',
+            options: ['HTTP is too fast', 'The server cannot push data to the client without the client asking first', 'HTTP cannot send JSON', 'HTTP only works on port 80'],
+            correctIndex: 1,
+          },
+          {
+            question: 'How does a WebSocket connection begin?',
+            options: ['As a completely separate protocol from HTTP', 'As a normal HTTP request that upgrades into a persistent connection', 'It requires a special browser plugin', 'It cannot begin from a browser'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which of these is a typical WebSocket use case?',
+            options: ['A static blog page', 'A live chat application', 'A one-time file download', 'A CSS stylesheet'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
         title: 'Child Processes',
         difficulty: 'hard',
         tags: ['child_process', 'core'],
@@ -647,6 +736,17 @@ const advanced = [
             question: 'What happens when one cluster worker crashes?',
             options: ['The whole server crashes', 'Other workers keep serving requests', 'Node exits permanently', 'Nothing changes'],
             correctIndex: 1,
+          },
+          {
+            question: 'A common cluster mistake: you store a login count in a plain in-memory variable (let count = 0) inside your server. Why does the count look wrong/inconsistent under cluster?',
+            options: [
+              'cluster is broken',
+              'Each worker process has its OWN separate memory — the variable is not shared, so each worker has a different count',
+              'Variables reset every request',
+              'Only the primary process can use variables',
+            ],
+            correctIndex: 1,
+            explanation: 'Cluster workers are separate OS processes with separate memory — nothing is automatically shared between them. For counters, sessions, or any shared state, you need an external store (Redis, a database) that all workers can read/write.',
           },
         ],
       },
@@ -752,6 +852,50 @@ const advanced = [
           {
             question: 'On unhandledRejection, the recommended approach is to…',
             options: ['ignore and continue', 'log and gracefully exit (let a process manager restart)', 'retry forever', 'crash immediately with no logging'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Custom Error Classes & Operational vs Programmer Errors',
+        difficulty: 'hard',
+        tags: ['errors', 'best-practices'],
+        explanation: {
+          english:
+            "Throwing plain strings or generic Error() loses information. Create custom error classes (extending Error) with a name, a status code, and an isOperational flag, so different failures can be handled differently. This also clarifies a key distinction: operational errors are expected problems you can recover from (invalid input, a 404, a failed network call) — handle them gracefully. Programmer errors are actual bugs (calling undefined, a typo, wrong argument types) — these should crash loudly (in dev) or be logged and fixed, not silently caught and hidden.",
+          hinglish:
+            "Plain strings ya generic Error() throw karne se information kho jaati hai. Custom error classes banao (Error ko extend karke) jinme name, status code, aur isOperational flag ho, taaki alag failures ko alag tarike se handle kar sako. Isse ek zaroori farq bhi clear hota hai: operational errors wo expected problems hain jinse recover ho sakta hai (galat input, ek 404, fail hui network call) — inhe gracefully handle karo. Programmer errors asli bugs hain (undefined ko call karna, typo, galat argument types) — inhe zor se crash hona chahiye (dev mein) ya log karke fix karna chahiye, chup-chaap catch karke chhupana nahi.",
+        },
+        dailyLifeExample:
+          'Operational error ek dukaan mein "ye item stock mein nahi hai" jaisa hai — normal, expected, gracefully handle karo ("sorry, out of stock"). Programmer error ek cashier ka calculation formula hi galat hona jaisa hai — ye ek asli bug hai jo turant fix hona chahiye, uska "sorry" bolke chhupa dena galat hai.',
+        codeExample:
+          "class AppError extends Error {\n  constructor(message, statusCode, isOperational = true) {\n    super(message);\n    this.name = this.constructor.name;\n    this.statusCode = statusCode;\n    this.isOperational = isOperational; // expected vs a real bug\n    Error.captureStackTrace(this, this.constructor);\n  }\n}\nclass NotFoundError extends AppError {\n  constructor(resource) {\n    super(`${resource} not found`, 404); // operational: expected, recoverable\n  }\n}\n\n// usage\nif (!user) throw new NotFoundError('User');\n\n// central handler can now branch on the error type\napp.use((err, req, res, next) => {\n  if (err.isOperational) return res.status(err.statusCode).json({ error: err.message });\n  console.error('BUG:', err); // programmer error — log it, do not silently swallow it\n  res.status(500).json({ error: 'Something went wrong' });\n});",
+        keyPoints: [
+          'Custom error classes (extends Error) carry structured info: name, statusCode, isOperational',
+          'Operational errors: expected, recoverable failures (bad input, 404, network timeout)',
+          'Programmer errors: actual bugs (undefined calls, typos, wrong types) — should not be silently caught',
+          'A central error handler can branch on error type to respond appropriately',
+          'Error.captureStackTrace keeps a clean stack trace pointing to where the error was created',
+        ],
+        quiz: [
+          {
+            question: 'What is the key difference between an operational error and a programmer error?',
+            options: [
+              'There is no real difference',
+              'Operational errors are expected/recoverable (bad input, 404); programmer errors are actual bugs that should not be silently hidden',
+              'Programmer errors are always less serious',
+              'Operational errors only happen in production',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why create a custom error class instead of throwing new Error("message") everywhere?',
+            options: ['It runs faster', 'It lets you attach structured info (statusCode, isOperational) so a central handler can respond appropriately per error type', 'JavaScript requires it', 'It removes the need for try/catch'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What should generally happen to a true programmer error (e.g. calling a method on undefined)?',
+            options: ['Silently catch it and continue as if nothing happened', 'Let it be logged/surfaced loudly so it gets fixed, not hidden behind a generic error message', 'Always retry the operation automatically', 'Ignore it in production only'],
             correctIndex: 1,
           },
         ],
