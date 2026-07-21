@@ -5,11 +5,20 @@ import { requireAdmin } from '@/lib/guards';
 
 // GET /api/courses → published courses (admins can pass ?all=1 for drafts too)
 export async function GET(request) {
-  await connectDB();
-  const all = request.nextUrl.searchParams.get('all');
-  const filter = all ? {} : { status: 'published' };
-  const courses = await Course.find(filter).sort({ order: 1, createdAt: -1 }).lean();
-  return NextResponse.json(courses);
+  try {
+    await connectDB();
+    const all = request.nextUrl.searchParams.get('all');
+    const filter = all ? {} : { status: 'published' };
+    const courses = await Course.find(filter).sort({ order: 1, createdAt: -1 }).lean();
+    return NextResponse.json(courses);
+  } catch (err) {
+    // Degrade gracefully instead of throwing an unhandled 500 with a stack
+    // trace when the database is unreachable.
+    return NextResponse.json(
+      { error: 'Courses temporarily unavailable' },
+      { status: 503 },
+    );
+  }
 }
 
 // POST /api/courses → create (admin only)
