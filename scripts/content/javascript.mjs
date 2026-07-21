@@ -236,6 +236,134 @@ const beginner = [
     ],
   },
   {
+    title: 'Numbers, Booleans & Console',
+    level: 'beginner',
+    description: 'Comments, numbers, Math object, aur truthy/falsy values.',
+    concepts: [
+      {
+        title: 'Comments & the Console',
+        difficulty: 'easy',
+        tags: ['basics', 'debugging'],
+        explanation: {
+          english:
+            "Comments are notes for humans that JavaScript ignores completely — use // for a single line and /* ... */ for multiple lines. The console (console.log, console.warn, console.error, console.table) is your window into what the code is doing; it is the #1 debugging tool every beginner should master before anything else.",
+          hinglish:
+            "Comments insaano ke liye notes hain jinhe JavaScript pura ignore kar deta hai — single line ke liye // aur multiple lines ke liye /* ... */. Console (console.log, console.warn, console.error, console.table) tumhari khidki hai ye dekhne ke liye ki code kya kar raha hai — ye har beginner ka pehla aur sabse zaroori debugging tool hai.",
+        },
+        dailyLifeExample:
+          'Comment ek copy ke hashiye mein likha note jaisa hai — teacher (JS engine) use padhta nahi, sirf tumhare (ya doston ke) samajhne ke liye hai. console.log ek CCTV camera jaisa hai — andar kya ho raha hai, turant dikh jaata hai.',
+        codeExample:
+          "// This is a single-line comment\n/* This is a\n   multi-line comment */\n\nconsole.log('Normal message');\nconsole.warn('⚠️ Something looks off');\nconsole.error('❌ Something broke');\nconsole.table([{ name: 'Aman', score: 90 }, { name: 'Riya', score: 95 }]);",
+        keyPoints: [
+          '// for single-line comments, /* */ for multi-line',
+          'Comments are skipped completely by the JS engine',
+          'console.log/warn/error print differently in DevTools',
+          'console.table shows arrays of objects as a neat table',
+          'console.log is the most-used debugging tool for beginners',
+        ],
+        quiz: [
+          {
+            question: 'Which symbol starts a single-line comment in JavaScript?',
+            options: ['//', '/* */', '#', '<!-- -->'],
+            correctIndex: 0,
+          },
+          {
+            question: 'What does console.error do differently from console.log?',
+            options: ['Nothing, same thing', 'Shows the message as an error (often in red)', 'Deletes the message', 'Stops the program'],
+            correctIndex: 1,
+            explanation: 'console.error highlights the message as an error in DevTools, but does not stop execution.',
+          },
+          {
+            question: 'Why do developers write comments in code?',
+            options: ['To make code run faster', 'To explain WHY, for other humans reading the code', 'JS requires at least one comment', 'To create variables'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Numbers & the Math Object',
+        difficulty: 'easy',
+        tags: ['numbers', 'math'],
+        explanation: {
+          english:
+            'JavaScript has only one number type (no separate int/float) — it handles whole numbers and decimals the same way. The built-in Math object gives ready-made tools: Math.round/floor/ceil to round, Math.random() for a random decimal between 0 and 1, Math.max/min to compare, and toFixed() to control decimal places. parseInt/parseFloat and Number() convert text into numbers.',
+          hinglish:
+            'JavaScript mein sirf ek hi number type hai (alag int/float nahi) — whole numbers aur decimals dono same tarah handle hote hain. Built-in Math object ready-made tools deta hai: round/floor/ceil rounding ke liye, Math.random() 0 aur 1 ke beech random decimal, Math.max/min compare karne ke liye, aur toFixed() decimal places control karne ke liye. parseInt/parseFloat aur Number() text ko number mein badalte hain.',
+        },
+        dailyLifeExample:
+          'Math.round ek dukaandaar jaisa hai jo change round kar deta hai — 10.6 rupaye ko 11 bana dega. Math.random() ek dice roll jaisa hai — har baar naya random number. toFixed(2) bill ko exactly 2 decimal places mein round kar deta hai, jaise ₹49.999 ko ₹50.00.',
+        codeExample:
+          "Math.round(4.6);   // 5\nMath.floor(4.9);   // 4  (always down)\nMath.ceil(4.1);    // 5  (always up)\nMath.max(3, 7, 2); // 7\nMath.min(3, 7, 2); // 2\nMath.random();     // e.g. 0.7391... (0 to <1)\n\n(9.4567).toFixed(2); // \"9.46\" (string!)\nparseInt('42px');    // 42\nNumber('3.14');      // 3.14\nisNaN('hello');       // true",
+        keyPoints: [
+          'JS has one Number type for both integers and decimals',
+          'Math.floor rounds down, Math.ceil rounds up, Math.round rounds nearest',
+          'Math.random() gives a decimal between 0 (inclusive) and 1 (exclusive)',
+          'toFixed(n) returns a STRING with n decimal places',
+          'parseInt/parseFloat/Number convert text to numbers',
+        ],
+        quiz: [
+          {
+            question: 'What does Math.floor(4.9) return?',
+            options: ['5', '4', '4.9', 'error'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What type of value does toFixed(2) return?',
+            options: ['Number', 'String', 'Boolean', 'Array'],
+            correctIndex: 1,
+            explanation: 'toFixed always returns a string, e.g. (9.4).toFixed(2) is "9.40".',
+          },
+          {
+            question: 'Math.random() returns a number in which range?',
+            options: ['1 to 10', '0 to 1 (0 included, 1 excluded)', '-1 to 1', 'Any whole number'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Truthy & Falsy Values',
+        difficulty: 'easy',
+        tags: ['booleans', 'conditionals'],
+        explanation: {
+          english:
+            "Every value in JavaScript is 'truthy' or 'falsy' when used where a boolean is expected (like an if condition). There are only 8 falsy values: false, 0, -0, 0n, '' (empty string), null, undefined, and NaN. Everything else — including '0' (a non-empty string!), [] (empty array), and {} (empty object) — is truthy. Knowing this list by heart avoids a lot of beginner bugs.",
+          hinglish:
+            "JavaScript mein har value 'truthy' ya 'falsy' hoti hai jab usse boolean ki jagah use kiya jaaye (jaise if condition mein). Sirf 8 falsy values hain: false, 0, -0, 0n, '' (empty string), null, undefined, aur NaN. Baaki sab — '0' (non-empty string!), [] (empty array), aur {} (empty object) bhi — truthy hai. Ye list yaad rakhna bahut saare beginner bugs bacha deta hai.",
+        },
+        dailyLifeExample:
+          "Truthy/falsy ek switchboard jaisa hai — bijli hai ya nahi (on/off) decide karta hai bulb jalega ya nahi, chahe bulb ka rang kuch bhi ho. Khaali plate (empty array []) dekhne mein 'kuch nahi' lagti hai par JS use 'kuch hai' (truthy) maanta hai — ye sabse common confusion hai.",
+        codeExample:
+          "if (0) console.log('runs');        // ❌ skipped, 0 is falsy\nif ('') console.log('runs');       // ❌ skipped, '' is falsy\nif ([]) console.log('runs');       // ✅ runs! empty array is truthy\nif ({}) console.log('runs');       // ✅ runs! empty object is truthy\nif ('0') console.log('runs');      // ✅ runs! non-empty string is truthy\n\n// common real check\nconst cart = [];\nif (cart.length) console.log('has items'); // check .length, not the array itself",
+        keyPoints: [
+          'Only 8 falsy values: false, 0, -0, 0n, "", null, undefined, NaN',
+          'Empty array [] and empty object {} are TRUTHY, not falsy',
+          'The string "0" is truthy (it is a non-empty string)',
+          'Check array.length, not the array itself, for "is it empty"',
+          'Truthy/falsy matters in if, &&, ||, and ternary conditions',
+        ],
+        quiz: [
+          {
+            question: 'Which of these is truthy?',
+            options: ["''", '0', '[]', 'null'],
+            correctIndex: 2,
+            explanation: 'An empty array is an object, and all objects are truthy — even empty ones.',
+          },
+          {
+            question: 'How many falsy values does JavaScript have?',
+            options: ['5', '6', '8', '10'],
+            correctIndex: 2,
+          },
+          {
+            question: 'To check if an array is empty, you should check…',
+            options: ['if (arr)', 'if (arr.length)', 'if (arr === [])', 'if (arr == true)'],
+            correctIndex: 1,
+            explanation: 'if(arr) is always true for any array, even an empty one — you must check .length.',
+          },
+        ],
+      },
+    ],
+  },
+  {
     title: 'Control Flow',
     level: 'beginner',
     description: 'Decisions aur repetition — if/else, switch, loops.',
@@ -650,6 +778,122 @@ const beginner = [
           },
         ],
       },
+      {
+        title: 'More Array Methods: forEach, find, some, every & includes',
+        difficulty: 'medium',
+        tags: ['arrays'],
+        explanation: {
+          english:
+            'Beyond map/filter/reduce, these methods answer common questions. forEach just runs a function on each item (no new array returned). find returns the FIRST matching item (not an array). findIndex returns its index. some checks if ANY item matches (true/false). every checks if ALL items match. includes checks if a value exists.',
+          hinglish:
+            'map/filter/reduce ke alawa ye methods common sawaalo ke jawab dete hain. forEach har item pe function chala deta hai (naya array return nahi karta). find PEHLA matching item deta hai (array nahi). findIndex uska index deta hai. some check karta hai KOI bhi item match karta hai ya nahi (true/false). every check karta hai SAARE items match karte hain ya nahi. includes value hai ya nahi check karta hai.',
+        },
+        dailyLifeExample:
+          "Class mein roll-call: forEach har student ka naam bolna (result store nahi karna). find pehla student dhoondhna jiske marks 90+ hain. some check karna 'koi bhi fail hua?'. every check karna 'sab pass hue?'.",
+        codeExample:
+          "const nums = [4, 9, 15, 22, 30];\n\nnums.forEach(n => console.log(n));       // just logs each, returns undefined\n\nnums.find(n => n > 10);                  // 15 (first match)\nnums.findIndex(n => n > 10);             // 2 (its index)\n\nnums.some(n => n > 25);                  // true (at least one)\nnums.every(n => n > 0);                  // true (all positive)\n\nnums.includes(22);                       // true\n\nconst sorted = [...nums].sort((a, b) => a - b); // ascending, copy first!",
+        keyPoints: [
+          'forEach: just runs code per item, returns undefined',
+          'find: first matching item; findIndex: its index',
+          'some: true if ANY item passes; every: true if ALL pass',
+          'includes: quick true/false existence check',
+          'sort mutates in place — copy with [...arr] first if you need the original',
+        ],
+        quiz: [
+          {
+            question: 'What does array.find() return when nothing matches?',
+            options: ['null', 'undefined', 'an empty array', '-1'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which method checks if EVERY element passes a test?',
+            options: ['some', 'every', 'find', 'forEach'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why should you copy an array with [...arr] before sorting?',
+            options: ['sort() is slower otherwise', 'sort() mutates (changes) the original array', 'It is required syntax', 'No reason, it is optional style'],
+            correctIndex: 1,
+            explanation: 'Array.prototype.sort() sorts in place, mutating the original array — spread first if you need to keep it unchanged.',
+          },
+        ],
+      },
+      {
+        title: 'Object Methods: keys, values, entries & freeze',
+        difficulty: 'medium',
+        tags: ['objects'],
+        explanation: {
+          english:
+            "Object is not an array, so array methods like map do not work on it directly. Object.keys() gives an array of property names, Object.values() gives an array of values, and Object.entries() gives [key, value] pairs — perfect for looping with for...of or converting to a Map. Object.freeze() locks an object so it cannot be changed (useful for constants).",
+          hinglish:
+            'Object array nahi hai, isliye map jaise array methods usme seedha nahi chalte. Object.keys() property names ka array deta hai, Object.values() values ka array deta hai, aur Object.entries() [key, value] pairs deta hai — for...of se loop karne ya Map banane ke liye perfect. Object.freeze() object ko lock kar deta hai taaki wo badle na (constants ke liye useful).',
+        },
+        dailyLifeExample:
+          'Object ek admit card jaisa hai: Object.keys = sirf field-names (Naam, Roll No, Class), Object.values = sirf unki values (Aman, 12, 10th), Object.entries = pura pair (field: value). Object.freeze = admit card ko laminate karna — ab koi likh nahi sakta.',
+        codeExample:
+          "const student = { name: 'Aman', roll: 12, grade: 'A' };\n\nObject.keys(student);    // ['name', 'roll', 'grade']\nObject.values(student);  // ['Aman', 12, 'A']\nObject.entries(student); // [['name','Aman'], ['roll',12], ['grade','A']]\n\nfor (const [key, value] of Object.entries(student)) {\n  console.log(`${key}: ${value}`);\n}\n\nconst PI = Object.freeze({ value: 3.14 });\nPI.value = 4; // silently fails (or throws in strict mode)\nconsole.log(PI.value); // still 3.14",
+        keyPoints: [
+          'Object.keys/values/entries turn an object into an array you can loop or map over',
+          'Object.entries pairs perfectly with for...of destructuring',
+          'Object.freeze() prevents any property from being changed',
+          'hasOwnProperty checks if a key belongs directly to the object',
+        ],
+        quiz: [
+          {
+            question: 'What does Object.entries({a:1, b:2}) return?',
+            options: ["{a:1, b:2}", "['a','b']", "[['a',1],['b',2]]", '[1,2]'],
+            correctIndex: 2,
+          },
+          {
+            question: 'What does Object.freeze() do?',
+            options: ['Deletes the object', 'Prevents its properties from being changed', 'Copies the object', 'Converts it to JSON'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which method gives just the property names of an object?',
+            options: ['Object.values', 'Object.entries', 'Object.keys', 'Object.freeze'],
+            correctIndex: 2,
+          },
+        ],
+      },
+      {
+        title: 'Slicing Arrays: slice vs splice',
+        difficulty: 'medium',
+        tags: ['arrays'],
+        explanation: {
+          english:
+            'These two sound similar but behave very differently — a classic interview trap. slice(start, end) COPIES a portion of an array into a new array and does NOT touch the original. splice(start, deleteCount, ...items) CHANGES the original array in place — it can remove items, insert items, or both, and it returns the removed items.',
+          hinglish:
+            'Ye dono sunne mein same lagte hain par bahut alag kaam karte hain — ek classic interview trap. slice(start, end) array ka ek hissa COPY karke naya array deta hai, original ko CHHOOTA nahi. splice(start, deleteCount, ...items) original array ko seedha BADAL deta hai — items remove, insert, ya dono kar sakta hai, aur removed items return karta hai.',
+        },
+        dailyLifeExample:
+          'slice ek photocopy nikalna hai — original kitab jaisi ki waisi rehti hai. splice kitab ke pannon ko phaad ke nikaalna aur naye panne chipkana hai — original kitab hi badal jaati hai.',
+        codeExample:
+          "const fruits = ['apple', 'banana', 'mango', 'grape'];\n\n// slice: copies, does NOT change original\nconst part = fruits.slice(1, 3);   // ['banana', 'mango']\nconsole.log(fruits);               // unchanged: original 4 items\n\n// splice: MUTATES the original\nconst removed = fruits.splice(1, 2, 'kiwi'); // remove 2 from index 1, insert 'kiwi'\nconsole.log(fruits);   // ['apple', 'kiwi', 'grape']  ← changed!\nconsole.log(removed);  // ['banana', 'mango']",
+        keyPoints: [
+          'slice: copies a portion, original array untouched',
+          'splice: mutates the original array in place',
+          'splice can remove AND insert items at once',
+          'When in doubt about mutation, remember: "sPlice = sPoils the original"',
+        ],
+        quiz: [
+          {
+            question: 'Which method does NOT change the original array?',
+            options: ['splice', 'slice', 'push', 'sort'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does fruits.splice(1, 2) do?',
+            options: ['Copies items 1 and 2', 'Removes 2 items starting at index 1, from the original array', 'Adds 2 items', 'Returns nothing'],
+            correctIndex: 1,
+          },
+          {
+            question: 'splice() returns…',
+            options: ['The new array length', 'The removed items', 'true or false', 'undefined always'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
   {
@@ -764,6 +1008,17 @@ const intermediate = [
             question: 'Why does count survive between calls in makeCounter?',
             options: ['It is global', 'The inner function closes over count', 'Hoisting', 'It does not'],
             correctIndex: 1,
+          },
+          {
+            question: 'for (var i=0;i<3;i++) setTimeout(()=>console.log(i)); prints 3,3,3 instead of 0,1,2. Why, and how do you fix it?',
+            options: [
+              'It is a bug in setTimeout — cannot be fixed',
+              'var is function-scoped so all closures share the same i; use let (block-scoped) instead',
+              'Arrow functions cannot close over variables',
+              'setTimeout runs before the loop starts',
+            ],
+            correctIndex: 1,
+            explanation: 'With var there is only ONE shared i for the whole loop, so every callback sees its final value (3). let creates a fresh binding of i for each iteration, so each closure remembers its own value.',
           },
         ],
         interviewQuestions: [
@@ -950,6 +1205,17 @@ const intermediate = [
             options: ['window', 'obj', 'undefined', 'the method'],
             correctIndex: 1,
           },
+          {
+            question: "const fn = obj.show; fn(); — why does this break even though obj.show() worked fine?",
+            options: [
+              'It does not break, it works the same',
+              'this is decided by HOW you call it — calling fn() alone loses the object, so this is no longer obj',
+              'fn is now a different function',
+              'JavaScript deletes this on reassignment',
+            ],
+            correctIndex: 1,
+            explanation: 'Assigning a method to a plain variable and calling it detaches it from obj — the call-site is now just fn(), so this is undefined/global, not obj. This is a very common bug when passing methods as callbacks (e.g. onClick={obj.method}).',
+          },
         ],
       },
       {
@@ -1036,6 +1302,17 @@ const intermediate = [
             question: 'Which is fully hoisted and callable before its line?',
             options: ['Arrow in const', 'Function declaration', 'let variable', 'const variable'],
             correctIndex: 1,
+          },
+          {
+            question: 'console.log(b); let b = 10; — what happens, and why?',
+            options: [
+              'Logs undefined, same as var',
+              'Logs 10, JS reads ahead',
+              'Throws a ReferenceError — b exists but is in the temporal dead zone until its declaration runs',
+              'Logs null',
+            ],
+            correctIndex: 2,
+            explanation: "Unlike var, let/const are hoisted but stay unusable in the temporal dead zone (TDZ) from the top of the block until the declaration line actually executes — accessing them earlier throws, it does not silently give undefined.",
           },
         ],
       },
@@ -1223,6 +1500,12 @@ const intermediate = [
             options: ['A B C D', 'A D C B', 'A D B C', 'A C D B'],
             correctIndex: 1,
           },
+          {
+            question: 'Promise.resolve().then(()=>log("1")).then(()=>log("2")); setTimeout(()=>log("3")); — what order prints?',
+            options: ['3, 1, 2', '1, 2, 3', '1, 3, 2', '3, 2, 1'],
+            correctIndex: 1,
+            explanation: 'Chained .then() callbacks are ALL microtasks, so both "1" and "2" drain completely before the event loop ever looks at the macrotask queue where "3" (setTimeout) is waiting — even though setTimeout was called first.',
+          },
         ],
         interviewQuestions: [
           {
@@ -1235,6 +1518,45 @@ const intermediate = [
               hinglish:
                 'JS sync code call stack pe chalata hai. Async callbacks queue hote hain: microtasks (Promise callbacks, queueMicrotask) aur macrotasks (setTimeout, setInterval, I/O). Stack khaali hone par event loop SAARE microtasks nipta ta hai, phir EK macrotask, phir dobara microtasks, aur repeat. Isliye same time pe schedule Promise callbacks timers se pehle chalte hain.',
             },
+          },
+        ],
+      },
+      {
+        title: 'Promise Combinators: all, race, allSettled & any',
+        difficulty: 'hard',
+        tags: ['promises', 'async'],
+        explanation: {
+          english:
+            'When you have multiple promises, these static methods combine them. Promise.all() waits for ALL to succeed, and rejects immediately if ANY one fails. Promise.allSettled() waits for all to finish regardless of success/failure, giving you every result. Promise.race() settles as soon as the FIRST promise settles (win or lose). Promise.any() resolves as soon as the FIRST one succeeds, ignoring failures unless all fail.',
+          hinglish:
+            'Jab tumhare paas multiple promises hote hain, ye static methods unhe combine karte hain. Promise.all() SAARE ke succeed hone ka wait karta hai, aur agar KOI bhi ek fail ho to turant reject ho jaata hai. Promise.allSettled() sabke finish hone ka wait karta hai chahe success ho ya failure, har result deta hai. Promise.race() jaise hi PEHLA promise settle hota hai (jeete ya haare), wahi result deta hai. Promise.any() jaise hi PEHLA promise succeed hota hai resolve ho jaata hai, failures ignore karta hai jab tak sab fail na ho jaayein.',
+        },
+        dailyLifeExample:
+          "Promise.all = poori class ka result — ek bhi student fail hua to poora batch 'fail' maana jaata hai. allSettled = sabka result card, chahe pass ho ya fail. race = race jeetne wala pehla runner. any = jo bhi pehle college mein admission le le, baaki rejections maayne nahi rakhte.",
+        codeExample:
+          "const p1 = fetch('/api/a');\nconst p2 = fetch('/api/b');\nconst p3 = fetch('/api/c');\n\n// all fail together if even one rejects\nPromise.all([p1, p2, p3]).then(results => console.log('all ok', results));\n\n// get every result, success or failure\nPromise.allSettled([p1, p2, p3]).then(results => {\n  results.forEach(r => console.log(r.status)); // 'fulfilled' or 'rejected'\n});\n\n// first to finish wins\nPromise.race([p1, p2, p3]).then(first => console.log('fastest', first));\n\n// first SUCCESS wins\nPromise.any([p1, p2, p3]).then(firstSuccess => console.log(firstSuccess));",
+        keyPoints: [
+          'Promise.all: all must succeed, fails fast on any rejection',
+          'Promise.allSettled: waits for all, never rejects, gives every outcome',
+          'Promise.race: settles with whichever promise finishes FIRST (success or failure)',
+          'Promise.any: resolves with the first SUCCESS, ignores failures',
+          'Use allSettled when you want results even if some requests fail',
+        ],
+        quiz: [
+          {
+            question: 'If one promise in Promise.all() rejects, what happens?',
+            options: ['It waits for the rest anyway', 'It rejects immediately with that error', 'It ignores the failure', 'Nothing happens'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which combinator NEVER rejects, giving you every result?',
+            options: ['Promise.all', 'Promise.race', 'Promise.allSettled', 'Promise.any'],
+            correctIndex: 2,
+          },
+          {
+            question: 'Promise.any() resolves as soon as…',
+            options: ['The first promise settles, success or fail', 'The first promise SUCCEEDS', 'All promises succeed', 'All promises fail'],
+            correctIndex: 1,
           },
         ],
       },
@@ -1387,6 +1709,209 @@ const intermediate = [
       },
     ],
   },
+  {
+    title: 'Working with Data & the Browser',
+    level: 'intermediate',
+    description: 'JSON, storage, fetching data aur regular expressions.',
+    concepts: [
+      {
+        title: 'JSON: stringify & parse',
+        difficulty: 'easy',
+        tags: ['json', 'data'],
+        explanation: {
+          english:
+            'JSON (JavaScript Object Notation) is a text format for exchanging data between a browser and a server (or saving to a file). JSON.stringify() converts a JS object/array into a JSON string (to send or save). JSON.parse() converts a JSON string back into a real JS object/array. Almost every API you will ever call sends and receives JSON.',
+          hinglish:
+            'JSON (JavaScript Object Notation) ek text format hai jo browser aur server ke beech data bhejne (ya file mein save karne) ke liye use hota hai. JSON.stringify() JS object/array ko JSON string mein badal deta hai (bhejne/save karne ke liye). JSON.parse() JSON string ko wapas asli JS object/array banata hai. Almost har API jo tum call karoge JSON hi bhejta-leta hai.',
+        },
+        dailyLifeExample:
+          'JSON.stringify ek courier packing jaisa hai — tumhara saamaan (object) ek dabbe (string) mein pack karna taaki bheja ja sake. JSON.parse dabba khol ke saamaan wapas nikaalna hai jab wo pahunch jaaye.',
+        codeExample:
+          "const user = { name: 'Aman', age: 16, hobbies: ['cricket', 'coding'] };\n\nconst text = JSON.stringify(user);\n// '{\"name\":\"Aman\",\"age\":16,\"hobbies\":[\"cricket\",\"coding\"]}'\n\nconst back = JSON.parse(text);\nback.name;   // 'Aman' — a real object again\n\n// pretty-print for readability\nJSON.stringify(user, null, 2);",
+        keyPoints: [
+          'JSON.stringify: object/array → JSON string',
+          'JSON.parse: JSON string → object/array',
+          'JSON only supports simple data (no functions, no undefined)',
+          'Nearly every web API sends/receives JSON',
+          'JSON.stringify(obj, null, 2) pretty-prints with indentation',
+        ],
+        quiz: [
+          {
+            question: 'What does JSON.stringify({a:1}) return?',
+            options: ['{a:1}', '"{\\"a\\":1}"', 'an object', 'undefined'],
+            correctIndex: 1,
+          },
+          {
+            question: 'JSON.parse() converts a JSON string into…',
+            options: ['A number', 'A real JS object/array', 'HTML', 'A boolean'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which of these can JSON NOT store?',
+            options: ['Strings', 'Numbers', 'Functions', 'Arrays'],
+            correctIndex: 2,
+            explanation: 'JSON is data-only — functions, undefined, and symbols are dropped or throw.',
+          },
+        ],
+      },
+      {
+        title: 'LocalStorage & SessionStorage',
+        difficulty: 'medium',
+        tags: ['browser', 'storage'],
+        explanation: {
+          english:
+            'These let you save small amounts of data directly in the browser, so it survives page reloads. localStorage persists even after closing the browser (until cleared). sessionStorage is cleared when the tab closes. Both only store STRINGS, so use JSON.stringify/parse to save objects.',
+          hinglish:
+            'Ye browser mein hi thoda sa data save karne dete hain, taaki page reload hone pe bhi bacha rahe. localStorage browser band karne ke baad bhi rehta hai (jab tak clear na karo). sessionStorage tab band hote hi clear ho jaata hai. Dono sirf STRINGS store karte hain, isliye objects save karne ke liye JSON.stringify/parse use karo.',
+        },
+        dailyLifeExample:
+          'localStorage ek ghar ki almari jaisa hai — cheez rakhi rahegi chahe tum bahar jaake wapas aao. sessionStorage ek school bag jaisa hai — school se ghar aate hi khaali kar dete ho (tab band = data gaya).',
+        codeExample:
+          "// save (must be a string!)\nlocalStorage.setItem('theme', 'dark');\nlocalStorage.setItem('user', JSON.stringify({ name: 'Aman' }));\n\n// read\nlocalStorage.getItem('theme'); // 'dark'\nJSON.parse(localStorage.getItem('user')); // { name: 'Aman' }\n\n// remove\nlocalStorage.removeItem('theme');\nlocalStorage.clear(); // remove everything",
+        keyPoints: [
+          'localStorage: persists until explicitly cleared',
+          'sessionStorage: cleared when the browser tab closes',
+          'Both only store strings — JSON.stringify objects before saving',
+          'Data is per-origin (per website), not shared across sites',
+          'Never store passwords or sensitive data here (not encrypted)',
+        ],
+        quiz: [
+          {
+            question: 'Which storage survives closing and reopening the browser?',
+            options: ['sessionStorage', 'localStorage', 'Neither', 'Both equally'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What type of data can you directly store in localStorage?',
+            options: ['Only strings', 'Any JS value', 'Only numbers', 'Only objects'],
+            correctIndex: 0,
+          },
+          {
+            question: 'How do you save an object in localStorage?',
+            options: ['localStorage.setItem(key, obj)', 'localStorage.setItem(key, JSON.stringify(obj))', 'localStorage.save(obj)', 'You cannot'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Fetch API: Talking to a Server',
+        difficulty: 'medium',
+        tags: ['fetch', 'api', 'async'],
+        explanation: {
+          english:
+            'fetch() is the built-in way to make network requests — asking a server for data (GET) or sending it data (POST). It returns a Promise that resolves to a Response object; you usually call .json() on that (which returns ANOTHER Promise) to get the actual data. Always handle errors, since fetch does not reject on HTTP error status codes like 404.',
+          hinglish:
+            'fetch() network requests banane ka built-in tareeka hai — server se data maangna (GET) ya bhejna (POST). Ye ek Promise return karta hai jo Response object mein resolve hota hai; usually us pe .json() call karte ho (jo khud EK AUR Promise deta hai) actual data lene ke liye. Errors hamesha handle karo, kyunki fetch 404 jaise HTTP error status pe reject NAHI hota.',
+        },
+        dailyLifeExample:
+          "fetch() ek dukaan mein order dena jaisa hai — order do (request), packet aata hai (Response), packet khol ke andar ka saamaan dekhna (.json()). Agar dukaan band mile (404) to bhi packet aata hai — bas andar 'sorry, closed' likha hota hai, isliye status khud check karna padta hai.",
+        codeExample:
+          "async function getUsers() {\n  try {\n    const res = await fetch('https://api.example.com/users');\n    if (!res.ok) throw new Error(`HTTP ${res.status}`); // fetch does NOT throw on 404!\n    const data = await res.json();\n    console.log(data);\n  } catch (err) {\n    console.error('Failed:', err.message);\n  }\n}\n\n// sending data (POST)\nfetch('/api/users', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ name: 'Aman' }),\n});",
+        keyPoints: [
+          'fetch() returns a Promise resolving to a Response',
+          '.json() reads and parses the body — also returns a Promise, so await it too',
+          'fetch only rejects on network failure, NOT on 404/500 — check response.ok',
+          'POST requests need method, headers and a stringified body',
+          'Always wrap fetch in try/catch when using async/await',
+        ],
+        quiz: [
+          {
+            question: 'Does fetch() reject its Promise when the server responds with a 404?',
+            options: ['Yes, always', 'No — you must check response.ok yourself', 'Only in Node.js', 'Only for POST'],
+            correctIndex: 1,
+          },
+          {
+            question: 'How many times do you typically need to await when fetching JSON?',
+            options: ['Zero', 'Once (fetch only)', 'Twice (fetch, then .json())', 'Three times'],
+            correctIndex: 2,
+          },
+          {
+            question: 'Which option sends the request body for a POST?',
+            options: ['headers', 'body', 'method', 'params'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Timers: setTimeout & setInterval',
+        difficulty: 'easy',
+        tags: ['timers', 'async'],
+        explanation: {
+          english:
+            "setTimeout(fn, delay) runs a function ONCE after a delay (in milliseconds). setInterval(fn, delay) runs a function REPEATEDLY every delay, until you stop it with clearInterval. Both are asynchronous — they do not block the rest of the code, and the delay is a MINIMUM, not a guarantee (JS might be busy).",
+          hinglish:
+            'setTimeout(fn, delay) ek function ko EK BAAR delay (milliseconds mein) ke baad chalata hai. setInterval(fn, delay) function ko BAAR-BAAR har delay pe chalata hai, jab tak clearInterval se roka na jaaye. Dono asynchronous hain — baaki code ko rokte nahi, aur delay ek MINIMUM hai, guarantee nahi (JS busy ho sakta hai).',
+        },
+        dailyLifeExample:
+          'setTimeout ek alarm jaisa hai — set karo, ek baar bajega. setInterval school ki ghanti jaisi hai — har period ke baad baar-baar bajti hai, jab tak school (clearInterval) band na ho.',
+        codeExample:
+          "// runs once after 2 seconds\nconst id1 = setTimeout(() => console.log('2s passed'), 2000);\n// clearTimeout(id1); // cancel before it fires\n\n// runs every 1 second\nlet count = 0;\nconst id2 = setInterval(() => {\n  count++;\n  console.log('tick', count);\n  if (count === 5) clearInterval(id2); // stop after 5 ticks\n}, 1000);",
+        keyPoints: [
+          'setTimeout: runs once after a delay',
+          'setInterval: runs repeatedly until cleared',
+          'clearTimeout / clearInterval stop a pending timer using its id',
+          'Delay is a minimum wait, not an exact guarantee',
+          'Always clear intervals you no longer need — forgetting causes memory leaks',
+        ],
+        quiz: [
+          {
+            question: 'What does setInterval do differently from setTimeout?',
+            options: ['Nothing, they are identical', 'It repeats every interval instead of running once', 'It runs synchronously', 'It cannot be cancelled'],
+            correctIndex: 1,
+          },
+          {
+            question: 'How do you stop a running setInterval?',
+            options: ['clearTimeout(id)', 'clearInterval(id)', 'stopInterval(id)', 'You cannot stop it'],
+            correctIndex: 1,
+          },
+          {
+            question: 'The delay passed to setTimeout is…',
+            options: ['An exact guaranteed time', 'A minimum wait time', 'Always ignored', 'Only for setInterval'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Regular Expressions Basics',
+        difficulty: 'medium',
+        tags: ['regex', 'strings'],
+        explanation: {
+          english:
+            'A regular expression (regex) is a pattern used to match, search, or replace text — like a super-powered find. Common building blocks: \\d (digit), \\w (word character), + (one or more), * (zero or more), ? (optional). Use .test() to check a match (true/false) and .replace() with a regex to find-and-replace across a string.',
+          hinglish:
+            "Regular expression (regex) ek pattern hai jo text match, search, ya replace karne ke liye use hota hai — ek super-powered 'find' jaisa. Common building blocks: \\d (digit), \\w (word character), + (ek ya zyada), * (zero ya zyada), ? (optional). .test() se check karo match hua ya nahi (true/false), aur regex ke saath .replace() se poore string mein find-and-replace karo.",
+        },
+        dailyLifeExample:
+          "Regex ek security guard ka checklist jaisa hai — 'entry chahiye to 10-digit number, sirf digits' — jo bhi is pattern pe fit ho, entry milegi. Phone number validate karna isi tarah kaam karta hai.",
+        codeExample:
+          "const phonePattern = /^\\d{10}$/;       // exactly 10 digits\nphonePattern.test('9876543210'); // true\nphonePattern.test('98765');      // false\n\nconst emailPattern = /^[\\w.]+@[\\w]+\\.[a-z]+$/i;\nemailPattern.test('a@b.com'); // true\n\n'Hello World'.replace(/o/g, '0'); // 'Hell0 W0rld' (g = replace all)\n'Price: 250 rupees'.match(/\\d+/); // ['250']",
+        keyPoints: [
+          'A regex is a pattern for matching text',
+          '\\d = digit, \\w = word char, . = any char, + = 1 or more, * = 0 or more',
+          '.test() returns true/false; .match() returns the matches',
+          '/pattern/g replaces or matches ALL occurrences (not just the first)',
+          'Great for validating input: phone numbers, emails, pincodes',
+        ],
+        quiz: [
+          {
+            question: 'What does \\d match in a regular expression?',
+            options: ['Any letter', 'Any digit', 'A space', 'Any character'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does the g flag do in a regex like /o/g?',
+            options: ['Makes it case-insensitive', 'Matches/replaces ALL occurrences, not just the first', 'Makes it faster', 'Nothing'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which method returns true or false for a regex match?',
+            options: ['.match()', '.replace()', '.test()', '.search()'],
+            correctIndex: 2,
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 // ───────────────────────────── ADVANCED ─────────────────────────────
@@ -1423,9 +1948,15 @@ const advanced = [
             correctIndex: 1,
           },
           {
-            question: 'The prototype chain ends at…',
-            options: ['undefined', 'null', 'Object', 'the window'],
+            question: 'dog.eats is true (inherited from the animal prototype). Does "eats" show up in Object.keys(dog) or for...in with hasOwnProperty filtering?',
+            options: [
+              'Yes, both show it',
+              'Object.keys(dog) excludes it, and dog.hasOwnProperty("eats") is false — it only shows in a plain for...in loop',
+              'Neither ever shows it',
+              'It throws an error',
+            ],
             correctIndex: 1,
+            explanation: "Object.keys() and hasOwnProperty() only look at OWN properties, not inherited ones. A plain for...in loop walks the whole prototype chain, so it would list 'eats' too — this distinction trips up many beginners.",
           },
         ],
         interviewQuestions: [
@@ -1770,6 +2301,130 @@ const advanced = [
           {
             question: 'Which commonly causes a memory leak?',
             options: ['Clearing intervals', 'Forgotten timers/listeners', 'Using const', 'Pure functions'],
+            correctIndex: 1,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Symbols, Proxy & Design Patterns',
+    level: 'advanced',
+    description: 'Metaprogramming aur proven reusable solutions — symbols, Proxy/Reflect, patterns.',
+    concepts: [
+      {
+        title: 'Symbols',
+        difficulty: 'medium',
+        tags: ['symbols', 'es6'],
+        explanation: {
+          english:
+            "Symbol is a primitive type introduced in ES6 that creates a GUARANTEED unique value — even two symbols with the same description are never equal. They are mainly used as 'hidden' object keys that will not clash with regular string keys or show up in normal loops (for...in, Object.keys), useful for adding metadata without polluting an object's visible shape.",
+          hinglish:
+            "Symbol ES6 mein aaya ek primitive type hai jo ek GUARANTEED unique value banata hai — same description wale do symbols bhi kabhi equal nahi hote. Ye mainly 'hidden' object keys ke liye use hote hain jo normal string keys se clash nahi karte aur normal loops (for...in, Object.keys) mein nazar nahi aate — object ka visible shape bigaade bina metadata add karne ke liye useful.",
+        },
+        dailyLifeExample:
+          "Symbol ek secret locker number jaisa hai — chahe do lockers pe 'Locker A' likha ho, unke actual numbers alag hain aur kabhi match nahi karenge. Ye hidden ID rakhne ke liye perfect hai jo dikhta nahi par unique hai.",
+        codeExample:
+          "const id1 = Symbol('id');\nconst id2 = Symbol('id');\nid1 === id2; // false — always unique, even with same description\n\nconst user = {\n  name: 'Aman',\n  [id1]: 'secret-internal-value', // hidden key\n};\n\nObject.keys(user);        // ['name'] — symbol key is NOT listed\nJSON.stringify(user);     // '{\"name\":\"Aman\"}' — symbols are skipped",
+        keyPoints: [
+          'Symbol() always creates a brand-new unique value',
+          'Two symbols are never === equal, even with the same description',
+          'Symbol keys are hidden from Object.keys, for...in, and JSON.stringify',
+          'Used for adding non-clashing metadata to objects',
+          'Well-known symbols (like Symbol.iterator) power built-in JS behaviour',
+        ],
+        quiz: [
+          {
+            question: "Are Symbol('x') and Symbol('x') equal to each other?",
+            options: ['Yes, always', 'No, they are always different', 'Only if declared with const', 'Only in strict mode'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Does Object.keys() include Symbol keys?',
+            options: ['Yes, always', 'No, symbol keys are hidden from it', 'Only string symbols', 'Only in Node.js'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Symbols are mainly used for…',
+            options: ['Storing large numbers', 'Hidden, guaranteed-unique object keys', 'Making arrays faster', 'Replacing strings entirely'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Proxy & Reflect',
+        difficulty: 'hard',
+        tags: ['proxy', 'metaprogramming'],
+        explanation: {
+          english:
+            "A Proxy wraps an object and lets you intercept fundamental operations on it — reading a property, setting one, deleting one — by defining 'trap' functions like get and set. Reflect is a companion built-in object with methods that mirror those same operations, used inside traps to perform the 'default' behaviour. Together they power things like validation, logging, and reactive frameworks (Vue uses Proxy for reactivity).",
+          hinglish:
+            "Proxy ek object ko wrap karta hai aur uspe hone wale fundamental operations — property padhna, set karna, delete karna — ko intercept karne deta hai, get aur set jaise 'trap' functions define karke. Reflect ek companion built-in object hai jiske methods usi tarah ke operations mirror karte hain, traps ke andar 'default' behaviour perform karne ke liye use hote hain. Dono milke validation, logging, aur reactive frameworks (Vue Proxy use karta hai reactivity ke liye) jaisi cheezein power karte hain.",
+        },
+        dailyLifeExample:
+          'Proxy ek building ke security guard jaisa hai — koi bhi andar aane ya saamaan le jaane se pehle guard check karta hai (trap). Reflect guard ka standard rulebook hai jo batata hai normally kya hona chahiye tha agar guard na hota.',
+        codeExample:
+          "const target = { name: 'Aman', age: 16 };\n\nconst handler = {\n  get(obj, prop) {\n    console.log(`Reading '${prop}'`);\n    return Reflect.get(obj, prop); // default read behaviour\n  },\n  set(obj, prop, value) {\n    if (prop === 'age' && value < 0) {\n      throw new Error('Age cannot be negative');\n    }\n    return Reflect.set(obj, prop, value); // default write behaviour\n  },\n};\n\nconst user = new Proxy(target, handler);\nuser.name;        // logs 'Reading name', returns 'Aman'\nuser.age = -5;     // throws! validation trap fired",
+        keyPoints: [
+          'Proxy intercepts operations (get, set, delete...) on an object',
+          'Traps let you add validation, logging, or custom behaviour',
+          'Reflect provides the "default" version of each operation',
+          'Used inside frameworks (e.g. Vue 3 reactivity) and for validation libraries',
+          'Advanced tool — most apps use it indirectly via a framework, not directly',
+        ],
+        quiz: [
+          {
+            question: 'What does a Proxy let you do?',
+            options: ['Speed up arrays', 'Intercept operations like get/set on an object', 'Delete a variable', 'Convert types automatically'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is Reflect mainly used for?',
+            options: ['Making HTTP requests', 'Performing the default version of an operation inside a trap', 'Creating classes', 'Formatting strings'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which popular frontend framework uses Proxy for reactivity?',
+            options: ['jQuery', 'Vue 3', 'Bootstrap', 'Lodash'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Common Design Patterns: Singleton, Observer & Module',
+        difficulty: 'hard',
+        tags: ['patterns', 'architecture'],
+        explanation: {
+          english:
+            "Design patterns are proven, reusable solutions to common coding problems. Singleton ensures only ONE instance of something exists (e.g. a single database connection). Observer lets objects (subscribers) react whenever another object (the subject) changes — the foundation of events and React state updates. Module pattern groups related code together and hides internal details, exposing only what's needed (what ES modules formalised).",
+          hinglish:
+            'Design patterns common coding problems ke liye proven, reusable solutions hain. Singleton ensure karta hai ki kisi cheez ka sirf EK instance ho (jaise ek hi database connection). Observer objects (subscribers) ko react karne deta hai jab bhi doosra object (subject) badalta hai — events aur React state updates ka foundation. Module pattern related code ko group karta hai aur internal details chhupata hai, sirf zaroori cheez expose karta hai (jo ES modules ne formalize kiya).',
+        },
+        dailyLifeExample:
+          'Singleton ek school ka principal jaisa hai — ek hi hota hai, sab uski taraf refer karte hain. Observer YouTube subscription jaisa hai — channel (subject) naya video daale to sab subscribers (observers) ko notification milta hai. Module ek TV remote jaisa hai — andar ke circuits chhupe hain, bas buttons (public interface) use karte ho.',
+        codeExample:
+          "// Singleton\nclass Database {\n  static #instance;\n  static getInstance() {\n    if (!Database.#instance) Database.#instance = new Database();\n    return Database.#instance;\n  }\n}\nDatabase.getInstance() === Database.getInstance(); // true, same instance\n\n// Observer\nclass EventBus {\n  #listeners = [];\n  subscribe(fn) { this.#listeners.push(fn); }\n  emit(data) { this.#listeners.forEach(fn => fn(data)); }\n}\nconst bus = new EventBus();\nbus.subscribe(data => console.log('Got:', data));\nbus.emit('new video!'); // logs 'Got: new video!'\n\n// Module pattern (hides internal state)\nconst counter = (() => {\n  let count = 0; // private\n  return { increment: () => ++count, get: () => count };\n})();\ncounter.increment(); counter.get(); // 1",
+        keyPoints: [
+          'Singleton: guarantees exactly one instance exists',
+          'Observer: subscribers react automatically when the subject changes',
+          "Observer is how DOM events and React's state updates conceptually work",
+          'Module pattern: hides private details, exposes a clean public API',
+          'Patterns are proven solutions, not rules — use them when they genuinely fit',
+        ],
+        quiz: [
+          {
+            question: 'What problem does the Singleton pattern solve?',
+            options: ['Making code faster', 'Ensuring only one instance of something exists', 'Hiding all variables', 'Adding more classes'],
+            correctIndex: 1,
+          },
+          {
+            question: 'The Observer pattern is the foundation of…',
+            options: ['CSS styling', 'Events and reactive state updates', 'Database indexing', 'File compression'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does the Module pattern hide?',
+            options: ['The whole program', 'Internal/private implementation details', 'The public API', 'Nothing, it hides nothing'],
             correctIndex: 1,
           },
         ],
