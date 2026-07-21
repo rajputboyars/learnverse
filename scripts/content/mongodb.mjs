@@ -149,6 +149,45 @@ const beginner = [
         ],
       },
       {
+        title: 'Projections: Selecting Only the Fields You Need',
+        difficulty: 'easy',
+        tags: ['query', 'projection'],
+        explanation: {
+          english:
+            'By default, find() returns EVERY field of matching documents. A projection (the second argument to find) lets you choose which fields to include or exclude, reducing network traffic and making results easier to work with. Use { field: 1 } to include only that field, or { field: 0 } to exclude it — you generally cannot mix 1s and 0s in the same projection (except for _id, which you can always exclude with _id: 0).',
+          hinglish:
+            'By default, find() matching documents ke SAARE fields return karta hai. Projection (find ka second argument) tumhe choose karne deta hai kaunse fields include ya exclude karne hain, jisse network traffic kam hota hai aur results ke saath kaam karna aasaan ho jaata hai. { field: 1 } se sirf wo field include karo, ya { field: 0 } se exclude karo — ek hi projection mein generally 1 aur 0 mix nahi kar sakte (except _id, jise hamesha _id: 0 se exclude kar sakte ho).',
+        },
+        dailyLifeExample:
+          "Poore document ko fetch karna poori kitaab issue karwana hai. Projection librarian se bolna hai 'sirf chapter 3 aur 5 photocopy kar do' — baaki paperwork/network load bachta hai.",
+        codeExample:
+          '// return only name and age (plus _id, which is included by default)\ndb.users.find({}, { name: 1, age: 1 });\n\n// return everything EXCEPT the password field\ndb.users.find({}, { password: 0 });\n\n// exclude _id too\ndb.users.find({}, { name: 1, age: 1, _id: 0 });',
+        keyPoints: [
+          'The second argument to find() is the projection',
+          '{ field: 1 } includes only that field (plus _id by default)',
+          '{ field: 0 } excludes that field, includes everything else',
+          "You generally can't mix 1s and 0s, except _id: 0 is always allowed",
+          'Smaller responses = less network traffic and faster apps',
+        ],
+        quiz: [
+          {
+            question: 'What does db.users.find({}, { password: 0 }) do?',
+            options: ['Returns only the password field', 'Returns every field except password', 'Deletes the password field', 'Returns nothing'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which field can you always exclude even in an inclusion (1) projection?',
+            options: ['name', '_id', 'age', 'email'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why use projections instead of always fetching every field?',
+            options: ['MongoDB requires it', 'It reduces network traffic and makes results simpler to work with', 'It makes writes faster', 'It has no real benefit'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
         title: 'Query Operators',
         difficulty: 'medium',
         tags: ['query', 'operators'],
@@ -214,6 +253,45 @@ const beginner = [
           },
         ],
       },
+      {
+        title: 'More Update Operators: $pull, $addToSet & Upsert',
+        difficulty: 'medium',
+        tags: ['crud', 'update', 'operators'],
+        explanation: {
+          english:
+            "Beyond $push, MongoDB has more array operators: $pull removes all array elements matching a condition, and $addToSet adds a value ONLY if it is not already present (prevents duplicates, unlike $push). Separately, the upsert option (short for 'update or insert') creates a new document if no document matches the filter, instead of doing nothing — handy for 'create if missing, otherwise update' logic in one call.",
+          hinglish:
+            "$push ke alawa, MongoDB mein aur array operators hain: $pull condition match karne wale saare array elements remove karta hai, aur $addToSet value tabhi add karta hai jab wo pehle se na ho (duplicates rokta hai, $push ke ulat). Alag se, upsert option ('update or insert' ka short) agar filter se koi document match na kare to naya document create kar deta hai, kuch na karne ke bajaye — 'agar na ho to banao, warna update karo' logic ek hi call mein karne ke liye handy.",
+        },
+        dailyLifeExample:
+          "$pull ek to-do list se ek kaam cross karna hai. $addToSet ek guest list mein naam jodna hai — agar naam pehle se hai to dobara nahi jodta. Upsert ek 'agar record na ho to naya banao, warna update karo' waala smart form hai.",
+        codeExample:
+          "// $pull: remove all occurrences of 'urgent' from a tags array\ndb.tasks.updateOne({ _id: id }, { $pull: { tags: 'urgent' } });\n\n// $addToSet: add 'react' only if not already present (no duplicates)\ndb.users.updateOne({ _id: id }, { $addToSet: { skills: 'react' } });\n\n// upsert: create the document if it doesn't exist yet\ndb.counters.updateOne(\n  { name: 'pageViews' },\n  { $inc: { count: 1 } },\n  { upsert: true } // creates { name: 'pageViews', count: 1 } if missing\n);",
+        keyPoints: [
+          '$pull removes array elements matching a condition',
+          '$addToSet adds a value only if not already present (no duplicates)',
+          '$push (seen earlier) always adds, even if the value already exists',
+          'upsert: true creates a new document if the filter matches nothing',
+          'Upsert is great for "create or update" logic in a single call',
+        ],
+        quiz: [
+          {
+            question: 'What is the key difference between $push and $addToSet?',
+            options: ['No difference', '$push always adds; $addToSet only adds if the value is not already present', '$addToSet is for numbers only', '$push removes items'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does { upsert: true } do if no document matches the filter?',
+            options: ['Throws an error', 'Does nothing silently', 'Creates a new document instead of updating nothing', 'Deletes all documents'],
+            correctIndex: 2,
+          },
+          {
+            question: 'Which operator removes matching elements from an array field?',
+            options: ['$push', '$pull', '$set', '$inc'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
 ];
@@ -254,6 +332,17 @@ const intermediate = [
             question: 'Referencing stores a link using…',
             options: ['a string name', 'an ObjectId', 'a password', 'an index'],
             correctIndex: 1,
+          },
+          {
+            question: "You're modeling a blog post with potentially thousands of comments. Why is embedding ALL comments directly inside the post document risky?",
+            options: [
+              'Comments cannot be embedded at all',
+              "The document could approach or exceed MongoDB's 16MB per-document size limit as comments grow unbounded",
+              'Embedding is always slower to read',
+              'MongoDB does not allow arrays',
+            ],
+            correctIndex: 1,
+            explanation: 'A small, bounded array (a few line items) is fine to embed. But an unbounded, ever-growing array (thousands of comments) risks hitting the 16MB document limit and slowing down every read/write of that document — reference comments in their own collection instead.',
           },
         ],
         interviewQuestions: [
@@ -389,6 +478,45 @@ const intermediate = [
           },
         ],
       },
+      {
+        title: 'Mongoose Middleware (Hooks) & Virtuals',
+        difficulty: 'medium',
+        tags: ['mongoose', 'hooks', 'virtuals'],
+        explanation: {
+          english:
+            "Mongoose middleware (hooks) let you run code automatically before or after an operation on a document — schema.pre('save', fn) runs before saving (perfect for hashing a password), and schema.post('save', fn) runs after. A virtual is a field that is computed on the fly and is NOT stored in the database — like a fullName built from firstName + lastName — keeping your stored data small while still exposing convenient derived values.",
+          hinglish:
+            "Mongoose middleware (hooks) ek document pe operation se pehle ya baad mein code apne aap chalane dete hain — schema.pre('save', fn) save hone se pehle chalta hai (password hash karne ke liye perfect), aur schema.post('save', fn) baad mein. Virtual ek field hai jo on-the-fly compute hota hai aur database mein STORE NAHI hota — jaise firstName + lastName se bana fullName — stored data chhota rakhte hue convenient derived values dete hain.",
+        },
+        dailyLifeExample:
+          "pre('save') ek security check jaisa hai jo entry (save) hone se pehle hota hai — jaise password ko lock (hash) karna gate se andar jaane se pehle. Virtual ek calculator display jaisa hai — result dikhta hai par kahin store nahi hota, har baar fresh calculate hota hai.",
+        codeExample:
+          "const bcrypt = require('bcrypt');\nconst userSchema = new mongoose.Schema({\n  firstName: String,\n  lastName: String,\n  password: String,\n});\n\n// hook: hash the password automatically before saving\nuserSchema.pre('save', async function (next) {\n  if (this.isModified('password')) {\n    this.password = await bcrypt.hash(this.password, 10);\n  }\n  next();\n});\n\n// virtual: computed, never stored in the database\nuserSchema.virtual('fullName').get(function () {\n  return `${this.firstName} ${this.lastName}`;\n});\n\nconst user = new User({ firstName: 'Aman', lastName: 'Kumar', password: 'secret' });\nawait user.save(); // password is now hashed automatically\nconsole.log(user.fullName); // 'Aman Kumar' — never stored, always fresh",
+        keyPoints: [
+          "pre('save')/post('save') hooks run code automatically around an operation",
+          'A very common use: hashing a password inside a pre-save hook',
+          'A virtual is computed on read, never stored in the database',
+          'Virtuals keep documents small while still exposing derived data',
+          'Hooks exist for many operations: save, validate, remove, updateOne, and more',
+        ],
+        quiz: [
+          {
+            question: "Where is a Mongoose virtual field's value stored?",
+            options: ['In the MongoDB document, like any other field', 'Nowhere — it is computed fresh every time it is accessed', 'In a separate collection', 'In a cache file'],
+            correctIndex: 1,
+          },
+          {
+            question: "What is a common real-world use of a pre('save') hook?",
+            options: ['Deleting the database', 'Automatically hashing a password before it is saved', 'Making queries faster', 'Creating indexes'],
+            correctIndex: 1,
+          },
+          {
+            question: "When does a post('save') hook run?",
+            options: ['Before the document is saved', 'After the document has been saved', 'Only on delete', 'Never automatically'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
 ];
@@ -428,6 +556,55 @@ const advanced = [
           {
             question: 'The aggregation pipeline processes data through…',
             options: ['a single step', 'ordered stages', 'random order', 'the client'],
+            correctIndex: 1,
+          },
+          {
+            question: 'In a pipeline with both $match and $group, why is it usually better to put $match FIRST?',
+            options: [
+              'Order does not matter to MongoDB',
+              '$match early filters out documents immediately, so later stages (like $group) process far fewer documents — much better performance',
+              '$group must always come first by rule',
+              '$match only works at the very end of a pipeline',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Transactions: Multi-Document ACID Operations',
+        difficulty: 'hard',
+        tags: ['transactions', 'acid'],
+        explanation: {
+          english:
+            'A single document write in MongoDB is always atomic — it either fully succeeds or fully fails. But some operations must change MULTIPLE documents together as one all-or-nothing unit — like transferring money: debit one account AND credit another, where a crash halfway would leave the data in an inconsistent state. Since MongoDB 4.0, multi-document transactions let you group several operations so they all commit together or all roll back together, exactly like transactions in a SQL database.',
+          hinglish:
+            'MongoDB mein ek single document write hamesha atomic hota hai — ya to poora succeed karta hai ya poora fail. Par kuch operations ko MULTIPLE documents ek saath, ek all-or-nothing unit ki tarah change karna hota hai — jaise paise transfer karna: ek account se debit AUR doosre mein credit, jaha beech mein crash hone se data inconsistent state mein reh jaata. MongoDB 4.0 se, multi-document transactions kai operations ko group karne dete hain taaki sab ek saath commit ho ya sab ek saath rollback ho, bilkul SQL database ki transactions ki tarah.',
+        },
+        dailyLifeExample:
+          "Bank transfer socho: ₹500 tumhare account se katna aur dost ke account mein jodna do alag operations hain. Agar beech mein bijli chali jaaye aur sirf pehla ho, to paisa gayab ho jaata hai! Transaction ek promise hai — 'ya to dono ho, ya koi nahi' — bijli jaaye to bhi partial change nahi rehta.",
+        codeExample:
+          "const session = await mongoose.startSession();\nsession.startTransaction();\ntry {\n  await Account.updateOne(\n    { _id: fromId }, { $inc: { balance: -500 } }, { session }\n  );\n  await Account.updateOne(\n    { _id: toId }, { $inc: { balance: 500 } }, { session }\n  );\n  await session.commitTransaction(); // both changes become permanent together\n} catch (err) {\n  await session.abortTransaction(); // BOTH changes are undone, as if neither happened\n  throw err;\n} finally {\n  session.endSession();\n}",
+        keyPoints: [
+          'A single-document write is always atomic in MongoDB, by default',
+          'Transactions let MULTIPLE documents change together as one all-or-nothing unit',
+          'commitTransaction() makes all the changes permanent together',
+          'abortTransaction() rolls back ALL the changes, as if none happened',
+          'Classic use case: money transfers, or any operation spanning 2+ documents that must stay consistent',
+        ],
+        quiz: [
+          {
+            question: 'Why would a money transfer between two accounts need a transaction instead of two separate updates?',
+            options: ['It makes the app run faster', 'Without a transaction, a crash between the two updates could leave money debited from one account but never credited to the other', 'Transactions are required by MongoDB for any update', 'There is no real reason'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does abortTransaction() do?',
+            options: ['Commits only the first change', 'Rolls back ALL changes made in that transaction, as if none happened', 'Deletes the database', 'Pauses the transaction for later'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Is a single-document write already atomic in MongoDB without using transactions?',
+            options: ['No, never', 'Yes — single-document writes are atomic by default; transactions are for MULTI-document consistency', 'Only with Mongoose', 'Only in MongoDB Atlas'],
             correctIndex: 1,
           },
         ],
