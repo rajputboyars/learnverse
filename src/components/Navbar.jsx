@@ -128,7 +128,7 @@ export default function Navbar() {
               sub={(c) => c.difficulty}
               subClass="capitalize"
               footerHref="/courses"
-              footerLabel={`${t('home.courses.viewAll')} →`}
+              footerLabel={t('home.courses.viewAll')}
             />
           </NavDropdown>
 
@@ -271,9 +271,9 @@ function NavDropdown({ href, label, children }) {
       </Link>
 
       {/* Full-width panel, aligned to the sub-header row */}
-      <div className="invisible absolute inset-x-0 top-full z-40 opacity-0 transition-opacity duration-150 group-hover:visible group-hover:opacity-100">
-        <div className="border-t border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900">
-          <div className="px-1 py-3">
+      <div className="invisible absolute inset-x-0 top-full z-40 translate-y-1 opacity-0 transition-all duration-150 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+        <div className="overflow-hidden rounded-b-2xl border-t border-slate-200 bg-white shadow-2xl ring-1 ring-black/5 dark:border-slate-700 dark:bg-slate-900 dark:ring-white/10">
+          <div className="px-4 py-5 sm:px-6 lg:px-8">
             {children}
           </div>
         </div>
@@ -291,29 +291,31 @@ function DropdownGrid({
   return (
     <>
       {empty ? (
-        <p className="px-3 py-3 text-sm text-slate-400">{emptyLabel}</p>
+        <p className="px-2 py-6 text-center text-sm text-slate-400">{emptyLabel}</p>
       ) : (
-        <div className="grid max-h-[65vh] grid-cols-2 gap-0.5 overflow-y-auto sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+        <div className="grid max-h-[70vh] grid-cols-2 gap-1 overflow-y-auto sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {items.map((it) => (
             <Link
               key={keyFor(it)}
               href={hrefFor(it)}
-              className="flex items-start gap-2.5 rounded-lg px-3 py-2 hover:bg-indigo-50 dark:hover:bg-slate-800"
+              className="group/item flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-indigo-50 dark:hover:bg-slate-800"
             >
-              <span className="text-lg leading-none">{icon(it)}</span>
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-slate-100 text-lg leading-none ring-1 ring-slate-200/70 transition-colors group-hover/item:bg-white group-hover/item:ring-indigo-200 dark:bg-slate-800 dark:ring-slate-700 dark:group-hover/item:bg-slate-900">
+                {icon(it)}
+              </span>
               <span className="min-w-0">
-                <span className="block truncate text-sm font-medium text-slate-800 dark:text-slate-100">
+                <span className="block truncate text-sm font-semibold text-slate-800 transition-colors group-hover/item:text-indigo-700 dark:text-slate-100 dark:group-hover/item:text-indigo-300">
                   {title(it)}
                 </span>
-                <span className={`block text-xs text-slate-400 ${subClass}`}>{sub(it)}</span>
+                <span className={`block truncate text-xs text-slate-400 ${subClass}`}>{sub(it)}</span>
               </span>
             </Link>
           ))}
         </div>
       )}
       {footerHref && (
-        <div className="mt-2 border-t border-slate-100 px-3 pt-2.5 dark:border-slate-800">
-          <Link href={footerHref} className="text-sm font-medium text-indigo-600 hover:underline">
+        <div className="mt-3 border-t border-slate-100 pt-3 dark:border-slate-800">
+          <Link href={footerHref} className="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400">
             {footerLabel}
           </Link>
         </div>
