@@ -218,6 +218,84 @@ const intermediate = [
         ],
       },
       {
+        title: 'CORS Explained: The Same-Origin Problem',
+        difficulty: 'medium',
+        tags: ['cors', 'security'],
+        explanation: {
+          english:
+            "Browsers enforce the Same-Origin Policy: JavaScript running on one origin (e.g. https://myapp.com) cannot read responses from a different origin (e.g. https://api.myapp.com) by default — this is a security feature, not a bug. CORS (Cross-Origin Resource Sharing) is how a SERVER opts into allowing specific other origins, by sending Access-Control-Allow-Origin headers. The cors package adds these headers for you. For non-simple requests (like PUT with custom headers), the browser first sends an invisible OPTIONS 'preflight' request to check permission before the real one.",
+          hinglish:
+            "Browsers Same-Origin Policy enforce karte hain: ek origin pe chal rahi JavaScript (jaise https://myapp.com) doosre origin (jaise https://api.myapp.com) se responses default mein PADH nahi sakti — ye ek security feature hai, bug nahi. CORS (Cross-Origin Resource Sharing) wo tarika hai jisse ek SERVER specific doosre origins ko allow karne ka opt-in karta hai, Access-Control-Allow-Origin headers bhej ke. cors package tumhare liye ye headers add kar deta hai. Non-simple requests ke liye (jaise custom headers wala PUT), browser pehle ek invisible OPTIONS 'preflight' request bhejta hai permission check karne ke liye, asli request se pehle.",
+        },
+        dailyLifeExample:
+          "Same-Origin Policy ek building ki security jaisi hai — koi bhi bahar wala (doosra origin) andar seedha nahi aa sakta bina permission ke. CORS headers ek guest-list jaisi hain jo security guard ko batati hai 'ye specific building (origin) se aane walon ko andar aane do'. Preflight request ek 'kya main aa sakta hoon?' phone call hai jo asli visit se pehle hoti hai.",
+        codeExample:
+          "// WITHOUT cors middleware: the browser blocks the response with a CORS error\n// (the server actually responded fine — the BROWSER refuses to hand it to JS)\n\nconst cors = require('cors');\n\n// allow all origins (fine for public APIs)\napp.use(cors());\n\n// allow only a specific origin (typical for production)\napp.use(cors({ origin: 'https://myapp.com' }));\n\n// The browser automatically sends an OPTIONS preflight for things like:\napp.put('/users/:id', cors(), updateUserHandler);",
+        keyPoints: [
+          'CORS errors happen in the BROWSER, blocking JS from reading a response — the server request often still succeeds',
+          'The Same-Origin Policy is a security feature that CORS lets servers selectively relax',
+          'Access-Control-Allow-Origin header tells the browser which origins may read the response',
+          'The cors npm package adds these headers automatically',
+          'Preflight (OPTIONS) requests happen automatically for "non-simple" requests before the real one',
+        ],
+        quiz: [
+          {
+            question: 'Where does a CORS error actually occur?',
+            options: ['On the server, which refuses the request', 'In the browser, which blocks JavaScript from reading an otherwise successful response', 'In the database', 'It is a DNS error'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the purpose of the Same-Origin Policy that CORS relaxes?',
+            options: ['To make websites load faster', "A browser security feature that stops one origin's JS from freely reading another origin's responses", 'To compress data', 'It has no real purpose'],
+            correctIndex: 1,
+          },
+          {
+            question: "What is a CORS 'preflight' request?",
+            options: ['The very first request a browser ever makes', 'An automatic OPTIONS request the browser sends first to check permission, before certain real requests', 'A request that fails on purpose', 'A caching mechanism'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Validating Input with express-validator',
+        difficulty: 'medium',
+        tags: ['validation', 'security'],
+        explanation: {
+          english:
+            "Never trust req.body — a client can send anything, malicious or malformed. express-validator lets you declare validation/sanitization rules as middleware: check('email').isEmail(), body('age').isInt({ min: 0 }), and so on. Run validationResult(req) in your handler to collect any errors and respond with 400 Bad Request before touching your database or business logic.",
+          hinglish:
+            "req.body pe kabhi bharosa mat karo — client kuch bhi bhej sakta hai, malicious ya malformed. express-validator validation/sanitization rules ko middleware ki tarah declare karne deta hai: check('email').isEmail(), body('age').isInt({ min: 0 }), waghera. Apne handler mein validationResult(req) chalao errors collect karne ke liye aur database ya business logic chhoone se pehle 400 Bad Request respond karo.",
+        },
+        dailyLifeExample:
+          'express-validator ek form-checking clerk jaisa hai jo application form (req.body) ko andar bhejne se pehle check karta hai — sab fields sahi bhare hain? Email sahi format mein hai? Agar nahi, to seedha wapas kar deta hai, aage nahi jaane deta.',
+        codeExample:
+          "const { body, validationResult } = require('express-validator');\n\napp.post(\n  '/signup',\n  [\n    body('email').isEmail().withMessage('Invalid email'),\n    body('password').isLength({ min: 8 }).withMessage('Password too short'),\n    body('age').isInt({ min: 13 }).withMessage('Must be 13 or older'),\n  ],\n  (req, res) => {\n    const errors = validationResult(req);\n    if (!errors.isEmpty()) {\n      return res.status(400).json({ errors: errors.array() });\n    }\n    // input is now safe to use\n    createUser(req.body);\n    res.status(201).json({ message: 'User created' });\n  }\n);",
+        keyPoints: [
+          'Never trust req.body directly — always validate untrusted input',
+          'Validation rules (check/body().isX()) run as middleware before the handler',
+          'validationResult(req) collects any failures',
+          'Respond with 400 Bad Request and stop BEFORE touching the database',
+          'Client-side validation is for UX; server-side validation is the real security boundary',
+        ],
+        quiz: [
+          {
+            question: 'Why should you validate on the server even if the client already validates the form?',
+            options: ['Server validation is optional if the client validates', 'A client can bypass browser validation entirely (dev tools, direct API calls) — server validation is the real security boundary', 'It makes the app slower on purpose', 'There is no reason'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does validationResult(req) return?',
+            options: ['The parsed request body', 'Any validation errors that occurred', 'A database connection', 'The response object'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What status code should you return when validation fails?',
+            options: ['200 OK', '400 Bad Request', '500 Server Error', '201 Created'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
         title: 'Modular Routes (Router)',
         difficulty: 'medium',
         tags: ['router', 'structure'],
@@ -281,6 +359,16 @@ const intermediate = [
             options: ['200', '201', '404', '500'],
             correctIndex: 1,
           },
+          {
+            question: 'PUT is supposed to be idempotent (calling it 5 times with the same data has the same effect as calling it once). Is POST /todos idempotent in the same way?',
+            options: [
+              'Yes, identical to PUT',
+              'No — calling POST /todos 5 times typically creates 5 separate new todos, since POST means "create a new resource"',
+              'POST and PUT are always identical',
+              'Idempotency does not apply to REST APIs',
+            ],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -335,6 +423,56 @@ const advanced = [
           {
             question: 'Error-handling middleware should be defined…',
             options: ['First', 'After all routes', 'Anywhere', 'In a separate server'],
+            correctIndex: 1,
+          },
+          {
+            question: 'In Express 4, does throwing an error inside an ASYNC route handler automatically reach your error-handling middleware?',
+            options: [
+              'Yes, always automatically',
+              'No — only synchronous throws are caught automatically; async errors need you to catch them and call next(err) yourself (or use a wrapper)',
+              'Only if you use res.json()',
+              'Only in development mode',
+            ],
+            correctIndex: 1,
+            explanation: 'Express 4 only automatically catches errors thrown SYNCHRONOUSLY inside a handler. A rejected Promise (including a thrown error inside an async function) is NOT automatically forwarded — see "Async Error Handling in Route Handlers" for the fix. Express 5 finally handles this automatically.',
+          },
+        ],
+      },
+      {
+        title: 'Async Error Handling in Route Handlers',
+        difficulty: 'hard',
+        tags: ['errors', 'async'],
+        explanation: {
+          english:
+            'In Express 4, if an async route handler throws (e.g. an awaited database call rejects), Express does NOT catch it automatically — the request hangs or the process can crash with an unhandled rejection. The classic fix: wrap every async handler in a try/catch that calls next(err), or use a small wrapper function that does this automatically so you do not repeat try/catch everywhere. (Express 5 finally catches these automatically, but understanding the wrapper pattern is still essential for Express 4 codebases, which are still very common.)',
+          hinglish:
+            'Express 4 mein, agar async route handler throw kare (jaise ek awaited database call reject ho jaaye), to Express use apne aap CATCH nahi karta — request hang ho jaati hai ya process unhandled rejection se crash ho sakta hai. Classic fix: har async handler ko try/catch mein wrap karo jo next(err) call kare, ya ek chhota wrapper function use karo jo ye apne aap kare taaki har jagah try/catch repeat na karna pade. (Express 5 aakhirkar inhe apne aap catch karta hai, par wrapper pattern samajhna abhi bhi zaroori hai Express 4 codebases ke liye, jo abhi bhi bahut common hain.)',
+        },
+        dailyLifeExample:
+          'Ek async route handler bina try/catch ke ek bina net ke trapeze artist jaisa hai — agar gira (error aaya) to koi pakadne wala nahi, seedha neeche (crash/hang). asyncHandler wrapper ek safety net hai jo har baar automatically laga rehta hai.',
+        codeExample:
+          "// repetitive: try/catch in every handler\napp.get('/users/:id', async (req, res, next) => {\n  try {\n    const user = await User.findById(req.params.id);\n    if (!user) return res.status(404).json({ error: 'Not found' });\n    res.json(user);\n  } catch (err) {\n    next(err); // forward to error-handling middleware\n  }\n});\n\n// better: a reusable wrapper\nconst asyncHandler = (fn) => (req, res, next) => fn(req, res, next).catch(next);\n\napp.get('/users/:id', asyncHandler(async (req, res) => {\n  const user = await User.findById(req.params.id);\n  if (!user) return res.status(404).json({ error: 'Not found' });\n  res.json(user); // any thrown/rejected error is auto-forwarded to next()\n}));",
+        keyPoints: [
+          'Express 4 does NOT automatically catch errors thrown inside async handlers',
+          'An uncaught rejection in an async handler can hang the request or crash the process',
+          'Fix: wrap in try/catch and call next(err), or use a reusable asyncHandler wrapper',
+          'The wrapper avoids repeating the same try/catch boilerplate in every route',
+          'Express 5 catches these automatically, but the pattern still matters for Express 4 apps',
+        ],
+        quiz: [
+          {
+            question: "In Express 4, what happens if an async route handler's awaited call rejects and there is no try/catch?",
+            options: ['Express automatically sends a 500 error', 'Express does NOT catch it automatically — it can hang the request or crash the process', 'The route silently returns an empty response', 'Nothing bad happens'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does an asyncHandler wrapper function do?',
+            options: ['Speeds up the database call', 'Automatically catches errors from the async function and forwards them to next()', 'Deletes the request', 'Replaces middleware entirely'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why forward an error with next(err) instead of just letting it throw?',
+            options: ['next(err) is required by JavaScript syntax', 'It routes the error to your centralized error-handling middleware instead of crashing unpredictably', 'It has no real purpose', 'It skips validation'],
             correctIndex: 1,
           },
         ],
@@ -414,6 +552,45 @@ const advanced = [
           {
             question: 'You should validate input…',
             options: ['Only on the client', 'Always on the server (even if client does)', 'Never', 'Only for GET'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'File Uploads with Multer',
+        difficulty: 'medium',
+        tags: ['multer', 'files'],
+        explanation: {
+          english:
+            'Regular express.json() cannot parse file uploads — files arrive as multipart/form-data, a different encoding. Multer is the standard Express middleware for handling this: it parses the multipart body, saves uploaded files (to disk or memory), and attaches file info to req.file (single) or req.files (multiple), while regular text fields still land in req.body.',
+          hinglish:
+            'Normal express.json() file uploads parse nahi kar sakta — files multipart/form-data ki tarah aati hain, ek alag encoding. Multer Express ka standard middleware hai isse handle karne ke liye: ye multipart body parse karta hai, uploaded files save karta hai (disk ya memory mein), aur file info ko req.file (single) ya req.files (multiple) se attach karta hai, jabki normal text fields req.body mein aate hain.',
+        },
+        dailyLifeExample:
+          'Multer ek courier office jaisa hai jo alag-alag tarah ke parcels (files) receive karta hai, unhe sort karke sahi shelf (disk/storage) pe rakhta hai, aur ek receipt (req.file) deta hai jisme parcel ka naam-size-location likha hota hai.',
+        codeExample:
+          "const multer = require('multer');\nconst upload = multer({ dest: 'uploads/' }); // saves to an 'uploads' folder\n\n// single file upload from a form field named 'avatar'\napp.post('/profile', upload.single('avatar'), (req, res) => {\n  console.log(req.file);   // { filename, path, size, mimetype, ... }\n  console.log(req.body);   // other text fields, e.g. { name: 'Aman' }\n  res.json({ message: 'Uploaded', file: req.file.filename });\n});\n\n// multiple files from a field named 'photos'\napp.post('/gallery', upload.array('photos', 5), (req, res) => {\n  res.json({ count: req.files.length });\n});",
+        keyPoints: [
+          'File uploads use multipart/form-data, which express.json() cannot parse',
+          'Multer is the standard middleware for handling file uploads in Express',
+          'upload.single(field) for one file -> req.file',
+          'upload.array(field, max) for multiple files -> req.files',
+          'Regular text fields in the same form still appear in req.body',
+        ],
+        quiz: [
+          {
+            question: "Why can't express.json() handle a file upload form?",
+            options: ['express.json() is deprecated', 'File uploads use multipart/form-data encoding, which express.json() does not parse', 'Files are too large for any middleware', 'There is no real reason'],
+            correctIndex: 1,
+          },
+          {
+            question: "After upload.single('avatar'), where do you find info about the uploaded file?",
+            options: ['req.body.avatar', 'req.file', 'req.query.file', 'res.file'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which Multer method handles MULTIPLE files from one field?',
+            options: ['upload.single()', 'upload.array()', 'upload.none()', 'upload.fields.one()'],
             correctIndex: 1,
           },
         ],
