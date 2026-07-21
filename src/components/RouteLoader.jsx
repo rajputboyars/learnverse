@@ -8,29 +8,59 @@ export default function RouteLoader() {
   const [visible, setVisible] = useState(false);
   const prevPath = useRef(pathname);
   const showTimer = useRef(null);
+  const failsafeTimer = useRef(null);
 
-  // Start loader 120ms after any internal link click (skips fast/prefetched navigations)
+  // Start loader 120ms after an internal link click that will actually
+  // navigate (skips fast/prefetched navigations).
   useEffect(() => {
     function onLinkClick(e) {
+      // Only a primary, unmodified click triggers an in-app navigation.
+      // Modified/middle clicks, new-tab links and already-handled clicks either
+      // open a new tab or do nothing — showing the loader for them leaves it
+      // stuck because the pathname never changes.
+      if (
+        e.defaultPrevented ||
+        e.button !== 0 ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.shiftKey ||
+        e.altKey
+      ) {
+        return;
+      }
       const a = e.target.closest('a[href]');
       if (!a) return;
+      if (a.target && a.target !== '_self') return; // opens a new tab/window
       const href = a.getAttribute('href') || '';
       if (!href.startsWith('/') || href.startsWith('//')) return;
+      // Same-page link → no navigation will happen, so there is nothing to wait
+      // for (this was the main cause of the badge getting stuck on screen).
+      const dest = href.split('#')[0].split('?')[0] || '/';
+      if (dest === window.location.pathname) return;
+
       clearTimeout(showTimer.current);
-      showTimer.current = setTimeout(() => setVisible(true), 120);
+      showTimer.current = setTimeout(() => {
+        setVisible(true);
+        // Safety net: never let the badge linger if a navigation stalls or is
+        // aborted before the pathname changes.
+        clearTimeout(failsafeTimer.current);
+        failsafeTimer.current = setTimeout(() => setVisible(false), 10000);
+      }, 120);
     }
     document.addEventListener('click', onLinkClick);
     return () => {
       document.removeEventListener('click', onLinkClick);
       clearTimeout(showTimer.current);
+      clearTimeout(failsafeTimer.current);
     };
   }, []);
 
-  // Hide when navigation completes
+  // Hide when navigation completes (pathname changes).
   useEffect(() => {
     if (prevPath.current === pathname) return;
     prevPath.current = pathname;
     clearTimeout(showTimer.current);
+    clearTimeout(failsafeTimer.current);
     setVisible(false);
   }, [pathname]);
 
