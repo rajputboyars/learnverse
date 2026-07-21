@@ -393,6 +393,11 @@ const beginner = [
         ],
         quiz: [
           { question: 'Where should you stop an invalid form from actually submitting?', options: ['In CSS', 'In the onSubmit handler before the API call', 'In useEffect', 'You cannot'], correctIndex: 1 },
+          {
+            question: "Why should you only show a validation error for a field the user has already 'touched' (interacted with)?",
+            options: ['To make the code shorter', 'So errors do not flash on every field the moment the form loads, before the user has typed anything', 'React requires it', 'It has no real reason'],
+            correctIndex: 1,
+          },
         ],
       },
     ],
@@ -428,6 +433,17 @@ const intermediate = [
         quiz: [
           { question: 'An empty dependency array [] means the effect runs…', options: ['Every render', 'Once on mount', 'Never', 'On unmount only'], correctIndex: 1 },
           { question: 'Can the function passed to useEffect itself be async?', options: ['Yes, always', 'No — call an async function from inside it', 'Only with await', 'Only in class components'], correctIndex: 1 },
+          {
+            question: 'useEffect(() => { console.log(count); }, []) — count never updates in the log, even after count changes. Why?',
+            options: [
+              'console.log is broken',
+              "The effect ran once with count's initial value baked in (a stale closure) — an empty array means it never re-runs to see the new count",
+              'useEffect cannot read state at all',
+              'This is a React bug',
+            ],
+            correctIndex: 1,
+            explanation: 'With [], the effect function closes over the value of count from that very first render only, and never runs again to "see" newer values. This is called a stale closure — the fix is to add count to the dependency array.',
+          },
         ],
         interviewQuestions: [
           {
@@ -440,6 +456,84 @@ const intermediate = [
               hinglish:
                 'Dependency array React ko batati hai effect kin values pe depend karta hai, taaki wo tabhi dobara chale jab wo badlein. Koi dependency miss karne par stale closures (effect purani values use karta hai); unstable dependencies dena (jaise har render pe naya function/object) infinite loops ya zyada runs deta hai. Fix: sahi deps, stable references ke liye useCallback/useMemo, ya functional state updates.',
             },
+          },
+        ],
+      },
+      {
+        title: 'Fetching Data: Loading, Error & Race Conditions',
+        difficulty: 'medium',
+        tags: ['hooks', 'data-fetching'],
+        explanation: {
+          english:
+            "A robust data-fetching component tracks THREE states: loading (request in flight), error (it failed), and data (success). Show a spinner while loading, an error message on failure, and the content once data arrives. A subtler bug: if userId changes quickly (e.g. switching profiles fast), an OLD request can resolve AFTER a newer one, overwriting fresh data with stale data — a race condition. Fix it with a cleanup flag or AbortController that cancels the outdated request.",
+          hinglish:
+            'Ek robust data-fetching component TEEN states track karta hai: loading (request chal rahi hai), error (fail ho gaya), aur data (success). Loading mein spinner dikhao, fail hone pe error message, aur data aane pe content. Ek subtle bug: agar userId jaldi-jaldi badle (jaise profiles fast switch karna), to ek PURANI request ek NAYI ke BAAD resolve ho sakti hai, fresh data ko stale data se overwrite kar deti hai — ise race condition kehte hain. Fix: cleanup flag ya AbortController jo purani request cancel kar de.',
+        },
+        dailyLifeExample:
+          'Race condition do runners jaisa hai jo alag time pe race shuru karte hain — agar dheere wala (purani request) tez wale (nayi request) ke baad finish line pe pahunche aur uska result board pe likh de, to galat result dikhega. AbortController ek referee jaisa hai jo purane runner ko beech mein hi rok deta hai.',
+        codeExample:
+          "function UserProfile({ userId }) {\n  const [state, setState] = useState({ status: 'idle', data: null, error: null });\n\n  useEffect(() => {\n    const controller = new AbortController();\n    setState({ status: 'loading', data: null, error: null });\n\n    fetch(`/api/users/${userId}`, { signal: controller.signal })\n      .then((res) => res.json())\n      .then((data) => setState({ status: 'success', data, error: null }))\n      .catch((err) => {\n        if (err.name !== 'AbortError') setState({ status: 'error', data: null, error: err.message });\n      });\n\n    return () => controller.abort(); // cancel if userId changes before this finishes\n  }, [userId]);\n\n  if (state.status === 'loading') return <p>Loading…</p>;\n  if (state.status === 'error') return <p>Error: {state.error}</p>;\n  return <p>{state.data?.name}</p>;\n}",
+        keyPoints: [
+          'Track loading, error, and data/success as distinct UI states',
+          'Show a spinner, error message, or content based on the current state',
+          'A race condition: an older, slower request resolving AFTER a newer one, overwriting fresh data',
+          'AbortController.abort() in the cleanup function cancels the stale request',
+          'Frameworks like React Query/SWR handle all of this for you automatically',
+        ],
+        quiz: [
+          {
+            question: 'What is a race condition in data fetching?',
+            options: ['The app fetches too fast', 'An older, slower request resolves after a newer one and overwrites fresh data with stale data', 'A network timeout', 'A CSS animation bug'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does controller.abort() do when called in a useEffect cleanup function?',
+            options: ['Deletes the component', 'Cancels the in-flight fetch request tied to that controller', 'Clears all state', 'Restarts the request'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which THREE states should a well-built fetching component track?',
+            options: ['Small, medium, large', 'Loading, error, data/success', 'Red, yellow, green', 'Mount, update, unmount'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Strict Mode & Why Effects Run Twice in Dev',
+        difficulty: 'medium',
+        tags: ['strict-mode', 'debugging'],
+        explanation: {
+          english:
+            "Wrapping your app in <StrictMode> helps catch bugs early by intentionally double-invoking certain functions in DEVELOPMENT ONLY: component render functions, and (since React 18) effects — mount → cleanup → mount again. This is not a bug — it simulates an effect surviving an unmount/remount, exposing effects that are not properly cleaned up (like a missing unsubscribe). In production, none of this double-invoking happens; StrictMode is purely a development-time safety net.",
+          hinglish:
+            'Apni app ko <StrictMode> mein wrap karna bugs jaldi pakadne mein madad karta hai, kuch functions ko jaan-boojh kar DOUBLE-INVOKE karke, sirf DEVELOPMENT mein: component render functions, aur (React 18 se) effects — mount → cleanup → dobara mount. Ye bug nahi hai — ye simulate karta hai ki effect ek unmount/remount se bach gaya, aur un effects ko expose karta hai jo properly clean up nahi hote (jaise missing unsubscribe). Production mein ye double-invoking bilkul nahi hoti; StrictMode purely ek development-time safety net hai.',
+        },
+        dailyLifeExample:
+          'StrictMode ek fire-drill jaisa hai — school jaan-boojh kar practice ke liye alarm bajata hai (koi real aag nahi) taaki dekh sake sab sahi se bahar nikal paate hain ya nahi. Agar tumhara useEffect drill mein fail hota hai (cleanup missing), to real emergency (production bugs) mein bhi fail hoga.',
+        codeExample:
+          "// In dev with StrictMode, this console.log runs TWICE on mount:\nfunction Timer() {\n  useEffect(() => {\n    console.log('subscribed');\n    const id = setInterval(() => console.log('tick'), 1000);\n    return () => {\n      console.log('unsubscribed'); // MUST clean up properly\n      clearInterval(id);\n    };\n  }, []);\n  return <p>Timer running</p>;\n}\n// Console (dev only): subscribed -> unsubscribed -> subscribed\n// If cleanup were missing, you'd get TWO intervals running — a real bug StrictMode just revealed",
+        keyPoints: [
+          'StrictMode double-invokes render and effects in DEVELOPMENT only, never production',
+          'It simulates mount -> cleanup -> mount to catch effects with missing/incorrect cleanup',
+          'Seeing an effect (or a console.log inside one) run twice locally is expected, not a bug',
+          'If double-running breaks your app, the real bug is a missing cleanup function',
+          'Wrap your root component in <StrictMode> to get this safety net',
+        ],
+        quiz: [
+          {
+            question: 'Why does a useEffect sometimes appear to run twice when developing locally?',
+            options: ['A React bug that needs a workaround', 'StrictMode intentionally double-invokes effects in development to catch missing cleanup', 'Because of slow internet', 'It only happens with class components'],
+            correctIndex: 1,
+          },
+          {
+            question: "Does StrictMode's double-invoking behaviour happen in production builds?",
+            options: ['Yes, always', 'No — it is development-only', 'Only on slow devices', 'Only for class components'],
+            correctIndex: 1,
+          },
+          {
+            question: 'If double-invoking an effect breaks your app, what is the real underlying bug?',
+            options: ['A React bug you cannot fix', 'A missing or incorrect cleanup function in that effect', 'Using too many hooks', 'A CSS issue'],
+            correctIndex: 1,
           },
         ],
       },
@@ -585,6 +679,11 @@ const intermediate = [
         ],
         quiz: [
           { question: 'When two siblings must share state, you should…', options: ['Duplicate it in both', 'Lift it to a common parent', 'Use a global variable', 'Use a ref'], correctIndex: 1 },
+          {
+            question: 'What problem happens if two sibling components each keep their OWN separate copy of state that should really be shared?',
+            options: ['Nothing, it works fine', 'The two copies can drift out of sync with each other', 'It makes the app render faster', 'React throws a build error'],
+            correctIndex: 1,
+          },
         ],
       },
       {
@@ -634,6 +733,11 @@ const intermediate = [
         ],
         quiz: [
           { question: 'A Higher-Order Component is…', options: ['A CSS class', 'A function that returns an enhanced component', 'A hook', 'A context'], correctIndex: 1 },
+          {
+            question: "A common HOC mistake is forgetting {...props} in return <Component {...props} />. What does that spread do?",
+            options: ['Deletes the props', "Forwards all the original component's props through to the wrapped component", 'Only passes children', 'Converts props into state'],
+            correctIndex: 1,
+          },
         ],
       },
     ],
@@ -665,6 +769,17 @@ const intermediate = [
         ],
         quiz: [
           { question: 'React.memo skips a re-render when…', options: ['State changes', 'Props are shallowly equal to last render', 'Always', 'Never'], correctIndex: 1 },
+          {
+            question: 'You wrap <Row> in React.memo, but the parent passes onSelect={(id) => setSelected(id)} inline. Does memo actually prevent re-renders now?',
+            options: [
+              'Yes, memo always works regardless of prop types',
+              'No — a new inline function is created every render, so the onSelect prop is never shallowly equal, and Row still re-renders every time',
+              'Only if the component has no state',
+              'Only in production builds',
+            ],
+            correctIndex: 1,
+            explanation: 'React.memo compares props with shallow equality (===). A new arrow function is a new reference every render, so onSelect never matches the previous one — memo is defeated unless the parent wraps it in useCallback.',
+          },
         ],
       },
       {
@@ -689,6 +804,11 @@ const intermediate = [
         ],
         quiz: [
           { question: 'Which component shows a fallback while a lazy component loads?', options: ['<ErrorBoundary>', '<Suspense>', '<Loading>', '<Fallback>'], correctIndex: 1 },
+          {
+            question: 'If you do NOT code-split a huge admin dashboard that most visitors never open, what happens to a regular visitor on a slow connection?',
+            options: ['Nothing, unused code has no cost', 'They still download that unused code, slowing down their initial page load', 'The app refuses to build', 'It only affects mobile users'],
+            correctIndex: 1,
+          },
         ],
       },
       {
@@ -713,6 +833,57 @@ const intermediate = [
         ],
         quiz: [
           { question: 'List virtualization mainly helps by…', options: ['Adding more DOM nodes', 'Rendering only visible items', 'Removing keys', 'Disabling scrolling'], correctIndex: 1 },
+          {
+            question: 'Without virtualization, why is rendering a 10,000-item list slow even though most items are scrolled off-screen?',
+            options: ['The browser is single-threaded and refuses to render lists', 'The browser still has to create, layout, and paint a real DOM node for every item, visible or not', 'JavaScript arrays have a 1,000-item limit', 'CSS cannot style large lists'],
+            correctIndex: 1,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Client-Side Routing',
+    level: 'intermediate',
+    description: 'Plain React mein multi-page-jaisi navigation — React Router.',
+    concepts: [
+      {
+        title: 'React Router Basics: Client-Side Navigation',
+        difficulty: 'medium',
+        tags: ['routing', 'react-router'],
+        explanation: {
+          english:
+            'Plain React has no built-in routing — React Router is the standard library that maps URLs to components without a full page reload (using the History API under the hood). Wrap your app in a <BrowserRouter>, define <Route path="..." element={...}> pairs inside <Routes>, and use <Link to="..."> instead of <a href> so navigation stays client-side. useNavigate() lets you redirect programmatically, and useParams() reads dynamic segments like /users/:id.',
+          hinglish:
+            'Plain React mein built-in routing nahi hoti — React Router standard library hai jo URLs ko components se map karti hai bina poore page reload ke (peeche History API use karke). App ko <BrowserRouter> mein wrap karo, <Routes> ke andar <Route path="..." element={...}> pairs define karo, aur <a href> ki jagah <Link to="..."> use karo taaki navigation client-side rahe. useNavigate() se programmatically redirect kar sakte ho, aur useParams() se dynamic segments padh sakte ho jaise /users/:id.',
+        },
+        dailyLifeExample:
+          'React Router ek mall ke andar ke direction boards jaisa hai — mall (app) se bahar nikal ke wapas nahi aana padta (page reload nahi), bas signboard follow karke turant doosri dukaan (page) pe pahunch jaate ho.',
+        codeExample:
+          "import { BrowserRouter, Routes, Route, Link, useParams, useNavigate } from 'react-router-dom';\n\nfunction App() {\n  return (\n    <BrowserRouter>\n      <Link to=\"/\">Home</Link>\n      <Link to=\"/users/42\">User 42</Link>\n      <Routes>\n        <Route path=\"/\" element={<Home />} />\n        <Route path=\"/users/:id\" element={<UserProfile />} />\n      </Routes>\n    </BrowserRouter>\n  );\n}\n\nfunction UserProfile() {\n  const { id } = useParams();        // reads ':id' from the URL\n  const navigate = useNavigate();\n  return (\n    <div>\n      <p>Viewing user {id}</p>\n      <button onClick={() => navigate('/')}>Go home</button>\n    </div>\n  );\n}",
+        keyPoints: [
+          'Plain React has no routing built in — React Router is the standard add-on',
+          '<Link to="..."> navigates client-side without a full page reload; <a href> would reload',
+          '<Route path element> pairs inside <Routes> map URLs to components',
+          'useParams() reads dynamic URL segments (e.g. :id)',
+          'useNavigate() redirects programmatically (e.g. after a form submits)',
+        ],
+        quiz: [
+          {
+            question: 'Why use <Link> instead of a plain <a href> for internal navigation?',
+            options: ['Link looks nicer', 'Link navigates client-side without a full page reload; <a> would reload the page', '<a> tags are deprecated', 'No real difference'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which hook reads a dynamic URL segment like the :id in /users/:id?',
+            options: ['useNavigate()', 'useParams()', 'useLocation()', 'useRoute()'],
+            correctIndex: 1,
+          },
+          {
+            question: 'How do you redirect a user to another page from inside a function (e.g. after a form submits)?',
+            options: ['Change window.location directly only', 'useNavigate()', '<Link>', 'You cannot redirect programmatically'],
+            correctIndex: 1,
+          },
         ],
       },
     ],
@@ -772,6 +943,11 @@ const advanced = [
         ],
         quiz: [
           { question: 'Context + useReducer is a built-in alternative to…', options: ['React itself', 'Redux for small/medium apps', 'CSS', 'the DOM'], correctIndex: 1 },
+          {
+            question: 'What is a downside of Context + useReducer for a large app with frequently-changing state?',
+            options: ['It cannot hold objects', 'Every consumer re-renders whenever the context value changes, which can hurt performance at scale', 'It only works with class components', 'It requires a server'],
+            correctIndex: 1,
+          },
         ],
       },
       {
@@ -796,6 +972,11 @@ const advanced = [
         ],
         quiz: [
           { question: 'For state that changes very often and is read across many components, you should prefer…', options: ['Context only', 'A dedicated state library', 'Global variables', 'Props drilling'], correctIndex: 1 },
+          {
+            question: 'If only ONE component needs a piece of state and nothing else in the app cares about it, what is the best choice?',
+            options: ['Put it in Context immediately', 'Use local useState/useReducer inside that component', 'Use a global store', 'Lift it all the way to the root App component'],
+            correctIndex: 1,
+          },
         ],
       },
     ],
@@ -827,6 +1008,16 @@ const advanced = [
         ],
         quiz: [
           { question: 'What does the Fiber architecture enable?', options: ['Faster CSS', 'Interruptible, prioritised rendering', 'Smaller bundles', 'Server rendering only'], correctIndex: 1 },
+          {
+            question: "Before Fiber (the old 'stack reconciler'), why could a large re-render make the whole page feel frozen?",
+            options: [
+              'CSS used to be much slower',
+              'Rendering was synchronous and could not be paused once started — it had to finish the entire tree before yielding back to the browser',
+              'JavaScript did not support loops yet',
+              'Fiber did not actually change anything',
+            ],
+            correctIndex: 1,
+          },
         ],
       },
       {
@@ -876,6 +1067,16 @@ const advanced = [
         ],
         quiz: [
           { question: 'A portal renders children into…', options: ['A new React tree', 'A different DOM node, same React tree', 'An iframe', 'Nothing different'], correctIndex: 1 },
+          {
+            question: "A button inside a Portal-rendered modal still triggers a parent's onClick handler via React event bubbling, even though the modal's actual DOM node lives outside that parent in the real HTML. Why?",
+            options: [
+              'It does not actually work, this is a bug',
+              'React bubbles events through the React component tree, not through the physical DOM tree position',
+              'Portals silently disable all event handling',
+              'This only works with class components',
+            ],
+            correctIndex: 1,
+          },
         ],
       },
       {
@@ -900,6 +1101,11 @@ const advanced = [
         ],
         quiz: [
           { question: 'useDeferredValue is used to…', options: ['Block rendering', 'Show stale content while a new value computes', 'Delete state', 'Fetch data directly'], correctIndex: 1 },
+          {
+            question: 'In React 18, if you call two setState calls inside a setTimeout callback, how many re-renders happen?',
+            options: ['Two separate re-renders, one per call', 'Just one — React 18 automatically batches updates even outside event handlers', 'Zero, they get silently ignored', 'It depends entirely on the browser'],
+            correctIndex: 1,
+          },
         ],
       },
     ],
@@ -931,6 +1137,11 @@ const advanced = [
         ],
         quiz: [
           { question: 'React Testing Library encourages querying by…', options: ['Class names', 'Component internals', 'Role/label/text, like a user would', 'CSS selectors only'], correctIndex: 2 },
+          {
+            question: 'Why would a test need waitFor or findBy instead of a plain getBy query?',
+            options: ['They are just faster syntax with no real difference', 'The element appears asynchronously (e.g. after a fetch resolves), so the test must wait for it to show up', 'getBy queries are deprecated', 'They are required in every single test'],
+            correctIndex: 1,
+          },
         ],
       },
       {
@@ -955,6 +1166,16 @@ const advanced = [
         ],
         quiz: [
           { question: 'Before optimizing performance, you should first…', options: ['Add React.memo everywhere', 'Profile to find the real bottleneck', 'Rewrite in class components', 'Remove all state'], correctIndex: 1 },
+          {
+            question: "Why does the checklist call out 'every list item has a stable key' as a production concern, not just a lint warning?",
+            options: [
+              'It only affects visual looks',
+              'An unstable or missing key (e.g. array index that shifts) can make React mismatch state between re-rendered list items, causing subtle data bugs',
+              'Keys are optional and rarely matter in practice',
+              'It only slows down the very first page load',
+            ],
+            correctIndex: 1,
+          },
         ],
       },
     ],
