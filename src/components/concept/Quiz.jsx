@@ -1,14 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 
 export default function Quiz({ conceptId, quiz, onPassed }) {
   const { data: session } = useSession();
+  const [open, setOpen] = useState(false);
   const [answers, setAnswers] = useState({});
   const [result, setResult] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Close on Escape while the modal is open.
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]);
 
   if (!quiz || quiz.length === 0) return null;
 
@@ -46,11 +57,58 @@ export default function Quiz({ conceptId, quiz, onPassed }) {
 
   const allAnswered = quiz.every((_, i) => i in answers);
 
+  function closeModal() {
+    setOpen(false);
+  }
+
+  if (!open) {
+    return (
+      <section className="flex items-center justify-between gap-4 rounded-2xl border border-indigo-100 bg-indigo-50/50 p-5 sm:p-6">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">🧠</span>
+          <div>
+            <h3 className="text-lg font-semibold">Did you understand? Quick quiz</h3>
+            <p className="text-sm text-slate-600">
+              {quiz.length} question{quiz.length > 1 ? 's' : ''}
+              {result ? ` — you scored ${result.correct}/${result.total}` : ' — test yourself'}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => setOpen(true)}
+          className="shrink-0 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+        >
+          {result ? 'Retake Quiz' : 'Take Quiz'}
+        </button>
+      </section>
+    );
+  }
+
   return (
-    <section className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-5 sm:p-6">
-      <div className="mb-4 flex items-center gap-2">
-        <span className="text-xl">🧠</span>
-        <h3 className="text-lg font-semibold">Did you understand? Quick quiz</h3>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      onClick={closeModal}
+      role="presentation"
+    >
+      <section
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Quick quiz"
+        className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-indigo-100 bg-white p-5 shadow-2xl sm:p-6"
+      >
+      <div className="mb-4 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">🧠</span>
+          <h3 className="text-lg font-semibold">Did you understand? Quick quiz</h3>
+        </div>
+        <button
+          onClick={closeModal}
+          aria-label="Close quiz"
+          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+        >
+          ✕
+        </button>
       </div>
 
       <div className="space-y-5">
@@ -99,7 +157,7 @@ export default function Quiz({ conceptId, quiz, onPassed }) {
           {submitting ? 'Checking...' : 'Submit answers'}
         </button>
       ) : (
-        <div className="mt-5 rounded-xl bg-white p-4">
+        <div className="mt-5 rounded-xl bg-indigo-50 p-4">
           <p className="font-semibold">
             You got {result.correct}/{result.total} correct{' '}
             {result.passed || (result.guest && result.correct / result.total >= 0.6)
@@ -127,8 +185,15 @@ export default function Quiz({ conceptId, quiz, onPassed }) {
               Retry quiz
             </button>
           )}
+          <button
+            onClick={closeModal}
+            className="mt-3 block text-sm font-semibold text-slate-500 hover:text-slate-700"
+          >
+            Close
+          </button>
         </div>
       )}
-    </section>
+      </section>
+    </div>
   );
 }
