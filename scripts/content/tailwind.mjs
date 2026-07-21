@@ -174,6 +174,45 @@ const beginner = [
           },
         ],
       },
+      {
+        title: 'Typography Utilities',
+        difficulty: 'easy',
+        tags: ['typography', 'text'],
+        explanation: {
+          english:
+            'Tailwind maps font styling to a consistent scale so text always looks harmonious. text-sm/base/lg/xl/2xl...9xl control font-size (with a matched line-height baked in). font-thin to font-black control weight (font-bold = 700). leading-* sets line-height separately when needed, tracking-* sets letter-spacing, and text-left/center/right/justify align text.',
+          hinglish:
+            'Tailwind font styling ko ek consistent scale pe map karta hai taaki text hamesha harmonious dikhe. text-sm/base/lg/xl/2xl...9xl font-size control karte hain (ek matched line-height ke saath built-in). font-thin se font-black tak weight control karte hain (font-bold = 700). leading-* zaroorat pe line-height alag se set karta hai, tracking-* letter-spacing, aur text-left/center/right/justify text align karta hai.',
+        },
+        dailyLifeExample:
+          "Tailwind ka text scale ek clothing size chart jaisa hai (S, M, L, XL) — poori team same naming use karti hai, isliye 'text-lg' sabke liye same size hai, koi guesswork nahi.",
+        codeExample:
+          '<h1 class="text-4xl font-bold text-slate-900">Big Heading</h1>\n<p class="text-base leading-relaxed text-slate-600">\n  Body text with comfortable line spacing.\n</p>\n<p class="text-sm tracking-wide uppercase text-slate-400">Label</p>\n<p class="text-center">Centered text</p>',
+        keyPoints: [
+          'text-sm through text-9xl set font-size (with a sensible default line-height)',
+          'font-thin to font-black set font-weight (font-bold = 700)',
+          'leading-* overrides line-height, tracking-* sets letter-spacing',
+          'text-left/center/right/justify controls alignment',
+          'text-{color}-{shade} sets the text color (same scale as backgrounds)',
+        ],
+        quiz: [
+          {
+            question: 'Which class makes text bold in Tailwind?',
+            options: ['text-bold', 'font-bold', 'bold', 'weight-700'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does leading-* control?',
+            options: ['Font size', 'Letter spacing', 'Line height', 'Text color'],
+            correctIndex: 2,
+          },
+          {
+            question: 'Which class sets the text color to a medium slate shade?',
+            options: ['color-slate-500', 'text-slate-500', 'font-slate-500', 'bg-slate-500'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
 ];
@@ -281,6 +320,56 @@ const intermediate = [
             options: ['Desktop-first', 'Mobile-first', 'Print-first', 'Random'],
             correctIndex: 1,
           },
+          {
+            question: 'You write class="text-sm md:text-sm lg:text-lg". Is the md:text-sm necessary?',
+            options: [
+              'Yes, always required',
+              'No — since nothing changes at md, you can omit it; the base text-sm already applies until overridden at lg',
+              'It will break the build',
+              'Tailwind requires every breakpoint to be listed',
+            ],
+            correctIndex: 1,
+            explanation: 'Breakpoints only need to be specified where the value actually CHANGES — the base (unprefixed) class keeps applying until a larger, prefixed class overrides it.',
+          },
+        ],
+      },
+      {
+        title: 'Position & Centering',
+        difficulty: 'medium',
+        tags: ['position', 'layout'],
+        explanation: {
+          english:
+            'Tailwind maps CSS position values directly: static, relative, absolute, fixed, sticky. Combine absolute/fixed with inset-0 (all sides = 0) or top-*/right-*/bottom-*/left-* to place an element precisely — very common for modals, badges, and overlays. The single most common centering trick is mx-auto (auto left/right margin) on an element with a fixed or max-width, which horizontally centers it in its container.',
+          hinglish:
+            'Tailwind CSS position values ko seedha map karta hai: static, relative, absolute, fixed, sticky. absolute/fixed ko inset-0 (sab sides = 0) ya top-*/right-*/bottom-*/left-* ke saath combine karo element ko exactly place karne ke liye — modals, badges, overlays ke liye bahut common. Sabse common centering trick mx-auto hai (auto left/right margin) ek fixed ya max-width wale element pe, jo use apne container mein horizontally center kar deta hai.',
+        },
+        dailyLifeExample:
+          'position: absolute + inset-0 ek poster ko poore notice-board pe bilkul fit karke chipkana hai. mx-auto ek photo ko frame ke exact beech mein rakhna hai — dono taraf equal jagah apne aap ban jaati hai.',
+        codeExample:
+          '<!-- badge pinned to top-right corner -->\n<div class="relative">\n  <img src="avatar.jpg" />\n  <span class="absolute top-0 right-0 bg-red-500 rounded-full w-3 h-3"></span>\n</div>\n\n<!-- full-screen overlay -->\n<div class="fixed inset-0 bg-black/50"></div>\n\n<!-- classic centered container -->\n<div class="max-w-4xl mx-auto px-4">\n  Centered content, 4xl max width\n</div>',
+        keyPoints: [
+          'position utilities: static, relative, absolute, fixed, sticky',
+          'inset-0 = top/right/bottom/left all set to 0',
+          'A positioned child needs a relative (or similar) parent to anchor to',
+          'mx-auto centers a max-width/fixed-width element horizontally',
+          'Common pattern: max-w-{size} mx-auto px-4 for a centered page container',
+        ],
+        quiz: [
+          {
+            question: 'What does inset-0 do?',
+            options: ['Removes all margin', 'Sets top, right, bottom and left all to 0', 'Sets width to 0', 'Hides the element'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which class horizontally centers a max-width block element?',
+            options: ['text-center', 'items-center', 'mx-auto', 'justify-center'],
+            correctIndex: 2,
+          },
+          {
+            question: 'For an absolutely positioned child to anchor correctly to its parent, the parent usually needs…',
+            options: ['display: flex', 'position: relative (or similar)', 'overflow: hidden', 'No special setup needed'],
+            correctIndex: 1,
+          },
         ],
       },
     ],
@@ -320,6 +409,51 @@ const intermediate = [
             question: 'group-hover: lets a child react to…',
             options: ['Its own hover', 'A parent (group) being hovered', 'A click', 'Focus only'],
             correctIndex: 1,
+          },
+          {
+            question: 'Which class correctly applies a hover background ONLY on medium screens and up?',
+            options: ['hover:md:bg-indigo-700', 'md:hover:bg-indigo-700', 'md-hover:bg-indigo-700', 'hover-md:bg-indigo-700'],
+            correctIndex: 1,
+            explanation: 'Tailwind stacks variants in a fixed order: responsive prefix first, then state — md:hover:bg-indigo-700. Reversing the order does not work as expected.',
+          },
+        ],
+      },
+      {
+        title: 'Transitions & Animations',
+        difficulty: 'medium',
+        tags: ['transitions', 'animations'],
+        explanation: {
+          english:
+            'transition (or transition-colors/transition-transform) turns on smooth animation for property changes — pair it with duration-* (speed in ms) and ease-* (timing curve) plus a hover:/focus: state to animate an interaction. For continuous effects, Tailwind ships ready-made keyframe animations: animate-spin (loading spinners), animate-pulse (skeleton loaders), animate-bounce, and animate-ping.',
+          hinglish:
+            'transition (ya transition-colors/transition-transform) property changes ke liye smooth animation on karta hai — ise duration-* (speed ms mein) aur ease-* (timing curve) ke saath jodo plus ek hover:/focus: state se interaction animate karo. Continuous effects ke liye, Tailwind ready-made keyframe animations deta hai: animate-spin (loading spinners), animate-pulse (skeleton loaders), animate-bounce, aur animate-ping.',
+        },
+        dailyLifeExample:
+          "transition ek automatic darwaze jaisa hai jo dheere se khulta hai. animate-spin ek chakra (pinwheel) jaisa hai jo hawa mein hamesha ghoomta rehta hai — loading spinner ke liye perfect. animate-pulse ek dil ki dhadkan jaisa hai — dheere dheere fade in-out, 'loading...' ka feel deta hai.",
+        codeExample:
+          '<!-- animate a hover interaction -->\n<button class="bg-indigo-600 hover:bg-indigo-700 hover:scale-105 transition duration-200 ease-in-out">\n  Smooth hover\n</button>\n\n<!-- loading spinner -->\n<div class="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>\n\n<!-- skeleton loading placeholder -->\n<div class="h-4 bg-slate-200 rounded animate-pulse"></div>',
+        keyPoints: [
+          'transition enables smooth animation of property changes on hover/focus/etc.',
+          'duration-* controls speed (in ms); ease-* controls the timing curve',
+          'animate-spin: spinning loader; animate-pulse: fading skeleton loader',
+          'animate-bounce: bouncing motion; animate-ping: expanding ripple (notification dots)',
+          'Combine transition with a state variant (hover:scale-105) for interactive effects',
+        ],
+        quiz: [
+          {
+            question: 'Which class is commonly used to build a skeleton loading placeholder?',
+            options: ['animate-spin', 'animate-pulse', 'animate-bounce', 'transition'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does duration-* control in a transition?',
+            options: ['The color', 'How long the animation takes', 'The direction', 'The font size'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which built-in animation is typically used for a loading spinner?',
+            options: ['animate-bounce', 'animate-ping', 'animate-spin', 'animate-pulse'],
+            correctIndex: 2,
           },
         ],
       },
