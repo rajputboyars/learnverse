@@ -181,6 +181,45 @@ const intermediate = [
           },
         ],
       },
+      {
+        title: 'Responsive Images: srcset & <picture>',
+        difficulty: 'medium',
+        tags: ['images', 'responsive', 'html5'],
+        explanation: {
+          english:
+            'Loading one giant image for every screen wastes mobile data and slows pages down. srcset on <img> lets the browser pick the best-sized image file for the current screen from a list of options. The <picture> element goes further — it lets you serve completely different image files (or formats like WebP) for different screen widths using multiple <source> tags, with <img> as the fallback.',
+          hinglish:
+            'Har screen ke liye ek hi bada image load karna mobile data waste karta hai aur page slow karta hai. <img> pe srcset browser ko options ki list se current screen ke liye best-size wali image file chunne deta hai. <picture> element aur aage jaata hai — ye alag screen widths ke liye bilkul alag image files (ya WebP jaise formats) dene deta hai multiple <source> tags se, aur <img> fallback ki tarah.',
+        },
+        dailyLifeExample:
+          'srcset ek darzi (tailor) jaisa hai jo har size ke liye alag kapda kaatta hai — bade banda ke liye bada size, chhote ke liye chhota, koi waste nahi. <picture> ek restaurant menu jaisa hai jo mausam ke hisaab se alag dish serve karta hai (garmi mein cold drink, sardi mein garam chai).',
+        codeExample:
+          '<!-- srcset: browser picks best size -->\n<img\n  src="photo-800.jpg"\n  srcset="photo-400.jpg 400w, photo-800.jpg 800w, photo-1200.jpg 1200w"\n  sizes="(max-width: 600px) 400px, 800px"\n  alt="A mountain view" />\n\n<!-- picture: different files/formats per condition -->\n<picture>\n  <source srcset="photo.webp" type="image/webp" />\n  <source media="(max-width: 600px)" srcset="photo-mobile.jpg" />\n  <img src="photo.jpg" alt="A mountain view" />\n</picture>',
+        keyPoints: [
+          'srcset lets the browser choose the best-sized image automatically',
+          'sizes tells the browser how big the image will actually display',
+          '<picture> can serve entirely different files/formats per condition',
+          '<img> inside <picture> is always the required fallback',
+          'Saves mobile data and speeds up page load',
+        ],
+        quiz: [
+          {
+            question: 'What problem does srcset solve?',
+            options: ['Broken image links', 'Loading unnecessarily large images on small screens', 'Missing alt text', 'Slow CSS'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Inside a <picture> element, which tag is REQUIRED as a fallback?',
+            options: ['<source>', '<img>', '<figcaption>', '<div>'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What can <picture> do that plain srcset on <img> cannot?',
+            options: ['Nothing, they are identical', 'Serve completely different image files/formats based on conditions', 'Load faster automatically', 'Add alt text automatically'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
   {
@@ -307,6 +346,17 @@ const advanced = [
             question: 'Canvas graphics are…',
             options: ['Vector (scale crisply)', 'Raster/pixel based', 'Text only', 'Always 3D'],
             correctIndex: 1,
+          },
+          {
+            question: 'To animate on a canvas (e.g. a moving ball), what must you typically do each frame?',
+            options: [
+              'Nothing, it animates automatically',
+              'Clear the canvas (or relevant area) and redraw, usually driven by requestAnimationFrame',
+              'Reload the page',
+              'Add more <canvas> tags',
+            ],
+            correctIndex: 1,
+            explanation: 'Canvas has no built-in animation — you must clear (ctx.clearRect) and redraw shapes yourself on every frame, typically driven by requestAnimationFrame for smooth 60fps updates.',
           },
         ],
       },
@@ -513,6 +563,17 @@ const advanced = [
             options: ['Show an element', 'Hide an element from screen readers', 'Delete an element', 'Style an element'],
             correctIndex: 1,
           },
+          {
+            question: 'Why is <div onclick="...">Click me</div> worse for accessibility than a real <button>?',
+            options: [
+              'There is no difference',
+              'A div is not keyboard-focusable or announced as a button by screen readers by default — you would have to manually add tabindex, role and key handling',
+              'Divs cannot have an onclick handler',
+              'Buttons cannot be styled with CSS',
+            ],
+            correctIndex: 1,
+            explanation: '<button> gives you keyboard focus, Enter/Space activation, and correct screen-reader announcement for free — a <div> gives you none of that unless you rebuild it all manually.',
+          },
         ],
         interviewQuestions: [
           {
@@ -525,6 +586,91 @@ const advanced = [
               hinglish:
                 'Semantic HTML se shuru karo (headings order mein, button, label, nav, main) jo free mein accessibility deta hai. Images ke liye alt text do, poori keyboard operability aur visible focus ensure karo, achha colour contrast rakho, labels ko form fields se jodo, aur ARIA roles/attributes sirf wahan use karo jahan native HTML kaafi na ho. Screen reader aur keyboard-only navigation se test karo.',
             },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Modern Browser APIs',
+    level: 'advanced',
+    description: 'Heavy background kaam aur SPA-style navigation — Web Workers, History API.',
+    concepts: [
+      {
+        title: 'Web Workers: Background Threads',
+        difficulty: 'hard',
+        tags: ['api', 'performance', 'workers'],
+        explanation: {
+          english:
+            "JavaScript normally runs on a single thread — a heavy calculation freezes the whole page (no clicks, no scrolling) until it finishes. A Web Worker runs a script on a SEPARATE background thread, so heavy work (image processing, large data crunching) does not block the UI. Workers cannot touch the DOM directly; they communicate with the main page by sending messages with postMessage().",
+          hinglish:
+            'JavaScript normally ek hi thread pe chalta hai — ek bhaari calculation poore page ko freeze kar deta hai (koi click, koi scroll nahi) jab tak khatam na ho. Ek Web Worker ek ALAG background thread pe script chalata hai, isliye bhaari kaam (image processing, bade data ka calculation) UI ko block nahi karta. Workers seedha DOM ko chhoo nahi sakte; wo main page se postMessage() se messages bhej ke baat karte hain.',
+        },
+        dailyLifeExample:
+          'Web Worker ek dhaba mein alag kitchen helper jaisa hai jo bhaari kaam (aata gundhna) peeche karta hai jabki waiter (main thread) customers (UI clicks) ko turant serve karta rehta hai — koi bhi customer wait nahi karta.',
+        codeExample:
+          "// main.js\nconst worker = new Worker('heavy-task.js');\nworker.postMessage({ number: 45 });\nworker.onmessage = (e) => console.log('Result:', e.data);\n\n// heavy-task.js (runs on a separate thread)\nself.onmessage = (e) => {\n  const result = computeSomethingHeavy(e.data.number); // does not freeze the page\n  self.postMessage(result);\n};",
+        keyPoints: [
+          'Runs JS on a separate background thread — heavy work does not freeze the page',
+          'Cannot access the DOM directly',
+          'Communicates via postMessage() and the onmessage event',
+          'Great for image/data processing, complex calculations',
+          'Overkill for small/quick tasks — has its own startup cost',
+        ],
+        quiz: [
+          {
+            question: 'Why would you use a Web Worker?',
+            options: ['To style elements', 'To run heavy JS without freezing the page UI', 'To fetch data faster', 'To add animations'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Can a Web Worker directly change the DOM?',
+            options: ['Yes, freely', 'No — it must send a message to the main thread which updates the DOM', 'Only for images', 'Only in Chrome'],
+            correctIndex: 1,
+          },
+          {
+            question: 'How does a Worker communicate with the main page?',
+            options: ['Shared global variables', 'postMessage() and the message event', 'Direct function calls', 'It cannot communicate'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'History API & Client-Side Routing',
+        difficulty: 'medium',
+        tags: ['api', 'routing', 'spa'],
+        explanation: {
+          english:
+            'The History API lets JavaScript change the URL shown in the address bar WITHOUT reloading the page. history.pushState() adds a new entry (changing the URL and letting the back button work); history.replaceState() swaps the current entry without adding a new one. The popstate event fires when the user clicks back/forward, letting your app react. This is exactly how frameworks like React/Next.js build fast, app-like navigation.',
+          hinglish:
+            'History API JavaScript ko address bar mein dikhne wala URL badalne deta hai page reload KIYE BINA. history.pushState() ek nayi entry add karta hai (URL badalta hai aur back button kaam karta hai); history.replaceState() current entry ko swap kar deta hai bina nayi entry add kiye. popstate event tab fire hota hai jab user back/forward click kare, taaki app react kar sake. Yahi tarika hai jisse React/Next.js jaise frameworks fast, app-jaisi navigation banate hain.',
+        },
+        dailyLifeExample:
+          "History API ek TV remote ke channel-back button jaisa hai — channel badla (URL) bina naya TV (page reload) laaye. Har channel change TV ki 'history' mein record hota hai, taaki back button pichhle channel pe le jaa sake.",
+        codeExample:
+          "// change URL without a full page reload\nhistory.pushState({ page: 'about' }, '', '/about');\n\n// listen for back/forward button clicks\nwindow.addEventListener('popstate', (event) => {\n  console.log('User navigated to:', location.pathname, event.state);\n  renderPageFor(location.pathname); // app re-renders the right content\n});",
+        keyPoints: [
+          'pushState() changes the URL and adds a browser-history entry, no reload',
+          'replaceState() changes the URL without adding a new history entry',
+          'popstate fires on back/forward navigation — you must handle it yourself',
+          'This is the foundation of Single Page Application (SPA) routing',
+          'Frameworks like React Router / Next.js wrap this API for you',
+        ],
+        quiz: [
+          {
+            question: 'What does history.pushState() do?',
+            options: ['Reloads the page with a new URL', 'Changes the URL and adds a history entry WITHOUT reloading', 'Deletes browser history', 'Only works in Chrome'],
+            correctIndex: 1,
+          },
+          {
+            question: 'When does the popstate event fire?',
+            options: ['On every page load', 'When the user clicks the browser back/forward button', 'On every click anywhere', 'Never, it is deprecated'],
+            correctIndex: 1,
+          },
+          {
+            question: 'The History API is the foundation of…',
+            options: ['CSS animations', 'Single Page Application (SPA) routing', 'Form validation', 'Web Workers'],
+            correctIndex: 1,
           },
         ],
       },
