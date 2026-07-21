@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { cloneElement, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import ThemeToggle from './ThemeToggle';
 import LanguageToggle from './LanguageToggle';
@@ -252,29 +253,69 @@ function NavLink({ href, children, className = '' }) {
 
 /* ── Hover dropdown (trigger + full-width mega panel) ──
    The panel is positioned against the sub-header <nav> (inset-x-0), so it always
-   spans the shell width and can never push the page into a horizontal scroll. */
+   spans the shell width and can never push the page into a horizontal scroll.
+   JS-controlled (not pure CSS :hover) so a click can close it immediately on
+   navigation instead of leaving it hovering over the new page. */
 function NavDropdown({ href, label, children }) {
+  const [open, setOpen] = useState(false);
+  const closeTimer = useRef(null);
+  const pathname = usePathname();
+
+  // Safety net: always close on route change, even if the mouse never left.
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => () => clearTimeout(closeTimer.current), []);
+
+  function openNow() {
+    clearTimeout(closeTimer.current);
+    setOpen(true);
+  }
+  function closeSoon() {
+    clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setOpen(false), 120);
+  }
+  function closeNow() {
+    clearTimeout(closeTimer.current);
+    setOpen(false);
+  }
+
   return (
-    <div className="group static flex h-full items-center">
+    <div
+      className="static flex h-full items-center"
+      onMouseEnter={openNow}
+      onMouseLeave={closeSoon}
+    >
       <Link
         href={href}
-        className="flex h-full items-center gap-1 whitespace-nowrap rounded-md px-3 hover:bg-slate-100 hover:text-indigo-600 group-hover:bg-slate-100 group-hover:text-indigo-600 dark:hover:bg-slate-800 dark:group-hover:bg-slate-800"
+        onClick={closeNow}
+        aria-expanded={open}
+        className={`flex h-full items-center gap-1 whitespace-nowrap rounded-md px-3 transition-colors hover:bg-slate-100 hover:text-indigo-600 dark:hover:bg-slate-800 dark:hover:text-indigo-400 ${
+          open ? 'bg-slate-100 text-indigo-600 dark:bg-slate-800 dark:text-indigo-400' : ''
+        }`}
       >
         {label}
         <svg
           width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-          className="transition-transform group-hover:rotate-180"
+          className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
         >
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </Link>
 
       {/* Full-width panel, aligned to the sub-header row */}
-      <div className="invisible absolute inset-x-0 top-full z-40 translate-y-1 opacity-0 transition-all duration-150 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+      <div
+        className={`absolute inset-x-0 top-full z-40 transition-all duration-200 ease-out ${
+          open
+            ? 'visible translate-y-0 opacity-100'
+            : 'invisible pointer-events-none -translate-y-2 opacity-0'
+        }`}
+      >
         <div className="overflow-hidden rounded-b-2xl border-t border-slate-200 bg-white shadow-2xl ring-1 ring-black/5 dark:border-slate-700 dark:bg-slate-900 dark:ring-white/10">
           <div className="px-4 py-5 sm:px-6 lg:px-8">
-            {children}
+            {cloneElement(children, { onNavigate: closeNow })}
           </div>
         </div>
       </div>
@@ -286,21 +327,22 @@ function NavDropdown({ href, label, children }) {
 function DropdownGrid({
   items = [], empty = false, emptyLabel = '',
   hrefFor, keyFor, icon, title, sub, subClass = '',
-  footerHref, footerLabel,
+  footerHref, footerLabel, onNavigate,
 }) {
   return (
     <>
       {empty ? (
         <p className="px-2 py-6 text-center text-sm text-slate-400">{emptyLabel}</p>
       ) : (
-        <div className="grid max-h-[70vh] grid-cols-2 gap-1 overflow-y-auto sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid max-h-[70vh] grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {items.map((it) => (
             <Link
               key={keyFor(it)}
               href={hrefFor(it)}
-              className="group/item flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-indigo-50 dark:hover:bg-slate-800"
+              onClick={onNavigate}
+              className="group/item flex items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 transition-all duration-150 hover:border-indigo-100 hover:bg-indigo-50/70 hover:shadow-sm dark:hover:border-slate-700 dark:hover:bg-slate-800/70"
             >
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-slate-100 text-lg leading-none ring-1 ring-slate-200/70 transition-colors group-hover/item:bg-white group-hover/item:ring-indigo-200 dark:bg-slate-800 dark:ring-slate-700 dark:group-hover/item:bg-slate-900">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-indigo-50 text-lg leading-none ring-1 ring-indigo-100 transition-colors group-hover/item:bg-white group-hover/item:ring-indigo-300 dark:bg-slate-800 dark:ring-slate-700 dark:group-hover/item:bg-slate-900 dark:group-hover/item:ring-indigo-500/40">
                 {icon(it)}
               </span>
               <span className="min-w-0">
@@ -315,7 +357,11 @@ function DropdownGrid({
       )}
       {footerHref && (
         <div className="mt-3 border-t border-slate-100 pt-3 dark:border-slate-800">
-          <Link href={footerHref} className="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400">
+          <Link
+            href={footerHref}
+            onClick={onNavigate}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+          >
             {footerLabel}
           </Link>
         </div>
