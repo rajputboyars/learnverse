@@ -404,6 +404,101 @@ const beginner = [
             options: ['<td>', '<th>', '<thead>', '<header>'],
             correctIndex: 1,
           },
+          {
+            question: 'Why is using an HTML <table> for overall PAGE LAYOUT (not tabular data) considered bad practice today?',
+            options: [
+              'Tables are deprecated and no longer work',
+              'It hurts accessibility, responsiveness, and SEO — CSS Grid/Flexbox are the modern layout tools',
+              'Tables cannot have more than 2 columns',
+              'Browsers block table-based layouts entirely',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Special Characters & Global Attributes',
+    level: 'beginner',
+    description: 'Entities aur har element pe kaam aane wale attributes.',
+    concepts: [
+      {
+        title: 'HTML Entities: Escaping Special Characters',
+        difficulty: 'easy',
+        tags: ['entities', 'basics'],
+        explanation: {
+          english:
+            'Some characters have special meaning in HTML (< and > start tags, & starts an entity), so you cannot type them directly in text — the browser would try to parse them as markup. HTML entities are special codes starting with & and ending with ; that represent these characters: &lt; for <, &gt; for >, &amp; for &, &quot; for a quote, and &copy; for ©. Without escaping, your page can literally break.',
+          hinglish:
+            'Kuch characters ka HTML mein special matlab hota hai (< aur > tag shuru karte hain, & entity shuru karta hai), isliye unhe text mein seedha type nahi kar sakte — browser unhe markup samajh ke parse karne ki koshish karega. HTML entities special codes hain jo & se shuru aur ; pe khatam hote hain aur in characters ko represent karte hain: &lt; for <, &gt; for >, &amp; for &, &quot; for quote, aur &copy; for ©. Bina escape kiye, tumhara page literally toot sakta hai.',
+        },
+        dailyLifeExample:
+          "Entities ek code-word jaisi hain jo restricted cheez ko safely bolne ka tareeka deti hain — jaise exam mein 'less than' bolne ke bajaye seedha '<' likhoge to teacher (browser) confuse ho jaayega ki naya tag shuru ho raha hai.",
+        codeExample:
+          '<!-- WRONG: browser thinks < starts a new tag -->\n<p>5 < 10 is true</p>  ❌ can break rendering\n\n<!-- CORRECT: escaped -->\n<p>5 &lt; 10 is true</p>  ✅\n<p>Copyright &copy; 2026 Learnverse</p>\n<p>Terms &amp; Conditions</p>\n<p>She said &quot;Hello&quot;</p>',
+        keyPoints: [
+          'Entities start with & and end with ;',
+          '&lt; = <, &gt; = >, &amp; = &, &quot; = "',
+          'Needed whenever you display these characters as TEXT, not markup',
+          '&nbsp; is a non-breaking space (prevents line wrap at that point)',
+          'Skipping this can silently break your page layout',
+        ],
+        quiz: [
+          {
+            question: 'Which entity represents the < character?',
+            options: ['&lt;', '&gt;', '&amp;', '&copy;'],
+            correctIndex: 0,
+          },
+          {
+            question: "Why can't you type < directly in the visible text of a page?",
+            options: ['You can, no issue', 'The browser may interpret it as the start of a tag', 'It is too slow', 'It only works in HTML5'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does &amp; display?',
+            options: ['<', '>', '&', '"'],
+            correctIndex: 2,
+          },
+        ],
+      },
+      {
+        title: 'Global Attributes: id, class, style, title & data-*',
+        difficulty: 'easy',
+        tags: ['attributes', 'basics'],
+        explanation: {
+          english:
+            'Global attributes work on almost EVERY HTML element, not just specific ones. id uniquely identifies one element (used once per page). class groups elements for shared CSS/JavaScript styling (reusable across many elements). style applies inline CSS directly (use sparingly). title shows a tooltip on hover. data-* attributes (like data-user-id) let you store custom data on an element for JavaScript to read later.',
+          hinglish:
+            'Global attributes almost HAR HTML element pe kaam karte hain, sirf specific waalo pe nahi. id ek element ko uniquely identify karta hai (page pe ek hi baar use hoti hai). class elements ko group karta hai shared CSS/JavaScript styling ke liye (kai elements pe reuse hoti hai). style seedha inline CSS apply karta hai (kam use karo). title hover pe tooltip dikhata hai. data-* attributes (jaise data-user-id) element pe custom data store karne dete hain jo JavaScript baad mein padh sake.',
+        },
+        dailyLifeExample:
+          'id ek Aadhaar number jaisi hai — sirf ek insaan ka. class ek uniform jaisi hai — sabhi students jo ek hi class mein hain, wahi uniform pehente hain (many elements, same style). data-* ek chhupi hui ID-card jaisi hai jo dikhti nahi par system use padh sakta hai.',
+        codeExample:
+          '<div id="main-banner" class="card highlighted" title="Click to learn more" data-course-id="42">\n  Welcome!\n</div>\n\n<!-- JS can read this later -->\n<script>\n  const el = document.querySelector(\'#main-banner\');\n  el.dataset.courseId; // \'42\'\n</script>',
+        keyPoints: [
+          'id: unique per page, used for one specific element',
+          'class: reusable across many elements, groups shared styling',
+          'style: inline CSS (use only for quick one-off tweaks)',
+          'title: shows a hover tooltip',
+          'data-*: custom data readable via JS as element.dataset.name',
+        ],
+        quiz: [
+          {
+            question: 'How many elements on a page should share the same id?',
+            options: ['As many as needed', 'Exactly one', 'Exactly two', 'Unlimited'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which attribute is meant to be reused across MANY elements for shared styling?',
+            options: ['id', 'class', 'title', 'data-x'],
+            correctIndex: 1,
+          },
+          {
+            question: 'How do you read a data-course-id attribute in JavaScript?',
+            options: ['element.data.courseId', 'element.dataset.courseId', 'element.attr("data-course-id")', 'element.getData()'],
+            correctIndex: 1,
+          },
         ],
       },
     ],
@@ -446,6 +541,17 @@ const intermediate = [
             question: 'The action attribute specifies…',
             options: ['The button text', 'Where the form submits', 'The font', 'The method'],
             correctIndex: 1,
+          },
+          {
+            question: "You built <input type='text' /> with no name attribute. What happens when the form submits?",
+            options: [
+              'It submits with a random generated name',
+              "That field's value is NOT included in the submitted data at all",
+              'The form refuses to submit',
+              'Nothing changes, it works fine',
+            ],
+            correctIndex: 1,
+            explanation: 'The name attribute is the KEY the server receives the value under. Without it, that field is silently skipped — a very common beginner bug where a field looks fine but never arrives at the server.',
           },
         ],
         interviewQuestions: [
@@ -684,6 +790,52 @@ const intermediate = [
             question: 'What does defer on a script do?',
             options: ['Deletes it', 'Loads JS without blocking page render', 'Runs it first', 'Hides it'],
             correctIndex: 1,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Best Practices & Common Mistakes',
+    level: 'intermediate',
+    description: 'Nesting rules aur beginner mistakes jo har koi karta hai.',
+    concepts: [
+      {
+        title: 'Nesting Rules & Common HTML Mistakes',
+        difficulty: 'medium',
+        tags: ['best-practices', 'validation'],
+        explanation: {
+          english:
+            "HTML has rules about which elements can go inside which — break them and the browser silently 'fixes' your markup in unexpected ways. Common beginner mistakes: forgetting to close a tag, unescaped special characters, and mismatched/overlapping tags (<b><i>text</b></i> is invalid — tags must close in reverse order, like <b><i>text</i></b>). Always validate your HTML when something looks broken.",
+          hinglish:
+            "HTML mein rules hote hain ki kaunsa element kiske andar ja sakta hai — todo to browser tumhara markup chupke se apne hisaab se 'theek' kar deta hai, jo unexpected result deta hai. Common beginner mistakes: tag close karna bhool jaana, unescaped special characters, aur mismatched/overlapping tags (<b><i>text</b></i> invalid hai — tags reverse order mein close hone chahiye, jaise <b><i>text</i></b>). Jab kuch tuta hua lage to hamesha HTML validate karo.",
+        },
+        dailyLifeExample:
+          'Tags ek tiffin ke dabbon jaise hain jo ek doosre ke andar rakhe jaate hain — bada dabba pehle, chhota andar, aur khulte bhi ulte order mein (chhota pehle, bada baad mein). Agar order galat hai to sab bikhar jaata hai.',
+        codeExample:
+          "<!-- WRONG: overlapping tags -->\n<b><i>bold and italic</b></i>  ❌\n\n<!-- CORRECT: properly nested -->\n<b><i>bold and italic</i></b>  ✅\n\n<!-- WRONG: forgot to close -->\n<p>Paragraph one\n<p>Paragraph two  ❌ browser auto-closes the first, but don't rely on it\n\n<!-- CORRECT -->\n<p>Paragraph one</p>\n<p>Paragraph two</p>",
+        keyPoints: [
+          'Tags must close in the reverse order they opened (proper nesting)',
+          'Always close every tag explicitly — do not rely on browser auto-fixing',
+          'A <p> cannot contain another <p> or a <div>',
+          'Use the W3C HTML Validator when a page renders strangely',
+          'Consistent indentation makes nesting mistakes easy to spot',
+        ],
+        quiz: [
+          {
+            question: 'Which of these is correctly nested?',
+            options: ['<b><i>text</b></i>', '<b><i>text</i></b>', '<i><b>text</i></b>', 'None of these'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What happens if you forget to close a <p> tag?',
+            options: ['The page fails to load', 'Browsers often auto-correct it, but the behaviour can be inconsistent', 'Nothing, it is required to be open', 'CSS stops working entirely'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Tags must close in…',
+            options: ['Any order', 'The same order they opened', 'Reverse order of how they opened', 'Alphabetical order'],
+            correctIndex: 2,
           },
         ],
       },
