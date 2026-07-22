@@ -279,6 +279,60 @@ const keyFeatures = [
           },
         ],
       },
+      {
+        title: 'Imagen & Veo: Image and Video Generation',
+        difficulty: 'medium',
+        tags: ['imagen', 'veo', 'image-generation', 'video-generation', 'multimodal'],
+        explanation: {
+          english:
+            "Gemini's multimodal ability to UNDERSTAND images and video is only half the story — Google also builds dedicated generative models for CREATING them, accessible through the Gemini app and API: **Imagen** (image generation) and **Veo** (video generation).\n\n**Imagen**: Google's text-to-image model, integrated directly into the Gemini app and available via the API. Like other modern image generators, it produces high-quality, photorealistic or stylised images from a text description, and supports iterative editing conversationally (\"make it more colourful\", \"remove the background\"). Imagen images include an invisible digital watermark called **SynthID** that identifies them as AI-generated — this is a Google-wide initiative to help distinguish real from synthetic media, and it survives common edits like cropping or compression.\n\n**Veo**: Google's text-to-video model, capable of generating short video clips (several seconds, extendable) from a text prompt, complete with camera movement, consistent characters and scenes, and realistic physics. Available in the Gemini app for Advanced subscribers and via the API for developers. Like Imagen, Veo outputs are watermarked with SynthID.\n\n**Practical use in a Gemini-powered app**: because Imagen and Veo share the same Google AI ecosystem as the Gemini text/chat models, a single API key and SDK give you access to text generation, image understanding, image generation, AND video generation — useful for building a single content-creation pipeline (e.g. generate a blog post with Gemini, then an illustrative header image with Imagen) without integrating multiple separate vendors.",
+          hinglish:
+            "Gemini ki images aur video UNDERSTAND karne ki ability sirf aadhi kahani hai — Google unhe CREATE karne ke liye bhi dedicated generative models banata hai, Gemini app aur API se accessible: **Imagen** (image generation) aur **Veo** (video generation).\n\n**Imagen**: Google ka text-to-image model, Gemini app mein directly integrated aur API se available. Doosre modern image generators ki tarah, ye text description se high-quality, photorealistic ya stylised images banata hai, aur conversationally iterative editing support karta hai (\"aur colourful banao\", \"background hatao\"). Imagen images mein ek invisible digital watermark hota hai jise **SynthID** kehte hain jo unhe AI-generated identify karta hai — ye ek Google-wide initiative hai real aur synthetic media alag karne mein madad karne ke liye, aur ye common edits jaise cropping ya compression ke baad bhi survive karta hai.\n\n**Veo**: Google ka text-to-video model, text prompt se short video clips (kai seconds, extendable) generate kar sakta hai, camera movement, consistent characters aur scenes, aur realistic physics ke saath. Gemini app mein Advanced subscribers ke liye aur API se developers ke liye available. Imagen ki tarah, Veo outputs bhi SynthID se watermarked hote hain.\n\n**Ek Gemini-powered app mein practical use**: kyunki Imagen aur Veo Gemini text/chat models ke saath same Google AI ecosystem share karte hain, ek hi API key aur SDK se text generation, image understanding, image generation, AUR video generation ka access milta hai — ek single content-creation pipeline banane ke liye useful (jaise Gemini se blog post generate karo, phir Imagen se illustrative header image) multiple alag vendors integrate kiye bina.",
+        },
+        dailyLifeExample:
+          "Imagen aur Veo waise hain jaise ek hi creative studio mein ek illustrator (Imagen) aur ek video editor (Veo) dono hire karna, jabki tumhara writer (Gemini text model) already usi studio mein hai — sab ek hi contract, ek hi bill, alag-alag vendors dhundhne ki zaroorat nahi. SynthID watermark waise hai jaise studio har final product pe ek invisible stamp lagata hai jo prove karta hai ki ye studio mein banaya gaya tha.",
+        codeExample:
+          "// Generate an image with Imagen via the Gemini API\nconst { GoogleGenerativeAI } = require(\"@google/generative-ai\");\nconst genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);\n\nconst imagenModel = genAI.getGenerativeModel({ model: \"imagen-3.0-generate\" });\nconst imageResult = await imagenModel.generateImages({\n  prompt: \"A minimalist blog header illustration of a developer debugging code, flat design, blue and purple palette\",\n  numberOfImages: 1,\n});\n// imageResult contains base64 image data, watermarked with SynthID\n\n// Generate a short video clip with Veo (conceptual)\nconst veoModel = genAI.getGenerativeModel({ model: \"veo-2.0-generate\" });\nconst videoResult = await veoModel.generateVideo({\n  prompt: \"A drone shot slowly rising over a misty mountain range at sunrise\",\n  durationSeconds: 5,\n});\n// videoResult contains the generated video, also SynthID-watermarked",
+        keyPoints: [
+          'Imagen is Google\'s text-to-image model, integrated into the Gemini app and API',
+          'Veo is Google\'s text-to-video model, generating short clips with camera movement and consistent scenes',
+          'Both outputs are watermarked with SynthID, an invisible marker identifying AI-generated content',
+          'SynthID watermarks survive common edits like cropping or compression',
+          'Imagen, Veo, and Gemini text models share one API/SDK, enabling unified content-creation pipelines',
+        ],
+        quiz: [
+          {
+            question: 'What is SynthID?',
+            options: [
+              'A pricing tier for Gemini Advanced',
+              'An invisible digital watermark that identifies Imagen/Veo output as AI-generated',
+              'A code-signing certificate for API keys',
+              'A video compression codec',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the key advantage of Imagen and Veo sharing the same ecosystem as Gemini\'s text models?',
+            options: [
+              'They produce identical output to the text model',
+              'A single API key/SDK gives access to text, image understanding, image generation, and video generation, simplifying multi-modal app pipelines',
+              'It removes the need for a Google account',
+              'It makes image generation free',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Does a SynthID watermark survive common edits like cropping or compression?',
+            options: [
+              'No, any edit removes it completely',
+              'Yes, it is designed to survive common edits',
+              'Only compression removes it, not cropping',
+              'SynthID is a visible watermark, not an edit-resistant one',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
 ];
