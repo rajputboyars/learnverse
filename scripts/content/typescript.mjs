@@ -157,6 +157,16 @@ const beginner = [
             ],
             correctIndex: 1,
           },
+          {
+            question: 'const point: [number, number] = [10, 20]; point[0] = "ten"; — what happens?',
+            options: [
+              'Works fine, JS is flexible',
+              'TypeScript throws a compile error — index 0 must be a number, not a string',
+              'It silently converts "ten" to 10',
+              'Only a runtime error, not a compile-time one',
+            ],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -169,6 +179,45 @@ const beginner = [
               hinglish:
                 'Tuple tab use karo jab fixed number of elements hoon aur har position ka known, possibly alag type ho — jaise [latitude, longitude] coordinate, [key, value] pair, ya function jo [data, error] return kare. Arrays tab better hain jab sab elements same type ke hoon aur length dynamic ho.',
             },
+          },
+        ],
+      },
+      {
+        title: 'Enums',
+        difficulty: 'easy',
+        tags: ['enums', 'types'],
+        explanation: {
+          english:
+            'An enum defines a set of named constants, giving meaningful names to a fixed group of related values instead of using raw numbers or strings scattered through code. A numeric enum auto-assigns 0, 1, 2... to each member unless you specify otherwise. A string enum requires you to give each member an explicit string value, which is safer for debugging (logs show the name, not a number).',
+          hinglish:
+            'Enum named constants ka ek set define karta hai, fixed group ki related values ko meaningful naam deta hai raw numbers ya strings code mein bikhairne ke bajaye. Numeric enum har member ko apne aap 0, 1, 2... assign karta hai jab tak alag na bolo. String enum har member ko explicit string value dene ki zaroorat padti hai, jo debugging ke liye safer hai (logs mein naam dikhta hai, number nahi).',
+        },
+        dailyLifeExample:
+          "Enum ek traffic signal ke fixed colors jaisa hai — RED, YELLOW, GREEN. Sirf inhi teen options mein se ek ho sakta hai, koi bhi random string/number nahi. Code padhne wale ko turant samajh aata hai 'RED' ka matlab kya hai, '0' ka nahi.",
+        codeExample:
+          "// numeric enum (auto-assigned: 0, 1, 2)\nenum Direction {\n  Up,    // 0\n  Down,  // 1\n  Left,  // 2\n  Right, // 3\n}\n\n// string enum (safer — explicit, readable values)\nenum Status {\n  Pending = 'PENDING',\n  Active = 'ACTIVE',\n  Inactive = 'INACTIVE',\n}\n\nfunction move(dir: Direction) {\n  if (dir === Direction.Up) console.log('Moving up');\n}\nmove(Direction.Up);\n\nfunction setStatus(s: Status) {\n  console.log(s); // logs 'ACTIVE', not a confusing number\n}\nsetStatus(Status.Active);",
+        keyPoints: [
+          'enum groups a fixed set of related named constants',
+          'Numeric enums auto-assign 0, 1, 2... unless overridden',
+          'String enums require explicit values but are more debuggable (readable in logs)',
+          'Prevents "magic numbers/strings" scattered through code',
+          'Access members with EnumName.Member (e.g. Status.Active)',
+        ],
+        quiz: [
+          {
+            question: 'In enum Direction { Up, Down, Left, Right }, what value does Down have by default?',
+            options: ['0', '1', '"Down"', 'undefined'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why might a string enum be preferred over a numeric one for debugging?',
+            options: ['String enums run faster', 'When logged, a string enum shows a readable name (e.g. "ACTIVE") instead of a confusing number', 'Numeric enums do not exist', 'String enums use less memory'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What problem do enums mainly solve?',
+            options: ['Making code run faster', 'Replacing scattered "magic numbers/strings" with a fixed set of meaningful named constants', 'Removing the need for interfaces', 'Adding runtime type checking'],
+            correctIndex: 1,
           },
         ],
       },
@@ -207,6 +256,16 @@ const beginner = [
               'age is optional and if present must be a number',
               'age can be any type',
               'age is a function that returns number',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'A function expects a User interface. You pass a plain object that has ALL the required properties but was never explicitly typed as User. Does TypeScript accept it?',
+            options: [
+              'No, it must be explicitly typed as User',
+              'Yes — TypeScript uses structural typing, so any object with a matching shape satisfies the interface',
+              'Only if you use `as User`',
+              'Only in strict mode',
             ],
             correctIndex: 1,
           },
@@ -256,6 +315,16 @@ const beginner = [
             ],
             correctIndex: 1,
           },
+          {
+            question: 'Inside `printId`, why does `id.toUpperCase()` work inside the `if (typeof id === "string")` block but would error outside it?',
+            options: [
+              'It never works',
+              'TypeScript narrows the union type ID (string | number) to just string inside that block, since a runtime check confirmed it',
+              'toUpperCase always works on any type',
+              'It is a bug in TypeScript',
+            ],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -268,6 +337,45 @@ const beginner = [
               hinglish:
                 'Discriminated union un types ka union hai jo ek common literal property (discriminant) share karte hain. Uss property pe switch karke type safely narrow kar sakte ho. Example: shapes mein `kind: "circle" | "square"` field ho — `kind === "circle"` check karne se TS samajh jaata hai ki object circle hai aur uske paas `radius` property hai.',
             },
+          },
+        ],
+      },
+      {
+        title: 'Type Narrowing & Type Guards',
+        difficulty: 'medium',
+        tags: ['narrowing', 'type-guards', 'union'],
+        explanation: {
+          english:
+            "When a variable has a union type (like string | number), TypeScript won't let you use type-specific methods until it can prove which type you actually have at that point — this proving process is called narrowing. Common narrowing techniques: typeof (for primitives), instanceof (for classes), the in operator (checking if a property exists), and discriminated unions (checking a shared literal 'kind' field). Inside each narrowed branch, TypeScript automatically knows the exact type.",
+          hinglish:
+            "Jab ek variable ka union type ho (jaise string | number), TypeScript tumhe type-specific methods use nahi karne deta jab tak wo prove na kar le ki us point pe actually kaunsa type hai — is proving process ko narrowing kehte hain. Common narrowing techniques: typeof (primitives ke liye), instanceof (classes ke liye), in operator (property exist karti hai ya nahi check karna), aur discriminated unions (ek shared literal 'kind' field check karna). Har narrowed branch ke andar, TypeScript automatically exact type jaan leta hai.",
+        },
+        dailyLifeExample:
+          "Narrowing ek courier delivery jaisa hai jo pehle package check karta hai 'ye letter hai ya parcel?' (typeof/instanceof check), phir uske hisaab se sahi handling karta hai — letter ko letterbox mein daalo, parcel ko doorbell bajake do. Bina check kiye galat handling ho sakti hai.",
+        codeExample:
+          "function printLength(value: string | number[]) {\n  // typeof narrowing\n  if (typeof value === 'string') {\n    console.log(value.length); // TS knows value is a string here\n  } else {\n    console.log(value.length); // TS knows value is number[] here\n  }\n}\n\ninterface Circle { kind: 'circle'; radius: number; }\ninterface Square { kind: 'square'; side: number; }\ntype Shape = Circle | Square;\n\nfunction area(shape: Shape): number {\n  // discriminated union narrowing on 'kind'\n  if (shape.kind === 'circle') {\n    return Math.PI * shape.radius ** 2; // TS knows it's a Circle here\n  }\n  return shape.side ** 2; // TS knows it's a Square here\n}\n\nclass Dog { bark() {} }\nclass Cat { meow() {} }\nfunction speak(animal: Dog | Cat) {\n  if (animal instanceof Dog) animal.bark(); // instanceof narrowing\n  else animal.meow();\n}",
+        keyPoints: [
+          'Narrowing = proving to TypeScript which specific type you have, within a union',
+          'typeof narrows primitives (string, number, boolean)',
+          'instanceof narrows class instances',
+          'Discriminated unions narrow via a shared literal field (e.g. kind)',
+          'Inside each narrowed branch, TS gives you full autocomplete for that specific type',
+        ],
+        quiz: [
+          {
+            question: "Why can't you call value.toUpperCase() directly on a value: string | number without narrowing first?",
+            options: ['You always can, TypeScript does not check this', 'number does not have a toUpperCase method, so TypeScript blocks it until you prove value is a string', 'toUpperCase is deprecated', 'It only works with any'],
+            correctIndex: 1,
+          },
+          {
+            question: "What is a 'discriminated union'?",
+            options: ['A union of exactly two types', 'A union of object types sharing a common literal property (like kind) used to narrow which type you have', 'Any union type', 'A type with no properties'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which operator narrows a union based on whether a value is an instance of a specific class?',
+            options: ['typeof', 'instanceof', 'in', 'as'],
+            correctIndex: 1,
           },
         ],
       },
@@ -309,6 +417,16 @@ const intermediate = [
               'Generics preserve type information while staying flexible',
               'Generics remove the need for interfaces',
               'Generics only work with arrays',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'const str = identity("hello"); — without writing identity<string>(...), how does TypeScript know T is string?',
+            options: [
+              'It defaults to string always',
+              'TypeScript infers T automatically from the argument you pass in',
+              'You must always specify it manually',
+              'It becomes any',
             ],
             correctIndex: 1,
           },
@@ -355,6 +473,16 @@ const intermediate = [
               'T can be any type that has a length property',
               'T is extended by length',
               'T must be an array',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'In `function getProperty<T, K extends keyof T>(obj: T, key: K): T[K]`, what does the return type T[K] mean?',
+            options: [
+              'T multiplied by K',
+              'The type of the value at key K in object type T (an indexed access type)',
+              'An array of T',
+              'A generic constraint only',
             ],
             correctIndex: 1,
           },
@@ -411,6 +539,16 @@ const intermediate = [
             ],
             correctIndex: 1,
           },
+          {
+            question: 'const [user, setUser] = useState<User | null>(null); — why is the explicit <User | null> needed instead of letting TypeScript infer it?',
+            options: [
+              'It is never needed',
+              'Inferring from just `null` would type user as always null; the explicit type tells TS it will later hold a User too',
+              'useState requires it by syntax',
+              'It makes the app faster',
+            ],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -423,6 +561,52 @@ const intermediate = [
               hinglish:
                 'React ke built-in event types use karo. Button click ke liye: `React.MouseEvent<HTMLButtonElement>`. Input change ke liye: `React.ChangeEvent<HTMLInputElement>`. Form submit ke liye: `React.FormEvent<HTMLFormElement>`. Generic parameter woh HTML element hai jis pe event fire hota hai.',
             },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Classes & OOP in TypeScript',
+    level: 'intermediate',
+    description: 'Access modifiers aur interfaces ke saath type-safe classes.',
+    concepts: [
+      {
+        title: 'Classes in TypeScript: Access Modifiers',
+        difficulty: 'medium',
+        tags: ['classes', 'oop', 'access-modifiers'],
+        explanation: {
+          english:
+            "TypeScript adds access modifiers to classes that plain JavaScript doesn't enforce at compile time: public (default — accessible from anywhere), private (only accessible inside the class itself), and protected (accessible inside the class and its subclasses, but not from outside). A class can implement an interface (implements) to guarantee it has certain properties/methods, distinct from extends which inherits from another class.",
+          hinglish:
+            'TypeScript classes mein access modifiers add karta hai jo plain JavaScript compile time pe enforce nahi karta: public (default — kahin se bhi accessible), private (sirf class ke andar accessible), aur protected (class aur uske subclasses ke andar accessible, par bahar se nahi). Ek class ek interface implement kar sakti hai (implements) guarantee dene ke liye ki uske paas certain properties/methods hain, jo extends se alag hai (jo doosri class se inherit karta hai).',
+        },
+        dailyLifeExample:
+          'public ek dukaan ka reception counter hai — koi bhi customer aa sakta hai. private ek staff-only backroom hai — sirf employees (class ke andar ka code) andar jaa sakte hain. protected ek family business ka locker hai — sirf family members (subclasses) access kar sakte hain, bahar wale nahi.',
+        codeExample:
+          "interface Payable {\n  getSalary(): number;\n}\n\nclass Employee implements Payable {\n  public name: string;       // accessible from anywhere (default)\n  private salary: number;    // only accessible inside Employee\n  protected department: string; // accessible in Employee + subclasses\n\n  constructor(name: string, salary: number, department: string) {\n    this.name = name;\n    this.salary = salary;\n    this.department = department;\n  }\n\n  getSalary(): number {\n    return this.salary; // OK — inside the class\n  }\n}\n\nclass Manager extends Employee {\n  showDept() {\n    console.log(this.department); // OK — protected, accessible in subclass\n    // console.log(this.salary);  // ❌ Error: private, not accessible here\n  }\n}\n\nconst emp = new Employee('Aman', 50000, 'Engineering');\n// emp.salary;  // ❌ Error: private, not accessible outside the class\nemp.getSalary(); // ✓ 50000",
+        keyPoints: [
+          'public (default): accessible from anywhere',
+          'private: only accessible inside the declaring class itself',
+          'protected: accessible in the class AND its subclasses, not from outside',
+          "implements guarantees a class has an interface's shape; extends inherits from a parent class",
+          'These are compile-time checks only — JavaScript at runtime does not enforce them (until real #private fields)',
+        ],
+        quiz: [
+          {
+            question: 'Can code OUTSIDE a class access a property marked private?',
+            options: ['Yes, always', 'No — private members are only accessible inside the class that declares them', 'Only in subclasses', 'Only with a special import'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the difference between protected and private?',
+            options: ['No difference', 'protected is also accessible in subclasses; private is accessible only within the exact declaring class', 'protected is for functions only', 'private is deprecated'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does implements Payable guarantee about a class?',
+            options: ['The class inherits all code from Payable', 'The class must have the properties/methods that the Payable interface requires', 'Nothing, implements is optional syntax', 'The class becomes private'],
+            correctIndex: 1,
           },
         ],
       },
@@ -467,6 +651,16 @@ const advanced = [
             ],
             correctIndex: 1,
           },
+          {
+            question: 'What is the key difference between Pick<User, "id"|"name"> and Omit<User, "password">?',
+            options: [
+              'No difference',
+              'Pick KEEPS only the listed keys; Omit REMOVES only the listed keys, keeping everything else',
+              'Pick is for arrays, Omit is for objects',
+              'Omit is deprecated',
+            ],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -479,6 +673,45 @@ const advanced = [
               hinglish:
                 'Partial<T>: sab props optional. Required<T>: sab props required. Readonly<T>: props read-only. Pick<T, K>: sirf K keys rakho. Omit<T, K>: K keys hata do. Record<K, V>: K keys se V values ka map. ReturnType<F>: function ka return type extract karo. NonNullable<T>: null aur undefined remove karo.',
             },
+          },
+        ],
+      },
+      {
+        title: 'Type Assertions: as and Type Casting',
+        difficulty: 'hard',
+        tags: ['type-assertion', 'casting', 'advanced'],
+        explanation: {
+          english:
+            "A type assertion (value as Type) tells TypeScript 'trust me, I know this value's type better than you do' — it does NOT convert or check anything at runtime, it just changes how TypeScript treats the value at compile time. This is different from type narrowing (which TypeScript verifies) — an assertion is an unchecked promise from the developer, so using it incorrectly can hide real bugs. Common legitimate use: narrowing a broad DOM type like Element to a specific one like HTMLInputElement after you're sure.",
+          hinglish:
+            "Type assertion (value as Type) TypeScript ko batata hai 'mujh pe bharosa karo, mujhe is value ka type tumse behtar pata hai' — ye runtime pe kuch convert ya check NAHI karta, sirf compile time pe TypeScript value ko kaise treat kare wo badalta hai. Ye type narrowing se alag hai (jise TypeScript verify karta hai) — assertion developer ka ek unchecked promise hai, isliye galat use karne se asli bugs chhup sakte hain. Common legitimate use: ek broad DOM type jaise Element ko specific type jaise HTMLInputElement mein narrow karna jab tumhe pakka pata ho.",
+        },
+        dailyLifeExample:
+          "Type assertion ek self-declaration form jaisa hai — tum khud bol rahe ho 'main confirm karta hoon ye packet fragile hai', bina kisi ne actually check kiye. Agar tum galat bole, courier company (TypeScript) tumhe rokegi nahi — par package tootne ka risk tumhara hai, unka nahi.",
+        codeExample:
+          "// DOM element is typed broadly as HTMLElement | null by default\nconst input = document.getElementById('email') as HTMLInputElement;\ninput.value = 'test@example.com'; // .value only exists on HTMLInputElement\n\n// alternative syntax (not usable in .tsx files)\nconst input2 = <HTMLInputElement>document.getElementById('email');\n\n// DANGEROUS: asserting something that is NOT actually true\nconst data = 'hello' as unknown as number; // compiles, but WRONG at runtime\nconsole.log(data + 1); // no compile error, but a nonsensical result\n\n// non-null assertion (!) — 'trust me, this is not null'\nfunction getUser(id: string) {\n  const user = users.find(u => u.id === id);\n  return user!.name; // asserts user is not undefined — risky if it actually is!\n}",
+        keyPoints: [
+          'value as Type changes how TypeScript treats the value — it does NOT convert or check anything at runtime',
+          'Unlike narrowing, TypeScript does not verify an assertion — you are telling it to trust you',
+          'A wrong assertion compiles fine but can cause real runtime bugs',
+          'Common safe use: narrowing a broad DOM type after you are sure (e.g. Element as HTMLInputElement)',
+          'The non-null assertion (value!) asserts something is not null/undefined — use sparingly',
+        ],
+        quiz: [
+          {
+            question: 'Does `value as Type` convert or check the value at runtime?',
+            options: ['Yes, it converts the value', 'No — it only changes how TypeScript treats the value at compile time; nothing happens at runtime', 'It throws an error if wrong', 'It only works on numbers'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the risk of using a type assertion incorrectly?',
+            options: ['The code will not compile', 'It compiles fine but can hide real bugs, since TypeScript does not verify the assertion is true', 'TypeScript automatically fixes it', 'There is no risk'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is a common LEGITIMATE use of a type assertion?',
+            options: ['Converting a string to a number at runtime', 'Narrowing a broad DOM type (like Element) to a more specific one (like HTMLInputElement) when you are certain of it', 'Replacing all interfaces', 'Making a variable private'],
+            correctIndex: 1,
           },
         ],
       },
