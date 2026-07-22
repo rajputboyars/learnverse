@@ -60,6 +60,21 @@ const beginner = [
             ],
             correctIndex: 1,
           },
+          {
+            question: 'What is a key benefit of storing state in a global store instead of local component state?',
+            options: [
+              'It makes the app slower on purpose',
+              'Any component can read or update it directly, without passing props through every level',
+              'It removes the need for React entirely',
+              'It disables re-renders completely',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is a lightweight, built-in React alternative to a global state library for low-frequency updates?',
+            options: ['Redux Toolkit', 'The Context API', 'Zustand', 'RTK Query'],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -72,6 +87,60 @@ const beginner = [
               hinglish:
                 'Context low-frequency updates ke liye theek hai (theme, locale, auth user) kyunki value change hone par har consumer re-render hota hai. Redux ya Zustand tab use karo jab: state updates frequent hoon (cart, real-time data), middleware chahiye (logging, async thunks), state complex ho kai actions ke saath, ya devtools/time-travel debugging chahiye. Small-medium apps ke liye Context + useReducer aksar kafi hota hai.',
             },
+          },
+        ],
+      },
+      {
+        title: 'Redux Core Principles & the Reducer Pattern',
+        difficulty: 'medium',
+        tags: ['redux', 'principles', 'reducer', 'pure-function'],
+        explanation: {
+          english:
+            "Before touching Redux Toolkit's `createSlice`, it's worth understanding the THREE principles the entire library is built on — they explain WHY Redux code is shaped the way it is, and they show up constantly in interviews.\n\n1. **Single source of truth**: the entire application's state lives in ONE JavaScript object tree, inside a single store. This makes debugging easier (one place to inspect) and enables features like DevTools time-travel and persisting the whole app's state to localStorage in one line.\n\n2. **State is read-only**: the only way to change state is to dispatch an ACTION — a plain object describing what happened (e.g. `{ type: 'cart/addItem', payload: {...} }`). You never mutate state directly (`state.count++` is forbidden in raw Redux); this makes changes traceable and predictable — every state transition has a corresponding, logged action.\n\n3. **Changes are made with pure functions (reducers)**: a reducer is a function `(state, action) => newState` that must be PURE — given the same inputs, it always returns the same output, with no side effects (no API calls, no mutating arguments, no `Math.random()`, no `Date.now()`). This purity is what makes time-travel debugging and predictable testing possible: you can call a reducer with the same state+action a thousand times and always get the identical result.\n\nRedux Toolkit's `createSlice` doesn't remove these principles — it just uses Immer to let you WRITE code that looks like mutation while still producing the immutable update these principles require underneath.",
+          hinglish:
+            "Redux Toolkit ke `createSlice` ko touch karne se pehle, poori library jin TEEN principles pe built hai unhe samajhna zaroori hai — ye batate hain ki Redux code aisa kyun likha jaata hai, aur ye interviews mein constantly aate hain.\n\n1. **Single source of truth**: poori application ki state EK JavaScript object tree mein rehti hai, ek single store ke andar. Isse debugging aasan hoti hai (inspect karne ke liye ek jagah) aur DevTools time-travel jaisi features aur poore app ki state ko localStorage mein ek line mein persist karna possible hota hai.\n\n2. **State read-only hai**: state change karne ka sirf ek tareeka hai — ek ACTION dispatch karna — ek plain object jo batata hai kya hua (jaise `{ type: 'cart/addItem', payload: {...} }`). State ko kabhi directly mutate nahi karte (`state.count++` raw Redux mein forbidden hai); isse changes traceable aur predictable hote hain — har state transition ka ek corresponding, logged action hota hai.\n\n3. **Changes pure functions (reducers) se hote hain**: ek reducer ek function `(state, action) => newState` hai jo PURE hona chahiye — same inputs diye gaye toh hamesha same output return karta hai, koi side effects nahi (no API calls, no mutating arguments, no `Math.random()`, no `Date.now()`). Yahi purity time-travel debugging aur predictable testing possible banati hai: tum ek reducer ko same state+action ke saath hazaar baar call kar sakte ho aur hamesha identical result milega.\n\nRedux Toolkit ka `createSlice` in principles ko hataata nahi — ye bas Immer use karta hai taaki tum aisa code likh sako jo mutation jaisa dikhe, jabki neeche in principles ki maangi immutable update produce ho.",
+        },
+        dailyLifeExample:
+          "Single source of truth waise hai jaise ek company ka sirf ek official record book hona, alag-alag departments ke apne-apne notes nahi. State read-only aur actions waise hain jaise koi bhi change sirf ek formal application form (action) submit karke ho, direct pen se overwrite nahi. Pure function reducer waise hai jaise ek calculator — same numbers doge to hamesha same answer milega, kabhi mood ke hisaab se alag nahi.",
+        codeExample:
+          "// A reducer must be a PURE function: (state, action) => newState\n\n// BAD — impure, mutates directly, uses Date.now() (non-deterministic)\nfunction badReducer(state, action) {\n  state.items.push(action.payload);  // mutation! forbidden\n  state.lastUpdated = Date.now();    // side effect! non-deterministic\n  return state;\n}\n\n// GOOD — pure, returns a new object, no side effects\nfunction goodReducer(state, action) {\n  switch (action.type) {\n    case 'cart/addItem':\n      return {\n        ...state,\n        items: [...state.items, action.payload],\n      };\n    default:\n      return state;\n  }\n}\n\n// Redux Toolkit's createSlice LOOKS like mutation but Immer\n// translates it into the pure, immutable pattern above:\nreducers: {\n  addItem(state, action) {\n    state.items.push(action.payload); // looks mutating, Immer makes it safe\n  },\n}",
+        keyPoints: [
+          'Single source of truth: the whole app state lives in one store/object tree',
+          'State is read-only: the only way to change it is to dispatch a plain-object action',
+          'Reducers must be pure functions: same (state, action) input always produces the same output, no side effects',
+          'Purity is what enables time-travel debugging and predictable testing',
+          'Redux Toolkit\'s Immer lets you write "mutating" code that still produces immutable updates underneath',
+        ],
+        quiz: [
+          {
+            question: 'What does the "single source of truth" principle mean in Redux?',
+            options: [
+              'Each component has its own separate store',
+              "The entire application's state lives in one object tree inside a single store",
+              'Only the admin user can change state',
+              'State is stored in a database, never in memory',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why must a Redux reducer be a pure function?',
+            options: [
+              'It is just a style preference with no real benefit',
+              'Purity guarantees the same (state, action) input always produces the same output, enabling predictable testing and time-travel debugging',
+              'Pure functions run faster on all hardware',
+              'Impure reducers are not allowed by JavaScript syntax',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the ONLY way to change state according to Redux principles?',
+            options: [
+              'Directly mutating the state object',
+              'Dispatching an action describing what happened, which a reducer processes',
+              'Calling setState() directly on the store',
+              'Editing the store file at runtime',
+            ],
+            correctIndex: 1,
           },
         ],
       },
@@ -113,6 +182,26 @@ const intermediate = [
               'Combines state, reducers and auto-generates actions in one call',
               'Replaces useState',
               'Creates CSS modules',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'How does Redux Toolkit let you write code that "mutates" state directly inside a reducer?',
+            options: [
+              'It secretly ignores mutations',
+              'It uses Immer under the hood to translate "mutating" code into safe, immutable updates',
+              'It disables immutability entirely',
+              'It only allows read operations',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does configureStore set up automatically that older Redux required manual setup for?',
+            options: [
+              'Nothing extra',
+              'Good defaults including Redux DevTools integration and middleware like redux-thunk',
+              'A database connection',
+              'A CSS bundler',
             ],
             correctIndex: 1,
           },
@@ -159,6 +248,26 @@ const intermediate = [
               'pending, fulfilled, rejected',
               'loading, success, error',
               'request, response, catch',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Where do you handle the pending/fulfilled/rejected actions from a createAsyncThunk?',
+            options: [
+              'In the component directly',
+              'In the slice\'s extraReducers using builder.addCase',
+              'In configureStore',
+              'They are handled automatically with no code needed',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is RTK Query, mentioned as a higher-level alternative to manual thunks?',
+            options: [
+              'A CSS-in-JS library',
+              'A complete data-fetching and caching solution built on top of Redux Toolkit',
+              'A database query language',
+              'A replacement for React itself',
             ],
             correctIndex: 1,
           },
@@ -209,6 +318,26 @@ const intermediate = [
             question: 'Which of these is NOT required when using Zustand?',
             options: ['create()', 'A selector function', 'A Provider wrapper component', 'The useStore hook'],
             correctIndex: 2,
+          },
+          {
+            question: 'How do actions typically get defined in a Zustand store?',
+            options: [
+              'In a completely separate reducer file',
+              'Directly inside the same create() function alongside the state',
+              'They cannot be defined, only external functions can update state',
+              'Only via middleware',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Roughly how does Zustand\'s bundle size compare to Redux Toolkit\'s?',
+            options: [
+              'Zustand is much larger',
+              'Zustand is much smaller (~1 KB vs ~20 KB for RTK)',
+              'They are exactly the same size',
+              'Bundle size is not a meaningful comparison here',
+            ],
+            correctIndex: 1,
           },
         ],
         interviewQuestions: [
@@ -266,6 +395,26 @@ const advanced = [
             ],
             correctIndex: 1,
           },
+          {
+            question: 'Why is time-travel debugging possible in Redux but hard in an app with mutable, ad-hoc state?',
+            options: [
+              'It is not actually related to how state is managed',
+              'Redux state is immutable and actions are recorded, so every past state can be reconstructed and replayed',
+              'Redux stores state in a database',
+              'Time-travel only works with class components',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'How do you enable DevTools-style debugging in a Zustand store?',
+            options: [
+              'It is impossible in Zustand',
+              'Wrap the store creation function with the devtools() middleware',
+              'Install a separate npm package with no code changes',
+              'Zustand has no concept of middleware',
+            ],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -278,6 +427,114 @@ const advanced = [
               hinglish:
                 'Time-travel debugging dispatch kiye gaye har action ke through backwards aur forwards step karne deta hai. Kyunki Redux state immutable hai aur actions plain objects hain, har state transition record hoti hai. Kisi bhi sequence replay kar sakte ho, kisi bhi previous state pe jump kar sakte ho, ya bug reproduce karne ke liye actions skip kar sakte ho — page reload kiye bina.',
             },
+          },
+        ],
+      },
+      {
+        title: 'Optimizing Re-renders: Selectors & Memoization',
+        difficulty: 'hard',
+        tags: ['performance', 'selectors', 'reselect', 'memoization'],
+        explanation: {
+          english:
+            "A common performance bug: a component re-renders on EVERY state change, even when the specific piece of data it cares about hasn't changed. This happens because of how selectors return values.\n\n**The problem in Redux**: `useSelector(state => state.cart.items.filter(i => i.inStock))` creates a BRAND NEW array on every single render (because `.filter()` always returns a new array reference), even if the underlying data is identical. Since `useSelector` re-renders the component whenever the selector's return value is a DIFFERENT reference (by default, `===` comparison), this component re-renders on every single Redux state change, anywhere in the app — wasteful.\n\n**The fix — memoized selectors (Reselect)**: `createSelector` from Reselect (bundled with RTK) creates a selector that only recomputes when its INPUT selectors' outputs actually change. It caches the last result, and if the relevant slice of state is unchanged, it returns the exact same array/object reference — so `useSelector`'s reference-equality check sees no change and skips the re-render.\n\n**The equivalent problem in Zustand**: selecting multiple values as an object (`useStore(state => ({ a: state.a, b: state.b }))`) creates a new object every render too. Fix: either select primitives individually (multiple hook calls), or use Zustand's `shallow` comparison function to compare object contents instead of reference.\n\nRule of thumb: derived/computed values (filtering, sorting, mapping over state) are exactly where this bites — always memoize them.",
+          hinglish:
+            "Ek common performance bug: ek component HAR state change pe re-render hota hai, chahe wo specific data jisme use interest hai badla hi na ho. Ye isliye hota hai kyunki selectors values kaise return karte hain.\n\n**Redux mein problem**: `useSelector(state => state.cart.items.filter(i => i.inStock))` har single render pe ek BILKUL NAYA array banata hai (kyunki `.filter()` hamesha ek nayi array reference return karta hai), chahe underlying data identical ho. Kyunki `useSelector` component ko re-render karta hai jab bhi selector ka return value ek ALAG reference ho (default se, `===` comparison), ye component app mein kahin bhi har single Redux state change pe re-render hota hai — wasteful.\n\n**Fix — memoized selectors (Reselect)**: Reselect ka `createSelector` (RTK ke saath bundled) ek aisa selector banata hai jo sirf tab recompute karta hai jab uske INPUT selectors ke outputs actually change hon. Ye last result cache karta hai, aur agar state ka relevant slice unchanged hai, wo exactly same array/object reference return karta hai — isliye `useSelector` ka reference-equality check koi change nahi dekhta aur re-render skip ho jaata hai.\n\n**Zustand mein equivalent problem**: multiple values ko ek object ke roop mein select karna (`useStore(state => ({ a: state.a, b: state.b }))`) bhi har render pe ek naya object banata hai. Fix: ya toh primitives ko individually select karo (multiple hook calls), ya Zustand ka `shallow` comparison function use karo jo object contents compare kare, reference nahi.\n\nRule of thumb: derived/computed values (state pe filtering, sorting, mapping) exactly wahan hain jahan ye bite karta hai — hamesha inhe memoize karo.",
+        },
+        dailyLifeExample:
+          "Ye waise hai jaise har baar tumhe grocery list dikhani ho, tum poori list ko phir se photocopy karke do — chahe list mein kuch badla ho ya nahi. Memoized selector waise hai jaise tum sirf tab nayi photocopy karte ho jab list actually badle, warna purani photocopy hi dobara de dete ho — kaam kam, waste kam.",
+        codeExample:
+          "// PROBLEM: creates a new array every render -> re-renders on ANY state change\nfunction Cart() {\n  const inStockItems = useSelector(\n    (state) => state.cart.items.filter((i) => i.inStock) // new array every time!\n  );\n  return <ul>{inStockItems.map(i => <li key={i.id}>{i.name}</li>)}</ul>;\n}\n\n// FIX: memoized selector with Reselect\nimport { createSelector } from '@reduxjs/toolkit';\n\nconst selectCartItems = (state) => state.cart.items;\nconst selectInStockItems = createSelector(\n  [selectCartItems],\n  (items) => items.filter((i) => i.inStock) // only recomputes if items actually changed\n);\n\nfunction Cart() {\n  const inStockItems = useSelector(selectInStockItems); // stable reference when unchanged\n  return <ul>{inStockItems.map(i => <li key={i.id}>{i.name}</li>)}</ul>;\n}\n\n// Zustand equivalent: use shallow comparison for object selections\nimport { useShallow } from 'zustand/react/shallow';\n\nconst { a, b } = useStore(useShallow((state) => ({ a: state.a, b: state.b })));",
+        keyPoints: [
+          'Selectors that create new arrays/objects (filter, map, sort) trigger re-renders on every state change by default',
+          'useSelector re-renders when the selector\'s return value has a different reference (===), not deep equality',
+          'createSelector (Reselect) memoizes: it only recomputes when its input selectors\' outputs actually change',
+          'A memoized selector returns the SAME reference when nothing relevant changed, skipping unnecessary re-renders',
+          'Zustand has the same issue with object-shaped selections — use shallow comparison to fix it',
+        ],
+        quiz: [
+          {
+            question: 'Why does `useSelector(state => state.items.filter(...))` cause unnecessary re-renders?',
+            options: [
+              'filter() is too slow',
+              '.filter() returns a brand new array reference on every render, so the reference-equality check always sees a "change"',
+              'useSelector does not support filter',
+              'It never causes re-renders',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does a memoized selector created with createSelector do differently?',
+            options: [
+              'It runs the computation twice for safety',
+              'It only recomputes when its input selectors\' outputs actually change, returning the same cached reference otherwise',
+              'It disables re-renders entirely for the whole app',
+              'It stores the result in a database',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'In Zustand, what fixes unnecessary re-renders when selecting multiple values as an object?',
+            options: [
+              'Nothing can fix this in Zustand',
+              'Using shallow comparison (e.g. useShallow) to compare object contents instead of reference',
+              'Switching to Redux instead',
+              'Selecting the entire store state at once',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'RTK Query: Data Fetching & Caching',
+        difficulty: 'hard',
+        tags: ['rtk-query', 'data-fetching', 'caching', 'api-slice'],
+        explanation: {
+          english:
+            "Manually writing createAsyncThunk + extraReducers for every API endpoint (loading/error/data states, avoiding duplicate requests, refetching when stale) is repetitive boilerplate. **RTK Query**, included in Redux Toolkit, is a data-fetching and caching layer that eliminates almost all of it.\n\nYou define an `apiSlice` with `createApi`, listing endpoints (`getCourses`, `addCourse`, etc.) instead of writing thunks and reducers by hand. RTK Query auto-generates React hooks for each endpoint (`useGetCoursesQuery`, `useAddCourseMutation`) that handle:\n- Loading/error/data states automatically (no manual `isLoading` flags)\n- Caching responses so multiple components requesting the same data share ONE network request\n- Automatic refetching and cache invalidation via `tags` — e.g. after `addCourse` mutation succeeds, mark the `Courses` tag as invalidated, and any component using `useGetCoursesQuery` automatically refetches fresh data\n- Deduplication of identical in-flight requests\n\nThis is conceptually the same problem SWR and React Query solve for plain React — RTK Query is Redux's built-in answer, so if you're already using Redux Toolkit for other state, you don't need a second data-fetching library.",
+          hinglish:
+            "Har API endpoint ke liye manually createAsyncThunk + extraReducers likhna (loading/error/data states, duplicate requests avoid karna, stale hone par refetch karna) repetitive boilerplate hai. **RTK Query**, jo Redux Toolkit mein included hai, ek data-fetching aur caching layer hai jo isme se almost sab khatam kar deta hai.\n\nTum `createApi` se ek `apiSlice` define karte ho, endpoints (`getCourses`, `addCourse`, etc.) list karke, hath se thunks aur reducers likhne ke bajaye. RTK Query har endpoint ke liye automatically React hooks generate karta hai (`useGetCoursesQuery`, `useAddCourseMutation`) jo ye handle karte hain:\n- Loading/error/data states automatically (manual `isLoading` flags nahi chahiye)\n- Responses ko cache karna taaki multiple components jo same data request karein ek hi network request share karein\n- `tags` ke through automatic refetching aur cache invalidation — jaise `addCourse` mutation succeed hone ke baad, `Courses` tag ko invalidated mark karo, aur jo bhi component `useGetCoursesQuery` use kar raha hai wo automatically fresh data refetch kare\n- Identical in-flight requests ki deduplication\n\nYe conceptually wahi problem hai jo SWR aur React Query plain React ke liye solve karte hain — RTK Query Redux ka built-in jawab hai, isliye agar tum pehle se Redux Toolkit use kar rahe ho baaki state ke liye, tumhe ek dusri data-fetching library ki zaroorat nahi.",
+        },
+        dailyLifeExample:
+          "RTK Query waise hai jaise ek smart office reception jo har visitor ka data khud manage karta hai — kaun aaya, kaunsi jaankari purani ho gayi, kise dobara bulana hai — bina har department ko manually track karna pade. Cache invalidation waise hai jaise jab koi record update ho, reception automatically saare related boards refresh kar deta hai.",
+        codeExample:
+          "// store/apiSlice.js\nimport { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';\n\nexport const apiSlice = createApi({\n  reducerPath: 'api',\n  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),\n  tagTypes: ['Courses'],\n  endpoints: (builder) => ({\n    getCourses: builder.query({\n      query: () => '/courses',\n      providesTags: ['Courses'],\n    }),\n    addCourse: builder.mutation({\n      query: (newCourse) => ({ url: '/courses', method: 'POST', body: newCourse }),\n      invalidatesTags: ['Courses'], // triggers auto-refetch of getCourses everywhere\n    }),\n  }),\n});\n\nexport const { useGetCoursesQuery, useAddCourseMutation } = apiSlice;\n\n// Component — no useEffect, no manual loading state\nfunction CoursesPage() {\n  const { data: courses, isLoading, error } = useGetCoursesQuery();\n  const [addCourse] = useAddCourseMutation();\n\n  if (isLoading) return <p>Loading...</p>;\n  if (error) return <p>Error loading courses</p>;\n  return <ul>{courses.map(c => <li key={c._id}>{c.title}</li>)}</ul>;\n}",
+        keyPoints: [
+          'RTK Query eliminates manual thunk + extraReducers boilerplate for API calls',
+          'createApi + endpoints auto-generates React hooks (useGetXQuery, useAddXMutation)',
+          'Automatically tracks loading/error/data state per endpoint — no manual flags needed',
+          'Caches responses so multiple components share one network request for the same data',
+          'tags/providesTags/invalidatesTags drive automatic refetching after mutations',
+        ],
+        quiz: [
+          {
+            question: 'What problem does RTK Query primarily solve compared to manual createAsyncThunk usage?',
+            options: [
+              'It replaces React entirely',
+              'It eliminates repetitive boilerplate for loading/error/data state and adds automatic caching and refetching',
+              'It removes the need for a backend API',
+              'It only works with GraphQL',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does invalidatesTags on a mutation endpoint do?',
+            options: [
+              'It deletes data permanently from the server',
+              'It marks a tag as stale, causing components using queries with the matching providesTags to automatically refetch',
+              'It disables the mutation',
+              'It has no effect on other queries',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'If two different components both call useGetCoursesQuery() at the same time, what does RTK Query do?',
+            options: [
+              'It fires two separate, duplicate network requests',
+              'It shares/deduplicates the request, so only one network call is made and both components get the same cached data',
+              'It throws an error for duplicate hook usage',
+              'Only one component receives any data',
+            ],
+            correctIndex: 1,
           },
         ],
       },
