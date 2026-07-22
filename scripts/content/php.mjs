@@ -268,6 +268,45 @@ const beginner = [
         ],
       },
       {
+        title: 'Modern PHP: Null Coalescing (??) & match',
+        difficulty: 'medium',
+        tags: ['null-coalescing', 'match', 'modern-php'],
+        explanation: {
+          english:
+            "The null coalescing operator (??) returns its left side if it exists and is not null, otherwise the right side — perfect for default values without a verbose isset() check: $name = $_GET['name'] ?? 'Guest'. Its cousin ??= assigns only if the variable is currently null/unset. PHP 8 introduced match as a more powerful, safer alternative to switch: it uses STRICT comparison (===, no type coercion), requires no break statements (no fall-through bugs), and is an EXPRESSION that returns a value directly, and it throws an error if no case matches (unless you add a default).",
+          hinglish:
+            "Null coalescing operator (??) apni left side return karta hai agar wo exist karti hai aur null nahi hai, warna right side — bina verbose isset() check ke default values ke liye perfect: $name = $_GET['name'] ?? 'Guest'. Iska cousin ??= sirf tabhi assign karta hai jab variable abhi null/unset ho. PHP 8 ne match introduce kiya switch ke ek zyada powerful, safer alternative ki tarah: ye STRICT comparison use karta hai (===, koi type coercion nahi), koi break statements nahi chahiye (fall-through bugs nahi), aur ye ek EXPRESSION hai jo seedha value return karta hai, aur agar koi case match na ho to error throw karta hai (jab tak default na ho).",
+        },
+        dailyLifeExample:
+          "?? ek backup plan jaisa hai — 'agar primary option available hai to wo lo, warna backup lo'. match ek smart vending machine jaisa hai — button dabao, exact match wali cheez seedha haath mein aa jaati hai (return), koi 'aur bhi dabana padega' (break) nahi chahiye.",
+        codeExample:
+          "<?php\n// Null coalescing: default when missing/null\n$name = $_GET['name'] ?? 'Guest';\necho \"Hello, $name\";\n\n// ??= assigns only if currently null/unset\n$config['theme'] ??= 'dark'; // sets only if not already set\n\n// match: strict, no fall-through, returns a value\n$statusCode = 404;\n$message = match ($statusCode) {\n    200 => 'OK',\n    404 => 'Not Found',\n    500 => 'Server Error',\n    default => 'Unknown Status',\n};\necho $message; // 'Not Found'\n\n// match uses === (strict) — this matters!\n$value = '1';\n$result = match ($value) {\n    1 => 'matched as int',      // NOT matched — '1' !== 1\n    '1' => 'matched as string', // this one matches\n};",
+        keyPoints: [
+          '$x ?? $default returns $x if it exists and is not null, otherwise $default',
+          '??= assigns a value only if the variable is currently null/unset',
+          'match compares with STRICT === (no type coercion), unlike switch which uses ==',
+          'match needs no break — each arm returns automatically, no fall-through bugs',
+          'match is an expression (you can assign its result); switch is a statement (it is not)',
+        ],
+        quiz: [
+          {
+            question: "What does $name = $_GET['name'] ?? 'Guest'; do if 'name' is not in $_GET?",
+            options: ['Throws an error', 'Assigns "Guest" to $name', 'Assigns null to $name', 'Does nothing'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Does match use strict (===) or loose (==) comparison?',
+            options: ['Loose (==), same as switch', 'Strict (===), unlike switch', 'Neither, it does not compare at all', 'It depends on a setting'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is a key advantage of match over switch regarding fall-through bugs?',
+            options: ['match has the same fall-through risk', 'match needs no break statements — each arm is self-contained, eliminating accidental fall-through', 'match cannot have multiple cases', 'switch does not have fall-through either'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
         title: 'Loops: for, while & foreach',
         difficulty: 'easy',
         tags: ['loops', 'foreach'],
@@ -386,6 +425,45 @@ const intermediate = [
               hinglish:
                 'Default roop se, function ke bahar declare kiye variables uske andar VISIBLE nahi hote — function body ka apna local scope hota hai. Bahar wale variable ko andar use karne ke liye ya to use parameter ke roop mein pass karo (best), global keyword se declare karo, ya $GLOBALS superglobal array se access karo. Parameter pass karna sabse saaf hai kyunki ye chhipi hui dependencies se bachata hai aur function ko test karna aasaan banata hai.',
             },
+          },
+        ],
+      },
+      {
+        title: 'Functional Array Methods: array_map, array_filter & array_reduce',
+        difficulty: 'medium',
+        tags: ['arrays', 'functions'],
+        explanation: {
+          english:
+            'Beyond loops, PHP has three functional array tools that transform data in one line, similar to their equivalents in JavaScript. array_map(callback, array) applies a function to EVERY element and returns a new array of the same length. array_filter(array, callback) keeps only elements where the callback returns true, producing a shorter array. array_reduce(array, callback, initial) collapses the whole array down into a single value (like a sum or total). None of these modify the original array — they return new ones.',
+          hinglish:
+            'Loops ke alawa, PHP ke paas teen functional array tools hain jo ek line mein data transform karte hain, JavaScript ke equivalents jaise. array_map(callback, array) har element pe ek function apply karta hai aur same length ka naya array deta hai. array_filter(array, callback) sirf un elements ko rakhta hai jaha callback true return kare, chhota array banata hai. array_reduce(array, callback, initial) poore array ko ek single value mein nichod deta hai (jaise sum ya total). Inme se koi bhi original array ko modify nahi karta — naya array return karte hain.',
+        },
+        dailyLifeExample:
+          'array_map ek factory line jaisa hai jo har product pe ek hi kaam karta hai (sabko double karo). array_filter ek quality-checker hai jo sirf achhe products ko aage jaane deta hai. array_reduce ek cashier hai jo poori shopping ki items ko ek final total mein badal deta hai.',
+        codeExample:
+          "<?php\n$nums = [1, 2, 3, 4, 5];\n\n// array_map: transform every element\n$doubled = array_map(fn($n) => $n * 2, $nums);\nprint_r($doubled);   // [2, 4, 6, 8, 10]\n\n// array_filter: keep only matching elements\n$evens = array_filter($nums, fn($n) => $n % 2 === 0);\nprint_r($evens);     // [1 => 2, 3 => 4] — keys preserved!\n\n// array_reduce: collapse to one value\n$sum = array_reduce($nums, fn($carry, $n) => $carry + $n, 0);\necho $sum;            // 15\n\n// re-index the filtered array if needed\n$evensList = array_values($evens); // [2, 4]",
+        keyPoints: [
+          'array_map(fn, arr): transforms every element, same length, new array',
+          'array_filter(arr, fn): keeps matching elements, shorter array — but keeps ORIGINAL keys',
+          'array_reduce(arr, fn, initial): collapses the array into one value',
+          'None of these mutate the original array — always work on the returned result',
+          'array_filter does not re-index keys — use array_values() if you need a clean 0-based array',
+        ],
+        quiz: [
+          {
+            question: 'What does array_map do to the length of the array?',
+            options: ['Always makes it shorter', 'Keeps it the same — one output per input', 'Always makes it longer', 'Removes duplicates'],
+            correctIndex: 1,
+          },
+          {
+            question: 'After array_filter($nums, fn($n) => $n % 2 === 0) on [1,2,3,4,5], what happens to the array KEYS in the result?',
+            options: ['They are re-indexed starting from 0', 'The original keys are preserved (gaps included) — use array_values() to re-index', 'All keys become the same', 'Keys are removed entirely'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which function collapses an entire array into a single total value?',
+            options: ['array_map', 'array_filter', 'array_reduce', 'array_merge'],
+            correctIndex: 2,
           },
         ],
       },
@@ -733,6 +811,45 @@ const advanced = [
               hinglish:
                 'Development mein tum errors turant dikhana chahte ho, isliye display_errors aur high error_reporting level on karte ho taaki warnings aur notices jaldi pakad sako. Production mein users ko raw errors KABHI mat dikhao — ye file paths, queries aur doosre sensitive details leak karte hain jo attackers ki madad karte hain. Iske bajaye display_errors off karo, logging ON karo (log_errors ek file ya service mein), aur users ko ek generic, friendly message dikhao. Risky operations ko try/catch mein wrap karke exception log karna tumhe gracefully fail hone deta hai aur saath hi record bhi rakhta hai ki kya galat hua.',
             },
+          },
+        ],
+      },
+      {
+        title: 'Composer & Autoloading with Namespaces',
+        difficulty: 'hard',
+        tags: ['composer', 'namespaces', 'autoload'],
+        explanation: {
+          english:
+            "Composer is PHP's package manager (like npm for JavaScript or pip for Python) — composer.json lists your project's dependencies, and `composer install` downloads them into a vendor/ folder. Namespaces (namespace App\\Models;) organize classes and prevent naming collisions between your code and third-party libraries — two classes can both be named User as long as they live in different namespaces (App\\Models\\User vs Vendor\\Package\\User). Composer's autoloader (require 'vendor/autoload.php') automatically loads the right class file when you reference a namespaced class, so you never write manual require statements for your classes again.",
+          hinglish:
+            "Composer PHP ka package manager hai (JavaScript ke npm ya Python ke pip jaisa) — composer.json tumhare project ki dependencies list karta hai, aur `composer install` unhe vendor/ folder mein download kar deta hai. Namespaces (namespace App\\Models;) classes ko organize karte hain aur tumhare code aur third-party libraries ke beech naming collisions rokte hain — do classes dono ka naam User ho sakta hai jab tak wo alag namespaces mein hon (App\\Models\\User vs Vendor\\Package\\User). Composer ka autoloader (require 'vendor/autoload.php') automatically sahi class file load kar deta hai jab tum ek namespaced class reference karte ho, isliye apni classes ke liye manual require statements kabhi nahi likhne padte.",
+        },
+        dailyLifeExample:
+          "Namespace ek society mein flat numbers jaisa hai — 'A-101' aur 'B-101' dono '101' hain par alag buildings (namespaces) mein, koi confusion nahi. Composer ek courier service jaisa hai jo automatically sahi package (class file) dhoondh ke la deta hai bina tumhe khud dhoondhna pade — bas naam batao (namespace).",
+        codeExample:
+          '// composer.json — declares dependencies\n{\n  "require": {\n    "monolog/monolog": "^3.0"\n  },\n  "autoload": {\n    "psr-4": { "App\\\\": "src/" }\n  }\n}\n\n// terminal: composer install  -> downloads into vendor/\n\n// src/Models/User.php\n<?php\nnamespace App\\Models;\n\nclass User {\n    public function __construct(public string $name) {}\n}\n\n// index.php\n<?php\nrequire \'vendor/autoload.php\'; // Composer\'s autoloader — one require for everything\n\nuse App\\Models\\User;\n\n$user = new User("Aman");\necho $user->name;',
+        keyPoints: [
+          "Composer is PHP's package manager — composer.json declares dependencies",
+          'composer install downloads packages into a vendor/ folder',
+          'namespace organizes classes and prevents naming collisions between libraries',
+          'use App\\Models\\User; imports a namespaced class so you can refer to it by its short name',
+          "require \"vendor/autoload.php\" once — Composer's autoloader finds every class file automatically",
+        ],
+        quiz: [
+          {
+            question: "What is Composer's role in a PHP project?",
+            options: ['It runs PHP code faster', "It is PHP's package manager — installs and manages third-party dependencies", 'It replaces the PHP interpreter', 'It only works with MySQL'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why do namespaces prevent naming collisions?',
+            options: ['They do not actually prevent collisions', 'Two classes can share the same short name (like User) as long as they live in different namespaces', 'Namespaces rename all classes automatically', 'Only one class can exist per project'],
+            correctIndex: 1,
+          },
+          {
+            question: "What does require 'vendor/autoload.php' let you do?",
+            options: ['Nothing useful', 'Use any Composer-installed package or your own namespaced classes without manually requiring each file', 'Install new packages', 'Delete the vendor folder'],
+            correctIndex: 1,
           },
         ],
       },
