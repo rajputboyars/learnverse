@@ -123,6 +123,45 @@ const foundations = [
           },
         ],
       },
+      {
+        title: 'Vanishing & Exploding Gradients',
+        difficulty: 'hard',
+        tags: ['vanishing-gradients', 'exploding-gradients', 'deep-networks'],
+        explanation: {
+          english:
+            "Backpropagation multiplies gradients together as it moves backward through every layer of a deep network — that's the chain rule. But repeated multiplication is dangerous: if each layer's gradient is a number slightly LESS than 1, multiplying many of them together (in a very deep network) shrinks the result toward ZERO by the time it reaches the early layers — the vanishing gradient problem. Those early layers then barely update, and the network stops learning from its earliest layers. The opposite can also happen: if gradients are slightly GREATER than 1, repeated multiplication makes them EXPLODE toward infinity, causing wildly unstable weight updates (or NaN values). Fixes include: better activation functions (ReLU instead of sigmoid/tanh, which saturate), careful weight initialization, batch normalization, residual/skip connections (which let gradients bypass layers), and gradient clipping (capping gradients to a maximum value to prevent explosions).",
+          hinglish:
+            "Backpropagation gradients ko ek doosre se multiply karta hai jaise wo deep network ki har layer se peeche jaata hai — yahi chain rule hai. Par baar-baar multiply karna dangerous hai: agar har layer ka gradient 1 se thoda KAM ho, to bahut saare ko multiply karne se (ek bahut deep network mein) result early layers tak pahunchte-pahunchte ZERO ki taraf shrink ho jaata hai — vanishing gradient problem. Wo early layers phir mushkil se update hote hain, aur network apni earliest layers se seekhna band kar deta hai. Ulta bhi ho sakta hai: agar gradients 1 se thode ZYADA hon, baar-baar multiply karne se wo infinity ki taraf EXPLODE ho jaate hain, jisse wildly unstable weight updates (ya NaN values) hote hain. Fixes mein shaamil hain: behtar activation functions (ReLU, sigmoid/tanh ke bajaye jo saturate hote hain), careful weight initialization, batch normalization, residual/skip connections (jo gradients ko layers bypass karne dete hain), aur gradient clipping (gradients ko ek maximum value tak cap karna explosions rokne ke liye).",
+        },
+        dailyLifeExample:
+          "Vanishing gradients ek 'Chinese whispers' game jaisa hai jo bahut zyada logon ke through khela jaaye — original message (gradient) itna weaken/distort ho jaata hai ki pehle bande tak pahunchte-pahunchte kuch bacha hi nahi (zero ho gaya). Exploding gradients ulta hai — jaise ek afwaah jo har bande ke through badhti hi jaati hai, aakhir tak ek bilkul bhi bahka hua, extreme version ban jaati hai.",
+        codeExample:
+          "import torch\nimport torch.nn as nn\n\n# Sigmoid saturates (near-zero gradient) for large |x| -> contributes to vanishing gradients\n# ReLU does not saturate for x > 0 -> much healthier gradient flow in deep nets\nmodel_bad = nn.Sequential(*[nn.Linear(50, 50), nn.Sigmoid()] * 20)  # deep + sigmoid = risky\nmodel_better = nn.Sequential(*[nn.Linear(50, 50), nn.ReLU()] * 20)   # deep + ReLU = healthier\n\n# Gradient clipping: prevents exploding gradients during training\noptimizer = torch.optim.Adam(model_better.parameters(), lr=0.001)\n# ... after loss.backward() ...\ntorch.nn.utils.clip_grad_norm_(model_better.parameters(), max_norm=1.0)\noptimizer.step()",
+        keyPoints: [
+          'Backprop multiplies gradients layer by layer — repeated multiplication can shrink (vanish) or grow (explode) the result',
+          'Vanishing gradients: early layers barely update, the network stops learning from its earliest layers',
+          'Exploding gradients: wildly unstable weight updates, sometimes NaN values',
+          'ReLU (vs sigmoid/tanh which saturate), batch normalization, and residual/skip connections help vanishing gradients',
+          'Gradient clipping caps gradient magnitude to prevent exploding gradients',
+        ],
+        quiz: [
+          {
+            question: 'What causes the vanishing gradient problem in deep networks?',
+            options: ['Too little training data', 'Repeatedly multiplying gradients slightly less than 1 through many layers shrinks the result toward zero by the time it reaches early layers', 'Using too few layers', 'The learning rate is too high'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is a practical fix specifically for exploding gradients during training?',
+            options: ['Adding more layers', 'Gradient clipping — capping the gradient magnitude to a maximum value', 'Removing all activation functions', 'Increasing the batch size only'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why does ReLU generally help with vanishing gradients compared to sigmoid?',
+            options: ['ReLU is just faster to compute, nothing else', 'Sigmoid saturates (near-zero gradient) for large inputs; ReLU does not saturate for positive inputs, so gradients flow better through deep networks', 'ReLU always outputs 1', 'There is no real difference'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
 ];
@@ -217,6 +256,84 @@ const architectures = [
               'Do not need training',
               'Only work on images',
             ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Dropout & Batch Normalization: Regularizing Deep Networks',
+        difficulty: 'hard',
+        tags: ['dropout', 'batch-normalization', 'regularization'],
+        explanation: {
+          english:
+            "Deep networks have so many parameters they easily overfit — memorizing training data instead of learning general patterns. Dropout combats this by randomly 'switching off' a fraction of neurons (e.g. 20-50%) on EVERY training step, forcing the network to not over-rely on any single neuron and effectively training many slightly-different sub-networks that get averaged together — a bit like an ensemble. Dropout is only active during TRAINING; at inference time all neurons are used (scaled appropriately). Batch Normalization is a different fix for a different problem: as weights update during training, the DISTRIBUTION of each layer's inputs keeps shifting (internal covariate shift), making training unstable and slow. BatchNorm re-centers and re-scales each layer's inputs (per mini-batch) to have a stable mean and variance, which lets you train faster, use higher learning rates, and makes the network less sensitive to initialization.",
+          hinglish:
+            "Deep networks mein itne saare parameters hote hain ki wo aasaani se overfit kar jaate hain — general patterns seekhne ke bajaye training data ratt lete hain. Dropout isse ladta hai HAR training step pe randomly neurons ka ek fraction (jaise 20-50%) 'switch off' karke, network ko kisi ek neuron pe zyada depend na karne ke liye majboor karte hue, effectively bahut saare thode-alag sub-networks train karke jo saath average ho jaate hain — ensemble jaisa kuch. Dropout sirf TRAINING ke dauraan active hota hai; inference time pe saare neurons use hote hain (appropriately scaled). Batch Normalization ek alag problem ka alag fix hai: jaise-jaise training mein weights update hote hain, har layer ke inputs ki DISTRIBUTION shift hoti rehti hai (internal covariate shift), training ko unstable aur slow bana deti hai. BatchNorm har layer ke inputs ko (per mini-batch) re-center aur re-scale karta hai stable mean aur variance ke saath, jisse tum fast train kar sakte ho, zyada learning rates use kar sakte ho, aur network initialization ke prati kam sensitive banta hai.",
+        },
+        dailyLifeExample:
+          "Dropout ek sports team practice jaisa hai jaha coach randomly kuch players ko har practice session mein rest pe bhej deta hai — isse baaki team members har ek skill develop karte hain aur poori team kisi ek 'star player' pe over-depend nahi karti. Match day (inference) pe poori team khelti hai. BatchNorm ek assembly line jaisa hai jaha har station pe aane wale parts ko pehle ek consistent size/shape mein standardize kiya jaata hai, taaki agla station predictably kaam kar sake, chahe pichhle stations mein kitna bhi variation ho.",
+        codeExample:
+          "import torch.nn as nn\n\nmodel = nn.Sequential(\n    nn.Linear(784, 256),\n    nn.BatchNorm1d(256),   # stabilizes the distribution of layer inputs\n    nn.ReLU(),\n    nn.Dropout(0.3),       # randomly zeroes 30% of neurons EACH training step\n    nn.Linear(256, 128),\n    nn.BatchNorm1d(128),\n    nn.ReLU(),\n    nn.Dropout(0.3),\n    nn.Linear(128, 10),\n)\n\n# IMPORTANT: dropout/batchnorm behave differently in train vs eval mode\nmodel.train()  # dropout active, batchnorm uses batch statistics\n# ... training loop ...\n\nmodel.eval()   # dropout OFF (all neurons used), batchnorm uses running statistics\n# ... inference / evaluation ...",
+        keyPoints: [
+          'Dropout randomly disables a fraction of neurons on each training step to prevent overfitting',
+          'Dropout is active only during training — all neurons are used at inference time',
+          "Batch Normalization stabilizes each layer's input distribution during training (fixes internal covariate shift)",
+          'BatchNorm allows faster training, higher learning rates, and less sensitivity to weight initialization',
+          "Both behave differently in train vs eval mode — always call model.train()/model.eval() appropriately",
+        ],
+        quiz: [
+          {
+            question: 'What problem does Dropout help solve?',
+            options: ['Slow training speed', 'Overfitting — the network memorizing training data instead of learning general patterns', 'Vanishing gradients only', 'Too few parameters'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Is Dropout active during inference (making predictions on new data)?',
+            options: ['Yes, always active', 'No — dropout is only active during training; all neurons are used at inference time', 'Only for the first prediction', 'Only if you forget to disable it'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What problem does Batch Normalization primarily address?',
+            options: ['It has nothing to do with training stability', "The distribution of each layer's inputs keeps shifting during training (internal covariate shift), making training unstable and slow", 'It only prevents overfitting like dropout', 'It replaces the need for activation functions'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: "Transfer Learning: Standing on Giants' Shoulders",
+        difficulty: 'medium',
+        tags: ['transfer-learning', 'fine-tuning', 'pretrained'],
+        explanation: {
+          english:
+            "Training a large deep network from scratch needs huge datasets and massive compute — often unrealistic for an individual or small team. Transfer learning sidesteps this: you take a model already pretrained on a huge, general dataset (e.g. an image model trained on millions of photos, or a language model trained on huge amounts of text), and adapt it to YOUR specific, smaller task. The early/middle layers of a pretrained model have already learned general, reusable features (edges and textures for images; grammar and word meaning for text) — you typically FREEZE those layers (stop them from updating) and only train a new final layer (or a few) on your own smaller dataset. This needs far less data and compute than training from scratch, and usually gives BETTER results too, since the model starts with strong, general knowledge instead of random weights.",
+          hinglish:
+            "Ek bada deep network scratch se train karne ke liye huge datasets aur massive compute chahiye — akele ya chhoti team ke liye aksar unrealistic. Transfer learning ise bypass karta hai: tum ek pehle se hi ek huge, general dataset pe pretrained model lete ho (jaise ek image model jo lakhon photos pe train hua, ya ek language model jo bahut zyada text pe train hua), aur use APNE specific, chhote task ke liye adapt karte ho. Ek pretrained model ki early/middle layers ne pehle se hi general, reusable features seekh liye hain (images ke liye edges aur textures; text ke liye grammar aur word meaning) — tum typically un layers ko FREEZE kar dete ho (unhe update hone se rok dete ho) aur sirf ek naya final layer (ya kuch) apne chhote dataset pe train karte ho. Isse scratch se training se kaafi kam data aur compute chahiye, aur usually BEHTAR results bhi milte hain, kyunki model random weights ke bajaye strong, general knowledge se shuru hota hai.",
+        },
+        dailyLifeExample:
+          "Transfer learning ek experienced chef ko naye restaurant mein hire karne jaisa hai — usse cooking basics (chopping, seasoning, heat control) sikhane ki zaroorat nahi, wo already jaanta hai. Tum bas use apni specific menu (naya, chhota task) sikhate ho. Ek fresh naya cook hire karna (scratch se training) bahut zyada time aur mehnat lega.",
+        codeExample:
+          "import torch\nimport torchvision.models as models\nimport torch.nn as nn\n\n# Load a model pretrained on ImageNet (millions of images)\nmodel = models.resnet18(pretrained=True)\n\n# Freeze all the pretrained layers — they already know general image features\nfor param in model.parameters():\n    param.requires_grad = False\n\n# Replace only the final layer, sized for YOUR task (e.g. 5 custom classes)\nmodel.fc = nn.Linear(model.fc.in_features, 5)\n# only model.fc's parameters will be trained — everything else stays frozen\n\n# Train on your own, much smaller dataset\n# optimizer = torch.optim.Adam(model.fc.parameters(), lr=0.001)",
+        keyPoints: [
+          'Transfer learning adapts a model pretrained on a huge, general dataset to a smaller, specific task',
+          'Pretrained early/middle layers already know general, reusable features',
+          'Freezing those layers and training only the final layer(s) needs far less data and compute',
+          'Usually gives BETTER results than training from scratch, since it starts from strong general knowledge',
+          'Extremely common in practice — most real-world deep learning starts from a pretrained model',
+        ],
+        quiz: [
+          {
+            question: 'What is the main benefit of transfer learning over training a deep network from scratch?',
+            options: ['It always makes the model larger', 'It needs far less data and compute, by reusing general features already learned from a huge pretrained dataset', 'It removes the need for any training at all', 'It only works for image models'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does "freezing" layers in transfer learning mean?',
+            options: ['Deleting those layers', 'Preventing those layers\' weights from updating during training, so only the new final layer(s) learn', 'Making the model run slower on purpose', 'Converting the model to a different framework'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why do early/middle layers of a pretrained image model transfer well to a new, different image task?',
+            options: ['They do not transfer well at all', 'They already learned general, reusable low-level features like edges and textures, which are useful across many image tasks', 'They are randomly initialized anyway', 'They only work on the exact original dataset'],
             correctIndex: 1,
           },
         ],
