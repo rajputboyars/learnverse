@@ -692,6 +692,84 @@ const advanced = [
           },
         ],
       },
+      {
+        title: 'Window Functions: ROW_NUMBER, RANK & Running Totals',
+        difficulty: 'hard',
+        tags: ['window-functions', 'ranking', 'analytics'],
+        explanation: {
+          english:
+            "A window function performs a calculation ACROSS a set of related rows (a 'window') WITHOUT collapsing them into one row, unlike GROUP BY which merges rows together. Every window function uses OVER(...) to define its window, optionally with PARTITION BY (reset the calculation per group) and ORDER BY (define row order for ranking/running totals). ROW_NUMBER() gives each row a unique sequential number, RANK() gives the same rank to ties (with gaps), and SUM(...) OVER(...) can compute a running total without needing a subquery.",
+          hinglish:
+            "Ek window function ek set of related rows (ek 'window') ke ACROSS calculation karta hai UNHE EK ROW MEIN COLLAPSE kiye bina, GROUP BY ke ulat jo rows ko merge kar deta hai. Har window function OVER(...) use karta hai apni window define karne ke liye, optionally PARTITION BY ke saath (har group ke liye calculation reset) aur ORDER BY ke saath (ranking/running totals ke liye row order define karna). ROW_NUMBER() har row ko ek unique sequential number deta hai, RANK() ties ko same rank deta hai (gaps ke saath), aur SUM(...) OVER(...) bina subquery ke running total nikaal sakta hai.",
+        },
+        dailyLifeExample:
+          "GROUP BY ek class ka sirf average result dikhana hai (individual students gayab ho jaate hain). Window function poori class list dikhata hai, PAR har student ke saath uska rank bhi (jaise 'Riya — Rank 1 — 95 marks', 'Aman — Rank 2 — 90 marks') — koi bhi row gayab nahi hoti.",
+        codeExample:
+          "-- Rank students by marks WITHOUT losing any row (unlike GROUP BY)\nSELECT\n  name,\n  marks,\n  ROW_NUMBER() OVER (ORDER BY marks DESC) AS row_num,\n  RANK()       OVER (ORDER BY marks DESC) AS rank_with_gaps\nFROM students;\n-- if two students tie for 2nd, RANK gives both '2', next gets '4' (gap!)\n-- ROW_NUMBER always gives unique numbers: 1, 2, 3, 4...\n\n-- Rank WITHIN each class separately (PARTITION BY resets per group)\nSELECT name, class, marks,\n  RANK() OVER (PARTITION BY class ORDER BY marks DESC) AS class_rank\nFROM students;\n\n-- Running total of sales, ordered by date\nSELECT sale_date, amount,\n  SUM(amount) OVER (ORDER BY sale_date) AS running_total\nFROM sales;",
+        keyPoints: [
+          'Window functions calculate across rows WITHOUT collapsing them (unlike GROUP BY)',
+          'OVER(...) defines the "window" of rows the calculation applies to',
+          'PARTITION BY resets the calculation for each group (like a per-group GROUP BY, but rows stay visible)',
+          'ROW_NUMBER(): always unique, sequential. RANK(): ties share a rank, leaving gaps',
+          'SUM/AVG/COUNT with OVER() computes running totals/averages without a self-join or subquery',
+        ],
+        quiz: [
+          {
+            question: 'What is the key difference between GROUP BY and a window function?',
+            options: ['No difference', 'GROUP BY collapses rows into one per group; a window function calculates across rows WITHOUT collapsing them', 'Window functions are always slower', 'GROUP BY can only count rows'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Two students tie for 2nd place. What does RANK() give them, and what happens to the next rank?',
+            options: ['Both get different ranks', 'Both get rank 2, and the next student gets rank 4 (a gap, skipping 3)', 'Both get rank 1', 'RANK() cannot handle ties'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does PARTITION BY class do inside a window function?',
+            options: ['Deletes other classes', 'Resets the window calculation separately for each class, like a per-group reset', 'Sorts classes alphabetically', 'Removes duplicate classes'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'UNION, UNION ALL & CTEs (WITH)',
+        difficulty: 'hard',
+        tags: ['union', 'cte', 'with-clause'],
+        explanation: {
+          english:
+            "UNION combines the result rows of two or more SELECT queries (with the same number/type of columns) into one result set, automatically removing duplicate rows. UNION ALL does the same but KEEPS duplicates — and is faster, since it skips the duplicate-checking work; use it whenever you know there won't be duplicates or don't care. A CTE (Common Table Expression), written with WITH name AS (...), lets you name a subquery and reference it like a temporary table later in the same query — making complex, multi-step queries far more readable than deeply nested subqueries.",
+          hinglish:
+            "UNION do ya zyada SELECT queries ke result rows ko (same number/type ke columns ke saath) ek result set mein combine karta hai, duplicate rows automatically hata deta hai. UNION ALL wahi karta hai par duplicates RAKHTA hai — aur faster hai, kyunki duplicate-checking ka kaam skip karta hai; use karo jab pata ho duplicates nahi honge ya parwah nahi. Ek CTE (Common Table Expression), WITH name AS (...) se likha jaata hai, ek subquery ko naam deta hai jise baad mein usi query mein temporary table ki tarah reference kar sakte ho — complex, multi-step queries ko deeply nested subqueries se kaafi zyada readable banata hai.",
+        },
+        dailyLifeExample:
+          "UNION do alag class-lists (Section A aur Section B) ko ek combined list mein milana hai, duplicate naam hata ke. UNION ALL wahi list milana hai bina duplicates hataye — jaldi kyunki check nahi karna padta. CTE ek 'pehle ye calculate karo, naam do use, phir aage use karo' jaisa hai — recipe ke steps ko naam dena taaki confusing na ho.",
+        codeExample:
+          "-- UNION: combines and removes duplicates\nSELECT city FROM customers\nUNION\nSELECT city FROM suppliers;\n\n-- UNION ALL: combines, KEEPS duplicates, faster\nSELECT city FROM customers\nUNION ALL\nSELECT city FROM suppliers;\n\n-- CTE: name a subquery, use it like a table\nWITH high_scorers AS (\n  SELECT name, marks FROM students WHERE marks > 90\n)\nSELECT name, marks FROM high_scorers ORDER BY marks DESC;\n\n-- CTEs make multi-step logic readable\nWITH class_avg AS (\n  SELECT class, AVG(marks) AS avg_marks FROM students GROUP BY class\n)\nSELECT s.name, s.marks, c.avg_marks\nFROM students s\nJOIN class_avg c ON s.class = c.class\nWHERE s.marks > c.avg_marks;",
+        keyPoints: [
+          'UNION combines result sets from multiple SELECTs and removes duplicate rows',
+          'UNION ALL does the same but keeps duplicates — faster since no dedup check',
+          'Both require the combined SELECTs to have the same number and compatible types of columns',
+          'A CTE (WITH name AS (...)) names a subquery so you can reference it like a table',
+          'CTEs make deeply nested, hard-to-read subqueries into clear, sequential steps',
+        ],
+        quiz: [
+          {
+            question: 'What is the key difference between UNION and UNION ALL?',
+            options: ['No difference', 'UNION removes duplicate rows; UNION ALL keeps them and is faster', 'UNION ALL only works with 2 tables', 'UNION is always faster'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does a CTE (WITH name AS (...)) let you do?',
+            options: ['Permanently create a new table', 'Name a subquery so you can reference it like a temporary table later in the same query', 'Delete rows automatically', 'Nothing different from a regular subquery'],
+            correctIndex: 1,
+          },
+          {
+            question: 'For UNION to work, what must be true about the SELECT queries being combined?',
+            options: ['They must query the same table', 'They must return the same number of columns with compatible types', 'They must have no WHERE clause', 'They must both use GROUP BY'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
 ];

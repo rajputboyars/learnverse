@@ -544,6 +544,84 @@ const advanced = [
           },
         ],
       },
+      {
+        title: "Arrays: PostgreSQL's Native List Type",
+        difficulty: 'medium',
+        tags: ['arrays', 'postgresql-specific'],
+        explanation: {
+          english:
+            "Unlike most relational databases, PostgreSQL lets a single column store an ARRAY of values directly — int[], text[], and so on — instead of always needing a separate linking table for one-to-many data. This is convenient for simple lists (like tags on a post) where a full join table would be overkill. Use ARRAY[...] or '{...}' syntax to build one, the ANY() function to check if a value is in the array, and the @> containment operator to check if an array contains another array.",
+          hinglish:
+            "Zyadatar relational databases ke ulat, PostgreSQL ek single column mein VALUES ka ARRAY seedha store karne deta hai — int[], text[], waghera — hamesha ek alag linking table banaye bina one-to-many data ke liye. Ye simple lists ke liye convenient hai (jaise ek post pe tags) jaha poora join table overkill hoga. ARRAY[...] ya '{...}' syntax se ek banao, ANY() function se check karo ki koi value array mein hai ya nahi, aur @> containment operator se check karo ki ek array doosre array ko contain karta hai ya nahi.",
+        },
+        dailyLifeExample:
+          "Ek normal relational table mein tags rakhna ek alag 'tags' file cabinet banane jaisa hai jo har post se linked ho. PostgreSQL array ek hi index card pe seedha 'tags: javascript, react, tutorial' likh dena hai — chhoti, simple lists ke liye kaafi hai.",
+        codeExample:
+          "CREATE TABLE posts (\n  id SERIAL PRIMARY KEY,\n  title TEXT,\n  tags TEXT[]  -- an array column!\n);\n\nINSERT INTO posts (title, tags)\nVALUES ('Learn SQL', ARRAY['sql', 'database', 'beginner']);\n\n-- or with curly-brace syntax\nINSERT INTO posts (title, tags)\nVALUES ('Learn Postgres', '{postgres, sql, advanced}');\n\n-- find posts tagged 'sql'\nSELECT title FROM posts WHERE 'sql' = ANY(tags);\n\n-- find posts that have BOTH 'sql' and 'beginner' tags\nSELECT title FROM posts WHERE tags @> ARRAY['sql', 'beginner'];\n\n-- get the array's length\nSELECT title, array_length(tags, 1) FROM posts;",
+        keyPoints: [
+          'PostgreSQL supports array columns directly: int[], text[], etc.',
+          "Build an array with ARRAY[...] or the '{...}' curly-brace literal syntax",
+          'value = ANY(array_column) checks if a value exists in the array',
+          'array_column @> ARRAY[...] checks if the array contains ALL the given values',
+          'Best for simple, small lists — a proper join table is still better for complex relational data',
+        ],
+        quiz: [
+          {
+            question: 'What does the array column type let you avoid for simple list data?',
+            options: ['Using SQL at all', 'Creating a separate linking/join table for simple one-to-many lists', 'Using WHERE clauses', 'Using PRIMARY KEY'],
+            correctIndex: 1,
+          },
+          {
+            question: "What does WHERE 'sql' = ANY(tags) check?",
+            options: ["Whether ALL elements in tags equal 'sql'", "Whether 'sql' exists ANYWHERE in the tags array", 'Whether tags is empty', 'Whether tags has exactly one element'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does the @> operator check between two arrays?',
+            options: ['If they are exactly equal', 'If the left array contains all elements of the right array', 'If they have the same length', 'If either array is empty'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'UPSERT: INSERT ... ON CONFLICT',
+        difficulty: 'hard',
+        tags: ['upsert', 'on-conflict', 'postgresql-specific'],
+        explanation: {
+          english:
+            "UPSERT means 'insert, or update if it already exists' — a very common need (like a page-view counter, or syncing external data) that would otherwise take a slow, race-condition-prone check-then-insert-or-update dance. PostgreSQL's ON CONFLICT clause makes this ONE atomic statement: try to INSERT, and if it violates a unique constraint (like a duplicate primary key), instead run the UPDATE you specify with DO UPDATE SET ..., or simply do nothing with DO NOTHING. The special row EXCLUDED refers to the value that FAILED to insert, letting you use it in the UPDATE.",
+          hinglish:
+            "UPSERT ka matlab hai 'insert karo, ya agar pehle se hai to update karo' — ek bahut common zaroorat (jaise ek page-view counter, ya external data sync karna) jo warna ek slow, race-condition-prone check-then-insert-or-update dance leti. PostgreSQL ka ON CONFLICT clause ise EK atomic statement bana deta hai: INSERT try karo, aur agar ye ek unique constraint violate kare (jaise duplicate primary key), to iske bajaye UPDATE chalao jo tumne DO UPDATE SET ... se specify kiya, ya bas kuch mat karo DO NOTHING se. Special row EXCLUDED us value ko refer karta hai jo insert hone mein FAIL hui, jisse tum use UPDATE mein use kar sakte ho.",
+        },
+        dailyLifeExample:
+          'UPSERT ek attendance register jaisa hai — agar naam pehli baar likh rahe ho to nayi entry banao, agar naam pehle se hai to bas uska count +1 kar do — ek hi command mein, bina pehle check kiye ki naam hai ya nahi.',
+        codeExample:
+          "CREATE TABLE page_views (\n  page_url TEXT PRIMARY KEY,\n  views INT DEFAULT 1\n);\n\n-- UPSERT: insert if new, increment if it already exists — ONE atomic statement\nINSERT INTO page_views (page_url, views)\nVALUES ('/home', 1)\nON CONFLICT (page_url)\nDO UPDATE SET views = page_views.views + 1;\n\n-- ON CONFLICT DO NOTHING — just skip if it already exists\nINSERT INTO page_views (page_url, views)\nVALUES ('/about', 1)\nON CONFLICT (page_url) DO NOTHING;\n\n-- EXCLUDED refers to the row that failed to insert\nINSERT INTO users (email, name)\nVALUES ('aman@example.com', 'Aman')\nON CONFLICT (email)\nDO UPDATE SET name = EXCLUDED.name; -- update name to the NEW value that was attempted",
+        keyPoints: [
+          'UPSERT = insert if new, update if it already exists',
+          'ON CONFLICT (column) triggers when a unique/primary key constraint would be violated',
+          'DO UPDATE SET ... updates the existing row instead of failing; DO NOTHING just skips it',
+          'EXCLUDED.column refers to the value that was attempted in the failed INSERT',
+          'This is ONE atomic statement — no race condition between a separate check and insert/update',
+        ],
+        quiz: [
+          {
+            question: "What problem does ON CONFLICT solve compared to manually checking 'does this row exist' before inserting or updating?",
+            options: ['It makes queries prettier', 'It does the check-and-insert-or-update as ONE atomic statement, avoiding race conditions between separate check/insert/update steps', 'It only works with SELECT', 'It deletes duplicate rows automatically'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does EXCLUDED refer to inside an ON CONFLICT ... DO UPDATE clause?',
+            options: ['The row that was already in the table', 'The new row/value that was attempted in the INSERT but conflicted', 'A deleted row', 'The primary key column only'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does ON CONFLICT (page_url) DO NOTHING do if the page_url already exists?',
+            options: ['Throws an error', 'Silently skips the insert, leaving the existing row unchanged', 'Deletes the existing row', 'Always inserts a duplicate'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
 ];

@@ -656,6 +656,45 @@ const advanced = [
           },
         ],
       },
+      {
+        title: 'User Management: GRANT, REVOKE & Privileges',
+        difficulty: 'medium',
+        tags: ['users', 'privileges', 'security'],
+        explanation: {
+          english:
+            'Never let every application connect as the all-powerful root user — MySQL lets you create dedicated user accounts with exactly the privileges they need (principle of least privilege). CREATE USER makes a new account with a username and password (and optionally restricts which host it can connect from). GRANT gives specific privileges (SELECT, INSERT, UPDATE, ALL) on specific databases/tables to a user. REVOKE takes privileges away. FLUSH PRIVILEGES reloads the privilege tables so changes take effect immediately.',
+          hinglish:
+            'Kabhi bhi har application ko all-powerful root user ki tarah connect mat karne do — MySQL dedicated user accounts banane deta hai jinke paas exactly wahi privileges hon jo chahiye (least privilege ka principle). CREATE USER ek naya account banata hai username aur password ke saath (aur optionally restrict karta hai ki wo kis host se connect kar sakta hai). GRANT ek user ko specific databases/tables pe specific privileges (SELECT, INSERT, UPDATE, ALL) deta hai. REVOKE privileges wapas le leta hai. FLUSH PRIVILEGES privilege tables ko reload karta hai taaki changes turant apply hon.',
+        },
+        dailyLifeExample:
+          'Root user ghar ki master-key jaisi hai — sab kuch khol sakti hai. Ek dedicated app user ek specific room ki chaabi jaisa hai — sirf usi room mein jaa sakta hai jiske liye chaabi di gayi hai. GRANT chaabi dena hai, REVOKE chaabi wapas lena.',
+        codeExample:
+          "-- Create a dedicated user (not root!) for an application\nCREATE USER 'blog_app'@'localhost' IDENTIFIED BY 'strong_password_here';\n\n-- Grant only what the app actually needs\nGRANT SELECT, INSERT, UPDATE, DELETE ON blog_db.* TO 'blog_app'@'localhost';\n\n-- Read-only user for a reporting dashboard\nCREATE USER 'reports'@'%' IDENTIFIED BY 'another_password';\nGRANT SELECT ON blog_db.* TO 'reports'@'%';\n\n-- Reload privilege tables so changes take effect immediately\nFLUSH PRIVILEGES;\n\n-- Take away a privilege\nREVOKE DELETE ON blog_db.* FROM 'blog_app'@'localhost';\n\n-- See what a user can do\nSHOW GRANTS FOR 'blog_app'@'localhost';",
+        keyPoints: [
+          'Never connect applications as root — create a dedicated user with only needed privileges',
+          'CREATE USER makes an account; GRANT gives specific privileges; REVOKE removes them',
+          "'localhost' vs '%' in the username restricts which host the user can connect from",
+          'FLUSH PRIVILEGES reloads privilege tables so GRANT/REVOKE changes apply immediately',
+          'SHOW GRANTS FOR user shows exactly what privileges an account has',
+        ],
+        quiz: [
+          {
+            question: 'Why is it bad practice for a web application to connect to MySQL as the root user?',
+            options: ['root is slower', 'It violates least privilege — a bug or attack through the app could do ANYTHING to the database, not just what the app actually needs', 'root cannot run SELECT queries', 'There is no real reason, it is fine'],
+            correctIndex: 1,
+          },
+          {
+            question: "What does GRANT SELECT ON blog_db.* TO 'reports'@'%' do?",
+            options: ['Deletes all data', 'Gives the reports user read-only access to all tables in blog_db, from any host', 'Creates a backup', 'Removes the reports user'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does FLUSH PRIVILEGES do?',
+            options: ['Deletes all users', 'Reloads the privilege tables so recent GRANT/REVOKE changes take effect immediately', 'Backs up the database', 'Creates a new database'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
 ];
