@@ -63,6 +63,45 @@ const beginner = [
         ],
       },
       {
+        title: 'Image Generation: How Diffusion Models Work',
+        difficulty: 'medium',
+        tags: ['diffusion', 'image-generation', 'multimodal'],
+        explanation: {
+          english:
+            "Tools like DALL-E, Midjourney, and Stable Diffusion don't work like LLMs (predicting the next word) — they use a completely different technique called diffusion. During TRAINING, the model learns to reverse a process of gradually adding random noise to real images until they become pure static — it learns, step by step, how to 'denoise' an image back to something recognizable. During GENERATION, you start with pure random noise and the model repeatedly removes a little noise at a time (guided by your text prompt, via a text encoder), gradually revealing a coherent image over many steps — going from static to a photo. This is why image generation involves a visible 'steps' or 'quality' setting: more denoising steps generally means a more refined result.",
+          hinglish:
+            "DALL-E, Midjourney, aur Stable Diffusion jaise tools LLMs ki tarah kaam nahi karte (agla word predict karna) — wo ek bilkul alag technique use karte hain jise diffusion kehte hain. TRAINING ke dauraan, model seekhta hai ek process ko reverse karna jo real images mein gradually random noise add karta hai jab tak wo pure static ban jaayein — ye step-by-step seekhta hai ki ek image ko wapas kuch recognizable mein kaise 'denoise' kare. GENERATION ke dauraan, tum pure random noise se shuru karte ho aur model baar-baar thoda-thoda noise hataata hai (tumhare text prompt se guide hote hue, ek text encoder ke zariye), gradually kai steps mein ek coherent image reveal karte hue — static se ek photo tak. Isliye image generation mein ek visible 'steps' ya 'quality' setting hoti hai: zyada denoising steps aksar zyada refined result deta hai.",
+        },
+        dailyLifeExample:
+          "Diffusion model ek sculptor jaisa hai jo ek dhundhle, static-bhare marble block se shuru karta hai (random noise) aur dheere-dheere, chip-chip ke (denoising steps) ek clear statue reveal karta hai — text prompt guide karta hai ki final statue kaisi dikhni chahiye, har step us direction mein thoda aur clear hota jaata hai.",
+        codeExample:
+          "# Conceptual: how diffusion generation works (not literal API code)\n#\n# Training: learn to reverse noise addition\n# real_image -> add noise (step 1) -> more noise (step 2) -> ... -> pure static\n# model learns: given noisy_image at step N, predict slightly LESS noisy step N-1\n#\n# Generation (inference):\n# start = pure_random_noise\n# for step in range(num_steps, 0, -1):\n#     start = model.denoise_one_step(start, guided_by=text_prompt_embedding)\n# result = start  # now a coherent image, guided by the prompt\n#\n# via an API (conceptual):\n# image = client.images.generate(\n#     prompt='a watercolor painting of a monsoon evening in Mumbai',\n#     size='1024x1024',\n#     quality='hd',  # roughly maps to more/fewer denoising steps\n# )",
+        keyPoints: [
+          'Diffusion models are trained to reverse a noise-adding process, learning to "denoise" step by step',
+          'Generation starts from pure random noise and repeatedly removes a little noise, guided by the text prompt',
+          'This is fundamentally different from how LLMs generate text (next-token prediction)',
+          'More denoising steps generally means higher quality/more refined output (with diminishing returns)',
+          'A text encoder converts your prompt into a guidance signal used at every denoising step',
+        ],
+        quiz: [
+          {
+            question: 'What do diffusion models learn during training?',
+            options: ['To predict the next word in a sentence', 'To reverse a process of gradually adding noise to images — i.e. how to denoise step by step', 'To classify images into categories', 'To compress images for storage'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does a diffusion model start from when GENERATING a new image?',
+            options: ['A blank white canvas', 'Pure random noise', 'An existing photo it edits', 'The text prompt converted directly into pixels'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Is image generation (diffusion) fundamentally the same technique as LLM text generation (next-token prediction)?',
+            options: ['Yes, identical technique', 'No — diffusion iteratively denoises an image over many steps; LLMs predict one token at a time in sequence', 'They are exactly the same neural network', 'Diffusion only works on text'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
         title: 'How Large Language Models (LLMs) Work',
         difficulty: 'medium',
         tags: ['llm', 'transformer'],
@@ -431,6 +470,45 @@ const intermediate = [
           {
             question: 'Who actually executes the tool?',
             options: ['the LLM itself', 'your application code', 'the user', 'the browser'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Structured Output & JSON Mode',
+        difficulty: 'medium',
+        tags: ['json-mode', 'structured-output', 'function-calling'],
+        explanation: {
+          english:
+            "When building an app on top of an LLM, you usually need a predictable, parseable response — not free-flowing prose you have to regex out data from. Just ASKING the model nicely to 'respond in JSON' in your prompt often works, but it's unreliable: the model might add explanatory text before/after the JSON, use inconsistent field names, or produce invalid JSON. JSON mode (or 'structured output') is a feature many LLM APIs provide that CONSTRAINS the model's output at the token level to guarantee valid JSON matching a schema you define — the model literally cannot generate a token that would break the JSON structure. This eliminates most parsing failures and is essential for any production app that feeds LLM output into other code.",
+          hinglish:
+            "Ek LLM ke upar app banate waqt, tumhe usually ek predictable, parseable response chahiye — free-flowing prose nahi jisse data regex se nikaalna pade. Sirf model se prompt mein politely 'JSON mein respond karo' bolna aksar kaam karta hai, par unreliable hai: model JSON se pehle/baad explanatory text jod sakta hai, inconsistent field names use kar sakta hai, ya invalid JSON produce kar sakta hai. JSON mode (ya 'structured output') ek feature hai jo bahut saari LLM APIs dete hain jo model ke output ko token level pe CONSTRAIN karta hai taaki guarantee ho ki tumhare diye schema ke matching valid JSON hi bane — model literally aisa token generate hi nahi kar sakta jo JSON structure tode. Isse zyadatar parsing failures khatam ho jaate hain aur ye kisi bhi production app ke liye essential hai jo LLM output ko doosre code mein feed karta hai.",
+        },
+        dailyLifeExample:
+          "Bina JSON mode ke prompting, ek waiter se free-form order lena jaisa hai — kabhi wo poora sentence bolega ('aapko chai chahiye'), kabhi sirf item ka naam. JSON mode ek fixed order-form dena jaisa hai — waiter ko sirf blanks bharne hain (item, quantity, price), format hamesha same rehta hai, tumhara kitchen system (code) hamesha usse reliably padh sakta hai.",
+        codeExample:
+          "# WITHOUT JSON mode: unreliable, needs fragile parsing\nresponse = client.chat.completions.create(\n    messages=[{'role': 'user', 'content': 'Extract name and age as JSON: \"Aman is 16 years old\"'}]\n)\n# might return: 'Sure! Here is the JSON: {\"name\": \"Aman\", \"age\": 16}' -- extra text breaks naive parsing\n\n# WITH JSON mode: guaranteed valid JSON matching your schema\nresponse = client.chat.completions.create(\n    messages=[{'role': 'user', 'content': 'Extract name and age: \"Aman is 16 years old\"'}],\n    response_format={\n        'type': 'json_schema',\n        'json_schema': {\n            'name': 'person',\n            'schema': {\n                'type': 'object',\n                'properties': {\n                    'name': {'type': 'string'},\n                    'age': {'type': 'integer'},\n                },\n                'required': ['name', 'age'],\n            },\n        },\n    },\n)\nimport json\ndata = json.loads(response.choices[0].message.content)  # always parses cleanly\nprint(data['name'], data['age'])",
+        keyPoints: [
+          'Just asking an LLM to "respond in JSON" in the prompt is unreliable — extra text or malformed JSON can slip through',
+          'JSON mode / structured output constrains the model at the token level to guarantee valid, schema-matching JSON',
+          'This eliminates fragile regex-based parsing of LLM responses in production apps',
+          'Essential whenever LLM output needs to feed directly into other code (databases, UI components, other APIs)',
+          'Different providers call this different things (JSON mode, structured outputs, function calling schemas)',
+        ],
+        quiz: [
+          {
+            question: "Why is just asking an LLM to 'respond in JSON' in your prompt unreliable for production apps?",
+            options: ['It never works at all', 'The model might add extra explanatory text, use inconsistent field names, or produce invalid JSON — there is no guarantee', 'JSON is not supported by any LLM', 'It only works for short responses'],
+            correctIndex: 1,
+          },
+          {
+            question: 'How does JSON mode / structured output guarantee valid JSON?',
+            options: ['It runs the text through a JSON validator afterward and retries', 'It constrains the model at the token level so it literally cannot generate output that breaks the JSON structure/schema', 'It translates the response after generation', "It disables the model's creativity entirely"],
+            correctIndex: 1,
+          },
+          {
+            question: 'When is structured output especially important?',
+            options: ['Only for casual chatbots', 'Whenever LLM output needs to feed directly into other code, like a database or UI, without manual parsing', 'Never, plain text is always fine', 'Only when generating images'],
             correctIndex: 1,
           },
         ],
