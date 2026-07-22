@@ -61,6 +61,16 @@ const basics = [
             options: ['Fine-tuning every day', 'RAG', 'Prompting only', 'Training from scratch'],
             correctIndex: 1,
           },
+          {
+            question: 'What exactly does fine-tuning change about a pre-trained model?',
+            options: [
+              'Nothing, it only changes the prompt sent to the model',
+              "The model's internal weights, via further training on your examples",
+              'The tokenizer vocabulary only',
+              'The GPU it runs on',
+            ],
+            correctIndex: 1,
+          },
         ],
       },
       {
@@ -100,6 +110,16 @@ const basics = [
             options: ['JSONL with chat messages', 'A single PDF', 'CSV of images', 'Raw binary'],
             correctIndex: 0,
           },
+          {
+            question: 'Why is a held-out validation/test split important for a fine-tuning dataset?',
+            options: [
+              "It isn't important, training data alone is enough",
+              'It measures how the model performs on examples it did not train on, catching overfitting',
+              'It makes the file smaller',
+              'It is only needed for RAG, not fine-tuning',
+            ],
+            correctIndex: 1,
+          },
         ],
       },
     ],
@@ -120,7 +140,7 @@ const efficient = [
           english:
             'Full fine-tuning updates *all* of a model\'s billions of weights — very expensive in GPU memory and time. **PEFT (Parameter-Efficient Fine-Tuning)** methods update only a tiny fraction of parameters and get nearly the same results.\n\n**LoRA (Low-Rank Adaptation)** freezes the original weights and injects small trainable "adapter" matrices into each layer. You train only these adapters — often <1% of the parameters — then merge or load them at inference. This makes fine-tuning cheap and lets you keep many task-specific adapters for one base model.\n\n**QLoRA** goes further: it loads the base model in 4-bit **quantised** form (much less memory) and trains LoRA adapters on top. This is what lets people fine-tune large models on a single consumer GPU.\n\nHugging Face\'s `peft` library implements all of these with a few lines of code.',
           hinglish:
-            'Full fine-tuning model ke *saare* billions weights update karti hai — GPU memory aur time mein bahut mehnga. **PEFT (Parameter-Efficient Fine-Tuning)** methods sirf ek tiny fraction parameters update karte hain aur lagभग same results dete hain.\n\n**LoRA (Low-Rank Adaptation)** original weights ko freeze karti hai aur har layer mein chhote trainable "adapter" matrices inject karti hai. Tum sirf ye adapters train karte ho — aksar <1% parameters — phir inference pe merge ya load kar lete ho. Isse fine-tuning sasti ho jaati hai aur ek base model ke liye bahut saare task-specific adapters rakh sakte ho.\n\n**QLoRA** aur aage jaati hai: base model ko 4-bit **quantised** form mein load karti hai (bahut kam memory) aur uspe LoRA adapters train karti hai. Isi se log bade models ko ek single consumer GPU pe fine-tune kar paate hain.\n\nHugging Face ki `peft` library ye sab kuch lines mein implement karti hai.',
+            'Full fine-tuning model ke *saare* billions weights update karti hai — GPU memory aur time mein bahut mehnga. **PEFT (Parameter-Efficient Fine-Tuning)** methods sirf ek tiny fraction parameters update karte hain aur lagbhag same results dete hain.\n\n**LoRA (Low-Rank Adaptation)** original weights ko freeze karti hai aur har layer mein chhote trainable "adapter" matrices inject karti hai. Tum sirf ye adapters train karte ho — aksar <1% parameters — phir inference pe merge ya load kar lete ho. Isse fine-tuning sasti ho jaati hai aur ek base model ke liye bahut saare task-specific adapters rakh sakte ho.\n\n**QLoRA** aur aage jaati hai: base model ko 4-bit **quantised** form mein load karti hai (bahut kam memory) aur uspe LoRA adapters train karti hai. Isi se log bade models ko ek single consumer GPU pe fine-tune kar paate hain.\n\nHugging Face ki `peft` library ye sab kuch lines mein implement karti hai.',
         },
         dailyLifeExample:
           'Full fine-tuning waise hai jaise poora ghar dobara banana. LoRA waise hai jaise sirf furniture badalna — dhaancha wahi, chhote changes se naya look. QLoRA waise hai jaise chhoti jagah (kam memory) mein bhi wo furniture change kar lena.',
@@ -152,6 +172,11 @@ const efficient = [
               'It deletes half the layers',
               'It skips training',
             ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Roughly what fraction of a model\'s parameters does LoRA typically train?',
+            options: ['100%', 'Often under 1%', 'Exactly 50%', 'It trains zero parameters'],
             correctIndex: 1,
           },
         ],
@@ -198,6 +223,11 @@ const efficient = [
             ],
             correctIndex: 1,
           },
+          {
+            question: 'Which Hugging Face library provides LoRA/QLoRA implementations?',
+            options: ['datasets', 'peft', 'tokenizers', 'huggingface_hub'],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -208,6 +238,168 @@ const efficient = [
               hinglish:
                 'LoRA (Low-Rank Adaptation) ek parameter-efficient fine-tuning method hai jo pre-trained weights ko freeze karke layers mein inject kiye chhote low-rank adapter matrices train karti hai. Ye popular hai kyunki memory aur compute drastically kam karti hai (<1% parameters train), ek base model ke liye multiple task-specific adapters rakhne deti hai, aur full fine-tuning ke close quality deti hai.',
             },
+          },
+        ],
+      },
+      {
+        title: 'Catastrophic Forgetting & Small-Dataset Pitfalls',
+        difficulty: 'hard',
+        tags: ['catastrophic-forgetting', 'overfitting', 'learning-rate'],
+        explanation: {
+          english:
+            "A major risk in fine-tuning is **catastrophic forgetting**: after training hard on a narrow task, the model can lose general abilities it had before — like a model fine-tuned only on medical Q&A suddenly writing worse code or losing casual conversation skill. This happens because gradient updates that improve the narrow task can overwrite weights that encoded unrelated knowledge.\n\nSmall fine-tuning datasets (a common real-world case — a few hundred examples) make this worse because a high learning rate or too many epochs can make the model memorise those exact examples instead of generalising. Mitigations: use a **low learning rate**, few epochs, PEFT/LoRA (which touches far fewer weights, naturally limiting forgetting), mix in some general-purpose examples alongside task-specific ones, and always monitor validation loss/general benchmarks, not just task metrics.",
+          hinglish:
+            "Fine-tuning ka ek bada risk hai **catastrophic forgetting**: ek narrow task pe hard train karne ke baad, model apni pehli general abilities kho sakta hai — jaise sirf medical Q&A pe fine-tune kiya gaya model achanak code kharab likhne lagta hai ya casual conversation skill kho deta hai. Ye isliye hota hai kyunki gradient updates jo narrow task improve karte hain wo unrelated knowledge encode karne wale weights ko overwrite kar sakte hain.\n\nChhote fine-tuning datasets (ek common real-world case — kuch sau examples) isko aur bura banate hain kyunki high learning rate ya bahut zyada epochs model ko un exact examples ko ratta maarne pe majboor kar sakte hain, generalise karne ke bajaye. Mitigations: **low learning rate** use karo, kam epochs, PEFT/LoRA (jo bahut kam weights touch karta hai, naturally forgetting limit karta hai), task-specific ke saath kuch general-purpose examples mix karo, aur hamesha validation loss/general benchmarks monitor karo, sirf task metrics nahi.",
+        },
+        dailyLifeExample:
+          'Catastrophic forgetting waise hai jaise ek doctor jo ek naya rare disease padhne mein itna doob jaaye ki basic common-cold treatment bhool jaaye. Balance zaroori hai — naya seekhna, purana bhoolna nahi.',
+        codeExample:
+          '# Common mitigations against catastrophic forgetting\n# 1. Low learning rate (e.g. 1e-5 to 2e-4 with LoRA, not 1e-3)\n# 2. Few epochs (often 2-4 for small datasets, watch validation loss)\n# 3. Use LoRA/PEFT instead of full fine-tuning (fewer weights touched)\n# 4. Mix in a small % of general-purpose examples with your task data\n# 5. Evaluate on BOTH the target task AND a general benchmark before/after',
+        keyPoints: [
+          'Catastrophic forgetting: fine-tuning on a narrow task can degrade unrelated general abilities',
+          'Small datasets + high learning rate/too many epochs increases the risk of memorisation over generalisation',
+          'LoRA/PEFT naturally reduces forgetting by touching far fewer weights than full fine-tuning',
+          'Mitigations: low learning rate, few epochs, mixing in general-purpose examples',
+          'Always evaluate general capability, not just the target task, after fine-tuning',
+        ],
+        quiz: [
+          {
+            question: 'What is "catastrophic forgetting" in the context of fine-tuning?',
+            options: [
+              'The model forgets its own name',
+              'The model loses previously-held general abilities after being fine-tuned hard on a narrow task',
+              'The training data gets deleted',
+              'The GPU runs out of memory',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which of these helps reduce catastrophic forgetting?',
+            options: [
+              'Using a very high learning rate',
+              'Using LoRA/PEFT instead of full fine-tuning, since it touches far fewer weights',
+              'Training for as many epochs as possible',
+              'Using only task-specific data with no general examples',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why can a small fine-tuning dataset make forgetting/overfitting worse?',
+            options: [
+              'Small datasets always fail to load',
+              'With few examples, a high learning rate or too many epochs can push the model to memorise those exact examples instead of generalising',
+              'Small datasets require more GPUs',
+              'It has no effect either way',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Alignment Fine-tuning: RLHF & DPO',
+        difficulty: 'hard',
+        tags: ['rlhf', 'dpo', 'alignment', 'preference-tuning'],
+        explanation: {
+          english:
+            "Supervised fine-tuning (SFT) — the JSONL example approach covered earlier — teaches a model to imitate example answers. But how do you teach it to prefer *better* answers when there's no single correct one (e.g. which of two helpful responses is more helpful)? This is **alignment fine-tuning**, used after SFT to shape a model's behaviour using human preferences.\n\n**RLHF (Reinforcement Learning from Human Feedback)**: humans rank multiple model outputs for the same prompt; a separate **reward model** is trained to predict these preference scores; then the main model is fine-tuned with reinforcement learning to maximise the reward model's score. This is complex and was how the original ChatGPT-style models were aligned.\n\n**DPO (Direct Preference Optimization)** is a simpler, increasingly popular alternative: it skips training a separate reward model and reinforcement learning entirely, directly optimising the model on (prompt, preferred-answer, rejected-answer) triples using a clever loss function — achieving similar alignment results with much less complexity and compute.",
+          hinglish:
+            "Supervised fine-tuning (SFT) — pehle covered JSONL example approach — model ko example answers ki nakal karna sikhati hai. Par jab koi ek single correct answer na ho (jaise do helpful responses mein se kaunsa zyada helpful hai), tab model ko *better* answers prefer karna kaise sikhaoge? Ye hai **alignment fine-tuning**, jo SFT ke baad use hoti hai model ka behaviour human preferences se shape karne ke liye.\n\n**RLHF (Reinforcement Learning from Human Feedback)**: humans ek hi prompt ke multiple model outputs ko rank karte hain; ek alag **reward model** train hoti hai in preference scores predict karne ke liye; phir main model ko reinforcement learning se fine-tune kiya jaata hai taaki reward model ka score maximise ho. Ye complex hai aur original ChatGPT-style models isi se align hue the.\n\n**DPO (Direct Preference Optimization)** ek simpler, increasingly popular alternative hai: ye alag reward model train karna aur reinforcement learning dono skip kar deta hai, seedha (prompt, preferred-answer, rejected-answer) triples pe model ko ek clever loss function se optimise karta hai — kam complexity aur compute mein similar alignment results paata hai.",
+        },
+        dailyLifeExample:
+          'SFT waise hai jaise student ko model answers dikhana copy karne ke liye. RLHF waise hai jaise ek judge panel rakhna jo har answer ko rank kare aur student ko un ranks ke hisaab se reward/train karna — complex par thorough. DPO waise hai jaise seedha "ye answer usse behtar hai" bata dena, bina judge panel banaye — simpler shortcut.',
+        codeExample:
+          '# DPO training data shape (conceptual)\n# Each row: one prompt, one preferred answer, one rejected answer\n{\n  "prompt": "Explain recursion simply.",\n  "chosen": "Recursion is when a function calls itself to solve smaller pieces of a problem...",\n  "rejected": "Recursion is a loop." // technically vague/incorrect, less helpful\n}\n\n# Using Hugging Face TRL\'s DPOTrainer (simplified)\n# from trl import DPOTrainer, DPOConfig\n# trainer = DPOTrainer(model=sft_model, args=DPOConfig(...), train_dataset=preference_ds)\n# trainer.train()',
+        keyPoints: [
+          'SFT teaches imitation of example answers; alignment fine-tuning teaches preference between answers',
+          'RLHF: humans rank outputs -> train a reward model -> fine-tune with reinforcement learning to maximise reward',
+          'DPO: directly optimises on (prompt, chosen, rejected) triples, skipping the separate reward model and RL loop',
+          'DPO is simpler and cheaper than RLHF while achieving comparable alignment quality',
+          'Alignment fine-tuning typically happens after SFT, not instead of it',
+        ],
+        quiz: [
+          {
+            question: 'What problem does alignment fine-tuning (RLHF/DPO) solve that plain SFT does not?',
+            options: [
+              'It makes training faster, nothing else',
+              'It teaches the model to prefer better answers when there is no single correct answer, using human preference data',
+              'It replaces the need for any training data',
+              'It only works on images',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'In RLHF, what is the role of the "reward model"?',
+            options: [
+              'It generates the final answers shown to users',
+              'It is trained to predict human preference scores, and the main model is optimised to maximise its score',
+              'It stores the training data',
+              'It replaces the tokenizer',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the key simplification DPO offers compared to RLHF?',
+            options: [
+              'DPO uses more human labelers',
+              'DPO skips training a separate reward model and the reinforcement learning loop, optimising directly on preference triples',
+              'DPO does not require any preference data',
+              'DPO only works on small models',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Deploying Fine-tuned Models: Merging & Serving Adapters',
+        difficulty: 'medium',
+        tags: ['deployment', 'inference', 'merging', 'serving'],
+        explanation: {
+          english:
+            "Training a LoRA adapter is only half the job — you then need to serve it in production. You have two main options:\n\n1. **Load adapter + base model separately at inference** — keep the base model in memory once, and dynamically attach different LoRA adapters per request. This lets one deployed base model serve *many* fine-tuned behaviours (e.g. one adapter per customer), swapping adapters is fast and cheap.\n2. **Merge the adapter into the base weights** — combine the LoRA matrices back into the original weights to produce a single standalone model. This removes any adapter-swapping overhead and behaves like a normal model, but you lose the ability to easily swap tasks and must store a full copy per fine-tuned variant.\n\nChoose (1) when you need to serve many task variants efficiently from one base model (common in multi-tenant products); choose (2) when you're shipping one fixed fine-tuned model and want maximum inference simplicity/speed.",
+          hinglish:
+            "LoRA adapter train karna sirf aadha kaam hai — phir use production mein serve karna hota hai. Do main options hain:\n\n1. **Adapter + base model ko inference pe alag load karna** — base model ko ek baar memory mein rakho, aur har request pe alag-alag LoRA adapters dynamically attach karo. Isse ek deployed base model *bahut saare* fine-tuned behaviours serve kar sakta hai (jaise har customer ke liye ek adapter), adapters swap karna fast aur sasta hai.\n2. **Adapter ko base weights mein merge karna** — LoRA matrices ko original weights mein wapas combine karke ek single standalone model banao. Isse adapter-swapping ka overhead khatam ho jaata hai aur ye ek normal model jaisa behave karta hai, par task swap karna aasan nahi rehta aur har fine-tuned variant ke liye poori copy store karni padti hai.\n\n(1) tab choose karo jab tumhe ek base model se bahut saare task variants efficiently serve karne hain (multi-tenant products mein common); (2) tab choose karo jab tum ek fixed fine-tuned model ship kar rahe ho aur maximum inference simplicity/speed chahiye.",
+        },
+        dailyLifeExample:
+          'Adapter ko alag rakhna waise hai jaise ek hi phone pe alag-alag SIM cards badalna — ek hardware, multiple identities. Merging waise hai jaise ek naya, permanently-configured phone banwa lena ek hi identity ke liye — simple par flexible nahi.',
+        codeExample:
+          '# Option 1: keep adapter separate (swap per request)\nfrom peft import PeftModel\nbase = AutoModelForCausalLM.from_pretrained("base-llm")\nmodel = PeftModel.from_pretrained(base, "customer-a-adapter")\n# swap: model = PeftModel.from_pretrained(base, "customer-b-adapter")\n\n# Option 2: merge adapter into base weights for standalone deployment\nmerged_model = model.merge_and_unload()\nmerged_model.save_pretrained("standalone-fine-tuned-model")\n# now deploy `standalone-fine-tuned-model` like any normal model',
+        keyPoints: [
+          'Serving a fine-tuned model needs either "adapter kept separate" or "adapter merged into base weights"',
+          'Keeping adapters separate lets one base model serve many task variants efficiently (multi-tenant friendly)',
+          'Merging produces a standalone model with no swap overhead, but loses easy task-switching',
+          'merge_and_unload() in Hugging Face PEFT combines LoRA weights back into the base model',
+          'Choose based on whether you need to serve many variants or ship one fixed fine-tuned model',
+        ],
+        quiz: [
+          {
+            question: 'What is the benefit of keeping a LoRA adapter separate from the base model at inference time?',
+            options: [
+              'It makes the model slower with no benefit',
+              'One base model in memory can serve many different task-specific adapters, swapping them per request',
+              'It is required by law',
+              'It removes the need for a base model entirely',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does merging a LoRA adapter into the base model produce?',
+            options: [
+              'Two separate models that must always be loaded together',
+              'A single standalone model with the adapter weights combined in, with no swap overhead',
+              'A smaller base model with no adapter',
+              'A dataset',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'When would you prefer keeping adapters separate rather than merging?',
+            options: [
+              'When you only ever need one fixed fine-tuned model forever',
+              'When you need one base model to efficiently serve many different fine-tuned task variants (e.g. per customer)',
+              'Never, merging is always better',
+              'When you have no GPU',
+            ],
+            correctIndex: 1,
           },
         ],
       },
