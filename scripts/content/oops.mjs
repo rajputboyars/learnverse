@@ -250,6 +250,84 @@ const intermediate = [
           },
         ],
       },
+      {
+        title: 'Method Overloading vs Overriding',
+        difficulty: 'medium',
+        tags: ['overloading', 'overriding', 'polymorphism'],
+        explanation: {
+          english:
+            "These two terms sound similar but mean opposite kinds of flexibility. Overloading means defining MULTIPLE methods with the SAME name in the SAME class, but different parameters (different count or types) — the compiler picks the right one based on how you call it (compile-time / static polymorphism). Overriding means a SUBCLASS redefines a method it inherited from its PARENT class, with the SAME signature, to provide its own specific behaviour — the correct version is chosen at runtime based on the object's actual type (runtime / dynamic polymorphism).",
+          hinglish:
+            "Ye do terms sunne mein same lagte hain par flexibility ke opposite kisam hain. Overloading ka matlab hai SAME class mein SAME naam ke MULTIPLE methods define karna, par alag parameters ke saath (alag count ya types) — compiler sahi wala choose karta hai ki tumne kaise call kiya (compile-time / static polymorphism). Overriding ka matlab hai ek SUBCLASS apne PARENT class se inherit kiya hua method dobara define karta hai, SAME signature ke saath, apna specific behaviour dene ke liye — sahi version runtime pe object ke actual type ke hisaab se choose hota hai (runtime / dynamic polymorphism).",
+        },
+        dailyLifeExample:
+          "Overloading ek hi 'order' word ke different tareeke bolne jaisa hai — 'order(pizza)', 'order(pizza, drink)', 'order(pizza, drink, dessert)' — restaurant samajh jaata hai kaunsa combo chahiye, tumne kitni cheezein maangi uske hisaab se. Overriding ek family recipe jaisa hai — 'biryani banao' sabko pata hai, par har ghar (subclass) ka apna specific tareeka hai use banane ka.",
+        codeExample:
+          "// OVERLOADING (same class, same name, different parameters)\n// In languages like Java/C++ — JS simulates it with default/rest params:\nclass Calculator {\n  add(a, b, c) {\n    if (c !== undefined) return a + b + c; // 3 args\n    return a + b;                           // 2 args\n  }\n}\n\n// OVERRIDING (subclass redefines a parent method, same signature)\nclass Animal {\n  speak() { return 'Some generic sound'; }\n}\nclass Dog extends Animal {\n  speak() { return 'Woof!'; } // overrides Animal's speak()\n}\nclass Cat extends Animal {\n  speak() { return 'Meow!'; } // overrides Animal's speak()\n}\n\nconst animals = [new Dog(), new Cat()];\nanimals.forEach(a => console.log(a.speak())); // Woof! Meow! — runtime decides",
+        keyPoints: [
+          'Overloading: SAME class, SAME method name, DIFFERENT parameters — resolved at compile time',
+          'Overriding: SUBCLASS redefines an inherited method with the SAME signature — resolved at runtime',
+          'Overloading is about having multiple ways to CALL a method',
+          'Overriding is about a child class CHANGING inherited behaviour',
+          'JavaScript does not support true overloading (no duplicate method names) — it is simulated with default/rest parameters',
+        ],
+        quiz: [
+          {
+            question: 'What is the key difference between overloading and overriding?',
+            options: ['They are the same thing', 'Overloading is multiple methods with the same name but different parameters in ONE class; overriding is a subclass redefining an inherited method with the SAME signature', 'Overloading only happens in subclasses', 'Overriding requires different parameter types'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which is resolved at COMPILE time (in languages that support it), and which at RUNTIME?',
+            options: ['Both are resolved at runtime', 'Overloading at compile time; overriding at runtime', 'Overloading at runtime; overriding at compile time', 'Both are resolved at compile time'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Does JavaScript support true method overloading (multiple methods with the exact same name in one class)?',
+            options: ['Yes, fully', 'No — JavaScript only keeps the LAST definition; overloading-like behavior is simulated with default/rest parameters', 'Only in strict mode', 'Only for constructors'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: "Composition vs Inheritance: 'Has-a' vs 'Is-a'",
+        difficulty: 'hard',
+        tags: ['composition', 'inheritance', 'design'],
+        explanation: {
+          english:
+            "Inheritance models an 'IS-A' relationship (a Dog IS AN Animal) — the subclass gets everything the parent has, tightly coupled to it. Composition models a 'HAS-A' relationship (a Car HAS AN Engine) — an object holds a reference to another object and delegates work to it, without inheriting from it. A famous OOP design principle says 'favor composition over inheritance': deep inheritance chains become rigid and fragile (changing a parent can break every descendant), while composition is more flexible — you can swap out a component at runtime, and avoid forcing an 'IS-A' relationship that doesn't truly fit.",
+          hinglish:
+            "Inheritance ek 'IS-A' relationship model karta hai (ek Dog EK Animal HAI) — subclass ko parent ke paas jo bhi hai sab milta hai, usse tightly coupled. Composition ek 'HAS-A' relationship model karta hai (ek Car EK Engine RAKHTI HAI) — ek object doosre object ka reference rakhta hai aur usse kaam delegate karta hai, usse inherit kiye bina. Ek famous OOP design principle kehta hai 'composition ko inheritance se zyada prefer karo': deep inheritance chains rigid aur fragile ho jaati hain (parent badalne se har descendant toot sakta hai), jabki composition zyada flexible hai — tum runtime pe ek component swap kar sakte ho, aur ek 'IS-A' relationship force karne se bach sakte ho jo actually fit nahi karta.",
+        },
+        dailyLifeExample:
+          'Inheritance ek naukri jaisa hai jahan tum apne baap ka poora business inherit karte ho, chaho ya na chaho — sab kuch saath aata hai. Composition ek car banane jaisa hai — tum ek engine \'lagate\' ho car mein, aur agar zaroorat ho to engine badal sakte ho bina poori car dobara banaye.',
+        codeExample:
+          "// Inheritance: IS-A — tightly coupled, rigid\nclass Bird {\n  fly() { return 'Flying...'; }\n}\nclass Penguin extends Bird {\n  // Problem: a Penguin IS-A Bird but CANNOT fly! Inheritance forces this bad fit.\n}\n\n// Composition: HAS-A — flexible, swappable\nclass Engine {\n  start() { return 'Engine started'; }\n}\nclass ElectricEngine {\n  start() { return 'Electric engine humming silently'; }\n}\n\nclass Car {\n  constructor(engine) {\n    this.engine = engine; // Car HAS-A engine (delegated, not inherited)\n  }\n  start() { return this.engine.start(); }\n}\n\nconst petrolCar = new Car(new Engine());\nconst electricCar = new Car(new ElectricEngine()); // swap the component freely\nconsole.log(petrolCar.start());\nconsole.log(electricCar.start());",
+        keyPoints: [
+          "Inheritance = 'IS-A' relationship, tightly coupled to the parent's implementation",
+          "Composition = 'HAS-A' relationship, an object delegates work to another it holds a reference to",
+          '"Favor composition over inheritance" — a well-known OOP design guideline',
+          'Composition lets you swap components at runtime; inheritance locks in behaviour at compile time',
+          'The Penguin-Bird problem is a classic example of inheritance forcing a bad-fit relationship',
+        ],
+        quiz: [
+          {
+            question: 'What relationship does inheritance model?',
+            options: ["'HAS-A'", "'IS-A'", "'USES-A'", 'No relationship'],
+            correctIndex: 1,
+          },
+          {
+            question: 'In the Car/Engine example, why is composition used instead of Car extending Engine?',
+            options: ['A Car does not need an engine at all', 'A Car HAS an engine, it IS NOT an engine — composition models this correctly and lets you swap engine types freely', 'JavaScript does not support inheritance', 'Composition is always faster'],
+            correctIndex: 1,
+          },
+          {
+            question: "What OOP design guideline is illustrated by the Penguin-Bird fly() problem?",
+            options: ['Always use inheritance', "'Favor composition over inheritance' — forcing an IS-A relationship that doesn't truly fit causes problems", 'Never use classes', 'Composition is only for arrays'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
 ];
@@ -335,6 +413,45 @@ const advanced = [
           {
             question: 'A class can implement how many interfaces?',
             options: ['only one', 'many', 'zero only', 'two max'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Common Design Patterns: Singleton, Factory & Observer',
+        difficulty: 'hard',
+        tags: ['design-patterns', 'singleton', 'factory', 'observer'],
+        explanation: {
+          english:
+            'Design patterns are proven, reusable solutions to problems that come up again and again in OOP design. Singleton ensures a class has only ONE instance, globally accessible (e.g. a single database connection or configuration object). Factory hides the complexity of object creation behind a method, so calling code asks for "a shape" without knowing or caring exactly which class gets instantiated. Observer lets objects (subscribers) automatically get notified whenever another object (the subject) changes state — the foundation of event systems and reactive UIs.',
+          hinglish:
+            'Design patterns proven, reusable solutions hain un problems ke liye jo OOP design mein baar-baar aati hain. Singleton ensure karta hai ki ek class ka sirf EK instance ho, globally accessible (jaise ek single database connection ya configuration object). Factory object creation ki complexity ko ek method ke peeche chhupa deta hai, isliye calling code "ek shape" maangta hai bina jaane ya parwah kiye ki exactly kaunsi class instantiate hui. Observer objects (subscribers) ko automatically notify hone deta hai jab bhi doosra object (subject) apni state badle — event systems aur reactive UIs ka foundation.',
+        },
+        dailyLifeExample:
+          'Singleton ek school ka principal jaisa hai — sirf ek hota hai, sab uski taraf refer karte hain. Factory ek restaurant ka waiter hai — tum bologe "ek dessert do", waiter decide karta hai kaunsa banana hai (gulab jamun ya ice cream), tumhe kitchen ki details nahi jaanni. Observer YouTube subscription jaisa hai — channel (subject) naya video daale to sab subscribers (observers) ko notification milta hai.',
+        codeExample:
+          "// Singleton — only one instance ever exists\nclass Database {\n  static #instance;\n  static getInstance() {\n    if (!Database.#instance) Database.#instance = new Database();\n    return Database.#instance;\n  }\n}\nDatabase.getInstance() === Database.getInstance(); // true, same object\n\n// Factory — hides which exact class gets created\nclass Circle { constructor() { this.type = 'circle'; } }\nclass Square { constructor() { this.type = 'square'; } }\nfunction shapeFactory(type) {\n  if (type === 'circle') return new Circle();\n  if (type === 'square') return new Square();\n}\nconst shape = shapeFactory('circle'); // caller doesn't need to know the class\n\n// Observer — subscribers get notified automatically\nclass EventBus {\n  #listeners = [];\n  subscribe(fn) { this.#listeners.push(fn); }\n  emit(data) { this.#listeners.forEach(fn => fn(data)); }\n}\nconst bus = new EventBus();\nbus.subscribe(data => console.log('Got:', data));\nbus.emit('new video uploaded!');",
+        keyPoints: [
+          'Singleton: guarantees only ONE instance of a class exists, globally accessible',
+          'Factory: hides object-creation logic behind a method, decoupling callers from exact classes',
+          'Observer: subscribers automatically react when a subject changes — the basis of events',
+          'Patterns are proven solutions, not strict rules — apply them only when they genuinely fit',
+          'Real frameworks use these constantly: DOM events (Observer), React.createElement (Factory-like)',
+        ],
+        quiz: [
+          {
+            question: 'What problem does the Singleton pattern solve?',
+            options: ['Making code run faster', 'Guaranteeing only one instance of a class exists, accessible globally', 'Hiding all class methods', 'Creating unlimited objects'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does the Factory pattern hide from the calling code?',
+            options: ['The return value', 'The exact class/logic used to create an object — the caller just asks for what it needs', 'All method names', 'The entire program'],
+            correctIndex: 1,
+          },
+          {
+            question: 'The Observer pattern is the foundation of…',
+            options: ['Sorting algorithms', 'Event systems and reactive updates (subscribers notified on change)', 'Database indexing', 'File compression'],
             correctIndex: 1,
           },
         ],
