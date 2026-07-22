@@ -343,6 +343,84 @@ const intermediate = [
           },
         ],
       },
+      {
+        title: 'Hypothesis Testing & p-values',
+        difficulty: 'hard',
+        tags: ['hypothesis-testing', 'p-value', 'statistics'],
+        explanation: {
+          english:
+            "Hypothesis testing is how data scientists decide if an observed effect (like a new website design increasing sign-ups) is REAL or just random luck. You start with a null hypothesis (H0: 'there is no real effect, any difference is chance') and an alternative hypothesis (H1: 'there IS a real effect'). A statistical test computes a p-value: the probability of seeing a result this extreme (or more) IF the null hypothesis were actually true. A small p-value (conventionally < 0.05) means the observed result would be unlikely under 'no effect', so you reject the null hypothesis. A p-value does NOT tell you the probability the null hypothesis is true, or the size/importance of the effect — a very common misinterpretation.",
+          hinglish:
+            "Hypothesis testing wo tarika hai jisse data scientists decide karte hain ki ek observed effect (jaise ek naya website design sign-ups badha raha hai) REAL hai ya sirf random luck. Tum ek null hypothesis se shuru karte ho (H0: 'koi real effect nahi hai, jo bhi difference hai wo chance se hai') aur ek alternative hypothesis (H1: 'EK real effect HAI'). Ek statistical test ek p-value calculate karta hai: is baat ki probability ki ye result (ya usse zyada extreme) dikhega AGAR null hypothesis actually true hoti. Ek chhota p-value (conventionally < 0.05) matlab observed result 'no effect' ke under unlikely hota, isliye tum null hypothesis reject kar dete ho. P-value ye NAHI batata ki null hypothesis true hone ki probability kya hai, ya effect kitna bada/important hai — ye ek bahut common galat samajh hai.",
+        },
+        dailyLifeExample:
+          "Hypothesis testing ek court case jaisa hai — 'innocent until proven guilty' (null hypothesis: koi effect nahi hai). Tum evidence (data) collect karte ho, aur agar evidence itna strong hai ki 'agar innocent hota to ye evidence milna bahut unlikely tha' (chhota p-value), tabhi tum guilty (reject null hypothesis, effect real hai) declare karte ho.",
+        codeExample:
+          "from scipy import stats\n\n# Did the new button color increase clicks?\n# Group A (old color): click rates\ngroup_a = [0.10, 0.12, 0.09, 0.11, 0.10]\n# Group B (new color): click rates\ngroup_b = [0.15, 0.14, 0.16, 0.13, 0.15]\n\n# Null hypothesis (H0): no real difference between groups\n# Alternative (H1): there IS a real difference\nt_stat, p_value = stats.ttest_ind(group_a, group_b)\n\nprint(f'p-value: {p_value:.4f}')\nif p_value < 0.05:\n    print('Reject H0 — the difference is likely real (statistically significant)')\nelse:\n    print('Fail to reject H0 — not enough evidence of a real difference')",
+        keyPoints: [
+          'Null hypothesis (H0): assumes no real effect exists; alternative (H1): a real effect exists',
+          'p-value: the probability of seeing this result (or more extreme) IF H0 were true',
+          'Small p-value (commonly < 0.05) -> reject H0 -> the effect is likely real, not just chance',
+          'A p-value does NOT tell you the probability H0 is true, nor how big/important the effect is',
+          'Statistical significance is not the same as practical/business significance',
+        ],
+        quiz: [
+          {
+            question: 'What does a small p-value (e.g. 0.01) suggest?',
+            options: ['The null hypothesis is definitely false', 'The observed result would be unlikely if the null hypothesis were true, so you reject it', 'There is no effect', 'The sample size is too small'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is a common MISINTERPRETATION of the p-value?',
+            options: ['That it relates to the null hypothesis at all', 'Believing the p-value IS the probability that the null hypothesis is true (it is not)', 'That smaller is more significant', 'That it comes from a statistical test'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the null hypothesis (H0) typically assumed to be?',
+            options: ['That there IS a real, meaningful effect', 'That there is NO real effect — any observed difference is due to chance', 'That the data is wrong', 'That the sample size is too large'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'A/B Testing: Controlled Experiments',
+        difficulty: 'hard',
+        tags: ['ab-testing', 'experimentation'],
+        explanation: {
+          english:
+            'An A/B test is a controlled experiment that proves causation, not just correlation. You randomly split users into Group A (control, sees the current version) and Group B (treatment, sees the new version), change ONLY ONE thing between them, and compare a metric (like conversion rate) between the two groups. Because assignment is RANDOM, any other factor (time of day, user type, weather) should average out equally between groups — so if B outperforms A, you can credit the change itself, not a confounder. Run the test long enough to reach a reasonable sample size, then use hypothesis testing (a p-value) to check if the difference is statistically significant, not just random noise.',
+          hinglish:
+            'A/B test ek controlled experiment hai jo causation prove karta hai, sirf correlation nahi. Tum users ko randomly Group A (control, current version dekhte hain) aur Group B (treatment, naya version dekhte hain) mein baant te ho, unke beech SIRF EK cheez badalte ho, aur ek metric (jaise conversion rate) dono groups ke beech compare karte ho. Kyunki assignment RANDOM hai, koi bhi doosra factor (din ka time, user type, weather) dono groups mein equally average out hona chahiye — isliye agar B, A se behtar perform kare, to tum us change ko hi credit de sakte ho, kisi confounder ko nahi. Test ko itni der chalao ki reasonable sample size mile, phir hypothesis testing (p-value) use karo ye check karne ke liye ki difference statistically significant hai, sirf random noise nahi.',
+        },
+        dailyLifeExample:
+          'A/B test ek doctor ke clinical trial jaisa hai — kuch patients ko asli dawai (Group B) dete ho, kuch ko placebo (Group A), RANDOMLY assign karke. Agar asli dawai wale significantly behtar hon, to tum confident ho sakte ho ki dawai hi kaam kar rahi hai, koi aur wajah nahi (kyunki random assignment ne baaki sab factors balance kar diye).',
+        codeExample:
+          "# Simple A/B test structure\nimport numpy as np\nfrom scipy import stats\n\n# Randomly assign users to control (A) or treatment (B)\n# control: old checkout button; treatment: new checkout button\nconversions_a = 120   # out of\nvisitors_a = 1000\nconversions_b = 150   # out of\nvisitors_b = 1000\n\nrate_a = conversions_a / visitors_a  # 12%\nrate_b = conversions_b / visitors_b  # 15%\n\n# Statistical test to check if the 3% lift is real or just noise\ncount = np.array([conversions_a, conversions_b])\nnobs = np.array([visitors_a, visitors_b])\n\n# (conceptually — a proportions z-test)\n# if p_value < 0.05: the new button REALLY performs better\n# else: not enough evidence, could just be random variation",
+        keyPoints: [
+          'Random assignment to control (A) and treatment (B) is what makes A/B tests prove CAUSATION',
+          'Change only ONE variable between groups — otherwise you cannot tell which change caused the effect',
+          'Random assignment balances out confounders (time, user type, etc.) between the two groups equally',
+          'Use hypothesis testing (p-value) to confirm the difference is statistically significant, not random noise',
+          'Run long enough to get a meaningful sample size before drawing conclusions',
+        ],
+        quiz: [
+          {
+            question: 'Why does RANDOM assignment in an A/B test let you claim causation, not just correlation?',
+            options: ['Randomness has no real purpose here', 'Random assignment balances out other factors (confounders) equally between groups, so any difference in outcome can be credited to the one thing that was changed', 'It makes the test run faster', 'It removes the need for a control group'],
+            correctIndex: 1,
+          },
+          {
+            question: 'In a proper A/B test, how many things should differ between Group A and Group B?',
+            options: ['As many as possible', 'Exactly ONE — the specific thing being tested', 'At least three', 'It does not matter'],
+            correctIndex: 1,
+          },
+          {
+            question: 'After running an A/B test, why use a hypothesis test (p-value) on the results?',
+            options: ['It is not necessary', 'To check whether the observed difference between groups is statistically significant or could just be random variation', 'To make the groups bigger', 'To randomly assign users'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
 ];
