@@ -60,6 +60,11 @@ const beginner = [
             options: ['system calls', 'CSS', 'SQL', 'HTML tags'],
             correctIndex: 0,
           },
+          {
+            question: 'Which of these is NOT typically a job of the OS?',
+            options: ['Managing memory', 'Managing processes', 'Deciding your app\'s business logic', 'Managing files and devices'],
+            correctIndex: 2,
+          },
         ],
       },
       {
@@ -92,6 +97,11 @@ const beginner = [
             question: 'Which is more isolated/safer but heavier?',
             options: ['thread', 'process', 'both equal', 'neither'],
             correctIndex: 1,
+          },
+          {
+            question: 'What does each thread within a process have that is NOT shared with other threads?',
+            options: ['The heap', 'Global variables', 'Its own stack and registers', 'The code segment'],
+            correctIndex: 2,
           },
         ],
         interviewQuestions: [
@@ -149,6 +159,11 @@ const intermediate = [
             options: ['priority number', 'fixed time quantum', 'whole CPU forever', 'memory page'],
             correctIndex: 1,
           },
+          {
+            question: 'What is a risk of pure Priority scheduling?',
+            options: ['It is always the fastest', 'Low-priority processes can starve (never get to run)', 'It needs no CPU', 'It only works with one process'],
+            correctIndex: 1,
+          },
         ],
       },
       {
@@ -182,6 +197,11 @@ const intermediate = [
             options: ['frames to disk', 'virtual pages to physical frames', 'processes to threads', 'files to folders'],
             correctIndex: 1,
           },
+          {
+            question: 'What does the TLB (Translation Lookaside Buffer) do?',
+            options: ['Stores files permanently', 'Caches recent virtual-to-physical address translations for speed', 'Schedules processes', 'Detects deadlocks'],
+            correctIndex: 1,
+          },
         ],
       },
       {
@@ -213,6 +233,16 @@ const intermediate = [
           {
             question: 'Excessive paging is called…',
             options: ['deadlock', 'thrashing', 'starvation', 'fragmentation'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the LRU (Least Recently Used) page replacement policy?',
+            options: [
+              'It evicts a random page',
+              'It evicts the page that has not been used for the longest time',
+              'It evicts the most recently used page',
+              'It never evicts any page',
+            ],
             correctIndex: 1,
           },
         ],
@@ -256,6 +286,11 @@ const advanced = [
           {
             question: 'Two cars stuck head-to-head on a one-lane bridge is an example of…',
             options: ['starvation', 'deadlock (circular wait)', 'thrashing', 'paging'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which strategy uses the Banker\'s algorithm?',
+            options: ['Deadlock detection only', 'Deadlock avoidance', 'Ignoring deadlocks', 'CPU scheduling'],
             correctIndex: 1,
           },
         ],
@@ -302,6 +337,173 @@ const advanced = [
           {
             question: 'A semaphore is essentially a…',
             options: ['boolean only', 'counter allowing up to N threads', 'memory page', 'scheduler'],
+            correctIndex: 1,
+          },
+          {
+            question: 'A binary semaphore (count 1) behaves most like a…',
+            options: ['round robin scheduler', 'mutex', 'page table', 'deadlock'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Inter-Process Communication (IPC)',
+        difficulty: 'medium',
+        tags: ['ipc', 'pipes', 'shared-memory', 'message-queues'],
+        explanation: {
+          english:
+            "Processes are isolated from each other by design (each has its own memory space) — but sometimes they need to cooperate and exchange data. **Inter-Process Communication (IPC)** is the set of mechanisms the OS provides for this:\n\n- **Pipes** — a one-way (or two-way with two pipes) byte stream between related processes (e.g. a parent and its child), commonly used to chain commands (`ls | grep`)\n- **Message queues** — the OS maintains a queue of discrete messages; processes can send/receive without both being active at the same instant\n- **Shared memory** — the OS maps the SAME physical memory region into multiple processes' address spaces; this is the FASTEST IPC method (no copying, no kernel involvement after setup) but requires manual synchronization (mutex/semaphore) since multiple processes can write simultaneously\n- **Sockets** — like pipes but work across a network, not just on one machine, making them the basis for client-server communication\n\nChoosing an IPC mechanism is a tradeoff between speed, simplicity, and whether processes are on the same machine.",
+          hinglish:
+            "Processes design se ek doosre se isolated hote hain (har ek ki apni memory space) — par kabhi-kabhi unhe cooperate karke data exchange karna hota hai. **Inter-Process Communication (IPC)** wo mechanisms hain jo OS iske liye deta hai:\n\n- **Pipes** — related processes (jaise parent aur uska child) ke beech ek one-way (ya do pipes se two-way) byte stream, commonly commands chain karne ke liye use hota hai (`ls | grep`)\n- **Message queues** — OS discrete messages ki ek queue maintain karta hai; processes send/receive kar sakte hain bina dono ek hi instant pe active hue\n- **Shared memory** — OS SAME physical memory region ko multiple processes ke address spaces mein map karta hai; ye FASTEST IPC method hai (no copying, setup ke baad kernel involvement nahi) par manual synchronization (mutex/semaphore) chahiye kyunki multiple processes simultaneously likh sakte hain\n- **Sockets** — pipes jaise hi par network ke across kaam karte hain, sirf ek machine pe nahi, isliye client-server communication ka base hain\n\nEk IPC mechanism choose karna speed, simplicity, aur processes same machine pe hain ya nahi, in sabka tradeoff hai.",
+        },
+        dailyLifeExample:
+          "Pipes waise hain jaise ek assembly line — ek worker ka output seedha agle ko jaata hai. Message queues waise hain jaise ek letterbox — tum letter daal do, receiver jab free ho tab check kare. Shared memory waise hai jaise ek shared whiteboard jo sab dekh aur likh sakte hain — fastest, par sabko turns lene ka rule (synchronization) chahiye taaki overwrite na ho.",
+        codeExample:
+          "// Shell pipe: process A's stdout -> process B's stdin\n// $ ls | grep '.txt'\n\n// Shared memory (conceptual, POSIX-style)\n// shm_open(\"/my_shm\", ...)      // create/open shared region\n// mmap(...)                      // map it into this process's address space\n// // both processes now read/write the SAME physical memory\n// // MUST use a mutex/semaphore to avoid corrupting it\n\n// Message queue (conceptual)\n// msgsnd(queue_id, message, ...)  // process A sends\n// msgrcv(queue_id, buffer, ...)   // process B receives, whenever ready",
+        keyPoints: [
+          'IPC lets isolated processes cooperate and exchange data',
+          'Pipes: one-way byte stream, typically between related processes',
+          'Message queues: discrete messages, sender/receiver need not be active simultaneously',
+          'Shared memory: fastest IPC (same physical memory mapped into multiple processes) but needs manual synchronization',
+          'Sockets: like pipes but work across a network, basis for client-server communication',
+        ],
+        quiz: [
+          {
+            question: 'Why do processes need IPC mechanisms at all?',
+            options: [
+              'They do not, processes automatically share everything',
+              'Processes are isolated by design (separate memory spaces), so IPC provides controlled ways to cooperate/exchange data',
+              'IPC is only used by the OS itself, never by user programs',
+              'IPC replaces the need for threads',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why is shared memory the fastest IPC mechanism?',
+            options: [
+              'It uses the network',
+              'The same physical memory is mapped into multiple processes, avoiding data copying or kernel involvement after setup',
+              'It does not require any synchronization ever',
+              'It only works for a single process',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is a key downside of using shared memory for IPC?',
+            options: [
+              'It is too slow',
+              'It requires manual synchronization (like a mutex) since multiple processes can write simultaneously and corrupt data',
+              'It cannot be used by any OS',
+              'It only works over a network',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'File Systems: Organizing Data on Disk',
+        difficulty: 'medium',
+        tags: ['file-systems', 'inode', 'disk'],
+        explanation: {
+          english:
+            "A **file system** is how the OS organises, names, and stores files persistently on disk (or SSD) so they survive a reboot — unlike RAM, which is wiped. It provides the abstraction of files and directories on top of raw disk blocks.\n\nKey concepts: an **inode** (index node) stores a file's metadata — size, permissions, owner, timestamps, and pointers to the actual data blocks on disk — separately from the filename (the directory just maps names to inode numbers). This is why you can have hard links (multiple names pointing to the same inode) and why renaming a file is instant (only the directory entry changes, not the data).\n\n**Free space management** tracks which disk blocks are unused (via a bitmap or free list) so new files know where to go. Common file systems: **ext4** (Linux), **NTFS** (Windows), **APFS** (macOS) — each with different tradeoffs in journaling (crash recovery), max file size, and permissions models.",
+          hinglish:
+            "Ek **file system** wo tareeka hai jisse OS files ko disk (ya SSD) pe organise, naam, aur persistently store karta hai taaki wo reboot ke baad bhi bachi rahein — RAM ke ulat, jo wipe ho jaati hai. Ye raw disk blocks ke upar files aur directories ka abstraction deta hai.\n\nKey concepts: ek **inode** (index node) ek file ka metadata store karta hai — size, permissions, owner, timestamps, aur disk pe actual data blocks ke pointers — filename se alag (directory sirf names ko inode numbers se map karti hai). Isiliye hard links possible hain (multiple names ek hi inode ko point karte hain) aur file rename instant hoti hai (sirf directory entry badalti hai, data nahi).\n\n**Free space management** track karta hai kaunse disk blocks unused hain (ek bitmap ya free list se) taaki nayi files ko pata ho kahan jaana hai. Common file systems: **ext4** (Linux), **NTFS** (Windows), **APFS** (macOS) — har ek journaling (crash recovery), max file size, aur permissions models mein alag tradeoffs ke saath.",
+        },
+        dailyLifeExample:
+          "Ek file system waise hai jaise ek library ka catalog system — har kitaab (data) ka ek unique index card (inode) hota hai jisme kitaab ki details aur shelf location hoti hai, aur library ke sections (directories) sirf catalog card numbers ko point karte hain. Isiliye ek kitaab ko category badalna (rename/move) sirf catalog card update karna hai, poori kitaab ko physically move karna nahi.",
+        codeExample:
+          "// Directory entry -> inode number -> inode (metadata + data block pointers)\n//\n// $ ls -i myfile.txt\n// 123456 myfile.txt      <- 123456 is the inode number\n//\n// Hard link: another directory entry pointing to the SAME inode\n// $ ln myfile.txt myfile_alias.txt   // both names, same inode 123456\n//\n// Renaming is fast: only updates the directory entry -> inode mapping,\n// the actual data blocks never move.",
+        keyPoints: [
+          'A file system organises and persists files/directories on disk, surviving reboots',
+          'An inode stores a file\'s metadata and data-block pointers, separate from its filename',
+          'Directories just map names to inode numbers — renaming only changes this mapping, not the data',
+          'Free space management (bitmap/free list) tracks which disk blocks are available',
+          'Common file systems: ext4 (Linux), NTFS (Windows), APFS (macOS)',
+        ],
+        quiz: [
+          {
+            question: 'What does an inode store?',
+            options: [
+              'Only the filename',
+              "A file's metadata (size, permissions, timestamps) and pointers to its data blocks on disk",
+              'The CPU scheduler state',
+              'Network socket information',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why is renaming a file typically a fast operation?',
+            options: [
+              'The OS actually copies all the file data to a new location',
+              'Only the directory entry (name -> inode mapping) is updated; the data blocks never move',
+              'Renaming is always slow regardless of file system',
+              'The file is deleted and recreated',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why does data in a file system survive a system reboot, unlike data in RAM?',
+            options: [
+              'It does not survive; file systems also lose data on reboot',
+              'File systems persist data on non-volatile storage (disk/SSD), while RAM is volatile and cleared on power loss',
+              'RAM is actually slower than disk',
+              'Reboots never clear any memory',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Disk Scheduling Algorithms',
+        difficulty: 'hard',
+        tags: ['disk-scheduling', 'io', 'seek-time'],
+        explanation: {
+          english:
+            "When multiple processes request disk I/O at once, the OS must decide the ORDER to service them — this matters because moving a mechanical disk's read/write head (seek time) is slow, and a bad order wastes huge amounts of time. (This matters less for SSDs, which have no moving head, but the algorithms are still foundational OS knowledge.)\n\n**FCFS (First Come First Served)**: service requests in arrival order — simple but can cause the head to zigzag wildly across the disk.\n**SSTF (Shortest Seek Time First)**: always service the closest pending request — reduces total seek time but can starve requests far from the current head position.\n**SCAN ('elevator algorithm')**: the head moves in one direction, servicing all requests along the way, until it hits the end, then reverses — like a lift stopping at every floor going up, then coming back down. Fairer than SSTF, no starvation.\n**C-SCAN (Circular SCAN)**: like SCAN, but instead of reversing at the end, it jumps back to the start and scans in the same direction again — gives more uniform wait times.",
+          hinglish:
+            "Jab multiple processes ek saath disk I/O request karein, OS ko decide karna padta hai kis ORDER mein service karein — ye matter karta hai kyunki mechanical disk ke read/write head ko move karna (seek time) slow hai, aur galat order bahut time waste karta hai. (SSDs ke liye ye kam matter karta hai, jinme moving head nahi hota, par ye algorithms abhi bhi foundational OS knowledge hain.)\n\n**FCFS (First Come First Served)**: requests ko arrival order mein service karo — simple par head ko disk ke across wildly zigzag karwa sakta hai.\n**SSTF (Shortest Seek Time First)**: hamesha sabse najdeek pending request service karo — total seek time kam karta hai par current head position se door requests ko starve kar sakta hai.\n**SCAN ('elevator algorithm')**: head ek direction mein move karta hai, raaste ke saare requests service karte hue, jab tak end na aa jaaye, phir reverse — ek lift jaisa jo upar jaate hue har floor pe rukta hai, phir neeche aata hai. SSTF se zyada fair, koi starvation nahi.\n**C-SCAN (Circular SCAN)**: SCAN jaisa, par end pe reverse karne ke bajaye, wapas start pe jump karke same direction mein phir scan karta hai — zyada uniform wait times deta hai.",
+        },
+        dailyLifeExample:
+          "SCAN algorithm waise hai jaise ek lift jo bas ek direction mein chalti hai (upar), har floor pe jo bhi wait kar raha hai use pick karti hai, top pe pahunch ke phir neeche aati hai — bina beech mein random floors ke beech udhar-idhar bhaage. FCFS waise hai jaise lift requests ko bilkul jis order mein aayin, usi order mein serve kare, chahe upar-neeche kitna bhi bhaagna pade.",
+        codeExample:
+          "// Disk requests (cylinder/track numbers), head starts at 50:\n// requests = [95, 180, 34, 119, 11, 123, 62, 64]\n//\n// FCFS: service in given order (lots of back-and-forth)\n// SSTF: always pick nearest remaining request to current head\n// SCAN: move in one direction (e.g. increasing), service all,\n//       hit the end, reverse and service the rest\n// C-SCAN: move in one direction, service all, jump back to start,\n//         scan the same direction again (no reverse sweep)",
+        keyPoints: [
+          'Disk scheduling decides the order to service pending disk I/O requests',
+          'FCFS: arrival order, simple but can cause long, wasteful head movement',
+          'SSTF: nearest request first, minimises seek time but can starve far-away requests',
+          'SCAN ("elevator"): sweeps in one direction servicing all requests, then reverses — no starvation',
+          'C-SCAN: like SCAN but jumps back to start instead of reversing, giving more uniform wait times',
+        ],
+        quiz: [
+          {
+            question: 'Why does disk scheduling order matter for mechanical (spinning) disks?',
+            options: [
+              'It does not matter at all',
+              "Moving the read/write head (seek time) is slow, so a poor order wastes significant time",
+              'It only affects file names',
+              'It changes the CPU scheduling algorithm',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is a downside of SSTF (Shortest Seek Time First)?',
+            options: [
+              'It is always the slowest algorithm',
+              'Requests far from the current head position can be starved, waiting indefinitely',
+              'It cannot be implemented',
+              'It only works with SSDs',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'How does the SCAN ("elevator") algorithm avoid starvation?',
+            options: [
+              'It services requests in random order',
+              'It sweeps in one direction servicing every request along the way before reversing, so no request waits forever',
+              'It ignores far-away requests permanently',
+              'It only services the first request it receives',
+            ],
             correctIndex: 1,
           },
         ],
