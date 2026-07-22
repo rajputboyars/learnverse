@@ -468,6 +468,60 @@ const intermediate = [
           },
         ],
       },
+      {
+        title: 'Database Indexing',
+        difficulty: 'hard',
+        tags: ['indexing', 'database', 'performance'],
+        explanation: {
+          english:
+            "Every system design discussion eventually hits: 'this query is slow, how do we fix it?' The answer is almost always indexing, yet it's rarely explained from first principles.\n\nWithout an index, finding a row matching `WHERE email = 'x@y.com'` means scanning EVERY row in the table (a full table scan) — O(n), catastrophic on millions of rows. An index is a separate, sorted data structure (most commonly a B-Tree) that maps column values to row locations, so the database can binary-search to the matching rows in O(log n) instead of scanning everything.\n\n**B-Tree index**: a balanced tree structure, ideal for range queries (`WHERE age > 25`), equality lookups, and sorting (`ORDER BY`). This is the default index type in almost every relational database.\n**Hash index**: O(1) for exact equality lookups only (`WHERE id = 5`), but useless for ranges or sorting — used internally by some key-value stores.\n\n**Composite (multi-column) index**: an index on `(last_name, first_name)` speeds up queries filtering by `last_name` alone OR by both columns together, but NOT queries filtering by `first_name` alone — column order matters (leftmost-prefix rule).\n\n**The cost nobody mentions**: indexes aren't free. Every INSERT/UPDATE/DELETE must also update every index on that table, so more indexes = slower writes. This is a genuine trade-off: index the columns you frequently filter/sort/join by, and avoid over-indexing tables with heavy write traffic. An index also consumes extra disk space, sometimes as much as the table itself.",
+          hinglish:
+            "Har system design discussion eventually yahan pahunchti hai: 'ye query slow hai, fix kaise karein?' Jawab almost hamesha indexing hota hai, par ise first principles se kam hi explain kiya jaata hai.\n\nIndex ke bina, `WHERE email = 'x@y.com'` match karne wali row dhoondhna table ki HAR row scan karna hai (full table scan) — O(n), millions of rows pe catastrophic. Ek index ek alag, sorted data structure hai (aksar B-Tree) jo column values ko row locations se map karta hai, taaki database matching rows tak binary-search se O(log n) mein pahunche, sab scan kiye bina.\n\n**B-Tree index**: ek balanced tree structure, range queries (`WHERE age > 25`), equality lookups, aur sorting (`ORDER BY`) ke liye ideal. Ye almost har relational database mein default index type hai.\n**Hash index**: sirf exact equality lookups ke liye O(1) (`WHERE id = 5`), par ranges ya sorting ke liye bekaar — kuch key-value stores internally use karte hain.\n\n**Composite (multi-column) index**: `(last_name, first_name)` pe index `last_name` akele se filter karne wali queries OR dono columns saath filter karne wali queries speed up karta hai, par sirf `first_name` se filter karne wali queries ko NAHI — column order matter karta hai (leftmost-prefix rule).\n\n**Cost jo koi mention nahi karta**: indexes free nahi hote. Har INSERT/UPDATE/DELETE ko us table ke har index ko bhi update karna padta hai, isliye zyada indexes = slower writes. Ye ek genuine trade-off hai: un columns ko index karo jinhe tum frequently filter/sort/join karte ho, aur heavy write traffic wali tables ko over-index karne se bacho. Index extra disk space bhi leta hai, kabhi-kabhi table jitna hi.",
+        },
+        dailyLifeExample:
+          "Index ek kitaab ke peeche ke index page jaisa hai — bina index ke, ek topic dhoondhne ke liye poori kitaab padhni padegi (full scan). Index ke saath, seedha page number mil jaata hai. Par jitne zyada alag indexes (subject index, author index, keyword index) utna hi zyada kaam har baar kitaab update karte waqt (writes slower).",
+        codeExample:
+          "// Without an index: full table scan, O(n)\n// SELECT * FROM users WHERE email = 'x@y.com';\n// -> scans all 10 million rows one by one\n\n// With an index on email: O(log n)\n// CREATE INDEX idx_users_email ON users(email);\n// SELECT * FROM users WHERE email = 'x@y.com';\n// -> B-Tree binary search straight to the matching row(s)\n\n// Composite index and the leftmost-prefix rule:\n// CREATE INDEX idx_name ON users(last_name, first_name);\n// Uses the index:     WHERE last_name = 'Sharma'\n// Uses the index:     WHERE last_name = 'Sharma' AND first_name = 'Aditi'\n// Does NOT use it:     WHERE first_name = 'Aditi'   (skips leftmost column)\n\n// The write trade-off:\n// Every index on `users` must be updated on every INSERT/UPDATE/DELETE\n// 5 indexes on a table = 5x the index-maintenance work per write",
+        keyPoints: [
+          'Without an index, a query does a full table scan — O(n), slow on large tables',
+          'A B-Tree index lets the DB binary-search to matching rows — O(log n)',
+          'B-Tree indexes support ranges/sorting; hash indexes only support exact equality',
+          'Composite index column order matters — the leftmost-prefix rule',
+          'Indexes speed up reads but slow down writes and use extra disk space — index deliberately, not everywhere',
+        ],
+        quiz: [
+          {
+            question: 'Why is a query without a matching index slow on a large table?',
+            options: [
+              'The database refuses to run it',
+              'It must perform a full table scan, checking every row — O(n)',
+              'Indexes are required for the database to start',
+              'It has nothing to do with performance',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'For a composite index on (last_name, first_name), which query can use the index?',
+            options: [
+              'WHERE first_name = \'Aditi\' (alone)',
+              'WHERE last_name = \'Sharma\' (alone), because it matches the leftmost column',
+              'Neither query can use the index',
+              'Only queries with no WHERE clause at all',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the main trade-off of adding many indexes to a table?',
+            options: [
+              'There is no downside, add as many as you want',
+              'Reads get slower while writes get faster',
+              'Every INSERT/UPDATE/DELETE must also update each index, slowing down writes, plus extra disk space is used',
+              'Indexes only work on the first column of a table',
+            ],
+            correctIndex: 2,
+          },
+        ],
+      },
     ],
   },
 ];
@@ -586,6 +640,60 @@ const advanced = [
           {
             question: 'For a brand-new small product, you should usually start with…',
             options: ['microservices', 'a monolith', 'no backend', 'many databases'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Leader Election & Distributed Consensus',
+        difficulty: 'hard',
+        tags: ['consensus', 'leader-election', 'raft', 'paxos'],
+        explanation: {
+          english:
+            "With a Primary/Replica database (covered under Database Scaling), a natural question follows: if the primary crashes, who decides which replica becomes the new primary — and how do all the nodes AGREE on that decision without conflicting?\n\nThis is the **distributed consensus** problem: getting multiple independent nodes, which may fail or have unreliable network links between them, to agree on a single value (like 'who is the leader now') even in the presence of failures. It sounds simple but is one of the hardest problems in distributed systems — a naive approach can result in a **split-brain** scenario where two nodes both believe they are the leader and both accept writes, corrupting data.\n\n**Raft** (used by etcd, Consul) is the most widely understood consensus algorithm, designed specifically for readability. Nodes are Followers, Candidates, or Leader. If a Follower doesn't hear from a Leader within a timeout, it becomes a Candidate and requests votes from other nodes; whoever gets a MAJORITY of votes becomes the new Leader for that 'term'. Requiring a majority (not just 'any vote') is exactly what prevents split-brain — two different nodes cannot both get a majority in the same term.\n\n**Paxos** (used by Google Chubby, older systems) solves the same problem but is notoriously difficult to understand and implement correctly — Raft was created specifically as a more understandable alternative.\n\nWhere this shows up in real system design interviews: leader election for database failover, distributed locks (only one worker should process a job), and coordination services like ZooKeeper/etcd that many other systems (Kafka, Kubernetes) depend on internally.",
+          hinglish:
+            "Primary/Replica database (Database Scaling ke andar covered) ke saath, ek natural question aata hai: agar primary crash ho jaaye, to kaun decide karta hai kaunsa replica naya primary bane — aur saare nodes bina conflict kiye us decision pe kaise AGREE karte hain?\n\nYe **distributed consensus** problem hai: multiple independent nodes ko, jo fail ho sakte hain ya unke beech unreliable network links ho sakte hain, ek single value (jaise 'ab leader kaun hai') pe agree karwana, failures ke bawajood. Ye simple lagta hai par distributed systems ke sabse mushkil problems mein se ek hai — ek naive approach **split-brain** scenario mein result kar sakta hai jahan do nodes dono khud ko leader maante hain aur dono writes accept karte hain, data corrupt karte hue.\n\n**Raft** (etcd, Consul use karte hain) sabse widely understood consensus algorithm hai, specifically readability ke liye design kiya gaya. Nodes Followers, Candidates, ya Leader hote hain. Agar ek Follower timeout ke andar Leader se na sune, wo Candidate ban jaata hai aur doosre nodes se votes request karta hai; jisko MAJORITY votes milte hain wo us 'term' ke liye naya Leader banta hai. Majority chahiye (sirf 'koi bhi vote' nahi) — yahi split-brain rokta hai — do alag nodes same term mein dono majority nahi paa sakte.\n\n**Paxos** (Google Chubby, older systems use karte hain) same problem solve karta hai par samajhna aur correctly implement karna notoriously mushkil hai — Raft specifically ek zyada understandable alternative ke roop mein banaya gaya tha.\n\nReal system design interviews mein ye kahan aata hai: database failover ke liye leader election, distributed locks (sirf ek worker ko ek job process karna chahiye), aur coordination services jaise ZooKeeper/etcd jinpe bahut saare doosre systems (Kafka, Kubernetes) internally depend karte hain.",
+        },
+        dailyLifeExample:
+          "Split-brain waise hai jaise ek company ke do offices dono khud ko HQ maan lein aur alag-alag decisions le lein bina ek doosre se baat kiye — chaos. Raft election waise hai jaise ek class monitor chunna: agar teacher (leader) kuch der na dikhe, students khud vote karte hain, aur jisko majority votes milte hain wahi naya monitor banta hai — sirf ek hi bante hain, do nahi.",
+        codeExample:
+          "// Split-brain problem (what consensus prevents):\n// Primary crashes -> Replica A AND Replica B both think they're now leader\n// Both accept writes -> data diverges -> corruption\n\n// Raft leader election (simplified):\n// 1. All nodes start as Followers\n// 2. Follower's election timeout expires (no heartbeat from Leader)\n//    -> becomes Candidate, votes for itself, requests votes from peers\n// 3. Each node votes for at most ONE candidate per term (first-come)\n// 4. Candidate that gets votes from a MAJORITY (e.g. 3 of 5 nodes)\n//    -> becomes the new Leader for this term\n// 5. Leader sends periodic heartbeats to prevent new elections\n//\n// Why majority prevents split-brain:\n//   5 nodes, majority = 3\n//   Node group A can get at most 3 votes, Node group B at most 2\n//   -> only ONE group can ever reach majority in the same term",
+        keyPoints: [
+          'Distributed consensus: getting independent, failure-prone nodes to agree on a single value',
+          'Split-brain: two nodes both believe they are the leader, corrupting data — what consensus prevents',
+          'Raft: Followers/Candidates/Leader; a Candidate needs a MAJORITY of votes to become Leader',
+          'Requiring a majority (not just any vote) mathematically prevents two leaders in the same term',
+          'Real uses: database failover leader election, distributed locks, coordination services (ZooKeeper/etcd)',
+        ],
+        quiz: [
+          {
+            question: 'What is a "split-brain" scenario in distributed systems?',
+            options: [
+              'A server running out of memory',
+              'Two nodes both believe they are the leader and both accept writes, corrupting data',
+              'A network being too fast',
+              'A database losing all its indexes',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'In Raft, why must a Candidate get a MAJORITY of votes (not just any votes) to become Leader?',
+            options: [
+              'It is an arbitrary rule with no real purpose',
+              'Requiring a majority mathematically guarantees only one candidate can win in a given term, preventing split-brain',
+              'Majority voting makes elections slower on purpose',
+              'It has nothing to do with correctness',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Where does leader election/consensus commonly show up in real system design?',
+            options: [
+              'It is purely theoretical and never used in practice',
+              'Database failover, distributed locks, and coordination services like ZooKeeper/etcd that other systems depend on',
+              'Only in front-end CSS frameworks',
+              'Only in single-server applications',
+            ],
             correctIndex: 1,
           },
         ],
