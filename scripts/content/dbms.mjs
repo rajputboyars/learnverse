@@ -274,6 +274,45 @@ const advanced = [
         ],
       },
       {
+        title: 'Concurrency Control: Isolation Levels & Deadlocks',
+        difficulty: 'hard',
+        tags: ['concurrency', 'locking', 'deadlock', 'isolation'],
+        explanation: {
+          english:
+            "When many transactions run at the same time, the DBMS must stop them from corrupting each other's work. Locking is the classic mechanism: a transaction locks the rows it touches, and other transactions must wait to access those same rows. A deadlock happens when Transaction A holds a lock Transaction B needs, while B holds a lock A needs — neither can proceed, and both wait forever unless the DBMS detects this cycle and kills one transaction (a 'deadlock victim') to break it. Isolation levels (Read Uncommitted -> Serializable) let you trade off safety against concurrency — stricter isolation prevents more anomalies but forces more waiting.",
+          hinglish:
+            "Jab bahut saare transactions ek saath chalte hain, DBMS ko unhe ek doosre ka kaam corrupt karne se rokna padta hai. Locking classic mechanism hai: ek transaction jo rows chhoota hai unhe lock kar deta hai, aur doosre transactions ko wahi rows access karne ke liye wait karna padta hai. Deadlock tab hota hai jab Transaction A ek lock hold kare jo Transaction B ko chahiye, jabki B ek lock hold kare jo A ko chahiye — koi bhi aage nahi badh sakta, aur dono hamesha wait karte rahenge jab tak DBMS is cycle ko detect karke ek transaction ko kill (ek 'deadlock victim') na kar de use todne ke liye. Isolation levels (Read Uncommitted se Serializable tak) safety aur concurrency ke beech trade-off karne dete hain — strict isolation zyada anomalies rokta hai par zyada waiting force karta hai.",
+        },
+        dailyLifeExample:
+          'Deadlock do logon jaisa hai jo ek sankri gali mein aamne-saamne khade hain — dono ek doosre ko rasta dene ka wait kar rahe hain, koi hilta nahi. DBMS ka deadlock detector ek traffic warden jaisa hai jo aakhirkar ek insaan ko wapas jaane ko bolta hai taaki doosra aage badh sake.',
+        codeExample:
+          '-- Classic deadlock scenario:\n-- Transaction A:\nBEGIN;\nUPDATE accounts SET balance = balance - 100 WHERE id = 1; -- locks row 1\n-- ... A now wants row 2, but Transaction B has it locked ...\nUPDATE accounts SET balance = balance + 100 WHERE id = 2; -- WAITS\n\n-- Transaction B (running at the same time):\nBEGIN;\nUPDATE accounts SET balance = balance - 50 WHERE id = 2;  -- locks row 2\n-- ... B now wants row 1, but Transaction A has it locked ...\nUPDATE accounts SET balance = balance + 50 WHERE id = 1;  -- WAITS -> DEADLOCK!\n\n-- The DBMS detects the cycle and automatically rolls back one transaction\n-- Fix: always acquire locks/update rows in the SAME consistent order in every transaction',
+        keyPoints: [
+          'Locking prevents concurrent transactions from corrupting the same data',
+          'A deadlock: two transactions each hold a lock the other needs — neither can proceed',
+          'The DBMS detects deadlock cycles and rolls back one transaction to break them',
+          'Prevention tip: always access/update rows in the same consistent order across transactions',
+          'Isolation levels (Read Uncommitted -> Serializable) trade off safety vs concurrency/performance',
+        ],
+        quiz: [
+          {
+            question: 'What is a deadlock?',
+            options: ['A crashed database', 'Two transactions each holding a lock the other needs, so neither can proceed', 'A slow query', 'A deleted table'],
+            correctIndex: 1,
+          },
+          {
+            question: 'How does a DBMS typically resolve a deadlock once detected?',
+            options: ['It waits forever', 'It automatically rolls back one of the transactions (the "victim") to break the cycle', 'It crashes the whole server', 'It ignores the problem'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is a practical way applications can help PREVENT deadlocks?',
+            options: ['Never use transactions', 'Always acquire locks / update rows in the same consistent order across all transactions', 'Use only one row per table', 'Disable isolation entirely'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
         title: 'SQL vs NoSQL',
         difficulty: 'medium',
         tags: ['sql', 'nosql', 'scaling'],
@@ -302,6 +341,45 @@ const advanced = [
           {
             question: 'SQL databases are preferred for…',
             options: ['unstructured huge data', 'highly relational, consistent data', 'images only', 'caching'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'CAP Theorem & Distributed Databases',
+        difficulty: 'hard',
+        tags: ['cap-theorem', 'distributed', 'nosql'],
+        explanation: {
+          english:
+            'When a database is spread across multiple machines (a distributed system) to handle scale, the CAP theorem says you can only fully guarantee TWO of these three properties at once: Consistency (every read gets the most recent write, or an error), Availability (every request gets a response, even if not the latest data), and Partition Tolerance (the system keeps working even if network communication between nodes breaks). Since network partitions WILL happen in any real distributed system, you are really choosing between Consistency and Availability when a partition occurs — CP systems (like traditional SQL clusters) refuse requests to stay correct; AP systems (like many NoSQL databases) keep responding but might serve slightly stale data.',
+          hinglish:
+            'Jab ek database scale handle karne ke liye multiple machines (ek distributed system) mein failaya jaata hai, CAP theorem kehta hai ki tum in teen properties mein se sirf DO ko hi ek saath poori tarah guarantee kar sakte ho: Consistency (har read sabse recent write paaye, ya error), Availability (har request ko response mile, chahe latest data na ho), aur Partition Tolerance (system kaam karta rahe chahe nodes ke beech network communication toot jaaye). Kyunki asli distributed system mein network partitions HONGE hi, jab partition hota hai to tum actually Consistency aur Availability ke beech choose kar rahe ho — CP systems (jaise traditional SQL clusters) requests refuse karte hain correct rehne ke liye; AP systems (jaise kai NoSQL databases) respond karte rehte hain par thoda stale data de sakte hain.',
+        },
+        dailyLifeExample:
+          'CAP theorem do branches wale ek bank jaisa hai jinke beech phone line kat gayi (partition). Ya to dono branches transactions rok dein jab tak line theek na ho (Consistency, par kam Availability), ya dono apna kaam continue karein bina ek doosre se check kiye (Availability, par ho sakta hai dono ki balance sheet thodi alag ho jaaye — kam Consistency).',
+        codeExample:
+          "// Conceptual — CAP is a theorem, not code, but here's the trade-off in practice:\n\n// CP system (e.g. traditional relational cluster, MongoDB in some configs):\n// During a network partition, the minority side REFUSES writes/reads\n// to guarantee no stale/conflicting data is ever served.\n\n// AP system (e.g. Cassandra, DynamoDB by default):\n// During a network partition, EVERY node keeps serving requests,\n// even if it might be slightly out of sync with other nodes.\n// Conflicts get resolved later (eventual consistency).\n\n// Most real systems let you TUNE this per-operation, e.g.:\n// Cassandra: read/write with consistency level ONE (fast, AP-leaning)\n//            vs QUORUM (safer, more CP-leaning)",
+        keyPoints: [
+          'CAP: Consistency, Availability, Partition tolerance — you can only fully guarantee 2 of 3',
+          'Network partitions are inevitable in real distributed systems, so P is effectively mandatory',
+          'The real choice during a partition is between Consistency (CP) and Availability (AP)',
+          'CP systems refuse requests during a partition to stay correct; AP systems keep responding, possibly with stale data',
+          'Many modern systems let you tune consistency per-operation instead of a single fixed choice',
+        ],
+        quiz: [
+          {
+            question: 'According to CAP theorem, how many of the three properties can a distributed system fully guarantee at once?',
+            options: ['All three, always', 'Only two — since network partitions are inevitable, you choose between Consistency and Availability', 'Only one', 'None, CAP is theoretical only'],
+            correctIndex: 1,
+          },
+          {
+            question: 'During a network partition, what does a CP (Consistency + Partition tolerance) system typically do?',
+            options: ['Keeps responding with possibly stale data', 'Refuses some requests to guarantee no incorrect/stale data is ever served', 'Shuts down completely forever', 'Ignores the partition'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why is Partition tolerance effectively mandatory in real distributed systems?',
+            options: ['It is optional and rarely needed', 'Network failures between machines WILL happen eventually in any real distributed system', 'Partitions never actually occur', 'Only NoSQL databases face partitions'],
             correctIndex: 1,
           },
         ],
