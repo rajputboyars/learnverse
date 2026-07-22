@@ -289,6 +289,55 @@ const features = [
           },
         ],
       },
+      {
+        title: 'DALL-E Image Generation & Voice Mode',
+        difficulty: 'medium',
+        tags: ['dall-e', 'image-generation', 'voice-mode', 'whisper', 'multimodal'],
+        explanation: {
+          english:
+            "Two features get mentioned in passing when discussing plans, but deserve a closer look on their own: image generation and voice mode.\n\n**DALL-E 3 (image generation)**: built directly into ChatGPT, DALL-E 3 generates images from a text description. Unlike raw DALL-E API calls, ChatGPT first REWRITES your prompt internally to add detail and clarity before generating — this is why a short request like \"a cat astronaut\" often comes back with a surprisingly detailed, well-composed image. You can iterate conversationally: \"make the background darker\", \"remove the helmet\", \"now make it a watercolor style\" — ChatGPT regenerates based on your feedback rather than requiring you to write a perfect prompt from scratch. Free users get 2 generations/day; Plus users get significantly more.\n\n**Prompting tips for better images**: be specific about style (photorealistic, watercolor, 3D render, flat illustration), composition (close-up, wide shot, from above), lighting (golden hour, studio lighting, neon), and mood. Vague prompts produce generic results; detailed ones produce professional-looking output.\n\n**Voice Mode**: lets you have a real spoken conversation with ChatGPT — you talk, it listens (using OpenAI's Whisper speech-to-text under the hood), generates a response, and speaks it back using a natural-sounding voice, with minimal latency (Advanced Voice Mode, available on Plus, is fast enough to feel like a real phone call, including natural interruptions). This is useful for hands-free scenarios: practicing a language, rehearsing a talk, or brainstorming out loud while walking or driving. It is NOT the same as simply having ChatGPT read text aloud — it's a genuine two-way spoken conversation loop.",
+          hinglish:
+            "Do features plans discuss karte waqt passing mein mention hote hain, par apna alag dhyan deserve karte hain: image generation aur voice mode.\n\n**DALL-E 3 (image generation)**: ChatGPT ke andar hi built-in hai, DALL-E 3 text description se images generate karta hai. Raw DALL-E API calls ke ulat, ChatGPT pehle tumhare prompt ko internally REWRITE karta hai detail aur clarity add karne ke liye — isiliye ek chhota request jaise \"a cat astronaut\" aksar ek surprisingly detailed, well-composed image ke saath wapas aata hai. Tum conversationally iterate kar sakte ho: \"background dark karo\", \"helmet hatao\", \"ab watercolor style banao\" — ChatGPT tumhare feedback ke basis pe regenerate karta hai, tumhe perfect prompt scratch se likhne ki zaroorat nahi. Free users ko 2 generations/day milte hain; Plus users ko significantly zyada.\n\n**Better images ke liye prompting tips**: style ke baare mein specific raho (photorealistic, watercolor, 3D render, flat illustration), composition (close-up, wide shot, upar se), lighting (golden hour, studio lighting, neon), aur mood. Vague prompts generic results dete hain; detailed prompts professional-looking output dete hain.\n\n**Voice Mode**: tumhe ChatGPT ke saath ek real spoken conversation karne deta hai — tum bolte ho, wo sunta hai (OpenAI ke Whisper speech-to-text se under the hood), response generate karta hai, aur natural-sounding voice mein bolta hai wapas, minimal latency ke saath (Advanced Voice Mode, Plus pe available, itni fast hai ki ek real phone call jaisa feel deti hai, natural interruptions ke saath). Ye hands-free scenarios ke liye useful hai: language practice karna, ek talk rehearse karna, ya walk/drive karte hue brainstorm karna. Ye same nahi hai jaise ChatGPT sirf text zor se padhe — ye ek genuine two-way spoken conversation loop hai.",
+        },
+        dailyLifeExample:
+          "DALL-E ek talented illustrator dost jaisa hai jo tumhare rough idea ko sunkar detailed art bana deta hai, aur baar-baar feedback lekar refine bhi karta hai. Voice Mode ek phone call jaisa hai apne bahut knowledgeable dost se — tum bol ke pucho, wo bol ke jawab de, sunte-sunte natural conversation chale, koi typing nahi.",
+        codeExample:
+          "// DALL-E 3 via the OpenAI API (image generation)\nconst response = await client.images.generate({\n  model: 'dall-e-3',\n  prompt: 'A minimalist flat illustration of a developer debugging code at night, blue and purple color palette, cozy desk lamp lighting',\n  size: '1024x1024',\n  quality: 'standard', // or 'hd' for more detail (higher cost)\n  n: 1,\n});\nconsole.log(response.data[0].url); // generated image URL\n\n// Whisper (speech-to-text) via the OpenAI API\nconst fs = require('fs');\nconst transcription = await client.audio.transcriptions.create({\n  file: fs.createReadStream('meeting_audio.mp3'),\n  model: 'whisper-1',\n});\nconsole.log(transcription.text); // full transcript",
+        keyPoints: [
+          'ChatGPT internally rewrites your DALL-E prompt for more detail before generating',
+          'Iterate conversationally on images ("make it darker") instead of rewriting the prompt from scratch',
+          'Specific prompts (style, composition, lighting, mood) produce far better images than vague ones',
+          'Voice Mode uses Whisper (speech-to-text) + a natural voice response for a real two-way spoken conversation',
+          'Advanced Voice Mode (Plus) has low enough latency to feel like a real phone call, including interruptions',
+        ],
+        quiz: [
+          {
+            question: 'Why does a short prompt like "a cat astronaut" often produce a surprisingly detailed DALL-E 3 image in ChatGPT?',
+            options: [
+              'DALL-E 3 always produces random unrelated images',
+              'ChatGPT internally rewrites the prompt to add detail and clarity before generating',
+              'It uses a pre-made template regardless of the prompt',
+              'Short prompts are rejected and require manual editing first',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What technology powers ChatGPT Voice Mode\'s ability to understand spoken input?',
+            options: ['DALL-E 3', "OpenAI's Whisper speech-to-text model", 'A third-party voice API', 'It reads lips via camera'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the main advantage of iterating on a DALL-E image conversationally ("make the background darker") instead of writing a new prompt?',
+            options: [
+              'It is not actually possible to iterate on images',
+              'You can refine the image step by step based on what you see, without having to describe everything perfectly upfront',
+              'It makes the image generation free',
+              'It switches to a different, cheaper model automatically',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
 ];
