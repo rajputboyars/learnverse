@@ -683,6 +683,45 @@ const advanced = [
           },
         ],
       },
+      {
+        title: 'Trie (Prefix Tree) in JavaScript',
+        difficulty: 'hard',
+        tags: ['trie', 'implementation'],
+        explanation: {
+          english:
+            'A Trie stores strings character-by-character in a tree, where each node has a Map (or object) of children keyed by character, plus an isEndOfWord flag. Common prefixes are shared automatically, making it O(L) to insert or search a word of length L — independent of how many words are stored. JavaScript has no built-in Trie, so autocomplete/spell-check features implement one directly with plain objects or Maps as nodes.',
+          hinglish:
+            'Trie strings ko character-by-character ek tree mein store karta hai, jaha har node ke paas character se keyed children ka Map (ya object) hota hai, plus ek isEndOfWord flag. Common prefixes automatically share ho jaate hain, isliye L length ke word insert ya search karna O(L) hai — chahe kitne bhi words store hon. JavaScript mein built-in Trie nahi hai, isliye autocomplete/spell-check features plain objects ya Maps ko nodes ki tarah use karke seedha implement karte hain.',
+        },
+        dailyLifeExample:
+          "Trie ek phone keypad ke T9 predictive text jaisa hai — 'c-a-t' type karte hi 'cat', 'catch', 'category' jaise saare words ka common 'cat' hissa share hota hai, sirf ek hi baar store hota hai, endings alag branches mein.",
+        codeExample:
+          "class TrieNode {\n  constructor() {\n    this.children = new Map(); // char -> TrieNode\n    this.isEndOfWord = false;\n  }\n}\n\nclass Trie {\n  constructor() { this.root = new TrieNode(); }\n\n  insert(word) {\n    let node = this.root;\n    for (const ch of word) {\n      if (!node.children.has(ch)) node.children.set(ch, new TrieNode());\n      node = node.children.get(ch);\n    }\n    node.isEndOfWord = true;\n  }\n\n  search(word) {\n    const node = this.#walk(word);\n    return !!node && node.isEndOfWord;\n  }\n\n  startsWith(prefix) {\n    return !!this.#walk(prefix); // any word starts with this prefix\n  }\n\n  #walk(str) {\n    let node = this.root;\n    for (const ch of str) {\n      if (!node.children.has(ch)) return null;\n      node = node.children.get(ch);\n    }\n    return node;\n  }\n}\n\nconst trie = new Trie();\ntrie.insert('cat'); trie.insert('car');\ntrie.search('cat');       // true\ntrie.startsWith('ca');    // true — used for autocomplete",
+        keyPoints: [
+          'Each node holds children keyed by character (Map or object) + an isEndOfWord flag',
+          'Words sharing a prefix share the same path in the tree — memory efficient',
+          'Insert and search are O(L), where L is the word length — not affected by dictionary size',
+          'No built-in Trie in JavaScript — implemented directly for autocomplete/spell-check',
+          'startsWith() (prefix check) is what makes Tries perfect for autocomplete',
+        ],
+        quiz: [
+          {
+            question: 'Why is searching a Trie O(L) instead of depending on how many words are stored?',
+            options: ['Tries only store one word', 'You only ever walk down L nodes (one per character), regardless of how many other words share or diverge from that path', 'Tries use binary search internally', 'JavaScript optimizes Trie search automatically'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does the isEndOfWord flag on a Trie node indicate?',
+            options: ['The node is the root', 'A complete, valid word ends exactly at this node (not just a prefix passing through)', 'The node has no children', 'The Trie is full'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which real-world feature is a Trie ideally suited for?',
+            options: ['Sorting numbers', 'Autocomplete / prefix search', 'Finding the shortest path', 'Reversing a string'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
   {
@@ -785,6 +824,45 @@ const advanced = [
           {
             question: "Dijkstra fails when edges can be…",
             options: ['large', 'negative', 'zero', 'equal'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Union-Find (Disjoint Set) in JavaScript',
+        difficulty: 'hard',
+        tags: ['union-find', 'dsu', 'implementation'],
+        explanation: {
+          english:
+            'Union-Find tracks groups of connected elements using a simple parent array, supporting two near-O(1) operations: find (which group does element x belong to — follow parent pointers to the root) and union (merge two groups by pointing one root at the other). Two optimisations make it fast in practice: path compression (during find, point every visited node directly at the root) and union by rank/size (attach the smaller tree under the bigger one) — together giving near-constant amortised time per operation.',
+          hinglish:
+            'Union-Find connected elements ke groups ko ek simple parent array se track karta hai, do near-O(1) operations support karte hue: find (element x kis group mein hai — parent pointers follow karke root tak) aur union (do groups merge karo, ek root ko doosre pe point karke). Do optimisations ise practically fast banate hain: path compression (find ke dauraan, har visited node ko seedha root pe point kar do) aur union by rank/size (chhote tree ko bade ke neeche attach karo) — dono milke near-constant amortised time per operation dete hain.',
+        },
+        dailyLifeExample:
+          "Union-Find WhatsApp group-merging jaisa hai — 'kya A aur B same friend-circle mein hain?' (find), aur 'do groups ko ek bada group bana do' (union). Path compression har member ko seedha group-admin se jod dena hai, taaki agli baar poochna instant ho.",
+        codeExample:
+          "class UnionFind {\n  constructor(n) {\n    this.parent = Array.from({ length: n }, (_, i) => i);\n    this.rank = new Array(n).fill(0);\n  }\n\n  find(x) {\n    if (this.parent[x] !== x) {\n      this.parent[x] = this.find(this.parent[x]); // path compression\n    }\n    return this.parent[x];\n  }\n\n  union(a, b) {\n    const rootA = this.find(a), rootB = this.find(b);\n    if (rootA === rootB) return false; // already connected (would form a cycle)\n\n    // union by rank: attach smaller tree under bigger tree's root\n    if (this.rank[rootA] < this.rank[rootB]) this.parent[rootA] = rootB;\n    else if (this.rank[rootA] > this.rank[rootB]) this.parent[rootB] = rootA;\n    else { this.parent[rootB] = rootA; this.rank[rootA]++; }\n    return true;\n  }\n\n  connected(a, b) { return this.find(a) === this.find(b); }\n}",
+        keyPoints: [
+          'A parent array where parent[x] === x means x is a "root" (group representative)',
+          'find(x) follows parent pointers to the root, with path compression flattening the path',
+          'union(a, b) merges two groups by attaching one root under the other',
+          'union() returning false (same root already) is exactly how you detect a cycle in an undirected graph',
+          "Powers Kruskal's MST, connected components, and 'are these two nodes connected?' queries",
+        ],
+        quiz: [
+          {
+            question: "In this implementation, how do you know if x is the 'root' of its group?",
+            options: ['x is always 0', 'parent[x] === x', 'x has no children', 'rank[x] is 0'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does it mean if union(a, b) returns false?',
+            options: ['An error occurred', 'a and b already have the same root — they were already in the same group (adding this edge would create a cycle)', 'The array is full', 'a or b is negative'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does path compression do inside find()?',
+            options: ['Deletes visited nodes', 'Re-points every node visited during the walk directly at the root, so future find() calls on them are instant', 'Sorts the parent array', 'Increases the rank array'],
             correctIndex: 1,
           },
         ],
