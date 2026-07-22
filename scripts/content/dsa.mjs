@@ -1347,6 +1347,16 @@ const advanced = [
             options: ['union by rank', 'path compression', 'memoization', 'hashing'],
             correctIndex: 1,
           },
+          {
+            question: "Why does 'union by rank' (attaching the smaller tree under the bigger tree's root) matter for performance?",
+            options: [
+              'It does not matter at all',
+              'Without it, trees can become long chains, making find() slow (up to O(n)); union by rank keeps trees shallow',
+              'It only matters for undirected graphs',
+              'It is required for the code to compile',
+            ],
+            correctIndex: 1,
+          },
         ],
       },
       {
@@ -1378,6 +1388,45 @@ const advanced = [
           {
             question: 'If a topological order cannot include all nodes, the graph has a…',
             options: ['leaf', 'cycle', 'root', 'bridge'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: "Dijkstra's Algorithm: Shortest Path in Weighted Graphs",
+        difficulty: 'hard',
+        tags: ['graph', 'dijkstra', 'shortest-path'],
+        explanation: {
+          english:
+            "BFS finds the shortest path in an UNWEIGHTED graph (fewest edges), but real roads/networks have different costs per edge (distance, time, price). Dijkstra's algorithm finds the shortest path in a weighted graph with NON-NEGATIVE weights: it repeatedly picks the unvisited node with the smallest known distance (using a min-heap/priority queue), then 'relaxes' its neighbours — updating their distance if going through this node is cheaper. It runs in O((V+E) log V) with a priority queue.",
+          hinglish:
+            "BFS ek UNWEIGHTED graph mein shortest path dhoondhta hai (kam se kam edges), par asli roads/networks mein har edge ka alag cost hota hai (distance, time, price). Dijkstra's algorithm ek weighted graph mein NON-NEGATIVE weights ke saath shortest path dhoondhta hai: ye baar-baar sabse kam known distance wala unvisited node choose karta hai (min-heap/priority queue se), phir uske neighbours ko 'relax' karta hai — agar is node se hoke jaana sasta hai to unka distance update karta hai. Ye priority queue ke saath O((V+E) log V) mein chalta hai.",
+        },
+        dailyLifeExample:
+          "Dijkstra Google Maps ke 'fastest route' feature jaisa hai — sirf kam se kam roads (BFS) nahi, balki kam se kam total TIME/DISTANCE wala route dhoondhta hai, chahe usme zyada roads kyun na ho. Har intersection pe 'ab tak sabse sasta yahan pahunchne ka tareeka kya hai' update hota rehta hai.",
+        codeExample:
+          "function dijkstra(graph, start) {\n  const dist = {}; // shortest known distance to each node\n  for (const node in graph) dist[node] = Infinity;\n  dist[start] = 0;\n\n  const pq = [[0, start]]; // [distance, node] — a min-heap in real code\n  while (pq.length) {\n    pq.sort((a, b) => a[0] - b[0]); // simplified; use a real heap for O(log n)\n    const [d, node] = pq.shift();\n    if (d > dist[node]) continue; // stale entry, skip\n\n    for (const [neighbor, weight] of graph[node]) {\n      const newDist = d + weight;\n      if (newDist < dist[neighbor]) {\n        dist[neighbor] = newDist; // found a cheaper path — relax it\n        pq.push([newDist, neighbor]);\n      }\n    }\n  }\n  return dist;\n}",
+        keyPoints: [
+          'Finds shortest path by TOTAL WEIGHT, not fewest edges (unlike BFS)',
+          'Only works correctly with non-negative edge weights',
+          'Greedily picks the closest unvisited node each step (via a min-heap)',
+          "'Relaxing' an edge = updating a neighbour's distance if a cheaper path is found",
+          'O((V+E) log V) with a proper priority queue',
+        ],
+        quiz: [
+          {
+            question: "What is the key difference between BFS shortest path and Dijkstra's algorithm?",
+            options: ['No difference, they are identical', 'BFS finds the path with the FEWEST edges (unweighted); Dijkstra finds the path with the SMALLEST total weight (weighted)', 'Dijkstra only works on trees', 'BFS is always faster'],
+            correctIndex: 1,
+          },
+          {
+            question: "Does Dijkstra's algorithm work correctly with negative edge weights?",
+            options: ['Yes, always', 'No — it assumes non-negative weights; use Bellman-Ford for negative weights', 'Only for undirected graphs', 'Only with an odd number of nodes'],
+            correctIndex: 1,
+          },
+          {
+            question: "What does 'relaxing' an edge mean in Dijkstra's algorithm?",
+            options: ['Deleting the edge', "Updating a neighbour's distance if a cheaper path through the current node is found", 'Making the edge weight 0', 'Pausing the algorithm'],
             correctIndex: 1,
           },
         ],
@@ -1419,6 +1468,17 @@ const advanced = [
             question: 'Memoization is best described as…',
             options: ['iterative table filling', 'recursion plus a cache', 'sorting then searching', 'greedy choices'],
             correctIndex: 1,
+          },
+          {
+            question: 'Without memoization, naive recursive fib(40) makes an enormous number of redundant calls. Why is this so slow?',
+            options: [
+              'It is not actually slow',
+              'The same subproblems (like fib(10)) get recomputed exponentially many times — O(2^n) total calls',
+              'JavaScript recursion has a hard limit of 40',
+              'It only recomputes each number once anyway',
+            ],
+            correctIndex: 1,
+            explanation: 'Naive recursive Fibonacci without memoization has O(2^n) time complexity because it recomputes the same fib(k) values over and over. Memoization caches each unique subproblem so it is computed only once, turning O(2^n) into O(n).',
           },
         ],
         interviewQuestions: [
@@ -1497,6 +1557,45 @@ const advanced = [
           {
             question: 'LCS time complexity for strings of length n and m is…',
             options: ['O(n + m)', 'O(n*m)', 'O(2^n)', 'O(n log m)'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: "Kadane's Algorithm: Maximum Subarray",
+        difficulty: 'medium',
+        tags: ['dp', 'arrays', 'kadane'],
+        explanation: {
+          english:
+            "Given an array of numbers (including negatives), find the contiguous subarray with the largest sum. A brute-force check of every subarray is O(n²) or worse. Kadane's algorithm solves it in O(n) with a simple insight: at each position, the best subarray ending HERE is either just this element alone, or this element added to the best subarray ending at the PREVIOUS position — whichever is bigger. If the running sum ever goes negative, it's better to restart from the next element.",
+          hinglish:
+            "Numbers ka ek array diya hai (negatives samet), sabse bada sum wala contiguous subarray dhoondho. Har subarray brute-force check karna O(n²) ya usse bhi zyada hai. Kadane's algorithm O(n) mein solve karta hai ek simple insight se: har position pe, YAHAN khatam hone wala best subarray ya to sirf ye element akela hai, ya ye element PICHHLI position pe khatam hone wale best subarray mein juda hua — jo bhi bada ho. Agar running sum kabhi negative ho jaaye, to agle element se restart karna behtar hai.",
+        },
+        dailyLifeExample:
+          "Kadane's ek trading app jaisa hai jo daily profit/loss track karta hai — agar tumhara cumulative profit kabhi negative ho jaaye, us point tak ka sab bhula ke, aaj se dobara ginna shuru karo, kyunki wo negative history sirf future profit ko neeche khinchegi.",
+        codeExample:
+          'function maxSubArray(nums) {\n  let maxEndingHere = nums[0];\n  let maxSoFar = nums[0];\n\n  for (let i = 1; i < nums.length; i++) {\n    // either extend the previous subarray, or start fresh at nums[i]\n    maxEndingHere = Math.max(nums[i], maxEndingHere + nums[i]);\n    maxSoFar = Math.max(maxSoFar, maxEndingHere);\n  }\n  return maxSoFar;\n}\n\nmaxSubArray([-2, 1, -3, 4, -1, 2, 1, -5, 4]); // 6  (subarray [4, -1, 2, 1])',
+        keyPoints: [
+          'Finds the maximum-sum contiguous subarray in O(n), one pass',
+          'At each step: extend the previous subarray, or start fresh — whichever gives a bigger sum',
+          'A classic 1D DP problem: dp[i] = max(nums[i], dp[i-1] + nums[i])',
+          'If the running sum goes negative, restarting is always at least as good',
+          'One of the most commonly asked array/DP interview questions',
+        ],
+        quiz: [
+          {
+            question: "What problem does Kadane's algorithm solve?",
+            options: ['Sorting an array', 'Finding the contiguous subarray with the largest sum', 'Finding the shortest path in a graph', 'Reversing a linked list'],
+            correctIndex: 1,
+          },
+          {
+            question: "What is the time complexity of Kadane's algorithm?",
+            options: ['O(n²)', 'O(n)', 'O(log n)', 'O(2^n)'],
+            correctIndex: 1,
+          },
+          {
+            question: "At each position, Kadane's algorithm decides between which two choices?",
+            options: ["Sort or don't sort", 'Extend the previous subarray, or start a fresh subarray at the current element', 'Push or pop', 'Left or right pointer'],
             correctIndex: 1,
           },
         ],
