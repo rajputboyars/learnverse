@@ -174,6 +174,45 @@ const beginner = [
           },
         ],
       },
+      {
+        title: 'Feature Scaling: Normalization & Standardization',
+        difficulty: 'medium',
+        tags: ['scaling', 'preprocessing', 'normalization'],
+        explanation: {
+          english:
+            "Many algorithms (KNN, SVM, K-Means, gradient descent-based models) compare or combine features using distance or magnitude — so if one feature is 'age' (0-100) and another is 'income' (0-1,000,000), income will completely dominate the calculation just because its numbers are bigger, NOT because it is more important. Feature scaling fixes this by putting all features on a comparable range. Standardization (Z-score) rescales each feature to mean 0, standard deviation 1 — good when data roughly follows a normal distribution. Normalization (Min-Max) rescales to a fixed range, usually [0, 1] — good when you want a bounded range or the data isn't normally distributed. Always fit the scaler on the TRAINING data only, then apply the same transform to the test data — never fit on test data (that leaks information).",
+          hinglish:
+            "Bahut saare algorithms (KNN, SVM, K-Means, gradient descent-based models) features ko distance ya magnitude se compare/combine karte hain — isliye agar ek feature 'age' hai (0-100) aur doosra 'income' (0-1,000,000), to income poore calculation pe hawi ho jaayega sirf isliye kyunki uske numbers bade hain, isliye NAHI ki wo zyada important hai. Feature scaling ye theek karta hai sab features ko ek comparable range pe laake. Standardization (Z-score) har feature ko mean 0, standard deviation 1 pe rescale karta hai — achha jab data roughly normal distribution follow kare. Normalization (Min-Max) ek fixed range pe rescale karta hai, aksar [0, 1] — achha jab bounded range chahiye ya data normally distributed na ho. Hamesha scaler ko sirf TRAINING data pe fit karo, phir wahi transform test data pe apply karo — kabhi bhi test data pe fit mat karo (isse information leak hoti hai).",
+        },
+        dailyLifeExample:
+          "Feature scaling ek race jaisi hai jaha kuch runners kilometers mein distance measure karte hain aur kuch miles mein — sabko fair compare karne ke liye pehle sabko same unit mein convert karna padta hai. Agar aisa na karo, 'zyada bada number' wala automatically 'jeetne' lagega, chahe wo actually behtar na ho.",
+        codeExample:
+          "from sklearn.preprocessing import StandardScaler, MinMaxScaler\n\n# Standardization: mean 0, std 1\nscaler = StandardScaler()\nX_train_scaled = scaler.fit_transform(X_train)  # fit + transform on TRAIN\nX_test_scaled = scaler.transform(X_test)        # only transform on TEST (never fit!)\n\n# Normalization: rescale to [0, 1]\nminmax = MinMaxScaler()\nX_train_norm = minmax.fit_transform(X_train)\nX_test_norm = minmax.transform(X_test)\n\n# Without scaling: income (0-1,000,000) would dominate age (0-100)\n# in any distance-based calculation, even if age matters more!",
+        keyPoints: [
+          'Distance/magnitude-based algorithms (KNN, SVM, K-Means) need features on comparable scales',
+          'Standardization (Z-score): rescales to mean 0, std 1',
+          'Normalization (Min-Max): rescales to a fixed range, usually [0, 1]',
+          'Without scaling, a large-magnitude feature can dominate just because of its units, not its importance',
+          'Fit the scaler on TRAINING data only; apply (transform) that same fit to test data — never fit on test data',
+        ],
+        quiz: [
+          {
+            question: "Why does a feature like 'income' (0-1,000,000) need scaling before use in KNN?",
+            options: ['It does not need scaling', 'Without scaling, its large numeric range would dominate distance calculations regardless of its actual importance', 'KNN cannot use numeric features', 'Scaling makes the model faster only'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does standardization (Z-score) rescale a feature to?',
+            options: ['A range of [0, 1]', 'Mean 0 and standard deviation 1', 'All values to 1', 'Integer values only'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why should you fit a scaler only on the training data, not the test data?',
+            options: ['It does not matter which you fit on', 'Fitting on test data leaks information about the test set into training, giving an unrealistically optimistic evaluation', 'Test data cannot be scaled', 'Fitting is only for training labels'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
 ];
@@ -583,6 +622,45 @@ const intermediate = [
           {
             question: 'Which regularization can set some weights to exactly zero?',
             options: ['L2 (Ridge)', 'L1 (Lasso)', 'dropout', 'none'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Hyperparameter Tuning: Grid Search & Random Search',
+        difficulty: 'hard',
+        tags: ['hyperparameters', 'grid-search', 'tuning'],
+        explanation: {
+          english:
+            "Hyperparameters are settings YOU choose before training (like KNN's k, a tree's max depth, or regularization strength) — different from the model's learned parameters (weights). Grid Search tries EVERY combination from a predefined set of values for each hyperparameter (exhaustive but expensive — the combinations multiply fast). Random Search instead samples random combinations, which is often nearly as good but far cheaper when you have many hyperparameters, since not every hyperparameter matters equally. Both are always evaluated using cross-validation on the training/validation data — NEVER on the test set, which stays untouched until final evaluation to avoid data leakage.",
+          hinglish:
+            "Hyperparameters wo settings hain jo TUM training se pehle choose karte ho (jaise KNN ka k, ek tree ki max depth, ya regularization strength) — model ke seekhe hue parameters (weights) se alag. Grid Search har hyperparameter ke liye predefined values ke set se HAR combination try karta hai (exhaustive par expensive — combinations tezi se badhte hain). Random Search iske bajaye random combinations sample karta hai, jo aksar lagbhag utna hi achha hota hai par bahut sasta jab bahut saare hyperparameters hon, kyunki har hyperparameter equally matter nahi karta. Dono ko hamesha training/validation data pe cross-validation se evaluate kiya jaata hai — test set pe KABHI NAHI, jo final evaluation tak untouched rehta hai data leakage se bachne ke liye.",
+        },
+        dailyLifeExample:
+          "Grid Search ek restaurant menu ke HAR combination try karna hai — har starter, main, dessert ka pairing chakh ke best combo dhoondhna (thorough par slow). Random Search random combos try karna hai — utna thorough nahi, par tezi se ek achhi combo mil jaati hai bina sab kuch chakhe.",
+        codeExample:
+          "from sklearn.model_selection import GridSearchCV, RandomizedSearchCV\nfrom sklearn.neighbors import KNeighborsClassifier\n\nparam_grid = {\n    'n_neighbors': [3, 5, 7, 9, 11],\n    'weights': ['uniform', 'distance'],\n}\n\n# Grid Search: tries ALL 5 x 2 = 10 combinations, with 5-fold CV each\ngrid = GridSearchCV(KNeighborsClassifier(), param_grid, cv=5)\ngrid.fit(X_train, y_train)  # test set NOT used here\nprint(grid.best_params_)    # the winning combination\n\n# Random Search: samples a fixed number of random combinations instead\nrandom_search = RandomizedSearchCV(\n    KNeighborsClassifier(), param_grid, n_iter=5, cv=5\n)\nrandom_search.fit(X_train, y_train)\n\n# Only AFTER tuning is done, evaluate ONCE on the held-out test set\n# grid.best_estimator_.score(X_test, y_test)",
+        keyPoints: [
+          'Hyperparameters are chosen before training (k, max depth, learning rate); parameters are learned during training (weights)',
+          'Grid Search: exhaustively tries every combination — thorough but can be very slow',
+          'Random Search: samples random combinations — often nearly as good, much cheaper',
+          'Both use cross-validation on train/validation data, never the test set',
+          'The test set stays untouched until the very end, after tuning is finished',
+        ],
+        quiz: [
+          {
+            question: "What is the key difference between a model's hyperparameters and its parameters?",
+            options: ['They are the same thing', 'Hyperparameters are chosen by you before training; parameters (like weights) are learned automatically during training', 'Parameters are chosen before training', 'Hyperparameters only apply to neural networks'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why might Random Search be preferred over Grid Search with many hyperparameters?',
+            options: ['Random Search always finds the best result', 'It samples combinations instead of trying every single one, which is much cheaper while often nearly as effective', 'Grid Search does not work with more than one hyperparameter', 'Random Search does not need cross-validation'],
+            correctIndex: 1,
+          },
+          {
+            question: 'When should the test set be used during hyperparameter tuning?',
+            options: ['Continuously, to check progress', 'Never during tuning — only ONCE at the very end, after tuning is fully complete', 'Only for Grid Search, not Random Search', 'At the start, before training'],
             correctIndex: 1,
           },
         ],
