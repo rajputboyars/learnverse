@@ -234,6 +234,17 @@ const intermediate = [
             options: ['Odd elements', 'Even elements', 'The array reversed', 'A boolean array'],
             correctIndex: 1,
           },
+          {
+            question: 'sub = arr[1:4]; sub[0] = 999; — does this change the original arr too?',
+            options: [
+              'No, slicing always makes an independent copy',
+              'Yes — a basic slice is a VIEW sharing memory with the original, so modifying sub modifies arr as well',
+              'Only if you call .copy() first',
+              'Only for 2D arrays',
+            ],
+            correctIndex: 1,
+            explanation: 'Basic slicing (arr[1:4]) returns a view, not a copy — it shares the same underlying memory as the original array. Changing an element through the slice changes the original too. Use arr[1:4].copy() if you need an independent array.',
+          },
         ],
         interviewQuestions: [
           {
@@ -352,6 +363,45 @@ const intermediate = [
               hinglish:
                 'axis=0 rows ke NEECHE aggregate karta hai, row dimension ko collapse karke, isliye har column ke liye ek value milti hai. axis=1 columns ke AAR-PAAR aggregate karta hai, column dimension ko collapse karke, isliye har row ke liye ek value milti hai. Simplest model ye hai ki jo axis tum specify karoge wahi dimension reduce ho jaata hai. Shape (3, 4) ke array ke liye sum(axis=0) ki shape (4,) hoti hai aur sum(axis=1) ki shape (3,).',
             },
+          },
+        ],
+      },
+      {
+        title: 'Sorting & Searching: sort, argsort & where',
+        difficulty: 'medium',
+        tags: ['sorting', 'searching', 'argsort', 'where'],
+        explanation: {
+          english:
+            "np.sort(arr) returns a new SORTED array (the original is untouched) — use arr.sort() instead if you want to sort in place. np.argsort(arr) is different and very useful: it returns the INDICES that would sort the array, not the sorted values themselves — letting you sort one array based on the order of ANOTHER (e.g. sort names by their scores). np.where(condition, if_true, if_false) is a vectorized if/else: it checks the condition element-by-element and picks a value from either side accordingly. np.where(condition) alone (no if_true/if_false) returns the indices where the condition is True.",
+          hinglish:
+            "np.sort(arr) ek NAYA SORTED array return karta hai (original chhoota nahi) — agar in-place sort karna hai to arr.sort() use karo. np.argsort(arr) alag hai aur bahut useful: ye un INDICES ko return karta hai jo array ko sort kar dein, sorted values nahi — isse tum ek array ko DOOSRE array ke order ke basis pe sort kar sakte ho (jaise names ko unke scores ke hisaab se sort karna). np.where(condition, if_true, if_false) ek vectorized if/else hai: ye condition ko element-by-element check karta hai aur uske hisaab se kisi ek side se value chunta hai. Sirf np.where(condition) (bina if_true/if_false ke) un indices ko return karta hai jaha condition True hai.",
+        },
+        dailyLifeExample:
+          "np.argsort ek exam result jaisa hai — tumhe roll numbers ka order chahiye jo marks ke hisaab se sort ho (rank list), naa ki sirf sorted marks. np.where ek 'agar pass hai to A likho, warna F likho' stamp hai jo har student pe ek saath lag jaata hai.",
+        codeExample:
+          "import numpy as np\n\narr = np.array([50, 10, 40, 20, 30])\n\nprint(np.sort(arr))       # [10 20 30 40 50] — new array, original untouched\nprint(arr)                # [50 10 40 20 30] — unchanged\n\n# argsort: indices that WOULD sort the array\nidx = np.argsort(arr)\nprint(idx)                # [1 3 4 2 0]\nprint(arr[idx])           # [10 20 30 40 50] — same as np.sort(arr)\n\n# Use argsort to sort ONE array by ANOTHER's order\nnames = np.array(['Riya', 'Aman', 'Neha', 'Raj', 'Priya'])\nprint(names[idx])         # names sorted by their matching score in arr\n\n# where: vectorized if/else\nscores = np.array([85, 40, 92, 55, 30])\ngrades = np.where(scores >= 50, 'Pass', 'Fail')\nprint(grades)             # ['Pass' 'Fail' 'Pass' 'Pass' 'Fail']\n\n# where(condition) alone: indices where True\nprint(np.where(scores >= 50))  # (array([0, 2, 3]),)",
+        keyPoints: [
+          'np.sort(arr): returns a new sorted array; arr.sort(): sorts in place',
+          'np.argsort(arr): returns the INDICES that would sort the array, not the values',
+          "argsort lets you sort one array by another array's order (e.g. names by scores)",
+          'np.where(cond, a, b): vectorized if/else, element-by-element',
+          'np.where(cond) alone: returns the indices where the condition is True',
+        ],
+        quiz: [
+          {
+            question: 'What does np.argsort(arr) return?',
+            options: ['The sorted array itself', 'The indices that would put the array in sorted order', 'The maximum value', 'A boolean array'],
+            correctIndex: 1,
+          },
+          {
+            question: "Why is argsort useful for sorting names by their matching scores in another array?",
+            options: ['It is not useful for that', "You get the sort ORDER (indices) from the scores array, then apply those same indices to the names array — keeping them paired correctly", 'argsort only works on strings', 'You must sort both arrays separately'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does np.where(scores >= 50, "Pass", "Fail") do?',
+            options: ['Deletes failing scores', "Creates a new array picking 'Pass' or 'Fail' for each element based on the condition — a vectorized if/else", 'Sorts the scores', 'Only works on the first element'],
+            correctIndex: 1,
           },
         ],
       },
@@ -527,6 +577,45 @@ const advanced = [
               hinglish:
                 'np.vstack arrays ko vertically stack karta hai, yaani axis 0 ke along, zyada rows add karte hue (isliye column counts match honi chahiye). np.hstack horizontally stack karta hai, 2D arrays ke liye axis 1 ke along, zyada columns add karte hue (isliye row counts match honi chahiye). np.concatenate general function hai — tum explicitly axis pass karte ho jiske along jodna hai, aur vstack/hstack basically uske upar convenience wrappers hain. flatten/ravel 1D mein collapse karte hain, jabki ye multiple arrays ko combine karte hain.',
             },
+          },
+        ],
+      },
+      {
+        title: 'Saving & Loading Arrays',
+        difficulty: 'easy',
+        tags: ['io', 'save', 'load'],
+        explanation: {
+          english:
+            "You don't want to recompute a large array every time your program runs. np.save('file.npy', arr) writes an array to disk in NumPy's own fast binary format, and np.load('file.npy') reads it back EXACTLY as it was (same shape, dtype — no parsing needed, unlike text). For sharing data with other tools (Excel, other languages), use np.savetxt('file.csv', arr, delimiter=',') and np.loadtxt('file.csv', delimiter=',') for a plain-text CSV instead — slower and larger, but universally readable.",
+          hinglish:
+            "Tum nahi chahte ki har baar program chalne pe ek bada array dobara compute ho. np.save('file.npy', arr) ek array ko disk pe NumPy ke apne fast binary format mein likhta hai, aur np.load('file.npy') use EXACTLY wapas padhta hai jaisa tha (same shape, dtype — koi parsing nahi chahiye, text ke ulat). Doosre tools (Excel, doosri languages) ke saath data share karne ke liye, plain-text CSV ke liye np.savetxt('file.csv', arr, delimiter=',') aur np.loadtxt('file.csv', delimiter=',') use karo — slow aur bada, par universally readable.",
+        },
+        dailyLifeExample:
+          "np.save ek photo ko RAW format mein save karna hai — poori quality, fast, par sirf compatible software hi khol sakta hai. np.savetxt ek photo ko printed copy banana hai — sab dekh sakte hain (universal), par thodi slow aur bhaari.",
+        codeExample:
+          "import numpy as np\n\narr = np.array([[1, 2, 3], [4, 5, 6]])\n\n# Fast, NumPy-native binary format — preserves shape & dtype exactly\nnp.save('my_array.npy', arr)\nloaded = np.load('my_array.npy')\nprint(loaded)          # exactly the same array back\nprint(loaded.shape)    # (2, 3) — shape preserved automatically\n\n# Plain-text CSV — slower, bigger, but readable by Excel/other tools\nnp.savetxt('my_array.csv', arr, delimiter=',')\nloaded_csv = np.loadtxt('my_array.csv', delimiter=',')\nprint(loaded_csv)",
+        keyPoints: [
+          "np.save/np.load: fast, NumPy-native .npy binary format, preserves shape/dtype exactly",
+          "np.savetxt/np.loadtxt: plain-text CSV, slower and larger, but universally readable",
+          "Use .npy for saving intermediate results within your own Python workflow",
+          "Use CSV/savetxt when sharing data with Excel, other languages, or non-NumPy tools",
+          "Loading a .npy file never requires re-parsing text — it's a direct, fast read",
+        ],
+        quiz: [
+          {
+            question: 'What is the main advantage of np.save/np.load over np.savetxt/np.loadtxt?',
+            options: ['They only work on Windows', "They are faster and preserve the array's exact shape/dtype, without needing to parse text", 'They only save 1D arrays', 'There is no real advantage'],
+            correctIndex: 1,
+          },
+          {
+            question: 'When would you prefer np.savetxt over np.save?',
+            options: ['Never, savetxt is always worse', 'When you need the data readable by Excel or another programming language, not just NumPy', 'When the array is very large', 'savetxt is faster so always prefer it'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What file format does np.save() write to?',
+            options: ['.csv', '.npy (NumPy\'s native binary format)', '.txt', '.json'],
+            correctIndex: 1,
           },
         ],
       },
