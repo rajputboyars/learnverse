@@ -70,6 +70,11 @@ const beginner = [
             ],
             correctIndex: 1,
           },
+          {
+            question: 'Which rendering strategies does Next.js support that plain React (CSR only) does not?',
+            options: ['None, they are identical', 'SSR, SSG, and ISR', 'Only client-side rendering', 'WebAssembly rendering'],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -115,6 +120,16 @@ const beginner = [
             question: 'Which folder naming creates a catch-all dynamic route?',
             options: ['[slug]', '{slug}', '[...slug]', '(slug)'],
             correctIndex: 2,
+          },
+          {
+            question: 'What does [[...slug]] (double brackets) mean compared to [...slug]?',
+            options: [
+              'They are identical',
+              'It makes the catch-all segment optional, so the base route (with no extra segments) also matches',
+              'It disables the route',
+              'It only matches exactly two segments',
+            ],
+            correctIndex: 1,
           },
         ],
         interviewQuestions: [
@@ -178,6 +193,11 @@ const beginner = [
           {
             question: 'Server Components ship how much JS to the browser?',
             options: ['Same as Client Components', 'Zero JS for the component itself', 'Double the JS', 'Only CSS'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the default component type in the Next.js App Router?',
+            options: ['Client Component', 'Server Component', 'Neither, you must always specify', 'It depends on the file extension'],
             correctIndex: 1,
           },
         ],
@@ -252,6 +272,16 @@ const intermediate = [
             options: ['Throws an error', 'Deduplicates them', 'Runs them in parallel always', 'Caches forever regardless of options'],
             correctIndex: 1,
           },
+          {
+            question: 'What does `{ next: { revalidate: 60 } }` do?',
+            options: [
+              'Fetches fresh data on every single request',
+              'Caches the data and revalidates it in the background at most every 60 seconds (ISR)',
+              'Disables caching entirely',
+              'Deletes the cache after 60 seconds with no replacement',
+            ],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -291,6 +321,26 @@ const intermediate = [
           {
             question: 'Which function invalidates cache for all fetches tagged "courses"?',
             options: ['revalidatePath("courses")', 'revalidateTag("courses")', 'cache.clear("courses")', 'fetch.invalidate("courses")'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Where should revalidatePath/revalidateTag typically be called?',
+            options: [
+              'Inside any Client Component render',
+              'Inside a Server Action or Route Handler, right after a mutation',
+              'In next.config.js',
+              'They cannot be called programmatically',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What must you do before you can target a fetch with revalidateTag?',
+            options: [
+              'Nothing extra is needed',
+              'Tag the fetch with { next: { tags: [...] } } when making it',
+              'Convert it to a Server Action',
+              'Disable caching for that fetch',
+            ],
             correctIndex: 1,
           },
         ],
@@ -333,6 +383,16 @@ const intermediate = [
             options: ['request.query', 'new URL(request.url).searchParams', 'request.params', 'request.body.query'],
             correctIndex: 1,
           },
+          {
+            question: 'What kind of clients are Route Handlers especially well suited for?',
+            options: [
+              'Only the same Next.js app itself',
+              'Non-React clients like mobile apps, webhooks, and cron jobs that need a stable HTTP endpoint',
+              'They cannot be called by anything external',
+              'Only static site generators',
+            ],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -372,6 +432,21 @@ const intermediate = [
           {
             question: 'Which directive marks a function as a Server Action?',
             options: ['"use client"', '"use server"', '"use action"', 'No directive needed'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why do Server Actions offer "progressive enhancement" when used with a <form action={...}>?',
+            options: [
+              'They require JavaScript to work at all',
+              'The form can still submit and work even before/without client JavaScript loading, since it is a real HTML form',
+              'They only work with Client Components',
+              'They automatically add animations',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is commonly used alongside Server Actions to show pending/error UI state?',
+            options: ['useEffect only', 'useFormStatus / useActionState', 'useContext', 'useMemo'],
             correctIndex: 1,
           },
         ],
@@ -420,6 +495,26 @@ const intermediate = [
           {
             question: 'Where does Next.js middleware run?',
             options: ['Only on the client', 'On the Edge runtime, before the page', 'After the page renders', 'Only in API routes'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does the `matcher` config in middleware.js control?',
+            options: [
+              'Which database the middleware connects to',
+              'Which paths the middleware runs on',
+              'The response status code',
+              'The CSS applied to protected pages',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why is checking auth in middleware alone not fully sufficient for defense in depth?',
+            options: [
+              'Middleware never actually runs',
+              'Middleware could be bypassed or misconfigured, so sensitive Server Actions/Route Handlers should also verify auth server-side',
+              'Middleware only works for GET requests',
+              'It is fully sufficient and nothing else is needed',
+            ],
             correctIndex: 1,
           },
         ],
@@ -478,6 +573,26 @@ const advanced = [
             ],
             correctIndex: 1,
           },
+          {
+            question: 'What does the `priority` prop on <Image> do?',
+            options: [
+              'Compresses the image further',
+              'Marks it as above-the-fold, preloading it and skipping lazy loading',
+              'Increases its file size',
+              'Converts it to SVG',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is generateMetadata used for?',
+            options: [
+              'Generating static CSS',
+              'Dynamically producing per-page metadata (like title/description) based on fetched data',
+              'Creating database migrations',
+              'Building the sitemap only',
+            ],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -519,6 +634,16 @@ const advanced = [
             options: ['Makes it load faster internally', 'Lets the rest of the page render while it streams in', 'Disables caching', 'Converts it to a Client Component'],
             correctIndex: 1,
           },
+          {
+            question: 'Which file provides Suspense behaviour automatically for an entire route segment?',
+            options: ['error.jsx', 'loading.jsx', 'layout.jsx', 'metadata.js'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What performance metrics does streaming primarily improve?',
+            options: ['Bundle size only', 'Time to First Byte and First Contentful Paint (perceived load speed)', 'Database query speed', 'Image compression ratio'],
+            correctIndex: 1,
+          },
         ],
       },
     ],
@@ -552,6 +677,26 @@ const advanced = [
           {
             question: 'Which prefix exposes an environment variable to the browser?',
             options: ['PUBLIC_', 'NEXT_PUBLIC_', 'CLIENT_', 'No prefix needed'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What can the `redirects()` function in next.config.js be used for?',
+            options: [
+              'Only redirecting 404 errors',
+              'Defining server-level redirects from old URLs to new ones (e.g. permanent redirects)',
+              'Configuring the database connection',
+              'Setting the page title',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'How can a self-hosted (non-Vercel) Next.js app typically be deployed?',
+            options: [
+              'It cannot be self-hosted at all',
+              'Via `next start` on a Node server, or containerised with Docker',
+              'Only as a static HTML export with zero server features',
+              'Only through a specific proprietary tool',
+            ],
             correctIndex: 1,
           },
         ],
@@ -600,6 +745,134 @@ const advanced = [
           {
             question: 'What does generateStaticParams do?',
             options: ['Validates form input', 'Lists which dynamic route params to pre-render at build time', 'Generates CSS', 'Creates a database schema'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What happens to a dynamic path NOT returned by generateStaticParams (by default)?',
+            options: [
+              'The app crashes at build time',
+              'It is rendered on-demand (or 404s, depending on dynamicParams config)',
+              'It is always statically pre-rendered anyway',
+              'It redirects to the homepage',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'How does generateStaticParams pair well with ISR (next: { revalidate })?',
+            options: [
+              'They cannot be used together',
+              'Pages are pre-rendered at build time via generateStaticParams, then kept fresh in the background via revalidate',
+              'ISR disables generateStaticParams entirely',
+              'They serve completely unrelated purposes with no interaction',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Route Groups, Parallel & Intercepting Routes',
+        difficulty: 'hard',
+        tags: ['route-groups', 'parallel-routes', 'intercepting-routes'],
+        explanation: {
+          english:
+            "Three App Router folder conventions solve real organisational and UX problems that plain nested folders can't:\n\n**Route Groups** `(folderName)`: wrapping a folder name in parentheses lets you organise routes into logical groups WITHOUT adding a segment to the URL. `app/(marketing)/about/page.jsx` still maps to `/about`, not `/marketing/about`. Useful for applying a different layout.jsx to a group of routes (e.g. a `(shop)` group with a shopping layout vs a `(marketing)` group with a different one) or just for organising a large app/ directory without affecting URLs.\n\n**Parallel Routes** `@folderName`: let you render two or more independent pages in the SAME layout simultaneously, each in its own 'slot' — e.g. a dashboard showing `@analytics` and `@team` side by side, each with its own loading/error state, each independently navigable. The layout receives these as props (`{ children, analytics, team }`).\n\n**Intercepting Routes** `(.)folderName`, `(..)folderName`: let a route 'intercept' a navigation and show it in a different context — the classic example is Instagram-style: clicking a photo from a feed opens it in a MODAL (intercepted), but if the user directly visits or refreshes that URL, they get the FULL page instead. The `(.)`, `(..)`, `(...)` prefixes control how many segment levels up the interception matches from.\n\nThese are advanced, lower-frequency-use features — most apps go a long way with just regular nested routes — but they show up often in interviews about deep App Router knowledge.",
+          hinglish:
+            "Teen App Router folder conventions real organisational aur UX problems solve karte hain jo plain nested folders nahi kar sakte:\n\n**Route Groups** `(folderName)`: ek folder name ko parentheses mein wrap karne se tum routes ko logical groups mein organise kar sakte ho URL mein koi segment add kiye BINA. `app/(marketing)/about/page.jsx` abhi bhi `/about` pe map karta hai, `/marketing/about` pe nahi. Ye useful hai routes ke ek group pe alag layout.jsx apply karne ke liye (jaise ek `(shop)` group with shopping layout vs `(marketing)` group with alag layout) ya bas ek bade app/ directory ko URLs affect kiye bina organise karne ke liye.\n\n**Parallel Routes** `@folderName`: tumhe SAME layout mein do ya zyada independent pages ek saath render karne dete hain, har ek apne 'slot' mein — jaise ek dashboard jo `@analytics` aur `@team` saath-saath dikhata hai, har ek ka apna loading/error state, har ek independently navigable. Layout inhe props ke roop mein paata hai (`{ children, analytics, team }`).\n\n**Intercepting Routes** `(.)folderName`, `(..)folderName`: ek route ko navigation 'intercept' karke use ek alag context mein dikhane dete hain — classic example Instagram-style hai: feed se ek photo click karne pe MODAL mein khulta hai (intercepted), par agar user directly us URL pe visit ya refresh kare, unhe FULL page milta hai. `(.)`, `(..)`, `(...)` prefixes control karte hain interception kitne segment levels upar se match kare.\n\nYe advanced, kam-frequency-use features hain — zyadatar apps sirf regular nested routes se bahut door tak chal jaati hain — par interviews mein deep App Router knowledge ke baare mein aksar aate hain.",
+        },
+        dailyLifeExample:
+          "Route Groups waise hain jaise ek almirah mein cheezein category ke hisaab se rakhna (shirts, pants) bina address badle — bahar se almirah ka address same rehta hai. Parallel Routes waise hain jaise ek TV screen jisme picture-in-picture ho — do independent videos ek saath dikh rahe hain. Intercepting Routes waise hain jaise Instagram pe photo pe click karne se ek pop-up khulta hai (modal), par wahi link seedha browser mein daalne se poora page khulta hai.",
+        codeExample:
+          "// Route Group — organizes without affecting URL\n// app/(marketing)/about/page.jsx    -> /about\n// app/(marketing)/layout.jsx        -> layout only for marketing group\n// app/(shop)/cart/page.jsx          -> /cart (different layout.jsx)\n\n// Parallel Routes — render multiple slots at once\n// app/dashboard/layout.jsx\n// export default function Layout({ children, analytics, team }) {\n//   return (\n//     <div>\n//       {children}\n//       <div className=\"grid grid-cols-2\">\n//         {analytics}\n//         {team}\n//       </div>\n//     </div>\n//   );\n// }\n// app/dashboard/@analytics/page.jsx\n// app/dashboard/@team/page.jsx\n\n// Intercepting Routes — modal for feed, full page for direct visit\n// app/feed/page.jsx\n// app/feed/(.)photo/[id]/page.jsx   -> intercepted modal view\n// app/photo/[id]/page.jsx           -> full page (direct visit/refresh)",
+        keyPoints: [
+          'Route Groups (folderName) organise routes into logical groups without adding a URL segment',
+          'Route Groups are commonly used to apply different layouts to different sections of an app',
+          'Parallel Routes (@slotName) render multiple independent pages in the same layout simultaneously',
+          'Intercepting Routes ((.)folderName) show a route in a different context (e.g. a modal) when navigated to internally',
+          'A directly-visited or refreshed URL bypasses the interception and shows the full page instead',
+        ],
+        quiz: [
+          {
+            question: 'Does wrapping a folder in parentheses, like (marketing), add a segment to the URL?',
+            options: [
+              'Yes, it always adds /marketing/ to the URL',
+              'No — Route Groups organise files without affecting the URL path',
+              'It removes the route entirely',
+              'It only works for API routes',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the main use case for Parallel Routes (@slotName)?',
+            options: [
+              'Redirecting old URLs to new ones',
+              'Rendering multiple independent pages/sections simultaneously within the same layout',
+              'Hiding a route from search engines',
+              'Compressing images',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'In the Instagram-style modal example, what happens if a user directly visits or refreshes the intercepted photo URL?',
+            options: [
+              'It always shows an error',
+              'They get the full page instead of the modal, since interception only applies to in-app navigation',
+              'The app crashes',
+              'It redirects to the homepage',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Error Handling: error.jsx & not-found.jsx',
+        difficulty: 'medium',
+        tags: ['error-handling', 'error-boundary', '404'],
+        explanation: {
+          english:
+            "Every production app needs a plan for when things go wrong — a failed database query, a missing resource, an unexpected exception. Next.js App Router provides two special files per route segment for exactly this:\n\n**error.jsx**: automatically wraps its route segment in a React Error Boundary. If any error is thrown during rendering (in a Server or Client Component) within that segment, Next.js catches it and renders error.jsx instead of crashing the whole app. It MUST be a Client Component (`\"use client\"`) since error boundaries rely on React lifecycle features unavailable to Server Components. It receives `error` and a `reset()` function to let the user retry without a full page reload.\n\n**not-found.jsx**: renders when `notFound()` is called explicitly (e.g. a course lookup returns null) or when a URL doesn't match any route. Unlike error.jsx, this handles the 'this doesn't exist' case, not the 'something broke' case — and it can be a Server Component.\n\n**global-error.jsx** (root only): catches errors in the root layout itself, which error.jsx cannot do since it's rendered inside the layout it's meant to protect. It must render its own `<html>` and `<body>` tags since it replaces the root layout entirely when triggered.\n\nThe key mental model: errors bubble up to the NEAREST error.jsx in the folder tree, so you can have fine-grained error boundaries per section (a broken 'reviews' widget doesn't have to take down the whole course page).",
+          hinglish:
+            "Har production app ko ek plan chahiye jab kuch galat ho jaaye — ek failed database query, ek missing resource, ek unexpected exception. Next.js App Router har route segment ke liye exactly isi ke liye do special files deta hai:\n\n**error.jsx**: automatically apne route segment ko ek React Error Boundary mein wrap karta hai. Agar us segment ke andar rendering ke dauraan (Server ya Client Component mein) koi error throw ho, Next.js use catch karta hai aur poori app crash karne ke bajaye error.jsx render karta hai. Ye MUST ek Client Component ho (`\"use client\"`) kyunki error boundaries React lifecycle features pe depend karte hain jo Server Components ke paas nahi hote. Isse `error` aur ek `reset()` function milta hai taaki user bina poora page reload kiye retry kar sake.\n\n**not-found.jsx**: tab render hota hai jab `notFound()` explicitly call ho (jaise ek course lookup null return kare) ya jab koi URL kisi route se match na kare. error.jsx ke ulat, ye 'ye exist hi nahi karta' case handle karta hai, 'kuch toota' case nahi — aur ye ek Server Component ho sakta hai.\n\n**global-error.jsx** (sirf root mein): root layout ke andar hi errors catch karta hai, jo error.jsx nahi kar sakta kyunki wo us layout ke andar render hota hai jise protect karna hai. Ise apne khud ke `<html>` aur `<body>` tags render karne padte hain kyunki trigger hone par ye poore root layout ko replace kar deta hai.\n\nKey mental model: errors folder tree mein sabse NEAREST error.jsx tak bubble up hote hain, isliye tum fine-grained error boundaries per section rakh sakte ho (ek broken 'reviews' widget poore course page ko down nahi le jaata).",
+        },
+        dailyLifeExample:
+          "error.jsx waise hai jaise ek building mein har floor ka apna fire alarm/emergency exit hona — agar ek floor mein aag lage, poori building evacuate nahi karni padti, sirf us floor ka plan activate hota hai. not-found.jsx waise hai jaise ek 'ye address exist nahi karta' sign — jab koi galat room number dhoondhta hai. global-error.jsx waise hai jaise poori building ka main emergency system jo tab activate hota hai jab building ka structure hi (root layout) fail ho jaaye.",
+        codeExample:
+          "// app/courses/[slug]/error.jsx — must be a Client Component\n\"use client\";\n\nexport default function Error({ error, reset }) {\n  return (\n    <div>\n      <h2>Something went wrong loading this course!</h2>\n      <button onClick={() => reset()}>Try again</button>\n    </div>\n  );\n}\n\n// app/courses/[slug]/not-found.jsx — can be a Server Component\nexport default function NotFound() {\n  return <h2>Course not found.</h2>;\n}\n\n// app/courses/[slug]/page.jsx — triggering not-found explicitly\nimport { notFound } from \"next/navigation\";\n\nexport default async function CoursePage({ params }) {\n  const { slug } = await params;\n  const course = await Course.findOne({ slug });\n  if (!course) notFound();   // renders the nearest not-found.jsx\n  return <h1>{course.title}</h1>;\n}",
+        keyPoints: [
+          'error.jsx wraps its route segment in a React Error Boundary, catching render errors',
+          'error.jsx must be a Client Component and receives (error, reset) to allow retrying',
+          'not-found.jsx handles missing resources — triggered by notFound() or an unmatched URL',
+          'global-error.jsx (root only) catches errors in the root layout itself, and must render its own <html>/<body>',
+          'Errors bubble up to the nearest error.jsx, enabling fine-grained, per-section error boundaries',
+        ],
+        quiz: [
+          {
+            question: 'Why must error.jsx be a Client Component?',
+            options: [
+              'It is an arbitrary Next.js requirement with no reason',
+              'Error boundaries rely on React lifecycle features that are unavailable to Server Components',
+              'Server Components cannot render any UI',
+              'It has nothing to do with error boundaries',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the key difference between error.jsx and not-found.jsx?',
+            options: [
+              'They are identical in purpose',
+              'error.jsx handles unexpected thrown errors; not-found.jsx handles missing resources (called via notFound() or unmatched URLs)',
+              'not-found.jsx can only be used for API routes',
+              'error.jsx is only for 404s',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'If a component deep inside /courses/[slug]/reviews throws an error, which error.jsx handles it?',
+            options: [
+              'Only the root error.jsx, always',
+              'The nearest error.jsx in the folder tree above where the error occurred',
+              'No error.jsx can catch it',
+              'A random error.jsx anywhere in the app',
+            ],
             correctIndex: 1,
           },
         ],
