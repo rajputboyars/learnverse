@@ -71,6 +71,11 @@ const lifecycle = [
             ],
             correctIndex: 1,
           },
+          {
+            question: 'Which stage comes right after "Deploy" in the ML lifecycle loop?',
+            options: ['Data collection from scratch', 'Monitor', 'Delete the model', 'Nothing, the lifecycle ends'],
+            correctIndex: 1,
+          },
         ],
       },
       {
@@ -112,6 +117,16 @@ const lifecycle = [
               'Versioned models with stages like Staging and Production',
               'A GPU',
               'A web browser',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Besides metrics, what else should a good experiment tracking log include?',
+            options: [
+              'Nothing else is needed',
+              'Hyperparameters and artefacts (like the trained model file)',
+              'Only the final accuracy number',
+              'The developer\'s personal notes app',
             ],
             correctIndex: 1,
           },
@@ -169,6 +184,16 @@ const deployMonitor = [
             ],
             correctIndex: 1,
           },
+          {
+            question: 'What is a "shadow" deployment used for?',
+            options: [
+              'Deleting the old model immediately',
+              'Testing a new model on real production traffic without it affecting the actual response users see',
+              'Hiding the model from monitoring tools',
+              'Training a model at night only',
+            ],
+            correctIndex: 1,
+          },
         ],
       },
       {
@@ -213,6 +238,16 @@ const deployMonitor = [
             ],
             correctIndex: 1,
           },
+          {
+            question: 'What is the difference between data drift and concept drift?',
+            options: [
+              'They are the same thing',
+              'Data drift is the input distribution changing; concept drift is the input-to-output relationship changing',
+              'Data drift only happens in images; concept drift only in text',
+              'Concept drift is fixed by adding more RAM',
+            ],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -223,6 +258,168 @@ const deployMonitor = [
               hinglish:
                 'Model drift deployed model ki performance ka time ke saath degrade hona hai. Data drift tab hai jab input distribution shift hota hai; concept drift tab jab input-to-output relationship badalta hai. Ise handle karne ke liye production predictions aur quality metrics monitor karo, baseline ke against drift detect karo, aur ek automated retraining pipeline trigger karo jo fresh data le, retrain kare, current model se evaluate kare, aur naya version sirf tab promote kare jab wo better perform kare.',
             },
+          },
+        ],
+      },
+      {
+        title: 'Feature Stores: Consistent Features for Training & Serving',
+        difficulty: 'hard',
+        tags: ['feature-store', 'training-serving-skew', 'feature-engineering'],
+        explanation: {
+          english:
+            "A sneaky, common production bug is **training-serving skew**: the code that computes a feature during training (e.g. in a Python notebook using Pandas) is subtly different from the code that computes it at inference time (e.g. in a Java backend), so the model sees slightly different values in production than it learned from — silently hurting accuracy.\n\nA **feature store** solves this by centralising feature computation and storage in one place, used by both training and serving. It typically has two sides: an **offline store** (historical feature values, for training, often on cheap bulk storage) and an **online store** (low-latency, current feature values, for real-time serving, often backed by a fast key-value database). The SAME feature definition/pipeline populates both, so training and serving are guaranteed to see consistent, correctly-computed features. Popular examples: Feast (open-source), Tecton, and cloud-native options (SageMaker Feature Store, Vertex AI Feature Store).",
+          hinglish:
+            "Ek chhupa hua, common production bug hai **training-serving skew**: training ke time feature compute karne wala code (jaise Python notebook mein Pandas se) inference time pe feature compute karne wale code (jaise Java backend mein) se thoda alag hota hai, isliye model production mein thode alag values dekhta hai jinse usne seekha tha — chupchaap accuracy kharab karta hai.\n\nEk **feature store** ise solve karta hai feature computation aur storage ko ek jagah centralise karke, jo training aur serving dono use karte hain. Iske typically do sides hote hain: ek **offline store** (historical feature values, training ke liye, aksar cheap bulk storage pe) aur ek **online store** (low-latency, current feature values, real-time serving ke liye, aksar ek fast key-value database se backed). SAME feature definition/pipeline dono ko populate karti hai, isliye training aur serving guaranteed consistent, correctly-computed features dekhte hain. Popular examples: Feast (open-source), Tecton, aur cloud-native options (SageMaker Feature Store, Vertex AI Feature Store).",
+        },
+        dailyLifeExample:
+          'Training-serving skew waise hai jaise ek recipe book mein "1 cup chai patti" likha ho, par kitchen mein ek alag measuring cup use ho raha ho jo actually 1.5 cups ke barabar hai — dish (prediction) test kitchen (training) se thodi alag ban jaati hai restaurant (production) mein. Feature store ek single, shared measuring cup hai jo dono jagah use hoti hai.',
+        codeExample:
+          '# Conceptual feature store usage (Feast-style)\n# Define a feature once:\n# user_avg_order_value = FeatureView(\n#     name="user_avg_order_value",\n#     entities=["user_id"],\n#     source=orders_table,\n# )\n\n# Training: fetch historical values (offline store) for many users/times\n# training_df = store.get_historical_features(entity_df, features=["user_avg_order_value"])\n\n# Serving: fetch current value (online store) for one user, low-latency\n# live_features = store.get_online_features(features=["user_avg_order_value"], entity_rows=[{"user_id": 42}])\n# -> SAME feature definition used in both, so no skew',
+        keyPoints: [
+          'Training-serving skew: feature computed differently in training vs production hurts accuracy silently',
+          'A feature store centralises feature computation so training and serving stay consistent',
+          'Offline store: historical features for training; online store: low-latency current features for serving',
+          'The same feature pipeline populates both stores, eliminating skew',
+          'Popular tools: Feast (open-source), Tecton, SageMaker/Vertex AI Feature Store',
+        ],
+        quiz: [
+          {
+            question: 'What is "training-serving skew"?',
+            options: [
+              'The model taking too long to train',
+              'A feature being computed differently at training time vs at serving/inference time, causing accuracy loss',
+              'A GPU running out of memory',
+              'Two different datasets having different sizes',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What problem does a feature store primarily solve?',
+            options: [
+              'It makes models train faster',
+              'It centralises feature computation so training and serving use consistent, correctly-computed features',
+              'It replaces the need for a model entirely',
+              'It stores only images',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the difference between a feature store\'s offline and online store?',
+            options: [
+              'There is no difference',
+              'Offline stores historical features for training; online stores low-latency current features for real-time serving',
+              'Offline is for images, online is for text',
+              'Online store is only used during training',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Data Versioning & Reproducibility',
+        difficulty: 'medium',
+        tags: ['dvc', 'data-versioning', 'reproducibility', 'lineage'],
+        explanation: {
+          english:
+            "Git versions code well, but it's a poor fit for large datasets and model files (multi-GB binary blobs). Yet reproducibility demands you know EXACTLY which data version produced a given model — if you can't reproduce a training run, you can't debug it or safely roll back.\n\nTools like **DVC (Data Version Control)** solve this: it stores small pointer files in Git (like Git-LFS) while the actual large data/model files live in cheap storage (S3, GCS, etc.). Running `dvc add data.csv` creates a small `.dvc` metadata file you commit normally, while the real data is pushed to remote storage. This gives you **data lineage**: for any model, you can trace back exactly which code version + data version + hyperparameters produced it — essential for debugging, audits, and compliance (e.g. 'which data trained the model that made this decision?').",
+          hinglish:
+            "Git code ko achhe se version karta hai, par bade datasets aur model files (multi-GB binary blobs) ke liye poor fit hai. Par reproducibility maangti hai ki tumhe EXACTLY pata ho kaunsi data version ne ek given model banaya — agar training run reproduce nahi kar sakte, toh use debug nahi kar sakte ya safely rollback nahi kar sakte.\n\n**DVC (Data Version Control)** jaise tools ise solve karte hain: ye chhote pointer files Git mein store karte hain (Git-LFS jaisa), jabki actual bade data/model files cheap storage (S3, GCS, etc.) mein rehte hain. `dvc add data.csv` chalane se ek chhota `.dvc` metadata file banta hai jo tum normally commit karte ho, jabki real data remote storage pe push hota hai. Isse **data lineage** milti hai: kisi bhi model ke liye, tum exactly trace kar sakte ho ki kaunsa code version + data version + hyperparameters ne use banaya — debugging, audits aur compliance ke liye essential (jaise 'is decision wale model ko kaunse data ne train kiya tha?').",
+        },
+        dailyLifeExample:
+          'Data versioning waise hai jaise ek recipe ke saath ye bhi note karna ki ingredients kis dukaan se, kis din khareede gaye the — agar dish kabhi galat bane, tum exactly trace kar sakte ho ki kaunsa batch ingredients ka istemaal hua tha.',
+        codeExample:
+          '# DVC basic workflow\n# pip install dvc\n# dvc init\n# dvc add data/train.csv          # creates data/train.csv.dvc (small, goes in Git)\n# git add data/train.csv.dvc .gitignore\n# git commit -m "Track training data v1"\n# dvc remote add -d storage s3://my-bucket/dvc-store\n# dvc push                        # uploads actual data to S3\n#\n# Later, reproduce an exact past state:\n# git checkout <commit>   # gets the .dvc pointer for that version\n# dvc pull                # pulls the matching data from storage',
+        keyPoints: [
+          'Git is a poor fit for large datasets/model binaries; DVC (or similar) fills that gap',
+          'DVC stores small pointer files in Git while real data lives in cheap remote storage (S3/GCS)',
+          'This gives full data lineage: trace which code + data + hyperparameters produced a given model',
+          'Reproducibility is essential for debugging, rollback, audits, and compliance',
+          'Without data versioning, "which data trained this model" becomes unanswerable over time',
+        ],
+        quiz: [
+          {
+            question: 'Why is Git alone usually a poor fit for versioning large training datasets?',
+            options: [
+              'Git cannot store any files',
+              'Git is optimised for text/code diffs, not large multi-GB binary blobs, making repos huge and slow',
+              'Git deletes files automatically',
+              'Datasets cannot be stored on computers',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'How does a tool like DVC typically work alongside Git?',
+            options: [
+              'It replaces Git entirely',
+              'It stores small pointer/metadata files in Git while the actual large data lives in remote storage like S3',
+              'It stores everything directly inside Git commits',
+              'It has no relationship with Git',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why does data lineage (tracing code + data + hyperparameters for a model) matter?',
+            options: [
+              'It does not matter in practice',
+              'It enables debugging, safe rollback, and compliance/audit answers like "what data trained this model"',
+              'It only matters for very small projects',
+              'It replaces the need for monitoring',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'A/B Testing & Canary Deployments for ML Models',
+        difficulty: 'hard',
+        tags: ['ab-testing', 'canary', 'statistical-significance', 'rollout'],
+        explanation: {
+          english:
+            "Offline evaluation (test-set accuracy) tells you a new model looks better on paper — but the only way to know it's ACTUALLY better for real users is testing it on real traffic, carefully.\n\n**Canary deployment**: route a small percentage of traffic (e.g. 5%) to the new model version while most traffic still goes to the old one. Watch operational and quality metrics closely; if healthy, gradually increase the percentage until full rollout — if something's wrong, only a small slice of users was affected, and you roll back instantly.\n\n**A/B testing**: split traffic between model A (control) and model B (challenger) and compare a business metric (click-through rate, revenue, task success) — not just model accuracy. Crucially, use **statistical significance** testing before declaring a winner: a 2% lift measured on a tiny sample could easily be random noise. Run the test long enough and on enough traffic to be confident the difference is real, not chance.",
+          hinglish:
+            "Offline evaluation (test-set accuracy) batati hai ki naya model paper pe better lagta hai — par ye janne ka asli tareeka ki wo real users ke liye ACTUALLY better hai, use real traffic pe carefully test karna hai.\n\n**Canary deployment**: traffic ka ek chhota percentage (jaise 5%) naye model version ko route karo jabki zyadatar traffic purane pe hi jaaye. Operational aur quality metrics closely dekho; agar healthy hai, percentage gradually badhao jab tak full rollout na ho — agar kuch galat hai, sirf users ka ek chhota slice affected hua, aur tum instantly rollback kar sakte ho.\n\n**A/B testing**: traffic ko model A (control) aur model B (challenger) mein split karo aur ek business metric compare karo (click-through rate, revenue, task success) — sirf model accuracy nahi. Crucially, winner declare karne se pehle **statistical significance** testing use karo: ek chhote sample pe measure kiya gaya 2% lift aasani se random noise ho sakta hai. Test ko itni der aur itne traffic pe chalao ki confident ho sako ki difference real hai, chance nahi.",
+        },
+        dailyLifeExample:
+          'Canary deployment waise hai jaise ek naye restaurant dish ko pehle sirf kuch tables ko serve karna, poore menu mein daalne se pehle — agar log bimaar padein, sirf chand log affected hote hain. A/B testing waise hai jaise aadhe customers ko purani recipe aur aadhe ko nayi dekar dekhna kaun zyada order repeat karta hai — sirf taste (accuracy) nahi, actual behaviour (business metric) compare karo.',
+        codeExample:
+          '# Simple statistical significance check for an A/B test (conceptual)\nfrom scipy import stats\n\n# conversions out of visitors for each group\na_conversions, a_total = 120, 5000   # control (old model)\nb_conversions, b_total = 140, 5000   # challenger (new model)\n\n_, p_value = stats.proportions_ztest(\n    [a_conversions, b_conversions], [a_total, b_total]\n)\n\nif p_value < 0.05:\n    print("Statistically significant difference -> safe to declare a winner")\nelse:\n    print("Not significant yet -> could be random noise, keep testing")',
+        keyPoints: [
+          'Canary deployment: route a small % of traffic to a new model, expand gradually if healthy',
+          'A/B testing: split traffic between control and challenger, compare business metrics not just accuracy',
+          'Always check statistical significance before declaring an A/B test winner — small samples can mislead',
+          'Canary limits blast radius if something goes wrong; A/B testing measures real impact scientifically',
+          'Offline test-set accuracy alone is not proof a model is better in production',
+        ],
+        quiz: [
+          {
+            question: 'What is the main purpose of a canary deployment?',
+            options: [
+              'To delete the old model immediately',
+              'To route a small percentage of real traffic to a new model version, limiting risk if something goes wrong',
+              'To test the model only offline',
+              'To skip evaluation entirely',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why is statistical significance important before declaring an A/B test winner?',
+            options: [
+              'It is not important, any measured difference is proof enough',
+              'A small measured difference on limited traffic could just be random noise, not a real improvement',
+              'It only matters for very large companies',
+              'Statistical significance guarantees the model has no bugs',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'In A/B testing for ML models, what should typically be compared, not just accuracy?',
+            options: [
+              'Nothing else matters besides accuracy',
+              'Real business/behavioural metrics like click-through rate, revenue, or task success',
+              'The size of the model file',
+              'The programming language used',
+            ],
+            correctIndex: 1,
           },
         ],
       },
