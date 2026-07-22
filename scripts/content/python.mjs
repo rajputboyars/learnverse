@@ -403,6 +403,45 @@ const intermediate = [
         ],
       },
       {
+        title: 'String & List Slicing Deep Dive',
+        difficulty: 'medium',
+        tags: ['slicing', 'strings', 'lists'],
+        explanation: {
+          english:
+            "Slicing extracts a portion of a sequence (string, list, or tuple) using seq[start:stop:step] — start is inclusive, stop is EXCLUSIVE, and step is how many items to skip (default 1). Any of the three can be omitted: seq[:3] means from the beginning, seq[3:] means to the end. Negative indices count from the end (-1 is the last item), and a negative step reverses the sequence — seq[::-1] is the classic Python one-liner to reverse anything. Slicing never raises an error even if indices are out of range; it just clips to what's available.",
+          hinglish:
+            "Slicing seq[start:stop:step] use karke ek sequence (string, list, ya tuple) ka hissa nikalti hai — start inclusive hai, stop EXCLUSIVE hai, aur step batata hai kitne items skip karne hain (default 1). Teenon mein se koi bhi omit kar sakte ho: seq[:3] matlab shuru se, seq[3:] matlab end tak. Negative indices end se ginte hain (-1 last item hai), aur negative step sequence ko reverse kar deta hai — seq[::-1] kisi bhi cheez ko reverse karne ka classic Python one-liner hai. Slicing kabhi error nahi deti chahe indices range se bahar hon; ye bas jo available hai wahi tak clip kar deti hai.",
+        },
+        dailyLifeExample:
+          "Slicing ek roll of fabric se ek specific tukda kaatne jaisi hai — 'shuru se 3 meter tak' (seq[:3]), 'aakhri 2 meter' (seq[-2:]), ya 'har doosra meter' (seq[::2]). Fabric khatam ho jaaye to bhi cutting tool error nahi deta, jo bacha hai wahi de deta hai.",
+        codeExample:
+          "word = 'Learnverse'\nword[0:4]     # 'Lear' — index 0,1,2,3 (4 is excluded)\nword[:4]      # 'Lear' — same, start omitted\nword[4:]      # 'nverse' — from index 4 to end\nword[-4:]     # 'erse' — last 4 characters\nword[::2]     # 'Lavre' — every 2nd character\nword[::-1]    # 'esrevnraeL' — reversed! classic trick\n\nnums = [10, 20, 30, 40, 50]\nnums[1:3]     # [20, 30]\nnums[:-1]     # [10, 20, 30, 40] — everything except the last\nnums[100:200] # [] — out of range, no error, just empty",
+        keyPoints: [
+          'seq[start:stop:step] — start inclusive, stop EXCLUSIVE',
+          'Omit start/stop to mean "from the beginning" / "to the end"',
+          'Negative indices count from the end (-1 = last item)',
+          'seq[::-1] reverses any sequence — one of the most common Python idioms',
+          'Slicing never raises an IndexError, even for out-of-range indices',
+        ],
+        quiz: [
+          {
+            question: 'What does word[4:] mean?',
+            options: ['Characters from index 0 to 4', 'Characters from index 4 to the end of the string', 'Only the character at index 4', 'The first 4 characters'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the classic one-liner to reverse a list or string in Python?',
+            options: ['seq.reverse_all()', 'seq[::-1]', 'reverse(seq)', 'seq[-1:-1]'],
+            correctIndex: 1,
+          },
+          {
+            question: "What happens if you slice with an index far outside the sequence's range, like nums[100:200] on a 5-item list?",
+            options: ['It raises an IndexError', 'It returns an empty list/string with no error', 'The program crashes', 'It returns the whole list'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
         title: 'Dictionaries & Sets',
         difficulty: 'medium',
         tags: ['dict', 'set', 'data-structures'],
@@ -560,6 +599,45 @@ const intermediate = [
           },
         ],
       },
+      {
+        title: 'Type Hints (Python Typing)',
+        difficulty: 'medium',
+        tags: ['type-hints', 'typing'],
+        explanation: {
+          english:
+            "Python is dynamically typed — you never HAVE to declare types — but type hints let you optionally annotate variables, function parameters, and return values with the type you intend: def add(a: int, b: int) -> int:. Python does NOT enforce these at runtime (it's just documentation the interpreter mostly ignores), but tools like mypy, and editors like VS Code, use them to catch bugs before you even run the code and to power much better autocomplete. Use the typing module (or built-in generics in Python 3.9+) for more complex shapes like list[int] or Optional[str].",
+          hinglish:
+            'Python dynamically typed hai — types declare karna kabhi COMPULSORY nahi — par type hints se variables, function parameters, aur return values ko optionally uss type se annotate kar sakte ho jo tum intend karte ho: def add(a: int, b: int) -> int:. Python inhe runtime pe ENFORCE NAHI karta (ye zyadatar interpreter ignore karta documentation jaisa hai), par mypy jaise tools, aur VS Code jaise editors, inhe use karke code chalane se pehle hi bugs pakad lete hain aur bahut behtar autocomplete dete hain. Zyada complex shapes ke liye (jaise list[int] ya Optional[str]) typing module (ya Python 3.9+ mein built-in generics) use karo.',
+        },
+        dailyLifeExample:
+          "Type hints ek delivery label pe likhi 'fragile — handle with care' jaisi hain — courier isse todhne se pehle roka nahi jaata (Python enforce nahi karta), par ek achha courier (tool jaise mypy/VS Code) is label ko dekh ke extra dhyaan se handle karta hai aur galtiyan pehle hi pakad leta hai.",
+        codeExample:
+          'def add(a: int, b: int) -> int:\n    return a + b\n\nadd(2, 3)      # 5 — works normally\nadd("2", "3")  # Python still runs this! type hints are NOT enforced at runtime\n               # but mypy/your editor would flag this as an error before running\n\nname: str = "Aman"\nage: int = 16\nis_active: bool = True\n\nfrom typing import Optional\n\ndef find_user(user_id: int) -> Optional[str]:\n    # Optional[str] means "a str, or None"\n    return None if user_id < 0 else "Aman"\n\ndef get_scores() -> list[int]:  # Python 3.9+ built-in generic syntax\n    return [90, 85, 78]',
+        keyPoints: [
+          'Syntax: variable: Type, and def f(param: Type) -> ReturnType:',
+          'Type hints are OPTIONAL and NOT enforced by Python at runtime',
+          'Tools like mypy and editor autocomplete use hints to catch bugs before running the code',
+          'Optional[str] means "a str, or None"; list[int] means "a list of ints"',
+          'Great for documenting intent in larger codebases and team projects',
+        ],
+        quiz: [
+          {
+            question: 'Does Python stop you from calling add("2", "3") if add is defined as def add(a: int, b: int) -> int?',
+            options: ['Yes, it raises a TypeError immediately', 'No — type hints are not enforced at runtime; the code still runs (though the result may be wrong/unexpected)', 'Only in Python 2', 'Only if you import typing'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does Optional[str] mean?',
+            options: ['A required string', 'A value that is either a str or None', 'Any type at all', 'A list of strings'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the main practical benefit of adding type hints if Python does not enforce them?',
+            options: ['They make the code run faster', 'Tools like mypy and editor autocomplete can catch bugs before you run the code', 'They are required for all Python programs', 'They automatically convert types'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
   {
@@ -656,6 +734,16 @@ const intermediate = [
             options: ['try', 'except', 'else', 'finally'],
             correctIndex: 3,
           },
+          {
+            question: 'You write: raise ValueError("Age must be positive"). What does this do?',
+            options: [
+              'Silently ignores the error',
+              'Immediately stops normal execution and raises a ValueError with that message, to be caught by a matching except block (or crash the program if uncaught)',
+              'Creates a new function',
+              'Only prints a warning and continues',
+            ],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -668,6 +756,45 @@ const intermediate = [
               hinglish:
                 '`try` block mein woh code hota hai jo exception raise kar sakta hai. Agar exception aaye, to Python use handle karne ke liye matching `except` block par chala jaata hai (kai ho sakte hain, sabse specific pehle). Optional `else` block tabhi chalta hai jab try block bina exception ke poora ho — un cheezon ke liye useful jo success par chalni chahiye aur jinhe galti se except na pakad le. `finally` block HAMESHA chalta hai, chahe exception aaye ya na aaye ya return ho jaaye — ye cleanup ke liye hai jaise files band karna ya connections release karna. Ye structure gracefully fail hone aur cleanup guarantee karne deta hai.',
             },
+          },
+        ],
+      },
+      {
+        title: 'Working with JSON in Python',
+        difficulty: 'medium',
+        tags: ['json', 'data'],
+        explanation: {
+          english:
+            "JSON is the universal format for exchanging data between programs, APIs, and files. Python's built-in json module converts between JSON text and Python objects: json.dumps(obj) turns a Python dict/list into a JSON string; json.loads(text) parses a JSON string back into a Python dict/list. For files, json.dump(obj, file) writes directly, and json.load(file) reads directly — no need to manually convert to a string first. Python dicts map to JSON objects, lists to JSON arrays, and most types translate directly (True -> true, None -> null).",
+          hinglish:
+            'JSON programs, APIs, aur files ke beech data exchange karne ka universal format hai. Python ka built-in json module JSON text aur Python objects ke beech convert karta hai: json.dumps(obj) ek Python dict/list ko JSON string banata hai; json.loads(text) ek JSON string ko wapas Python dict/list mein parse karta hai. Files ke liye, json.dump(obj, file) seedha likhta hai, aur json.load(file) seedha padhta hai — pehle manually string mein convert karne ki zaroorat nahi. Python dicts JSON objects mein map hote hain, lists JSON arrays mein, aur zyadatar types seedha translate hote hain (True -> true, None -> null).',
+        },
+        dailyLifeExample:
+          'JSON ek universal courier packing standard jaisa hai — chahe tumhara saamaan (data) kisi bhi language ke program mein bana ho, JSON format mein pack karke koi bhi doosra program (chahe wo Python ho ya JavaScript) use samajh sakta hai.',
+        codeExample:
+          'import json\n\nuser = {"name": "Aman", "age": 16, "skills": ["Python", "HTML"]}\n\n# Python object -> JSON string\ntext = json.dumps(user)\nprint(text)  # \'{"name": "Aman", "age": 16, "skills": ["Python", "HTML"]}\'\n\n# JSON string -> Python object\nback = json.loads(text)\nprint(back["name"])  # \'Aman\' — a real dict again\n\n# Writing directly to a file\nwith open("user.json", "w") as f:\n    json.dump(user, f, indent=2)  # indent=2 makes it pretty-printed\n\n# Reading directly from a file\nwith open("user.json", "r") as f:\n    loaded = json.load(f)',
+        keyPoints: [
+          'json.dumps(obj): Python object -> JSON string',
+          'json.loads(text): JSON string -> Python object',
+          'json.dump(obj, file) / json.load(file): work directly with file objects, no manual string step',
+          'dict -> JSON object, list -> JSON array, True/False/None -> true/false/null',
+          'indent=2 in dumps/dump pretty-prints the JSON for readability',
+        ],
+        quiz: [
+          {
+            question: 'What does json.dumps(user) do?',
+            options: ['Reads a JSON file', 'Converts a Python object into a JSON-formatted string', 'Deletes the object', 'Converts JSON into a Python object'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which function lets you read JSON directly from an already-open file object?',
+            options: ['json.loads()', 'json.load()', 'json.read()', 'json.parse()'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does a Python dict become when converted with json.dumps()?',
+            options: ['A JSON array', 'A JSON object', 'A JSON string only', 'It cannot be converted'],
+            correctIndex: 1,
           },
         ],
       },
@@ -828,6 +955,17 @@ const advanced = [
               'list n*n for range(5)',
             ],
             correctIndex: 0,
+          },
+          {
+            question: "@shout wraps greet, and greet('riya') is called much later. When does the decorator's wrapping actually happen?",
+            options: [
+              'Only when greet is called, not before',
+              'Immediately when the file is loaded/defined — @shout replaces greet with wrapper right away; calling greet("riya") later actually calls wrapper',
+              'Decorators never actually run',
+              'Only if you call shout() manually',
+            ],
+            correctIndex: 1,
+            explanation: 'A decorator runs at DEFINITION time, not call time. `@shout` above `def greet` immediately calls shout(greet) and rebinds the name greet to whatever shout returns (here, wrapper) — so every later call to greet(...) is really calling wrapper(...).',
           },
         ],
         interviewQuestions: [
