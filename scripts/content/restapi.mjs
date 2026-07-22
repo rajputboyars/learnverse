@@ -60,6 +60,16 @@ const beginner = [
             options: ['Resource not found', 'Server error', 'Not authenticated', 'Bad request'],
             correctIndex: 2,
           },
+          {
+            question: 'In good REST API design, URLs should represent...',
+            options: ['Actions/verbs (e.g. /getCourse)', 'Resources/nouns (e.g. /courses/:id)', 'Random strings', 'SQL queries'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which status code indicates the client is authenticated but lacks permission for the action?',
+            options: ['401', '403', '404', '500'],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -104,6 +114,21 @@ const beginner = [
               'Converts responses to JSON',
               'Validates JSON schema',
             ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why should async route handlers be wrapped in try/catch?',
+            options: [
+              'It is unnecessary in Express',
+              'Unhandled promise rejections in async handlers can crash the process or leave requests hanging without a proper error response',
+              'try/catch makes routes run faster',
+              'Express requires it for syntax reasons',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Where should the error-handling middleware (4 params) be placed in an Express app?',
+            options: ['First, before any routes', 'Last, after all other routes and middleware', 'It does not matter', 'Inside every route handler'],
             correctIndex: 1,
           },
         ],
@@ -162,6 +187,26 @@ const intermediate = [
             ],
             correctIndex: 1,
           },
+          {
+            question: 'What is the purpose of the signature part of a JWT?',
+            options: [
+              'It encrypts the payload so no one can read it',
+              'It proves the token was issued by the server and was not tampered with',
+              'It stores the user\'s password',
+              'It is purely decorative',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why does JWT verification not require a database lookup?',
+            options: [
+              'JWTs are stored in a fast cache instead',
+              'The server can verify the signature using its secret, mathematically confirming authenticity without querying storage',
+              'JWTs never need to be verified',
+              'The database is queried but very quickly',
+            ],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -205,6 +250,26 @@ const intermediate = [
               'Authorization: Bearer <token>',
               'X-Auth-Token',
               'Cookie: jwt=<token>',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does the authorise(...roles) middleware in the example check?',
+            options: [
+              'Whether the JWT is expired',
+              'Whether req.user.role is included in the allowed roles list, rejecting with 403 if not',
+              'Whether the request body is valid JSON',
+              'Whether the user has a strong password',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What happens if authenticate middleware is skipped for a route that expects req.user?',
+            options: [
+              'Nothing, req.user is always available by default',
+              'req.user would be undefined, likely causing an error in any authorise or handler logic relying on it',
+              'The request is automatically authenticated another way',
+              'Express fills in a default guest user',
             ],
             correctIndex: 1,
           },
@@ -255,6 +320,26 @@ const intermediate = [
             question: 'What HTTP status code should you return for invalid input?',
             options: ['200', '401', '400', '500'],
             correctIndex: 2,
+          },
+          {
+            question: 'Why is client-side-only validation (e.g. HTML5 required attribute) not enough for security?',
+            options: [
+              'It is actually completely sufficient',
+              'An attacker can bypass the browser entirely and send raw requests directly to the API, skipping client-side checks',
+              'Client-side validation is always slower',
+              'Browsers do not support client-side validation',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does `safeParse` (as opposed to `parse`) do in Zod?',
+            options: [
+              'It throws an exception on invalid data',
+              'It returns a result object ({ success, data/error }) instead of throwing, letting you handle validation failures gracefully',
+              'It skips validation entirely',
+              'It only validates numbers',
+            ],
+            correctIndex: 1,
           },
         ],
         interviewQuestions: [
@@ -312,6 +397,26 @@ const advanced = [
             ],
             correctIndex: 1,
           },
+          {
+            question: 'Why should the error message be identical for "user not found" and "wrong password"?',
+            options: [
+              'It has no security benefit, just convenience',
+              'A different message for each case would let an attacker enumerate which emails are registered (user enumeration attack)',
+              'Express requires identical error messages',
+              'It makes the API faster',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does bcrypt do with the "salt rounds" (cost factor) parameter?',
+            options: [
+              'It sets the maximum password length',
+              'It controls how computationally expensive the hashing is, making brute-force attacks slower and costlier',
+              'It determines how many times the user can retry login',
+              'It has no effect on hashing',
+            ],
+            correctIndex: 1,
+          },
         ],
         interviewQuestions: [
           {
@@ -324,6 +429,163 @@ const advanced = [
               hinglish:
                 'Salt ek random value hai jo hashing se pehle password mein add ki jaati hai. Salt ke bina, identical passwords identical hashes produce karte hain — rainbow table (precomputed hash-to-password lookup) wala attacker ek saath kai passwords crack kar sakta hai. Har user ke liye unique salt ka matlab hai ki identical passwords alag hashes produce karte hain, rainbow tables ko defeat karte hain. bcrypt hash string ke part ke roop mein salt automatically generate aur store karta hai.',
             },
+          },
+        ],
+      },
+      {
+        title: 'Refresh Tokens & Token Rotation',
+        difficulty: 'hard',
+        tags: ['refresh-token', 'jwt', 'security', 'token-rotation'],
+        explanation: {
+          english:
+            "A short-lived JWT (e.g. 15 minutes) is much safer than a long-lived one — if it leaks, the attacker's window is small. But forcing users to log in again every 15 minutes is terrible UX. The **refresh token** pattern solves this by using TWO tokens with different lifetimes:\n\n- **Access token**: short-lived (e.g. 15 min), sent with every API request in the Authorization header, used to authenticate normal requests.\n- **Refresh token**: long-lived (e.g. 7-30 days), stored securely (an httpOnly cookie, NOT localStorage — this prevents JavaScript/XSS from stealing it), used ONLY to request a new access token when the old one expires. It's never sent with regular API calls.\n\nFlow: access token expires → the client calls a dedicated `/auth/refresh` endpoint, sending the refresh token → the server verifies it, checks it hasn't been revoked (against a stored list/DB), and issues a brand-new access token (and often a new refresh token too — this is **refresh token rotation**).\n\n**Refresh token rotation**: every time a refresh token is used, invalidate it and issue a new one. If a stolen, already-used refresh token is ever presented again, the server detects reuse and can revoke the ENTIRE token family — a strong signal of theft, since a legitimate client would never reuse an already-rotated token. This is why refresh tokens (unlike access tokens) usually need to be tracked server-side (in a database or Redis), even though JWTs are normally 'stateless'.",
+          hinglish:
+            "Ek short-lived JWT (jaise 15 minutes) ek long-lived se bahut safer hai — agar leak ho, attacker ka window chhota hota hai. Par users ko har 15 minutes mein dobara login karwana bahut bura UX hai. **Refresh token** pattern isse solve karta hai DO tokens use karke jinki lifetimes alag hoti hain:\n\n- **Access token**: short-lived (jaise 15 min), har API request ke saath Authorization header mein bheja jaata hai, normal requests authenticate karne ke liye use hota hai.\n- **Refresh token**: long-lived (jaise 7-30 days), securely store hota hai (ek httpOnly cookie, localStorage NAHI — ye JavaScript/XSS ko use chorane se rokta hai), sirf tab use hota hai jab expired access token ki jagah naya chahiye ho. Ye kabhi normal API calls ke saath nahi bheja jaata.\n\nFlow: access token expire hota hai → client ek dedicated `/auth/refresh` endpoint call karta hai, refresh token bhejte hue → server use verify karta hai, check karta hai ki wo revoke nahi hua (ek stored list/DB ke against), aur ek bilkul naya access token issue karta hai (aur aksar ek naya refresh token bhi — ye **refresh token rotation** hai).\n\n**Refresh token rotation**: har baar jab ek refresh token use hota hai, use invalidate karo aur naya issue karo. Agar ek stolen, already-used refresh token kabhi phir se present kiya jaaye, server reuse detect kar sakta hai aur POORI token family revoke kar sakta hai — theft ka ek strong signal, kyunki ek legitimate client kabhi bhi already-rotated token reuse nahi karega. Isiliye refresh tokens (access tokens ke ulat) usually server-side track karne padte hain (database ya Redis mein), chahe JWTs normally 'stateless' hote hain.",
+        },
+        dailyLifeExample:
+          "Access token waise hai jaise ek din ka event pass — usi din ke liye valid, kho jaaye toh zyada nuksan nahi. Refresh token waise hai jaise ek locker mein rakhi hui ID (secure httpOnly cookie) jise tum sirf naya event pass lene ke liye use karte ho, kabhi event mein directly nahi dikhate. Token rotation waise hai jaise har baar naya event pass lete waqt purani ID ko cancel karke ek nayi de dena — agar koi purani cancelled ID use kare, security alert baj jaata hai.",
+        codeExample:
+          "// Issue both tokens at login\nconst accessToken = jwt.sign({ userId }, ACCESS_SECRET, { expiresIn: '15m' });\nconst refreshToken = jwt.sign({ userId }, REFRESH_SECRET, { expiresIn: '7d' });\n\n// Store refresh token securely — httpOnly cookie, not accessible to JS\nres.cookie('refreshToken', refreshToken, {\n  httpOnly: true,\n  secure: true,     // HTTPS only\n  sameSite: 'strict',\n});\n// Also store a hash of it server-side to allow revocation checks\nawait RefreshToken.create({ userId, tokenHash: hash(refreshToken) });\n\n// /auth/refresh endpoint\napp.post('/auth/refresh', async (req, res) => {\n  const oldToken = req.cookies.refreshToken;\n  const stored = await RefreshToken.findOne({ tokenHash: hash(oldToken) });\n  if (!stored) return res.status(401).json({ message: 'Token reused or invalid — revoking all sessions' });\n\n  await RefreshToken.deleteOne({ _id: stored._id }); // rotate: invalidate old one\n  const newAccessToken = jwt.sign({ userId: stored.userId }, ACCESS_SECRET, { expiresIn: '15m' });\n  const newRefreshToken = jwt.sign({ userId: stored.userId }, REFRESH_SECRET, { expiresIn: '7d' });\n  await RefreshToken.create({ userId: stored.userId, tokenHash: hash(newRefreshToken) });\n  res.cookie('refreshToken', newRefreshToken, { httpOnly: true, secure: true, sameSite: 'strict' });\n  res.json({ accessToken: newAccessToken });\n});",
+        keyPoints: [
+          'Access tokens are short-lived (minutes) to limit damage if leaked; refresh tokens are long-lived (days/weeks)',
+          'Refresh tokens should be stored in an httpOnly cookie, never localStorage, to prevent XSS theft',
+          'A dedicated /auth/refresh endpoint exchanges a valid refresh token for a new access token',
+          'Refresh token rotation invalidates the old refresh token every time it is used, issuing a new one',
+          'Detecting reuse of an already-rotated refresh token is a strong signal of theft and can trigger revoking the entire session',
+        ],
+        quiz: [
+          {
+            question: 'Why use a short-lived access token together with a long-lived refresh token, instead of one long-lived token?',
+            options: [
+              'It has no real benefit, just extra complexity',
+              'It limits the damage window if the access token leaks, while avoiding forcing users to log in constantly',
+              'It makes the app run faster',
+              'Long-lived tokens are not supported by JWT',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Where should a refresh token be stored on the client, and why?',
+            options: [
+              'In localStorage, because it is easy to access',
+              'In an httpOnly cookie, because JavaScript (and therefore XSS attacks) cannot read it',
+              'In a URL query parameter for convenience',
+              'In a public JavaScript variable',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does refresh token rotation detect and prevent?',
+            options: [
+              'Nothing meaningful, it is purely cosmetic',
+              'Reuse of a stolen, already-used refresh token — a strong signal of theft that can trigger revoking the whole session',
+              'Slow database queries',
+              'Expired access tokens only',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Rate Limiting & API Abuse Prevention',
+        difficulty: 'medium',
+        tags: ['rate-limiting', 'security', 'abuse-prevention'],
+        explanation: {
+          english:
+            "Without limits, a single client (malicious or just buggy) can hammer your API with thousands of requests per second — exhausting server resources, running up cloud bills, or brute-forcing a login endpoint by trying millions of password guesses. **Rate limiting** caps how many requests a client can make within a time window (e.g. 100 requests per 15 minutes per IP).\n\nCommon algorithms:\n- **Fixed window**: count requests in a fixed time bucket (e.g. per minute); resets to zero at the boundary. Simple but allows a burst right at the window edge (double the limit across a boundary).\n- **Sliding window**: a more accurate rolling count that avoids the edge-burst problem.\n- **Token bucket**: each client has a bucket of tokens that refill over time; each request consumes a token. Allows short bursts (using saved-up tokens) while enforcing a steady average rate — the most commonly used algorithm in practice.\n\nIn Express, the `express-rate-limit` package implements this in a few lines. Rate limiting is applied per IP, per API key, or per authenticated user, and is especially critical on sensitive endpoints like `/login` (to stop brute-force credential attacks) and `/auth/refresh`.\n\nWhen a client exceeds the limit, return **HTTP 429 Too Many Requests**, often with a `Retry-After` header telling them when to try again.",
+          hinglish:
+            "Limits ke bina, ek single client (malicious ya bas buggy) tumhari API ko har second hazaron requests se hammer kar sakta hai — server resources khatam karte hue, cloud bills badhate hue, ya login endpoint ko brute-force karte hue millions of password guesses try karke. **Rate limiting** ek time window ke andar client kitni requests kar sakta hai use cap karta hai (jaise 100 requests per 15 minutes per IP).\n\nCommon algorithms:\n- **Fixed window**: ek fixed time bucket mein requests count karo (jaise per minute); boundary pe zero pe reset. Simple par window edge pe ek burst allow karta hai (boundary ke across double limit).\n- **Sliding window**: ek zyada accurate rolling count jo edge-burst problem avoid karta hai.\n- **Token bucket**: har client ka ek bucket hai tokens ka jo time ke saath refill hote hain; har request ek token consume karti hai. Short bursts allow karta hai (saved-up tokens use karke) jabki steady average rate enforce karta hai — practice mein sabse commonly used algorithm.\n\nExpress mein, `express-rate-limit` package ise kuch lines mein implement karta hai. Rate limiting per IP, per API key, ya per authenticated user apply hoti hai, aur especially critical hai sensitive endpoints jaise `/login` (brute-force credential attacks rokne ke liye) aur `/auth/refresh` pe.\n\nJab koi client limit exceed kare, **HTTP 429 Too Many Requests** return karo, aksar ek `Retry-After` header ke saath jo unhe batata hai kab dobara try karein.",
+        },
+        dailyLifeExample:
+          "Rate limiting waise hai jaise ek water park mein har ride pe ek limit hona ki ek visitor kitni baar ride kar sakta hai ek ghante mein — taaki line mein sab ko fair chance mile aur koi ek hi banda poori ride block na kar de. Token bucket waise hai jaise har visitor ko har ghante 5 naye ride-tokens milte hain — agar unhone save kiye hain to ek saath jaldi-jaldi bhi use kar sakte hain, par overall average rate control mein rehti hai.",
+        codeExample:
+          "// Express with express-rate-limit\nimport rateLimit from 'express-rate-limit';\n\n// General API limiter\nconst apiLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000, // 15 minutes\n  max: 100,                  // 100 requests per IP per window\n  message: { message: 'Too many requests, please try again later.' },\n  standardHeaders: true,     // adds RateLimit-* headers\n});\napp.use('/api/', apiLimiter);\n\n// Stricter limiter for login (prevent brute-force)\nconst loginLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 5,                    // only 5 login attempts per IP per 15 min\n  message: { message: 'Too many login attempts, try again later.' },\n});\napp.post('/api/auth/login', loginLimiter, loginHandler);\n\n// Response when limit exceeded:\n// HTTP/1.1 429 Too Many Requests\n// Retry-After: 600",
+        keyPoints: [
+          'Rate limiting caps how many requests a client can make in a time window, protecting against abuse/DDoS/brute-force',
+          'Fixed window: simple but allows a burst at window edges; sliding window fixes that',
+          'Token bucket: refills tokens over time, allows short bursts while enforcing a steady average rate',
+          'Sensitive endpoints (login, refresh) need stricter limits to prevent credential brute-forcing',
+          'Exceeding the limit should return HTTP 429 with a Retry-After header',
+        ],
+        quiz: [
+          {
+            question: 'What is the main purpose of rate limiting an API?',
+            options: [
+              'To make the API slower for everyone',
+              'To cap how many requests a client can make in a time window, protecting against abuse, overload, and brute-force attacks',
+              'To encrypt API responses',
+              'To validate request body schemas',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why does the login endpoint typically need a stricter rate limit than general API endpoints?',
+            options: [
+              'Login is inherently slower to process',
+              'To prevent an attacker from brute-forcing passwords by trying many credential combinations rapidly',
+              'Login endpoints do not need rate limiting at all',
+              'It has no special security concern',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What HTTP status code should be returned when a client exceeds the rate limit?',
+            options: ['200', '404', '429', '500'],
+            correctIndex: 2,
+          },
+        ],
+      },
+      {
+        title: 'OAuth 2.0 Basics (Login with Google/GitHub)',
+        difficulty: 'hard',
+        tags: ['oauth', 'sso', 'third-party-auth'],
+        explanation: {
+          english:
+            "\"Login with Google\" buttons use **OAuth 2.0**, a protocol that lets your app get LIMITED access to a user's account on another service (Google, GitHub) WITHOUT ever seeing their password. This solves a real problem: users don't want to create yet another password, and your app definitely doesn't want the liability of storing passwords for accounts it doesn't own.\n\nKey roles: the **Resource Owner** (the user), the **Client** (your app), the **Authorization Server** (Google's login system), and the **Resource Server** (Google's API holding the user's data).\n\nThe most common flow — **Authorization Code flow**:\n1. Your app redirects the user to Google's login/consent screen, with your app's `client_id` and requested `scope` (e.g. 'read profile and email').\n2. The user logs into Google (your app never sees their Google password) and approves the permissions.\n3. Google redirects back to your app with a temporary `authorization code`.\n4. Your BACKEND exchanges that code (plus your secret `client_secret`) for an `access_token` — this step happens server-to-server, so the token never passes through the browser where it could be intercepted.\n5. Your backend uses the access token to fetch the user's profile from Google's API, then creates/logs in the corresponding user in YOUR database and issues YOUR OWN JWT/session for subsequent requests.\n\nImportant distinction: OAuth is fundamentally about AUTHORIZATION (granting access to resources), not authentication — **OpenID Connect (OIDC)**, built on top of OAuth 2.0, adds a standardized identity layer (an `id_token`) specifically for 'who is this user' login flows, which is what most 'Sign in with Google' implementations actually use under the hood.",
+          hinglish:
+            "\"Login with Google\" buttons **OAuth 2.0** use karte hain, ek protocol jo tumhari app ko user ke account pe ek doosri service (Google, GitHub) par LIMITED access deta hai unka password kabhi dekhe BINA. Ye ek real problem solve karta hai: users ek aur password nahi banana chahte, aur tumhari app definitely un accounts ke passwords store karne ki liability nahi chahti jo unke apne nahi hain.\n\nKey roles: **Resource Owner** (user), **Client** (tumhari app), **Authorization Server** (Google ka login system), aur **Resource Server** (Google ki API jisme user ka data hai).\n\nSabse common flow — **Authorization Code flow**:\n1. Tumhari app user ko Google ke login/consent screen pe redirect karti hai, tumhari app ke `client_id` aur requested `scope` (jaise 'profile aur email padhna') ke saath.\n2. User Google mein login karta hai (tumhari app kabhi unka Google password nahi dekhti) aur permissions approve karta hai.\n3. Google tumhari app pe wapas redirect karta hai ek temporary `authorization code` ke saath.\n4. Tumhara BACKEND us code ko (plus tumhara secret `client_secret`) ek `access_token` se exchange karta hai — ye step server-to-server hota hai, isliye token kabhi browser se nahi guzarta jahan wo intercept ho sake.\n5. Tumhara backend access token use karke Google ki API se user ka profile fetch karta hai, phir tumhare DATABASE mein corresponding user create/login karta hai aur baad ki requests ke liye APNA OWN JWT/session issue karta hai.\n\nImportant distinction: OAuth fundamentally AUTHORIZATION ke baare mein hai (resources ka access grant karna), authentication nahi — **OpenID Connect (OIDC)**, jo OAuth 2.0 ke upar built hai, ek standardized identity layer add karta hai (ek `id_token`) specifically 'ye user kaun hai' wale login flows ke liye, jo ki zyadatar 'Sign in with Google' implementations actually use karte hain under the hood.",
+        },
+        dailyLifeExample:
+          "OAuth waise hai jaise ek hotel valet parking — tum apni gaadi ki chaabi (password) valet ko nahi dete, balki ek limited-access valet key deta hai jisse wo sirf park kar sake, poora ghar nahi khol sake. Authorization code flow waise hai jaise ek temporary token lena jo baad mein counter pe (backend) exchange karke asli access milta hai — bicch mein koi bhi is temporary token ko dekh le, use akela kuch nahi mil sakta bina secret ke.",
+        codeExample:
+          "// Simplified Authorization Code flow with Passport.js (Google OAuth)\nimport passport from 'passport';\nimport { Strategy as GoogleStrategy } from 'passport-google-oauth20';\n\npassport.use(new GoogleStrategy({\n  clientID: process.env.GOOGLE_CLIENT_ID,\n  clientSecret: process.env.GOOGLE_CLIENT_SECRET,\n  callbackURL: '/auth/google/callback',\n}, async (accessToken, refreshToken, profile, done) => {\n  // profile contains { id, displayName, emails, photos } from Google\n  let user = await User.findOne({ googleId: profile.id });\n  if (!user) {\n    user = await User.create({\n      googleId: profile.id,\n      email: profile.emails[0].value,\n      name: profile.displayName,\n    });\n  }\n  done(null, user); // Passport creates YOUR app's session/JWT from here\n}));\n\n// Routes\napp.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));\napp.get('/auth/google/callback',\n  passport.authenticate('google', { session: false }),\n  (req, res) => {\n    const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET);\n    res.redirect(`/dashboard?token=${token}`);\n  }\n);",
+        keyPoints: [
+          'OAuth 2.0 lets your app access a user\'s account on another service (Google, GitHub) without ever seeing their password',
+          'Key roles: Resource Owner (user), Client (your app), Authorization Server, Resource Server',
+          'Authorization Code flow: redirect to provider -> user approves -> app gets a code -> backend exchanges code for an access token',
+          'The token exchange happens server-to-server so the access token never passes through the browser',
+          'OAuth is about authorization (access); OpenID Connect (OIDC), built on OAuth, adds the identity/authentication layer used for "Sign in with X"',
+        ],
+        quiz: [
+          {
+            question: 'What core problem does "Login with Google" (OAuth) solve for your app?',
+            options: [
+              'It makes your database faster',
+              "It lets your app access limited parts of a user's Google account without ever seeing or storing their Google password",
+              'It replaces the need for HTTPS',
+              'It automatically writes your API routes',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why does the authorization code get exchanged for an access token on the BACKEND rather than in the browser?',
+            options: [
+              'It could be done in the browser just as safely',
+              'So the client_secret and the resulting access token never pass through the browser, where they could be intercepted or exposed',
+              'Browsers cannot make HTTP requests',
+              'It is purely a performance optimization',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the key difference between OAuth 2.0 and OpenID Connect (OIDC)?',
+            options: [
+              'They are exactly the same protocol',
+              'OAuth 2.0 is fundamentally about authorization (granting access to resources); OIDC builds on it to add a standardized identity/authentication layer',
+              'OIDC replaces OAuth entirely with no relation',
+              'OAuth is only for mobile apps',
+            ],
+            correctIndex: 1,
           },
         ],
       },
