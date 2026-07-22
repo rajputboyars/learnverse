@@ -216,6 +216,123 @@ const pipeline = [
           },
         ],
       },
+      {
+        title: 'Chunking Strategies: How to Split Documents',
+        difficulty: 'hard',
+        tags: ['chunking', 'preprocessing', 'strategy'],
+        explanation: {
+          english:
+            "The basic RAG pipeline mentions 'chunk into 300-800 tokens with overlap', but WHICH way you split a document dramatically affects retrieval quality. Fixed-size chunking (split every N tokens/characters) is simplest and fast, but can slice a sentence — or even an idea — right in half. Recursive/structural chunking splits along natural boundaries first (paragraphs, then sentences, then words) only falling back to a hard cut when a section is still too big — this respects the document's actual structure. Semantic chunking goes further: it uses embeddings to detect where the TOPIC actually shifts, grouping sentences that are semantically related into one chunk, even if that means variable chunk sizes. There's no single 'best' strategy — it depends on your documents (tables and code need different handling than prose) and needs to be evaluated on YOUR retrieval quality.",
+          hinglish:
+            "Basic RAG pipeline 'overlap ke saath 300-800 tokens mein chunk karo' bolta hai, par tum document ko KAISE split karte ho retrieval quality ko dramatically affect karta hai. Fixed-size chunking (har N tokens/characters pe split) sabse simple aur fast hai, par ek sentence — ya ek idea — ko bilkul beech se kaat sakta hai. Recursive/structural chunking pehle natural boundaries (paragraphs, phir sentences, phir words) ke along split karta hai, sirf tab hard cut karta hai jab koi section abhi bhi bahut bada ho — ye document ki asli structure ka respect karta hai. Semantic chunking aur aage jaata hai: ye embeddings use karta hai ye detect karne ke liye ki TOPIC actually kaha shift hota hai, semantically related sentences ko ek chunk mein group karke, chahe iska matlab variable chunk sizes ho. Koi ek 'best' strategy nahi hai — ye tumhare documents pe depend karta hai (tables aur code ko prose se alag handling chahiye) aur TUMHARI retrieval quality pe evaluate karna padta hai.",
+        },
+        dailyLifeExample:
+          "Fixed-size chunking ek kitaab ko har 50 pages pe kaat dena hai, chahe beech mein ek chapter kyun na kat jaaye. Recursive chunking chapters ke natural breaks pe kaatna hai — pehle chapters, phir zaroorat pade to paragraphs. Semantic chunking ek smart editor jaisa hai jo padh ke samajhta hai 'ye topic yahan khatam hota hai, naya topic yahan shuru' — chahe wo section chhota ho ya bada.",
+        codeExample:
+          "# Fixed-size: simple, fast, can cut ideas in half\ndef fixed_chunk(text, size=500, overlap=50):\n    chunks = []\n    for i in range(0, len(text), size - overlap):\n        chunks.append(text[i:i + size])\n    return chunks\n\n# Recursive/structural: respects paragraph/sentence boundaries first\n# (conceptual — libraries like LangChain's RecursiveCharacterTextSplitter do this)\n# 1. Try splitting on '\\n\\n' (paragraphs)\n# 2. If a piece is still too big, try '\\n' (lines)\n# 3. If still too big, try '. ' (sentences)\n# 4. Only as a last resort, hard-cut by character count\n\n# Semantic: group sentences by topic similarity using embeddings\n# 1. Embed each sentence\n# 2. Compare consecutive sentence embeddings\n# 3. Start a NEW chunk when similarity drops sharply (topic shift detected)\n# 4. Otherwise keep adding sentences to the current chunk",
+        keyPoints: [
+          'Fixed-size chunking: simplest and fastest, but can cut sentences/ideas in half',
+          'Recursive/structural chunking: splits on paragraph -> sentence -> word boundaries, respecting document structure',
+          'Semantic chunking: uses embeddings to detect actual topic shifts, producing variable-sized, topically-coherent chunks',
+          'The right strategy depends on your document type (prose vs tables vs code)',
+          'Always evaluate chunking strategy against YOUR actual retrieval quality, not just intuition',
+        ],
+        quiz: [
+          {
+            question: 'What is the main downside of simple fixed-size chunking?',
+            options: ['It is too slow', 'It can slice a sentence or idea right in half, regardless of document structure', 'It cannot be used at all', 'It only works with images'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does semantic chunking use to decide where to split a document?',
+            options: ['A fixed character count only', 'Embeddings, to detect where the topic actually shifts between sentences', 'Random splitting', 'File size'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Is there a single "best" chunking strategy for all documents?',
+            options: ['Yes, semantic chunking is always best', 'No — it depends on the document type and should be evaluated against your own retrieval quality', 'Yes, fixed-size is always best', 'Chunking strategy never matters'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Hybrid Search & Re-ranking',
+        difficulty: 'hard',
+        tags: ['hybrid-search', 'reranking', 'retrieval-quality'],
+        explanation: {
+          english:
+            "Pure semantic (vector) search is great at understanding MEANING but can miss exact matches — searching for an error code like 'ERR_4042' might not retrieve a document containing that exact string, because the embedding focuses on general meaning, not exact tokens. Hybrid search combines semantic search with traditional keyword search (like BM25, the classic 'exact word matching with smart weighting' algorithm), then merges both result sets — catching both meaning-based AND exact matches. Re-ranking adds a second, more expensive but more accurate step: after retrieving, say, the top 20 candidates cheaply (via vector/hybrid search), a separate, more powerful re-ranking model re-scores just those 20 with deeper analysis and reorders them, so the final top-k passed to the LLM is higher quality than what fast retrieval alone could achieve.",
+          hinglish:
+            "Pure semantic (vector) search MEANING samajhne mein great hai par exact matches miss kar sakta hai — 'ERR_4042' jaise error code ko search karna shayad wo exact string wala document retrieve na kare, kyunki embedding general meaning pe focus karta hai, exact tokens pe nahi. Hybrid search semantic search ko traditional keyword search (jaise BM25, classic 'exact word matching with smart weighting' algorithm) ke saath combine karta hai, phir dono result sets ko merge karta hai — meaning-based AUR exact matches dono pakadte hue. Re-ranking ek doosra, zyada expensive par zyada accurate step add karta hai: retrieve karne ke baad, jaise top 20 candidates sasti tarah (vector/hybrid search se), ek alag, zyada powerful re-ranking model sirf un 20 ko deeper analysis se re-score karta hai aur reorder karta hai, isliye final top-k jo LLM ko diya jaata hai fast retrieval akele se behtar quality ka hota hai.",
+        },
+        dailyLifeExample:
+          "Semantic search akela ek librarian jaisa hai jo sirf 'iska matlab kya hai' samajhta hai, exact spelling ko nazar-andaz karta hai. Hybrid search wahi librarian hai plus ek ctrl+F search jo exact words dhoondhta hai — dono milke poora coverage dete hain. Re-ranking ek senior expert jaisa hai jo top 20 shortlisted candidates ko ek final round mein dobara, zyada dhyan se, review karta hai — final selection improve karta hai.",
+        codeExample:
+          "# Hybrid search: combine vector (semantic) + keyword (BM25) results\nvector_results = vector_db.search(embed(query), k=20)      # meaning-based\nkeyword_results = bm25_index.search(query, k=20)           # exact-term-based\n\n# Merge and deduplicate (many strategies exist — e.g. reciprocal rank fusion)\ncombined = merge_and_dedupe(vector_results, keyword_results)\n\n# Re-ranking: cheap retrieval first, then an expensive precise re-score\ncandidates = combined[:20]                     # cheap, broad retrieval\nreranked = reranker_model.score(query, candidates)  # expensive, precise\ntop_k = reranked[:3]                           # only the best 3 go to the LLM prompt",
+        keyPoints: [
+          'Pure semantic search can miss exact matches (error codes, IDs, specific terms) because it focuses on meaning',
+          'Hybrid search combines vector (semantic) search with keyword search (like BM25) for broader coverage',
+          "Re-ranking retrieves a larger, cheap candidate set first, then uses a more accurate (but expensive) model to re-score just those",
+          "This two-stage approach (cheap broad retrieval + expensive precise re-ranking) balances speed and quality",
+          'Both techniques improve retrieval quality beyond what plain vector search alone can achieve',
+        ],
+        quiz: [
+          {
+            question: "Why might pure semantic (vector) search fail to find a document containing an exact error code like 'ERR_4042'?",
+            options: ['Vector search cannot handle numbers at all', 'Embeddings capture general meaning, not exact token matches, so an unusual exact string might not surface as semantically similar', 'The document was not indexed', 'Error codes are always excluded from search'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does hybrid search combine?',
+            options: ['Two different LLMs', 'Semantic (vector) search with traditional keyword search (like BM25)', 'Two vector databases', 'Image and text search only'],
+            correctIndex: 1,
+          },
+          {
+            question: 'In the re-ranking approach, why retrieve a larger candidate set cheaply first, THEN re-score just those with a more expensive model?',
+            options: ['It has no real benefit', 'Running the expensive, accurate model on everything would be too slow/costly; narrowing down cheaply first then refining balances speed and quality', 'The expensive model cannot process more than 20 items ever', 'Cheap retrieval is always more accurate'],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Evaluating RAG Systems',
+        difficulty: 'hard',
+        tags: ['evaluation', 'metrics', 'testing'],
+        explanation: {
+          english:
+            "You cannot improve what you don't measure — RAG systems need evaluation on TWO separate stages, since a failure in either one breaks the final answer. Retrieval evaluation asks: 'did we fetch the right chunks?' — common metrics include Recall@k (of all truly relevant chunks, what fraction appeared in your top-k results?) and Precision@k (of the k chunks you retrieved, what fraction were actually relevant?). Generation evaluation asks: 'given good context, did the LLM answer well?' — key checks include faithfulness/groundedness (does the answer only use facts actually present in the retrieved context, with no hallucination?) and answer relevance (does it actually address the question?). Frameworks like RAGAS automate these checks using an LLM-as-judge, but building even a small hand-labeled test set of realistic questions with known-correct answers is the single most valuable thing you can do to catch regressions.",
+          hinglish:
+            "Jo measure nahi karte use improve nahi kar sakte — RAG systems ko DO alag stages pe evaluation chahiye, kyunki kisi bhi ek mein failure final answer ko tod deta hai. Retrieval evaluation poochta hai: 'kya humne sahi chunks fetch kiye?' — common metrics: Recall@k (saare truly relevant chunks mein se, kitna fraction tumhare top-k results mein aaya?) aur Precision@k (jo k chunks retrieve kiye, unme se kitna fraction actually relevant tha?). Generation evaluation poochta hai: 'achha context milne pe, kya LLM ne achha answer diya?' — key checks: faithfulness/groundedness (kya answer sirf retrieved context mein actually present facts use karta hai, koi hallucination nahi?) aur answer relevance (kya ye actually question address karta hai?). RAGAS jaise frameworks LLM-as-judge use karke ye checks automate karte hain, par realistic questions ka ek chhota, hand-labeled test set banana jispe known-correct answers hon, tumhare regressions pakadne ke liye sabse valuable cheez hai jo tum kar sakte ho.",
+        },
+        dailyLifeExample:
+          "Retrieval evaluation ek library assistant ko test karna hai: 'kitni baar sahi kitaabein laate ho?' (Recall/Precision). Generation evaluation ek student ko test karna hai jise sahi kitaabein di gayi hain: 'kya wo unse sahi, honest answer likhta hai, ya khud se kuch bana leta hai (hallucination)?' Dono tests alag hain — ek achhi library ke saath ek galat student bhi galat answer de sakta hai.",
+        codeExample:
+          "# Retrieval metrics (conceptual)\ndef recall_at_k(retrieved_chunks, truly_relevant_chunks, k):\n    top_k = retrieved_chunks[:k]\n    hits = len(set(top_k) & set(truly_relevant_chunks))\n    return hits / len(truly_relevant_chunks)  # of all relevant, how many did we find?\n\ndef precision_at_k(retrieved_chunks, truly_relevant_chunks, k):\n    top_k = retrieved_chunks[:k]\n    hits = len(set(top_k) & set(truly_relevant_chunks))\n    return hits / k  # of what we retrieved, how much was relevant?\n\n# Generation evaluation (conceptual, using an LLM-as-judge)\n# faithfulness_score = judge_llm.check(\n#     'Does this answer ONLY use facts from the provided context?',\n#     context=retrieved_chunks, answer=generated_answer\n# )\n\n# The single most valuable thing: a small hand-labeled test set\ntest_set = [\n    {'question': 'What is the return policy?', 'expected_answer_contains': ['30 days', 'receipt']},\n    # ... 20-50 realistic questions with known-good answers ...\n]",
+        keyPoints: [
+          'RAG evaluation needs two separate stages: retrieval quality AND generation quality',
+          'Recall@k: of all truly relevant chunks, what fraction did retrieval actually find in the top-k?',
+          'Precision@k: of the chunks retrieved, what fraction were actually relevant?',
+          'Faithfulness/groundedness: does the generated answer only use facts present in the retrieved context (no hallucination)?',
+          'A small hand-labeled test set of realistic questions is the single most valuable tool for catching regressions',
+        ],
+        quiz: [
+          {
+            question: 'Why does RAG need evaluation at TWO separate stages (retrieval AND generation)?',
+            options: ['One combined score is always sufficient', 'A failure in either stage breaks the final answer — good retrieval with bad generation (or vice versa) both produce a bad result, so you must diagnose which one failed', 'Only generation needs evaluation', 'Only retrieval needs evaluation'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does Recall@k measure?',
+            options: ['How fast retrieval runs', 'Of all the truly relevant chunks that exist, what fraction appeared in your top-k retrieved results', 'The size of the vector database', 'How many tokens the LLM used'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does "faithfulness" or "groundedness" check in generation evaluation?',
+            options: ['How fast the LLM responds', 'Whether the generated answer only uses facts actually present in the retrieved context, with no hallucination', 'How long the answer is', 'How many chunks were retrieved'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
 ];
