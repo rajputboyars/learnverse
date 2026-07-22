@@ -112,6 +112,45 @@ const linearAlgebra = [
           },
         ],
       },
+      {
+        title: 'Eigenvalues & Eigenvectors: The Math Behind PCA',
+        difficulty: 'hard',
+        tags: ['eigenvalues', 'eigenvectors', 'pca'],
+        explanation: {
+          english:
+            "Most vectors change DIRECTION when you multiply them by a matrix (a transformation). But for any square matrix, there are special vectors that only get STRETCHED or SHRUNK — never rotated — by that transformation. These are eigenvectors, and the amount they get stretched by is their eigenvalue: `A @ v = λ * v` (the matrix A times eigenvector v equals just a scalar λ times v — no direction change). In ML, this powers PCA (Principal Component Analysis): the eigenvectors of a dataset's covariance matrix point in the directions of maximum spread (variance) in the data, and their eigenvalues tell you HOW MUCH variance each direction captures — letting you keep only the top few directions and discard the rest with minimal information loss.",
+          hinglish:
+            "Zyaadatar vectors DIRECTION badal dete hain jab tum unhe ek matrix (ek transformation) se multiply karte ho. Par kisi bhi square matrix ke liye, kuch special vectors hote hain jo sirf STRETCH ya SHRINK hote hain — kabhi rotate nahi hote — us transformation se. Ye eigenvectors hain, aur jitna wo stretch hote hain wo unka eigenvalue hai: `A @ v = λ * v` (matrix A ka eigenvector v se multiply karna sirf ek scalar λ ka v se multiply karne jaisa hai — koi direction change nahi). ML mein, ye PCA (Principal Component Analysis) ko power deta hai: ek dataset ki covariance matrix ke eigenvectors data mein maximum spread (variance) ki directions batate hain, aur unke eigenvalues batate hain ki har direction KITNA variance capture karti hai — isse tum sirf top kuch directions rakh sakte ho aur baaki chhod sakte ho minimal information loss ke saath.",
+        },
+        dailyLifeExample:
+          "Eigenvector ek compass ki soi jaisa hai jo North-South line pe hai — chahe zameen ghumti rahe (transformation), wo soi apni hi line pe rehti hai, bas lambi ya chhoti ho sakti hai (eigenvalue), ghoomti nahi. PCA ek photo ko crop karne jaisa hai — jo directions mein sabse zyada 'interesting variation' hai (bade eigenvalues) unhe rakho, baaki (chhote eigenvalues) crop kar do bina zyada detail khoye.",
+        codeExample:
+          "import numpy as np\n\nA = np.array([[2, 0],\n              [0, 3]])\n\neigenvalues, eigenvectors = np.linalg.eig(A)\nprint('Eigenvalues:', eigenvalues)   # [2. 3.]\nprint('Eigenvectors:\\n', eigenvectors)\n\n# Verify: A @ v == eigenvalue * v (no direction change, just scaling)\nv = eigenvectors[:, 0]\nlam = eigenvalues[0]\nprint(np.allclose(A @ v, lam * v))   # True\n\n# In PCA: eigenvectors of the covariance matrix = principal component directions\n# eigenvalues = how much variance each direction explains\n# Keep the top-k eigenvectors with the largest eigenvalues -> dimensionality reduction",
+        keyPoints: [
+          'An eigenvector of a matrix only gets scaled (stretched/shrunk), never rotated, by that matrix',
+          'The eigenvalue is the scaling factor: A @ v = λ * v',
+          "In PCA, eigenvectors of the covariance matrix point in the data's directions of maximum spread",
+          'Eigenvalues tell you how much variance each direction (eigenvector) explains',
+          'Keeping only the top eigenvectors (by eigenvalue) is how PCA reduces dimensions with minimal information loss',
+        ],
+        quiz: [
+          {
+            question: 'What makes a vector an "eigenvector" of a matrix A?',
+            options: ['It has the largest values', 'Multiplying it by A only scales it (stretches/shrinks) without changing its direction', 'It is always [1, 1]', 'It must be a unit vector'],
+            correctIndex: 1,
+          },
+          {
+            question: 'In A @ v = λ * v, what does λ (the eigenvalue) represent?',
+            options: ['The direction of v', 'The scaling factor applied to v by the transformation', 'The number of dimensions', 'Always zero'],
+            correctIndex: 1,
+          },
+          {
+            question: 'In PCA, what do the eigenvalues of the covariance matrix tell you?',
+            options: ['Nothing useful', 'How much variance each corresponding eigenvector (direction) explains in the data', 'The number of data points', 'The mean of the data'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
 ];
@@ -213,6 +252,45 @@ const calculus = [
               hinglish:
                 'Gradient descent ek iterative optimisation algorithm hai jo loss function ko minimise karta hai — parameters ko gradient ki negative direction mein (learning rate se scale karke) baar-baar update karke, jab tak loss converge na ho jaye.',
             },
+          },
+        ],
+      },
+      {
+        title: 'The Chain Rule: How Backpropagation Really Works',
+        difficulty: 'hard',
+        tags: ['chain-rule', 'backpropagation', 'derivatives'],
+        explanation: {
+          english:
+            "A neural network is a chain of functions: input -> layer 1 -> layer 2 -> ... -> loss. To do gradient descent, you need the gradient of the LOSS with respect to EVERY weight, even ones buried deep in early layers, far from the loss. The chain rule from calculus is exactly the tool for this: if y depends on u, and u depends on x, then dy/dx = dy/du * du/dx — you multiply the derivatives along the chain. Backpropagation applies the chain rule layer by layer, working BACKWARD from the loss: it computes how much the loss changes with respect to the last layer's output, then uses that to compute the change with respect to the second-to-last layer, and so on, all the way back to the first layer — reusing each layer's result instead of recomputing everything from scratch.",
+          hinglish:
+            "Ek neural network functions ki ek chain hai: input -> layer 1 -> layer 2 -> ... -> loss. Gradient descent karne ke liye, tumhe LOSS ka gradient HAR weight ke respect mein chahiye, chahe wo early layers mein kitni bhi deep gadi ho, loss se bahut door. Calculus ka chain rule exactly isi ke liye tool hai: agar y, u pe depend kare, aur u, x pe depend kare, to dy/dx = dy/du * du/dx — tum chain ke saath derivatives ko multiply karte ho. Backpropagation chain rule ko layer-by-layer apply karta hai, loss se BACKWARD kaam karte hue: ye pehle calculate karta hai ki loss last layer ke output ke respect mein kitna badalta hai, phir usse use karta hai second-to-last layer ke respect mein change calculate karne ke liye, aur aise hi first layer tak — har layer ka result reuse karte hue, sab kuch scratch se dobara compute karne ke bajaye.",
+        },
+        dailyLifeExample:
+          "Chain rule ek 'Chinese whispers' game jaisa hai chala ke ulta — agar tumhe pata karna hai ki pehle bande ke message mein chhoti si galti aakhri bande tak kitna asar dalegi, tumhe har step ke 'asar' (derivative) ko chain mein multiply karna padega. Backpropagation isi asar ko AAKHRI bande se PEHLE bande tak, ek-ek step peeche jaate hue calculate karta hai — har step ka kaam dobara nahi karna padta.",
+        codeExample:
+          "# Simple chain: loss = (w * x - target)^2, with an extra layer: y = w * x, loss = (y - target)^2\n# We want d(loss)/dw using the chain rule\n\nx = 2.0\nw = 3.0\ntarget = 10.0\n\n# Forward pass\ny = w * x            # y = 6.0\nloss = (y - target) ** 2   # loss = 16.0\n\n# Backward pass (chain rule): d(loss)/dw = d(loss)/dy * dy/dw\nd_loss_d_y = 2 * (y - target)   # derivative of (y-target)^2 w.r.t. y  -> -8.0\ndy_dw = x                        # derivative of (w*x) w.r.t. w        -> 2.0\nd_loss_dw = d_loss_d_y * dy_dw   # chain rule multiplication           -> -16.0\n\nprint('Gradient of loss w.r.t. w:', d_loss_dw)\n# This is exactly what backpropagation does, layer by layer, for millions of weights",
+        keyPoints: [
+          'A neural network is a CHAIN of functions from input to loss',
+          'The chain rule: dy/dx = dy/du * du/dx — multiply derivatives along the chain',
+          'Backpropagation applies the chain rule backward, from the loss toward the first layer',
+          "Each layer's gradient is reused to compute the next (earlier) layer's gradient — no recomputation from scratch",
+          'This is how gradients reach weights buried deep in early layers, far from the loss',
+        ],
+        quiz: [
+          {
+            question: 'What does the chain rule let you compute?',
+            options: ['The size of a dataset', 'The derivative of a composed function by multiplying the derivatives of each step in the chain', 'The learning rate automatically', 'The number of layers needed'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why does backpropagation work BACKWARD, from the loss toward the first layer?',
+            options: ['It is arbitrary, forward would work identically', "It reuses each layer's computed gradient to efficiently compute the next (earlier) layer's gradient via the chain rule, avoiding redundant recomputation", 'Backward is required by Python syntax', 'It has nothing to do with the chain rule'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why does a deep network need the chain rule to update weights in its EARLY layers?',
+            options: ['Early layers do not need gradients', "Early-layer weights are many function-compositions away from the loss, so their gradient must be built by chaining derivatives through every layer in between", 'The chain rule only applies to the last layer', 'Early layers use a different, simpler formula'],
+            correctIndex: 1,
           },
         ],
       },
