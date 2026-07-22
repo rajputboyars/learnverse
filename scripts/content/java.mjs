@@ -226,6 +226,45 @@ const beginner = [
           },
         ],
       },
+      {
+        title: 'Strings in Java: Immutability & StringBuilder',
+        difficulty: 'medium',
+        tags: ['strings', 'immutability', 'stringbuilder'],
+        explanation: {
+          english:
+            "A Java String is immutable — once created, it can never be changed. Every operation that looks like it 'modifies' a string (concatenation with +, .toUpperCase(), .replace()) actually creates a BRAND NEW String object and leaves the original untouched. This is safe and predictable, but concatenating strings in a loop with + creates a new object on every single iteration, which is slow for many iterations. StringBuilder solves this: it is a mutable, resizable buffer you can .append() to repeatedly without creating new objects each time, then convert to a String once at the end with .toString().",
+          hinglish:
+            "Java String immutable hai — ek baar ban gayi to kabhi badal nahi sakti. Har operation jo 'modify' karta hua lagta hai (concatenation +, .toUpperCase(), .replace()) actually ek BILKUL NAYA String object banata hai aur original ko chhoota nahi. Ye safe aur predictable hai, par loop mein + se strings jodna har iteration mein ek naya object banata hai, jo bahut iterations ke liye slow hai. StringBuilder ye solve karta hai: ye ek mutable, resizable buffer hai jispe baar-baar .append() kar sakte ho bina har baar naya object banaye, phir aakhir mein ek baar .toString() se String bana lo.",
+        },
+        dailyLifeExample:
+          'String immutability ek printed kitaab jaisi hai — ek baar chhap gayi to us page ko badal nahi sakte, sirf ek NAYI kitaab print kar sakte ho jo edited version ho. StringBuilder ek whiteboard jaisa hai — jitni baar chaho likho-mitao, aakhir mein photo (final String) khinch lo.',
+        codeExample:
+          'String name = "Aman";\nString greeting = "Hello, " + name; // creates a NEW String, name is unchanged\nSystem.out.println(name);      // still "Aman"\n\n// SLOW: creates a new String object on every loop iteration\nString result = "";\nfor (int i = 0; i < 1000; i++) {\n    result = result + i; // 1000 throwaway String objects created!\n}\n\n// FAST: StringBuilder mutates one buffer in place\nStringBuilder sb = new StringBuilder();\nfor (int i = 0; i < 1000; i++) {\n    sb.append(i); // no new object each time\n}\nString finalResult = sb.toString(); // convert once, at the end',
+        keyPoints: [
+          'String is immutable — every "modification" actually creates a new String object',
+          'name + "text" does NOT change name; it creates and returns a new String',
+          'Concatenating with + inside a loop creates a new object every iteration — slow for many iterations',
+          'StringBuilder is mutable — .append() modifies the SAME buffer, no new objects',
+          'Convert a StringBuilder to a String once, at the end, with .toString()',
+        ],
+        quiz: [
+          {
+            question: "After String greeting = \"Hello, \" + name;, what happened to the original name variable's String object?",
+            options: ['It was modified to include "Hello, "', 'It is completely unchanged — a brand new String object was created for greeting', 'It was deleted', 'It became null'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why is concatenating strings with + inside a loop with many iterations considered slow?',
+            options: ['It is not actually slow', 'Each + creates a new String object, so many iterations create many throwaway objects', 'Loops are always slow in Java', '+ only works outside loops'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the main advantage of StringBuilder over repeated String concatenation?',
+            options: ['It uses less code', 'It mutates one buffer in place instead of creating a new object on every append, which is much faster for many operations', 'It automatically sorts characters', 'It works only with numbers'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
   {
@@ -536,6 +575,45 @@ const intermediate = [
           },
         ],
       },
+      {
+        title: 'The static Keyword: Class vs Instance Members',
+        difficulty: 'medium',
+        tags: ['static', 'oop'],
+        explanation: {
+          english:
+            "Normally, every object created from a class gets its OWN copy of each field, and you need an object (instance) to call a method. The static keyword changes this: a static field is shared by ALL objects of the class (there is only ONE copy, no matter how many objects exist), and a static method belongs to the CLASS itself, so you can call it without creating any object — ClassName.methodName(). main() is always static because the JVM calls it before any object of your class exists.",
+          hinglish:
+            'Normally, class se banaya har object apna ALAG copy paata hai har field ka, aur method call karne ke liye object (instance) chahiye hota hai. static keyword ye badal deta hai: ek static field CLASS ke SAARE objects mein shared hoti hai (sirf EK copy hoti hai, chahe kitne bhi objects bane hon), aur ek static method CLASS ka khud ka hota hai, isliye bina koi object banaye use call kar sakte ho — ClassName.methodName(). main() hamesha static hota hai kyunki JVM ise call karta hai tumhari class ka koi bhi object banne se pehle.',
+        },
+        dailyLifeExample:
+          'Static field ek school ka common notice-board jaisa hai — sabhi students (objects) ke liye ek hi board, koi bhi likhe to sabko dikhta hai. Non-static (instance) field har student ki apni personal diary jaisi hai — har student ki alag copy, ek ki likhi doosre ki diary mein nahi dikhti.',
+        codeExample:
+          'class Counter {\n    static int totalCount = 0;   // ONE copy, shared by all objects\n    int id;                       // each object gets its OWN copy\n\n    Counter() {\n        totalCount++;              // shared counter increases\n        id = totalCount;           // this object\'s own id\n    }\n\n    static void printTotal() {    // static method — no object needed\n        System.out.println("Total created: " + totalCount);\n    }\n}\n\npublic class Demo {\n    public static void main(String[] args) {\n        new Counter();\n        new Counter();\n        new Counter();\n        Counter.printTotal(); // Total created: 3 — called on the CLASS, no object\n    }\n}',
+        keyPoints: [
+          'static field: ONE copy shared across ALL objects of the class',
+          'Instance (non-static) field: each object gets its own separate copy',
+          'static method: called on the class itself (ClassName.method()), no object needed',
+          'main() is static because the JVM must call it before any object exists',
+          'Common uses: counters shared across instances, utility methods (like Math.sqrt())',
+        ],
+        quiz: [
+          {
+            question: 'If Counter.totalCount is static and you create 5 Counter objects, how many copies of totalCount exist?',
+            options: ['5 separate copies', 'Just 1, shared by all 5 objects', '0, static fields do not get created', '10'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why must main() be static?',
+            options: ['It is just a convention with no real reason', 'The JVM calls main() before any object of your class exists, so it cannot be an instance method', 'static methods run faster', 'It is required by all methods in Java'],
+            correctIndex: 1,
+          },
+          {
+            question: 'How do you call a static method named printTotal() in class Counter?',
+            options: ['new Counter().printTotal()', 'Counter.printTotal()', 'printTotal.Counter()', 'You cannot call static methods'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
   {
@@ -756,6 +834,45 @@ const advanced = [
               hinglish:
                 'Checked exceptions compile time pe check hote hain: compiler tumhe majboor karta hai ki tum unhe ya to catch karo ya throws se declare karo (jaise IOException, SQLException). Ye aam taur pe recoverable, external conditions hote hain. Unchecked exceptions RuntimeException se extend hote hain aur compile time pe check nahi hote (jaise NullPointerException, ArrayIndexOutOfBoundsException); ye aam taur pe programming bugs darshate hain. Dono catch ho sakte hain, par sirf checked wale compiler dwara enforce hote hain.',
             },
+          },
+        ],
+      },
+      {
+        title: 'Custom Exceptions',
+        difficulty: 'hard',
+        tags: ['exceptions', 'custom-exceptions'],
+        explanation: {
+          english:
+            "Java's built-in exceptions (NullPointerException, IOException) don't always describe YOUR program's specific problems. You can create a custom exception by extending Exception (for a checked exception the compiler forces callers to handle) or RuntimeException (for an unchecked exception, used for programming errors that shouldn't normally be caught everywhere). A custom exception class typically just needs a constructor that passes a descriptive message to the parent class — this gives you meaningful, specific error types instead of generic ones.",
+          hinglish:
+            "Java ke built-in exceptions (NullPointerException, IOException) hamesha TUMHARE program ki specific problems describe nahi karte. Tum ek custom exception bana sakte ho Exception ko extend karke (ek checked exception ke liye jise compiler callers ko handle karne majboor karta hai) ya RuntimeException ko extend karke (ek unchecked exception ke liye, programming errors ke liye use hota hai jinhe normally har jagah catch nahi karna chahiye). Ek custom exception class ko usually sirf ek constructor chahiye hota hai jo parent class ko ek descriptive message pass kare — isse tumhe meaningful, specific error types milte hain generic ke bajaye.",
+        },
+        dailyLifeExample:
+          "Custom exception ek specific complaint form jaisa hai — generic 'kuch galat hua' bolne ke bajaye, 'InsufficientBalanceException' seedha batata hai ki exactly kya galat hua, jaise bank mein 'Insufficient Funds' form alag hota hai 'Card Expired' form se.",
+        codeExample:
+          '// Custom checked exception — callers MUST handle it\nclass InsufficientBalanceException extends Exception {\n    public InsufficientBalanceException(String message) {\n        super(message); // pass the message to the parent Exception class\n    }\n}\n\nclass BankAccount {\n    double balance = 1000;\n\n    void withdraw(double amount) throws InsufficientBalanceException {\n        if (amount > balance) {\n            throw new InsufficientBalanceException("Cannot withdraw ₹" + amount + ", balance is only ₹" + balance);\n        }\n        balance -= amount;\n    }\n}\n\npublic class Demo {\n    public static void main(String[] args) {\n        BankAccount acc = new BankAccount();\n        try {\n            acc.withdraw(5000);\n        } catch (InsufficientBalanceException e) {\n            System.out.println("Error: " + e.getMessage());\n        }\n    }\n}',
+        keyPoints: [
+          'Create custom exceptions by extending Exception (checked) or RuntimeException (unchecked)',
+          'A minimal custom exception just needs a constructor calling super(message)',
+          'Custom exceptions give meaningful, specific error types instead of generic ones',
+          'A method that can throw a checked custom exception must declare it with throws',
+          'Custom exceptions make error handling self-documenting for anyone reading the code',
+        ],
+        quiz: [
+          {
+            question: 'To create a checked custom exception, which class should you extend?',
+            options: ['RuntimeException', 'Exception', 'Error', 'Object'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does super(message) typically do inside a custom exception\'s constructor?',
+            options: ['Creates a new object', 'Passes the descriptive message up to the parent Exception class so it can be retrieved later with getMessage()', 'Deletes the exception', 'Prevents the exception from being thrown'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why create a custom exception instead of just throwing a generic RuntimeException everywhere?',
+            options: ['There is no real benefit', 'A custom, specifically-named exception makes error handling self-documenting and lets callers catch exactly that problem type', 'Custom exceptions run faster', 'Generic exceptions are deprecated'],
+            correctIndex: 1,
           },
         ],
       },
