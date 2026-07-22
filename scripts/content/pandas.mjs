@@ -632,6 +632,45 @@ const intermediate = [
           },
         ],
       },
+      {
+        title: 'String Methods: The .str Accessor',
+        difficulty: 'medium',
+        tags: ['strings', 'text-cleaning', 'str-accessor'],
+        explanation: {
+          english:
+            "Real-world data is messy: inconsistent capitalization, stray whitespace, typos in categories. You cannot call Python's regular string methods (like .upper() or .strip()) directly on a whole column — you must go through the .str accessor first, which applies the method to EVERY value in the Series at once (vectorized, like NumPy). Common ones: .str.lower()/.str.upper(), .str.strip() (remove whitespace), .str.contains('text') (boolean filter), .str.replace('old', 'new'), and .str.split('delimiter') to break a column into parts.",
+          hinglish:
+            "Real-world data messy hota hai: inconsistent capitalization, extra whitespace, categories mein typos. Python ke normal string methods (jaise .upper() ya .strip()) ko poore column pe seedha call nahi kar sakte — pehle .str accessor se guzarna padta hai, jo method ko Series ki HAR value pe ek saath apply kar deta hai (vectorized, NumPy jaisa). Common ones: .str.lower()/.str.upper(), .str.strip() (whitespace hatao), .str.contains('text') (boolean filter), .str.replace('old', 'new'), aur .str.split('delimiter') column ko parts mein todne ke liye.",
+        },
+        dailyLifeExample:
+          "Ek admission form ki list socho jaha kuch logon ne naam 'RIYA', kuch ne 'riya ', kuch ne 'Riya' likha — sab alag dikhte hain par same insaan hain. .str.lower().str.strip() ek saath sabko clean, consistent format mein le aata hai, jaise ek clerk jo har form ko same standard se re-type kar de.",
+        codeExample:
+          "import pandas as pd\n\ndf = pd.DataFrame({\n    'name': [' Riya ', 'AMAN', 'neha  '],\n    'email': ['Riya@Test.com', 'aman@TEST.com', 'NEHA@test.com'],\n})\n\n# Clean up whitespace and inconsistent casing — vectorized, one line each\ndf['name'] = df['name'].str.strip().str.title()\ndf['email'] = df['email'].str.lower()\nprint(df)\n#     name             email\n# 0   Riya      riya@test.com\n# 1   Aman      aman@test.com\n# 2   Neha      neha@test.com\n\n# Filter rows where a column contains certain text\nprint(df[df['email'].str.contains('test.com')])\n\n# Split a column into parts (e.g. email -> username, domain)\nparts = df['email'].str.split('@', expand=True)\nprint(parts)  # two new columns: username and domain",
+        keyPoints: [
+          'The .str accessor is required to call string methods on a whole column at once',
+          '.str.lower()/.str.upper()/.str.title() normalize inconsistent capitalization',
+          '.str.strip() removes leading/trailing whitespace — a very common cleaning step',
+          '.str.contains("text") returns a boolean Series usable for filtering',
+          '.str.split(delimiter, expand=True) breaks one text column into multiple columns',
+        ],
+        quiz: [
+          {
+            question: "Why can't you call df['name'].strip() directly (without .str)?",
+            options: ['You can, it works fine', "A Series/column holds many values, and Python's plain string methods only work on ONE string — .str applies the method to every value in the column at once", '.strip() does not exist in Pandas', 'Only numeric columns can be cleaned'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does df[df["email"].str.contains("test.com")] do?',
+            options: ['Deletes matching rows', 'Filters to only the rows where the email column contains "test.com"', 'Replaces "test.com" with nothing', 'Sorts by email'],
+            correctIndex: 1,
+          },
+          {
+            question: 'What does .str.split("@", expand=True) do?',
+            options: ['Deletes the @ symbol only', 'Splits each string on "@" and expands the pieces into separate new columns', 'Merges columns together', 'Counts the number of @ symbols'],
+            correctIndex: 1,
+          },
+        ],
+      },
     ],
   },
 ];
