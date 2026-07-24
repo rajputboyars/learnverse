@@ -669,6 +669,105 @@ export const generalInterviewQuestions = [
         'ACID = Atomicity, Consistency, Isolation, Durability — reliable transactions ke guarantees. MongoDB mein single-document operations by default atomic hote hain. v4.0 se MongoDB multi-document ACID transactions bhi support karta hai (documents/collections ke across) replica sets/sharded clusters pe, par ye overhead add karte hain — isliye jaha possible ho related data saath rakhne ka design karte ho.',
     },
   },
+  {
+    question: 'How do you connect MongoDB with Node.js?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Two options: (1) the official native `mongodb` driver — `const client = new MongoClient(uri); await client.connect();` — gives raw, low-level query access. (2) `mongoose`, an ODM built on top of the native driver — `mongoose.connect(uri)` — adding schemas, validation, and a more convenient query API. Most Node.js/Express apps use Mongoose for the structure and validation it provides; the connection string (`mongodb://` or `mongodb+srv://` for Atlas) and credentials are read from an environment variable, never hard-coded.',
+      hinglish:
+        'Do options: (1) official native `mongodb` driver — `const client = new MongoClient(uri); await client.connect();` — raw, low-level query access deta hai. (2) `mongoose`, ek ODM jo native driver ke upar built hai — `mongoose.connect(uri)` — schemas, validation, aur ek zyada convenient query API add karte hue. Zyadatar Node.js/Express apps Mongoose use karti hain us structure aur validation ke liye jo ye provide karta hai; connection string (`mongodb://` ya Atlas ke liye `mongodb+srv://`) aur credentials ek environment variable se padhe jaate hain, kabhi hard-code nahi.',
+    },
+  },
+  {
+    question: 'What is Mongoose?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Mongoose is an ODM (Object-Data Modeling) library for MongoDB and Node.js. It sits on top of the native MongoDB driver and adds: SCHEMAS (defining the shape and types of your documents, even though MongoDB itself is schemaless), built-in and custom VALIDATION, MIDDLEWARE hooks (pre/post save, etc.), and a more convenient, chainable query API (`Model.find().sort().limit()`). It brings some of the structure and safety of a relational ORM to MongoDB\'s flexible document model.',
+      hinglish:
+        'Mongoose MongoDB aur Node.js ke liye ek ODM (Object-Data Modeling) library hai. Ye native MongoDB driver ke upar baithta hai aur add karta hai: SCHEMAS (tumhare documents ka shape aur types define karna, chahe MongoDB khud schemaless hai), built-in aur custom VALIDATION, MIDDLEWARE hooks (pre/post save, etc.), aur ek zyada convenient, chainable query API (`Model.find().sort().limit()`). Ye ek relational ORM ki kuch structure aur safety MongoDB ke flexible document model mein laata hai.',
+    },
+  },
+  {
+    question: 'What is the difference between the MongoDB Driver and Mongoose?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The native `mongodb` driver is a thin, low-level client that translates JS calls into MongoDB wire-protocol commands — maximum flexibility and performance, but no schema enforcement, so any shape of document can be inserted, and validation must be done manually. Mongoose wraps the driver with schemas, type casting, built-in validation, virtuals, and hooks — trading a little performance/flexibility for structure, safety, and developer convenience. Most application code prefers Mongoose; performance-critical or highly dynamic use cases sometimes drop to the raw driver.',
+      hinglish:
+        'Native `mongodb` driver ek thin, low-level client hai jo JS calls ko MongoDB wire-protocol commands mein translate karta hai — maximum flexibility aur performance, par koi schema enforcement nahi, isliye kisi bhi shape ka document insert ho sakta hai, aur validation manually karni padti hai. Mongoose driver ko schemas, type casting, built-in validation, virtuals, aur hooks se wrap karta hai — thodi performance/flexibility ke badle structure, safety, aur developer convenience dete hue. Zyadatar application code Mongoose prefer karta hai; performance-critical ya highly dynamic use cases kabhi-kabhi raw driver pe drop karte hain.',
+    },
+  },
+  {
+    question: 'What are schemas in Mongoose?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A Mongoose schema defines the STRUCTURE of documents within a collection — field names, their types (String, Number, Date, ObjectId, etc.), default values, validation rules (required, min/max, custom validators), and indexes: `new mongoose.Schema({ name: { type: String, required: true }, age: Number })`. Even though MongoDB itself has no enforced structure, a schema gives your application a predictable, validated shape to work with, catching data errors before they ever reach the database.',
+      hinglish:
+        'Ek Mongoose schema ek collection ke andar documents ki STRUCTURE define karta hai — field names, unke types (String, Number, Date, ObjectId, etc.), default values, validation rules (required, min/max, custom validators), aur indexes: `new mongoose.Schema({ name: { type: String, required: true }, age: Number })`. Chahe MongoDB khud ki koi enforced structure nahi hai, ek schema tumhari application ko ek predictable, validated shape deta hai kaam karne ke liye, data errors ko database tak pahunchne se pehle hi pakadte hue.',
+    },
+  },
+  {
+    question: 'What are models in Mongoose?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A Mongoose MODEL is a compiled constructor function built from a SCHEMA, and it is what you actually use to interact with a MongoDB collection: `const User = mongoose.model("User", userSchema);` then `User.find()`, `User.create()`, `new User({...}).save()`. If a schema is the blueprint, the model is the tool that uses that blueprint to create, read, update, and delete real documents in the corresponding collection (Mongoose automatically pluralises and lowercases the model name to derive the collection name, e.g. "User" → "users").',
+      hinglish:
+        'Ek Mongoose MODEL ek SCHEMA se banaya gaya compiled constructor function hai, aur ye wo hai jise tum actually MongoDB collection ke saath interact karne ke liye use karte ho: `const User = mongoose.model("User", userSchema);` phir `User.find()`, `User.create()`, `new User({...}).save()`. Agar schema blueprint hai, model wo tool hai jo us blueprint ko use karke corresponding collection mein real documents create, read, update, aur delete karta hai (Mongoose automatically model name ko pluralise aur lowercase karta hai collection name derive karne ke liye, jaise "User" → "users").',
+    },
+  },
+  {
+    question: 'What are indexes in MongoDB?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An index is a separate, sorted data structure (default: B-tree) that maps field values to document locations, letting MongoDB find matching documents WITHOUT scanning the entire collection (a "COLLSCAN"). Without an index on `email`, `db.users.find({ email: "x@y.com" })` checks every single document; with one, it can binary-search directly to the match. Indexes speed up reads dramatically but slow down writes slightly (every insert/update must also update the index) and use extra disk space — so index the fields you actually query/sort/filter by, not every field.',
+      hinglish:
+        'Ek index ek separate, sorted data structure hai (default: B-tree) jo field values ko document locations se map karta hai, MongoDB ko poori collection scan kiye BINA matching documents dhundhne deta hai ("COLLSCAN" ke bina). `email` pe index ke bina, `db.users.find({ email: "x@y.com" })` har single document check karta hai; index ke saath, ye directly binary-search se match tak pahunch sakta hai. Indexes reads ko dramatically speed up karte hain par writes ko thoda slow karte hain (har insert/update ko index bhi update karna padta hai) aur extra disk space use karte hain — isliye un fields ko index karo jinhe tum actually query/sort/filter karte ho, har field ko nahi.',
+    },
+  },
+  {
+    question: 'What is aggregation in MongoDB?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The Aggregation Framework processes documents through a PIPELINE of stages (`$match`, `$group`, `$sort`, `$project`, `$lookup`, etc.), where each stage transforms the output of the previous one — similar to Unix pipes. Example: `db.orders.aggregate([{ $match: { status: "completed" } }, { $group: { _id: "$customerId", total: { $sum: "$amount" } } }])` filters completed orders, then groups by customer to sum their total spend. It is MongoDB\'s answer to SQL\'s GROUP BY/JOIN-style analytical queries, and is far more powerful than simple `find()` queries for computing derived/summarised data.',
+      hinglish:
+        'Aggregation Framework documents ko stages ke ek PIPELINE se process karta hai (`$match`, `$group`, `$sort`, `$project`, `$lookup`, etc.), jahan har stage previous ka output transform karta hai — Unix pipes jaisa. Example: `db.orders.aggregate([{ $match: { status: "completed" } }, { $group: { _id: "$customerId", total: { $sum: "$amount" } } }])` completed orders filter karta hai, phir customer se group karke unka total spend sum karta hai. Ye MongoDB ka SQL ke GROUP BY/JOIN-style analytical queries ka jawab hai, aur simple `find()` queries se bahut zyada powerful hai derived/summarised data compute karne ke liye.',
+    },
+  },
+  {
+    question: 'What is populate() in Mongoose?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`populate()` replaces a referenced ObjectId field with the ACTUAL document it refers to, simulating a SQL-style JOIN in MongoDB\'s otherwise reference-based (non-joining) model: `Order.find().populate("userId")` replaces each order\'s `userId` field with the full user document instead of just the ID. Under the hood, Mongoose runs a SEPARATE query to fetch the referenced documents and stitches them into the result — convenient, but be mindful it adds extra round-trips compared to embedding data directly.',
+      hinglish:
+        '`populate()` ek referenced ObjectId field ko us ACTUAL document se replace karta hai jise wo refer karta hai, MongoDB ke otherwise reference-based (non-joining) model mein ek SQL-style JOIN simulate karte hue: `Order.find().populate("userId")` har order ke `userId` field ko sirf ID ke bajaye poore user document se replace karta hai. Under the hood, Mongoose referenced documents fetch karne ke liye ek SEPARATE query chalata hai aur unhe result mein stitch karta hai — convenient, par dhyan rakho ye data ko directly embed karne ke comparison mein extra round-trips add karta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between find() and findOne()?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`find(query)` returns a CURSOR over ALL documents matching the query — you get an array-like result (or must iterate the cursor), even if only one document matches, and an empty array if none match. `findOne(query)` returns a SINGLE document — the first match — or `null` if none match; it is more efficient when you only need one result, since MongoDB can stop searching as soon as it finds a match, rather than scanning for every possible match.',
+      hinglish:
+        '`find(query)` query se match hone wale SAARE documents pe ek CURSOR return karta hai — tumhe ek array-like result milta hai (ya cursor iterate karna padta hai), chahe sirf ek document match kare, aur empty array agar koi match na kare. `findOne(query)` ek SINGLE document return karta hai — pehla match — ya `null` agar koi match na kare; ye zyada efficient hai jab tumhe sirf ek result chahiye, kyunki MongoDB ek match milte hi search rok sakta hai, har possible match scan karne ke bajaye.',
+    },
+  },
 ];
 
 export const curriculum = [...beginner, ...intermediate, ...advanced];

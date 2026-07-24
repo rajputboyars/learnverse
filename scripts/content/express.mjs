@@ -622,6 +622,182 @@ export const generalInterviewQuestions = [
         'Express Node ke http server ko wrap karta hai. Har incoming request ke liye ye ek middleware stack order mein chalata hai — har function ya to respond karta hai, req/res modify karta hai, ya next() se aage badhta hai. Route handlers bas method aur path se match hone wale middleware hain. Jo pehla response bhejta hai wo cycle khatam karta hai; unmatched requests 404 ya error-handling middleware tak gir jaati hain.',
     },
   },
+  {
+    question: 'What is Express.js?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Express is a minimal, unopinionated web framework for Node.js, built on top of the core `http` module. It adds the essentials every web server needs — routing (mapping URLs+methods to handlers), middleware (a chain of functions processing each request), request/response helper methods (`req.body`, `res.json()`), and error handling — without forcing a specific project structure or database choice. It has been the de facto standard Node.js framework for over a decade and underpins many higher-level frameworks (NestJS builds on it).',
+      hinglish:
+        'Express Node.js ke liye ek minimal, unopinionated web framework hai, core `http` module ke upar built. Ye har web server ko chahiye wo essentials add karta hai — routing (URLs+methods ko handlers se map karna), middleware (functions ki ek chain jo har request process karti hai), request/response helper methods (`req.body`, `res.json()`), aur error handling — bina koi specific project structure ya database choice force kiye. Ye ek dahai se zyada se de facto standard Node.js framework raha hai aur bahut saare higher-level frameworks ka base hai (NestJS iske upar built hai).',
+    },
+  },
+  {
+    question: 'How do you create an Express server?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Basic setup: `import express from "express"; const app = express(); app.get("/", (req, res) => res.send("Hello")); app.listen(3000, () => console.log("Server running"));`. `express()` creates the app instance, `.get()`/`.post()`/etc. register route handlers, and `.listen(port)` starts the underlying HTTP server on that port. Middleware like `express.json()` is typically added with `app.use()` before defining routes.',
+      hinglish:
+        'Basic setup: `import express from "express"; const app = express(); app.get("/", (req, res) => res.send("Hello")); app.listen(3000, () => console.log("Server running"));`. `express()` app instance banata hai, `.get()`/`.post()`/etc. route handlers register karte hain, aur `.listen(port)` us port pe underlying HTTP server start karta hai. `express.json()` jaisa middleware typically routes define karne se pehle `app.use()` se add hota hai.',
+    },
+  },
+  {
+    question: 'What is middleware in Express?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Middleware is a function with the signature `(req, res, next)` that executes during the request-response cycle, with access to modify `req`/`res`, end the request, or pass control to the next middleware by calling `next()`. Middleware forms a CHAIN — request-parsing, authentication, logging, and route handlers themselves are all just middleware functions run in the order they were registered with `app.use()`/`app.get()`, etc.',
+      hinglish:
+        'Middleware ek function hai `(req, res, next)` signature ke saath jo request-response cycle ke dauraan execute hota hai, `req`/`res` modify karne, request end karne, ya `next()` call karke control agle middleware ko pass karne ke access ke saath. Middleware ek CHAIN banata hai — request-parsing, authentication, logging, aur route handlers khud sab bas middleware functions hain jo `app.use()`/`app.get()`, etc. se register hone ke order mein chalte hain.',
+    },
+  },
+  {
+    question: 'What are the types of middleware in Express?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Five types: (1) Application-level — bound via `app.use()`/`app.METHOD()`, runs for the whole app. (2) Router-level — same, but bound to an `express.Router()` instance instead of the app. (3) Error-handling — has 4 parameters `(err, req, res, next)`, registered last, catches errors from anywhere in the chain. (4) Built-in — Express\'s own, like `express.json()` and `express.static()`. (5) Third-party — installed via npm, like `cors`, `helmet`, `morgan`.',
+      hinglish:
+        'Paanch types: (1) Application-level — `app.use()`/`app.METHOD()` se bound, poori app ke liye chalta hai. (2) Router-level — same, par app ke bajaye ek `express.Router()` instance se bound. (3) Error-handling — 4 parameters `(err, req, res, next)` ke saath, sabse aakhir mein register hota hai, chain mein kahin bhi se errors catch karta hai. (4) Built-in — Express ka apna, jaise `express.json()` aur `express.static()`. (5) Third-party — npm se install hota hai, jaise `cors`, `helmet`, `morgan`.',
+    },
+  },
+  {
+    question: 'What is express.json()?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`express.json()` is Express\'s built-in middleware that parses incoming requests with a `Content-Type: application/json` header, converting the raw JSON body into a JavaScript object accessible as `req.body`. Without it, `req.body` would be `undefined` for JSON requests — it MUST be added with `app.use(express.json())` before any route handlers that need to read `req.body`.',
+      hinglish:
+        '`express.json()` Express ka built-in middleware hai jo `Content-Type: application/json` header wali incoming requests parse karta hai, raw JSON body ko ek JavaScript object mein convert karke `req.body` ke roop mein accessible banata hai. Iske bina, `req.body` JSON requests ke liye `undefined` hoga — ise `app.use(express.json())` se add karna ZAROORI hai kisi bhi aise route handler se pehle jise `req.body` padhna hai.',
+    },
+  },
+  {
+    question: 'What is express.urlencoded()?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`express.urlencoded({ extended: true })` is built-in middleware that parses requests with `Content-Type: application/x-www-form-urlencoded` — the format used by traditional HTML `<form>` submissions — into `req.body`. `extended: true` uses the `qs` library allowing rich objects/arrays to be parsed; `extended: false` uses the simpler built-in `querystring` library, only supporting flat key-value pairs.',
+      hinglish:
+        '`express.urlencoded({ extended: true })` built-in middleware hai jo `Content-Type: application/x-www-form-urlencoded` wali requests ko parse karta hai — traditional HTML `<form>` submissions ka format — `req.body` mein. `extended: true` `qs` library use karta hai jo rich objects/arrays parse karne deti hai; `extended: false` simpler built-in `querystring` library use karta hai, sirf flat key-value pairs support karte hue.',
+    },
+  },
+  {
+    question: 'What is next() in Express?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`next` is a function passed to every middleware/route handler that, when called, passes control to the NEXT middleware in the chain. If a middleware doesn\'t call `next()` (and doesn\'t send a response either), the request HANGS forever — the client just waits with no response. Calling `next(error)` (with an argument) skips all remaining regular middleware and jumps directly to the nearest error-handling middleware.',
+      hinglish:
+        '`next` ek function hai jo har middleware/route handler ko pass hota hai jo, call hone pe, control chain ke NEXT middleware ko pass karta hai. Agar ek middleware `next()` call nahi karta (aur response bhi nahi bhejta), request hamesha ke liye HANG ho jaati hai — client bina response ke wait karta rehta hai. `next(error)` call karna (ek argument ke saath) baaki saare regular middleware skip kar deta hai aur directly nearest error-handling middleware pe jump karta hai.',
+    },
+  },
+  {
+    question: 'What is Router in Express?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`express.Router()` creates a mini, mountable Express app — a self-contained set of routes and middleware that can be defined in a SEPARATE file and mounted onto the main app with `app.use("/api/users", userRouter)`. This is essential for organising large apps: instead of one giant file with all routes, each resource (users, courses, orders) gets its own router file, keeping routing logic modular and maintainable.',
+      hinglish:
+        '`express.Router()` ek mini, mountable Express app banata hai — routes aur middleware ka ek self-contained set jo ek SEPARATE file mein define ho sakta hai aur main app pe `app.use("/api/users", userRouter)` se mount ho sakta hai. Ye bade apps organise karne ke liye essential hai: saare routes wali ek giant file ke bajaye, har resource (users, courses, orders) ki apni router file hoti hai, routing logic ko modular aur maintainable rakhte hue.',
+    },
+  },
+  {
+    question: 'What is the difference between PUT and PATCH?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'PUT replaces the ENTIRE resource — the request body should contain the FULL representation of the resource, and any field not included is typically expected to be cleared/reset. PATCH applies a PARTIAL update — the request body contains only the fields that should change, leaving everything else untouched. Practically: `PUT /users/1` with `{ name: "Ravi" }` might wipe out the user\'s existing email if the API implements PUT strictly, while `PATCH /users/1` with the same body only updates the name.',
+      hinglish:
+        'PUT POORE resource ko replace karta hai — request body mein resource ki POORI representation honi chahiye, aur koi bhi field jo include nahi hai typically clear/reset hone ki expectation hoti hai. PATCH ek PARTIAL update apply karta hai — request body mein sirf wo fields hote hain jo change hone chahiye, baaki sab untouched chhodte hue. Practically: `PUT /users/1` with `{ name: "Ravi" }` user ka existing email wipe kar sakta hai agar API PUT strictly implement kare, jabki `PATCH /users/1` same body ke saath sirf name update karta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between GET and POST?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'GET requests data and should be safe (no side effects) and idempotent (calling it multiple times has the same effect as once) — its parameters go in the URL (query string) and it can be cached/bookmarked. POST submits data to create something or trigger a side effect, is NOT idempotent (calling it twice may create two records), and its data goes in the request body, not the URL — making it suitable for larger payloads and data that shouldn\'t appear in browser history or server logs.',
+      hinglish:
+        'GET data request karta hai aur safe hona chahiye (koi side effects nahi) aur idempotent (isse multiple baar call karna ek baar call karne jaisa hi effect deta hai) — iske parameters URL (query string) mein jaate hain aur ye cache/bookmark ho sakta hai. POST data submit karta hai kuch create karne ya side effect trigger karne ke liye, idempotent NAHI hai (do baar call karne se do records ban sakte hain), aur iska data request body mein jaata hai, URL mein nahi — jo ise bade payloads aur aise data ke liye suitable banata hai jo browser history ya server logs mein nahi dikhna chahiye.',
+    },
+  },
+  {
+    question: 'What are route parameters?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Route parameters are named URL segments prefixed with `:` that capture dynamic values as part of the path: `app.get("/users/:id", (req, res) => { const id = req.params.id; })` — visiting `/users/42` gives `req.params.id === "42"`. They are used to identify a SPECIFIC resource (a single user, a single order) as part of a RESTful URL, as opposed to query parameters which typically filter/modify a collection.',
+      hinglish:
+        'Route parameters `:` se prefixed named URL segments hain jo dynamic values ko path ke part ke roop mein capture karte hain: `app.get("/users/:id", (req, res) => { const id = req.params.id; })` — `/users/42` visit karne se `req.params.id === "42"` milta hai. Ye ek SPECIFIC resource identify karne ke liye use hote hain (ek single user, ek single order) ek RESTful URL ke part ke roop mein, query parameters ke ulat jo typically ek collection ko filter/modify karte hain.',
+    },
+  },
+  {
+    question: 'What are query parameters?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Query parameters are the key-value pairs after `?` in a URL (e.g. `/products?category=shoes&sort=price`), accessible via `req.query` in Express (`req.query.category === "shoes"`). They are typically used for OPTIONAL modifiers — filtering, sorting, pagination — on a resource, rather than identifying a specific resource (which route parameters do). Unlike route parameters, they are all optional by default and Express parses them automatically as strings.',
+      hinglish:
+        'Query parameters URL mein `?` ke baad ke key-value pairs hain (jaise `/products?category=shoes&sort=price`), Express mein `req.query` se accessible (`req.query.category === "shoes"`). Ye typically OPTIONAL modifiers ke liye use hote hain — filtering, sorting, pagination — ek resource pe, ek specific resource identify karne ke bajaye (jo route parameters karte hain). Route parameters ke ulat, ye default se sab optional hote hain aur Express unhe automatically strings ke roop mein parse karta hai.',
+    },
+  },
+  {
+    question: 'How do you serve static files in Express?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`app.use(express.static("public"))` serves files from the `public` folder directly — a request to `/logo.png` automatically serves `public/logo.png` without needing an explicit route for every file. This is the built-in way to serve images, CSS, client-side JS, and other static assets without writing custom handlers, and it can be mounted at a URL prefix: `app.use("/static", express.static("public"))` serves the same files under `/static/logo.png`.',
+      hinglish:
+        '`app.use(express.static("public"))` `public` folder se files directly serve karta hai — `/logo.png` ki request automatically `public/logo.png` serve karti hai bina har file ke liye explicit route ki zaroorat ke. Ye images, CSS, client-side JS, aur doosre static assets serve karne ka built-in tareeka hai bina custom handlers likhe, aur ye ek URL prefix pe mount ho sakta hai: `app.use("/static", express.static("public"))` same files ko `/static/logo.png` ke under serve karta hai.',
+    },
+  },
+  {
+    question: 'How do you handle errors in Express?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Define an error-handling middleware LAST, after all other `app.use()`/routes, with exactly 4 parameters: `app.use((err, req, res, next) => { res.status(err.status || 500).json({ message: err.message }); });`. Express automatically routes any error to it if you call `next(err)` in a route/middleware, or if a synchronous handler throws. For async route handlers, you must catch errors and call `next(err)` explicitly (or use a wrapper utility), since Express does not automatically catch rejected Promises in older versions.',
+      hinglish:
+        'Ek error-handling middleware LAST mein define karo, baaki saare `app.use()`/routes ke baad, exactly 4 parameters ke saath: `app.use((err, req, res, next) => { res.status(err.status || 500).json({ message: err.message }); });`. Express automatically kisi bhi error ko iske paas route karta hai agar tum ek route/middleware mein `next(err)` call karo, ya agar ek synchronous handler throw kare. Async route handlers ke liye, tumhe errors catch karke `next(err)` explicitly call karna padta hai (ya ek wrapper utility use karo), kyunki Express purane versions mein automatically rejected Promises catch nahi karta.',
+    },
+  },
+  {
+    question: 'What is express-session?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`express-session` is middleware that gives Express server-side, cookie-based session support — it creates a unique session ID, stores it in a cookie sent to the browser, and keeps the actual session DATA on the server (by default in memory, but a real store like Redis is required in production). This enables stateful features like "remember the logged-in user across requests" — an alternative approach to the stateless, token-based JWT authentication.',
+      hinglish:
+        '`express-session` ek middleware hai jo Express ko server-side, cookie-based session support deta hai — ye ek unique session ID banata hai, ise browser ko bheji gayi cookie mein store karta hai, aur actual session DATA server pe rakhta hai (default se memory mein, par production mein Redis jaisa real store zaroori hai). Ye stateful features enable karta hai jaise "logged-in user ko requests ke across yaad rakhna" — stateless, token-based JWT authentication ka ek alternative approach.',
+    },
+  },
+  {
+    question: 'What is cookie-parser?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`cookie-parser` is middleware that reads the `Cookie` header from incoming requests and parses it into a convenient `req.cookies` object, so you don\'t have to manually parse the raw cookie string. It also supports SIGNED cookies (`req.signedCookies`) using a secret, which lets the server verify a cookie hasn\'t been tampered with by the client. Note: it is for READING cookies from requests — setting cookies on responses uses `res.cookie()`, which Express supports natively.',
+      hinglish:
+        '`cookie-parser` ek middleware hai jo incoming requests se `Cookie` header padhta hai aur ise ek convenient `req.cookies` object mein parse karta hai, isliye tumhe raw cookie string manually parse nahi karni padti. Ye SIGNED cookies (`req.signedCookies`) bhi support karta hai ek secret use karke, jo server ko verify karne deta hai ki cookie client ne tamper nahi ki. Note: ye requests se cookies PADHNE ke liye hai — responses pe cookies SET karne ke liye `res.cookie()` use hota hai, jo Express natively support karta hai.',
+    },
+  },
 ];
 
 export const curriculum = [...beginner, ...intermediate, ...advanced];

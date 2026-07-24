@@ -618,4 +618,147 @@ export const generalInterviewQuestions = [
         'Common structure: routes/ (endpoints define karo), controllers/ (har route ke liye business logic), middleware/ (auth, validation, error handling), models/ (Mongoose schemas), services/ (reusable logic jaise sendEmail), config/ (DB connection, env), utils/ (helper functions). Concerns separate karo: routes sirf controllers call karo; controllers services/models use karo; models data shape define karo. Isse code testable aur maintainable hota hai.',
     },
   },
+  {
+    question: 'What is JWT?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'JWT (JSON Web Token) is a compact, self-contained, URL-safe token format for representing claims (like user identity) that can be verified without a database lookup. It has three Base64URL-encoded parts separated by dots — header (algorithm/type), payload (claims — e.g. userId, role, expiry), and signature (proves the token wasn\'t tampered with, computed from the header+payload using a server-held secret). It is the standard mechanism for stateless authentication in modern APIs.',
+      hinglish:
+        'JWT (JSON Web Token) claims (jaise user identity) represent karne ke liye ek compact, self-contained, URL-safe token format hai jo bina database lookup ke verify ho sakta hai. Iske teen Base64URL-encoded parts dots se alag hote hain — header (algorithm/type), payload (claims — jaise userId, role, expiry), aur signature (prove karta hai token tamper nahi hua, header+payload se server-held secret use karke compute hota hai). Ye modern APIs mein stateless authentication ka standard mechanism hai.',
+    },
+  },
+  {
+    question: 'How does JWT authentication work?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Flow: (1) user logs in with credentials. (2) Server verifies them, then SIGNS a JWT containing the user\'s identity/claims using a secret key, and sends it to the client. (3) The client stores the token and includes it in the `Authorization: Bearer <token>` header of every subsequent request. (4) For each protected request, the server VERIFIES the signature (using the same secret) — if valid and not expired, it trusts the claims inside without needing to query a database or session store, making authentication fast and stateless.',
+      hinglish:
+        'Flow: (1) user credentials se login karta hai. (2) Server unhe verify karta hai, phir user ki identity/claims wala ek JWT ek secret key use karke SIGN karta hai, aur client ko bhejta hai. (3) Client token store karta hai aur har agli request ke `Authorization: Bearer <token>` header mein include karta hai. (4) Har protected request ke liye, server signature VERIFY karta hai (same secret use karke) — agar valid aur expire nahi hua, ye andar ke claims trust karta hai bina database ya session store query kiye, authentication ko fast aur stateless banate hue.',
+    },
+  },
+  {
+    question: 'What is OAuth?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'OAuth 2.0 is an authorization protocol that lets an application access LIMITED parts of a user\'s account on another service (Google, GitHub) WITHOUT ever seeing that user\'s password. The user authenticates directly with the provider, approves specific permissions ("scopes"), and the provider issues the app a limited access token. This is what powers "Login with Google/GitHub" buttons — OAuth handles delegated AUTHORIZATION, and OpenID Connect (built on top of it) adds the AUTHENTICATION (identity) layer.',
+      hinglish:
+        'OAuth 2.0 ek authorization protocol hai jo ek application ko doosri service (Google, GitHub) pe user ke account ke LIMITED parts access karne deta hai user ka password kabhi dekhe BINA. User provider se directly authenticate karta hai, specific permissions ("scopes") approve karta hai, aur provider app ko ek limited access token issue karta hai. Yahi "Login with Google/GitHub" buttons power karta hai — OAuth delegated AUTHORIZATION handle karta hai, aur OpenID Connect (iske upar built) AUTHENTICATION (identity) layer add karta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between authentication and authorization?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Authentication answers "WHO are you?" — verifying identity, typically via a login form, JWT, or session. Authorization answers "what are you ALLOWED to do?" — checking permissions AFTER identity is known (e.g. is this authenticated user an admin? can they delete this specific record?). Authentication always happens first; authorization decisions depend on the authenticated identity. Mixing these up is a common security bug — e.g. checking only that a user is logged in, without checking they own the specific resource they\'re trying to modify.',
+      hinglish:
+        'Authentication poochta hai "tum KAUN ho?" — identity verify karna, typically ek login form, JWT, ya session se. Authorization poochta hai "tumhe kya karne ki ALLOWED hai?" — identity pata chalne ke BAAD permissions check karna (jaise, kya ye authenticated user admin hai? kya wo is specific record ko delete kar sakte hain?). Authentication hamesha pehle hota hai; authorization decisions authenticated identity pe depend karte hain. Inhe mix karna ek common security bug hai — jaise, sirf ye check karna ki user logged in hai, ye check kiye bina ki wo us specific resource ke owner hain jise wo modify karne ki koshish kar rahe hain.',
+    },
+  },
+  {
+    question: 'What is bcrypt?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'bcrypt is a password-hashing algorithm specifically designed to be SLOW and computationally expensive (via a configurable "cost factor"/salt rounds), making brute-force attacks impractical — unlike fast general-purpose hashes (MD5, SHA-256) which are BAD for passwords precisely because they are fast. bcrypt also automatically generates and embeds a random SALT into the hash output, so identical passwords produce different hashes, defeating precomputed rainbow-table attacks. `bcrypt.hash(password, 12)` to hash; `bcrypt.compare(password, hash)` to verify.',
+      hinglish:
+        'bcrypt ek password-hashing algorithm hai jo specifically SLOW aur computationally expensive hone ke liye design kiya gaya hai (ek configurable "cost factor"/salt rounds ke through), brute-force attacks ko impractical banate hue — fast general-purpose hashes (MD5, SHA-256) ke ulat jo passwords ke liye BAD hain exactly isliye kyunki wo fast hain. bcrypt automatically ek random SALT bhi generate karke hash output mein embed karta hai, isliye identical passwords alag hashes produce karte hain, precomputed rainbow-table attacks ko defeat karte hue. Hash ke liye `bcrypt.hash(password, 12)`; verify ke liye `bcrypt.compare(password, hash)`.',
+    },
+  },
+  {
+    question: 'Why hash passwords?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Passwords must NEVER be stored in plain text, because if the database is ever breached (a matter of "when", not "if", for many companies over time), attackers get every user\'s actual password immediately — which they can then reuse on OTHER sites since many people reuse passwords. Hashing is a ONE-WAY transformation: you can verify a login attempt by re-hashing the input and comparing, but you cannot reverse a hash back into the original password, so a breach only exposes hashes, not usable credentials.',
+      hinglish:
+        'Passwords ko plain text mein KABHI store nahi karna chahiye, kyunki agar database kabhi breach ho (bahut companies ke liye time ke saath "kab" ka sawaal hai, "agar" ka nahi), attackers ko turant har user ka actual password mil jaata hai — jise wo phir OTHER sites pe reuse kar sakte hain kyunki bahut log passwords reuse karte hain. Hashing ek ONE-WAY transformation hai: tum ek login attempt ko input ko phir se hash karke aur compare karke verify kar sakte ho, par tum ek hash ko wapas original password mein reverse nahi kar sakte, isliye ek breach sirf hashes expose karta hai, usable credentials nahi.',
+    },
+  },
+  {
+    question: 'What is Helmet.js?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Helmet is an Express middleware that sets a collection of security-related HTTP response headers to protect against common web vulnerabilities — e.g. `X-Content-Type-Options: nosniff` (prevents MIME-sniffing attacks), `Strict-Transport-Security` (forces HTTPS), `X-Frame-Options` (prevents clickjacking via iframes), and a Content-Security-Policy. It is a single, low-effort line — `app.use(helmet())` — that closes off many well-known browser-level attack vectors, and is considered a baseline best practice for any production Express app.',
+      hinglish:
+        'Helmet ek Express middleware hai jo common web vulnerabilities se protect karne ke liye security-related HTTP response headers ka ek collection set karta hai — jaise `X-Content-Type-Options: nosniff` (MIME-sniffing attacks rokta hai), `Strict-Transport-Security` (HTTPS force karta hai), `X-Frame-Options` (iframes ke through clickjacking rokta hai), aur ek Content-Security-Policy. Ye ek single, low-effort line hai — `app.use(helmet())` — jo bahut saare well-known browser-level attack vectors close kar deti hai, aur kisi bhi production Express app ke liye ek baseline best practice mani jaati hai.',
+    },
+  },
+  {
+    question: 'What is rate limiting?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Rate limiting caps how many requests a client (identified by IP, API key, or user account) can make within a time window (e.g. 100 requests per 15 minutes). It protects against brute-force login attacks, API abuse, accidental overload from buggy clients, and general DDoS-style traffic. In Express, the `express-rate-limit` package implements this in a few lines; exceeding the limit should return `HTTP 429 Too Many Requests`.',
+      hinglish:
+        'Rate limiting cap karta hai ek client (IP, API key, ya user account se identify hoke) kitni requests ek time window mein kar sakta hai (jaise 100 requests per 15 minutes). Ye brute-force login attacks, API abuse, buggy clients se accidental overload, aur general DDoS-style traffic se protect karta hai. Express mein, `express-rate-limit` package ise kuch lines mein implement karta hai; limit exceed karne pe `HTTP 429 Too Many Requests` return hona chahiye.',
+    },
+  },
+  {
+    question: 'What is CSRF?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'CSRF (Cross-Site Request Forgery) tricks a logged-in user\'s browser into unknowingly submitting a request to a site they\'re authenticated on, from a DIFFERENT malicious site — e.g. a hidden form on evil.com that auto-submits to `bank.com/transfer` while the browser still has bank.com\'s auth cookie attached. Defences: CSRF tokens (a random, unpredictable value embedded in forms and validated server-side, which the attacker\'s site can\'t know), the `SameSite=Strict/Lax` cookie attribute (stops cookies from being sent on cross-site requests), and checking the `Origin`/`Referer` header.',
+      hinglish:
+        'CSRF (Cross-Site Request Forgery) ek logged-in user ke browser ko trick karta hai unknowingly ek request submit karne ke liye jis site pe wo authenticated hai, ek ALAG malicious site se — jaise evil.com pe ek hidden form jo `bank.com/transfer` pe auto-submit ho jaata hai jabki browser mein abhi bhi bank.com ka auth cookie attached hai. Defences: CSRF tokens (forms mein embedded ek random, unpredictable value jo server-side validate hota hai, jo attacker ki site ko pata nahi ho sakta), `SameSite=Strict/Lax` cookie attribute (cookies ko cross-site requests pe bhejne se rokta hai), aur `Origin`/`Referer` header check karna.',
+    },
+  },
+  {
+    question: 'What is XSS?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'XSS (Cross-Site Scripting) is when an attacker injects malicious JavaScript into a page that other users then view, letting the attacker\'s script run in the VICTIM\'s browser session — stealing cookies/tokens, defacing the page, or performing actions as the victim. Common form: STORED XSS, where unsanitised user input (e.g. a comment containing `<script>...</script>`) is saved to the database and rendered to other users without escaping. Defences: escape/sanitise all user-generated content before rendering, use frameworks that auto-escape by default (React does this), and set a Content-Security-Policy header.',
+      hinglish:
+        'XSS (Cross-Site Scripting) tab hai jab ek attacker malicious JavaScript ko ek page mein inject karta hai jise doosre users dekhte hain, attacker ka script VICTIM ke browser session mein chalne dete hue — cookies/tokens chura kar, page deface karke, ya victim ke roop mein actions perform karke. Common form: STORED XSS, jahan unsanitised user input (jaise ek comment jisme `<script>...</script>` ho) database mein save ho jaata hai aur doosre users ko bina escape kiye render hota hai. Defences: rendering se pehle saara user-generated content escape/sanitise karo, aise frameworks use karo jo default se auto-escape karein (React ye karta hai), aur ek Content-Security-Policy header set karo.',
+    },
+  },
+  {
+    question: 'What is SQL Injection?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'SQL injection happens when raw, unsanitised user input is directly concatenated into a SQL query string, letting an attacker inject their own SQL logic — classic example: `"SELECT * FROM users WHERE email=\'" + input + "\'"` with `input = "x\' OR \'1\'=\'1"` produces a query that returns ALL users, bypassing the intended filter entirely (and worse payloads can drop tables or exfiltrate data). Defence: ALWAYS use parameterised queries/prepared statements (or an ORM that does this automatically), which treat user input strictly as DATA, never as executable SQL syntax.',
+      hinglish:
+        'SQL injection tab hoti hai jab raw, unsanitised user input directly ek SQL query string mein concatenate ho jaata hai, ek attacker ko apna khud ka SQL logic inject karne deta hai — classic example: `"SELECT * FROM users WHERE email=\'" + input + "\'"` with `input = "x\' OR \'1\'=\'1"` ek query produce karta hai jo SAARE users return karti hai, intended filter ko poori tarah bypass karte hue (aur worse payloads tables drop kar sakte hain ya data exfiltrate kar sakte hain). Defence: HAMESHA parameterised queries/prepared statements use karo (ya ek ORM jo ye automatically kare), jo user input ko strictly DATA ki tarah treat karte hain, kabhi executable SQL syntax ki tarah nahi.',
+    },
+  },
+  {
+    question: 'What is NoSQL Injection?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'NoSQL injection is the MongoDB/NoSQL equivalent of SQL injection — instead of injecting SQL syntax, an attacker exploits the fact that MongoDB query OPERATORS (`$gt`, `$ne`, `$where`) are just JSON keys. If a route naively does `User.findOne(req.body)` and an attacker sends `{ "password": { "$ne": null } }` as the password field, the query becomes "password is not equal to null" — true for basically everyone — bypassing authentication entirely. Defence: validate/whitelist input shape with a schema library (Zod, Joi) BEFORE passing anything to a Mongoose query, and never pass raw `req.body`/`req.query` directly into query methods.',
+      hinglish:
+        'NoSQL injection SQL injection ka MongoDB/NoSQL equivalent hai — SQL syntax inject karne ke bajaye, ek attacker is fact ko exploit karta hai ki MongoDB query OPERATORS (`$gt`, `$ne`, `$where`) bas JSON keys hain. Agar ek route naively `User.findOne(req.body)` karta hai aur ek attacker password field ke roop mein `{ "password": { "$ne": null } }` bhejta hai, query "password null ke barabar nahi hai" ban jaata hai — basically sabke liye true — authentication ko poori tarah bypass karte hue. Defence: kisi bhi cheez ko Mongoose query mein pass karne se PEHLE ek schema library (Zod, Joi) se input shape validate/whitelist karo, aur kabhi raw `req.body`/`req.query` ko directly query methods mein pass mat karo.',
+    },
+  },
+  {
+    question: 'How do you secure an Express app?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A production security checklist: use `helmet()` for security headers; validate ALL input with a schema library before using it; use parameterised queries/an ORM to prevent injection; hash passwords with bcrypt; use HTTPS everywhere and set `secure`/`httpOnly`/`sameSite` on cookies; add rate limiting on sensitive endpoints (login, password reset); keep short-lived JWTs with refresh token rotation; configure CORS with an explicit allowlist, not `*`; keep dependencies updated (`npm audit`); never expose stack traces/internal error details to clients in production; and store all secrets in environment variables, never in source code.',
+      hinglish:
+        'Ek production security checklist: security headers ke liye `helmet()` use karo; use karne se pehle SAARA input ek schema library se validate karo; injection rokne ke liye parameterised queries/ek ORM use karo; passwords bcrypt se hash karo; sab jagah HTTPS use karo aur cookies pe `secure`/`httpOnly`/`sameSite` set karo; sensitive endpoints (login, password reset) pe rate limiting add karo; refresh token rotation ke saath short-lived JWTs rakho; explicit allowlist ke saath CORS configure karo, `*` nahi; dependencies update rakho (`npm audit`); production mein clients ko kabhi stack traces/internal error details expose mat karo; aur saare secrets environment variables mein store karo, source code mein kabhi nahi.',
+    },
+  },
 ];
