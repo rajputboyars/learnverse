@@ -2220,6 +2220,779 @@ export const generalInterviewQuestions = [
         'const a={}; const b={key:"b"}; const c={key:"c"}; a[b]=123; a[c]=456; console.log(a[b]); → 456. Object keys automatically strings mein convert hote hain .toString() ke through. b aur c dono "[object Object]" pe stringify hote hain, isliye a["[object Object]"] pehle 123 set hota hai, phir 456 se overwrite. a[b] aur a[c] dono same key "[object Object]" padhte hain, 456 return karte hain. Agar object keys chahiye to Map use karo.',
     },
   },
+
+  // ─── JavaScript Basics ───────────────────────────────────────────
+  {
+    question: 'What is JavaScript?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'JavaScript is a high-level, interpreted (JIT-compiled), single-threaded, dynamically-typed programming language. It was created in 1995 to make web pages interactive, and today runs in browsers (via engines like V8, SpiderMonkey) and on servers (via Node.js). It follows the ECMAScript specification, supports multiple paradigms — procedural, object-oriented (via prototypes), and functional — and is prototype-based rather than class-based under the hood, even though ES6 added `class` syntax as sugar over prototypes.',
+      hinglish:
+        'JavaScript ek high-level, interpreted (JIT-compiled), single-threaded, dynamically-typed programming language hai. Ye 1995 mein web pages interactive banane ke liye bani thi, aur aaj browsers (V8, SpiderMonkey jaise engines se) aur servers (Node.js se) pe chalti hai. Ye ECMAScript specification follow karti hai, multiple paradigms support karti hai — procedural, object-oriented (prototypes ke through), aur functional — aur under the hood class-based nahi, prototype-based hai, chahe ES6 ne `class` syntax add ki ho prototypes ke upar sugar ke roop mein.',
+    },
+  },
+  {
+    question: 'What are the data types in JavaScript?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'JavaScript has 7 primitive types — string, number, boolean, undefined, null, symbol (ES6), and bigint (ES2020) — plus one non-primitive type, object (which covers arrays, functions, dates, maps, sets, etc.). Primitives are immutable and compared by value; objects are mutable and compared by reference. `typeof` distinguishes them at runtime, though `typeof null` famously (and incorrectly) returns "object" — a long-standing language bug kept for backward compatibility.',
+      hinglish:
+        'JavaScript mein 7 primitive types hain — string, number, boolean, undefined, null, symbol (ES6), aur bigint (ES2020) — plus ek non-primitive type, object (jo arrays, functions, dates, maps, sets, etc. cover karta hai). Primitives immutable hote hain aur value se compare hote hain; objects mutable hote hain aur reference se compare hote hain. `typeof` runtime pe inhe distinguish karta hai, chahe `typeof null` famously (aur incorrectly) "object" return karta hai — ek purana language bug jo backward compatibility ke liye rakha gaya hai.',
+    },
+  },
+  {
+    question: 'What is the difference between == and ===?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`==` is loose equality — it coerces operands to the same type before comparing, so `1 == "1"` and `null == undefined` are both true. `===` is strict equality — no type coercion; both value AND type must match, so `1 === "1"` is false. Best practice: always use `===` to avoid surprising coercion bugs (e.g. `"" == 0` is true, `[] == false` is true), reserving `==` only for the specific, well-known `== null` idiom that checks for both null and undefined at once.',
+      hinglish:
+        '`==` loose equality hai — compare karne se pehle operands ko same type mein coerce karta hai, isliye `1 == "1"` aur `null == undefined` dono true hain. `===` strict equality hai — koi type coercion nahi; value AUR type dono match hone chahiye, isliye `1 === "1"` false hai. Best practice: hamesha `===` use karo surprising coercion bugs se bachne ke liye (jaise `"" == 0` true hai, `[] == false` true hai), `==` ko sirf specific, well-known `== null` idiom ke liye reserve karo jo null aur undefined dono ek saath check karta hai.',
+    },
+  },
+  {
+    question: 'What are truthy and falsy values?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Every JS value is "truthy" or "falsy" when evaluated in a boolean context (if, &&, ||, ternary). There are exactly 8 falsy values: `false`, `0`, `-0`, `0n` (BigInt zero), `""` (empty string), `null`, `undefined`, and `NaN`. Every other value — including `"0"`, `"false"`, `[]` (empty array), and `{}` (empty object) — is truthy, which is a common source of bugs when people assume empty arrays/objects are falsy.',
+      hinglish:
+        'Har JS value "truthy" ya "falsy" hoti hai jab boolean context (if, &&, ||, ternary) mein evaluate ho. Exactly 8 falsy values hain: `false`, `0`, `-0`, `0n` (BigInt zero), `""` (empty string), `null`, `undefined`, aur `NaN`. Baaki har value — including `"0"`, `"false"`, `[]` (empty array), aur `{}` (empty object) — truthy hoti hai, jo ek common bug source hai jab log assume karte hain ki empty arrays/objects falsy hote hain.',
+    },
+  },
+  {
+    question: 'What is undefined?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`undefined` is a primitive value automatically assigned by JavaScript when a variable is declared but not initialised, a function parameter is not passed, a function has no explicit return, or an object property does not exist. It represents "value not yet assigned" — it is the language\'s own default, not something a developer typically assigns intentionally (though you can).',
+      hinglish:
+        '`undefined` ek primitive value hai jo JavaScript automatically assign karta hai jab ek variable declare ho par initialise na ho, ek function parameter pass na ho, function ka explicit return na ho, ya object property exist na kare. Ye represent karta hai "value abhi tak assign nahi hui" — ye language ka apna default hai, kuch aisa nahi jo developer typically intentionally assign kare (chahe kar sakte ho).',
+    },
+  },
+  {
+    question: 'What is null?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`null` is a primitive value that represents the intentional absence of any object value — a developer explicitly assigns it to say "this variable should have no value right now." Unlike `undefined` (the language\'s default for "not yet set"), `null` is a deliberate signal, commonly used to reset an object reference or initialise a variable that will later hold an object.',
+      hinglish:
+        '`null` ek primitive value hai jo kisi bhi object value ki intentional absence represent karta hai — developer explicitly ise assign karta hai ye kehne ke liye "is variable ki abhi koi value nahi honi chahiye." `undefined` (language ka default "abhi tak set nahi") ke ulat, `null` ek deliberate signal hai, commonly ek object reference reset karne ya ek variable initialise karne ke liye use hota hai jo baad mein object hold karega.',
+    },
+  },
+  {
+    question: 'What is NaN?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`NaN` ("Not a Number") is a special numeric value that results from an invalid or undefined mathematical operation, like `0/0`, `Math.sqrt(-1)`, or `parseInt("abc")`. Its `typeof` is confusingly "number". The strangest property: `NaN` is the only value in JavaScript that is not equal to itself (`NaN === NaN` is `false`), so you must use `Number.isNaN(x)` or `Object.is(x, NaN)` to reliably check for it — never `x === NaN`.',
+      hinglish:
+        '`NaN` ("Not a Number") ek special numeric value hai jo ek invalid ya undefined mathematical operation se result hoti hai, jaise `0/0`, `Math.sqrt(-1)`, ya `parseInt("abc")`. Iska `typeof` confusingly "number" hai. Sabse strange property: `NaN` JavaScript mein sirf aisi value hai jo khud ke barabar nahi hoti (`NaN === NaN` `false` hai), isliye reliably check karne ke liye `Number.isNaN(x)` ya `Object.is(x, NaN)` use karna padta hai — kabhi `x === NaN` nahi.',
+    },
+  },
+  {
+    question: 'What is the difference between primitive and reference data types?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Primitives (string, number, boolean, null, undefined, symbol, bigint) are stored directly by value on the stack — copying a primitive creates an independent copy, so changing the copy never affects the original. Reference types (objects, arrays, functions) are stored on the heap; the variable holds a reference (pointer) to that memory location. Copying a reference copies the pointer, not the data, so two variables can point to the same object — mutating it through one variable is visible through the other.',
+      hinglish:
+        'Primitives (string, number, boolean, null, undefined, symbol, bigint) stack pe directly value se store hote hain — ek primitive copy karne se independent copy banti hai, isliye copy change karne se original kabhi affect nahi hota. Reference types (objects, arrays, functions) heap pe store hote hain; variable us memory location ka ek reference (pointer) hold karta hai. Reference copy karne se pointer copy hota hai, data nahi, isliye do variables same object ko point kar sakte hain — ek variable ke through mutate karna doosre se bhi visible hota hai.',
+    },
+  },
+  {
+    question: 'What is type coercion?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Type coercion is JavaScript automatically converting a value from one type to another when an operation expects a different type — e.g. `"5" + 1` coerces the number to a string, producing `"51"` (string concatenation wins with `+`), while `"5" - 1` coerces the string to a number, producing `4` (subtraction has no string meaning). Coercion follows well-defined but sometimes surprising rules (via `ToPrimitive`, `ToNumber`, `ToString` abstract operations), which is exactly why `==` is considered risky.',
+      hinglish:
+        'Type coercion matlab JavaScript automatically ek value ko ek type se doosre mein convert kar deta hai jab operation ek alag type expect kare — jaise `"5" + 1` number ko string mein coerce karta hai, `"51"` produce karke (`+` ke saath string concatenation jeetta hai), jabki `"5" - 1` string ko number mein coerce karta hai, `4` produce karke (subtraction ka string meaning nahi hai). Coercion well-defined par kabhi-kabhi surprising rules follow karta hai (ToPrimitive, ToNumber, ToString abstract operations se), yahi wajah hai `==` risky maana jaata hai.',
+    },
+  },
+  {
+    question: 'What is implicit and explicit conversion?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Implicit conversion (type coercion) happens automatically, silently, by the engine — e.g. `"5" * "2"` becomes `10` because `*` has no string meaning. Explicit conversion is when the developer deliberately converts a type using functions like `Number("5")`, `String(5)`, `Boolean(1)`, or `parseInt("5px")`. Explicit conversion is preferred in production code because it makes intent clear and is easier to reason about and debug than relying on the engine\'s implicit rules.',
+      hinglish:
+        'Implicit conversion (type coercion) automatically, silently, engine ke through hoti hai — jaise `"5" * "2"` `10` ban jaata hai kyunki `*` ka string meaning nahi hai. Explicit conversion tab hoti hai jab developer deliberately ek type ko functions se convert kare jaise `Number("5")`, `String(5)`, `Boolean(1)`, ya `parseInt("5px")`. Production code mein explicit conversion preferred hai kyunki ye intent clear karta hai aur engine ke implicit rules pe depend karne se zyada easy hai reason karna aur debug karna.',
+    },
+  },
+  {
+    question: 'What is the typeof operator?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`typeof` is a unary operator that returns a string naming the type of its operand: "string", "number", "boolean", "undefined", "symbol", "bigint", "function", or "object". Quirks to remember: `typeof null === "object"` (a decades-old bug never fixed for compatibility), `typeof NaN === "number"` (NaN is still a number type), and `typeof []` and `typeof {}` are both `"object"` — use `Array.isArray()` to distinguish arrays specifically.',
+      hinglish:
+        '`typeof` ek unary operator hai jo apne operand ke type ka naam batane wala string return karta hai: "string", "number", "boolean", "undefined", "symbol", "bigint", "function", ya "object". Yaad rakhne wale quirks: `typeof null === "object"` (ek decades-old bug jo compatibility ke liye kabhi fix nahi hua), `typeof NaN === "number"` (NaN abhi bhi number type hai), aur `typeof []` aur `typeof {}` dono `"object"` hain — arrays ko specifically distinguish karne ke liye `Array.isArray()` use karo.',
+    },
+  },
+  {
+    question: 'What is the instanceof operator?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`instanceof` checks whether an object\'s prototype chain contains the `.prototype` property of a given constructor — `obj instanceof Ctor` walks up `obj.__proto__ → obj.__proto__.__proto__ → ...` looking for `Ctor.prototype`. It is used to check if an object is an instance of a class: `[] instanceof Array` is `true`, `[] instanceof Object` is also `true` (arrays inherit from Object). Unlike `typeof`, it works for custom classes but fails across different execution contexts/iframes because each has its own constructor identity.',
+      hinglish:
+        '`instanceof` check karta hai ki ek object ki prototype chain mein diye gaye constructor ki `.prototype` property hai ya nahi — `obj instanceof Ctor` `obj.__proto__ → obj.__proto__.__proto__ → ...` walk karta hai `Ctor.prototype` dhundhte hue. Ye check karne ke liye use hota hai ki koi object ek class ka instance hai — `[] instanceof Array` `true` hai, `[] instanceof Object` bhi `true` hai (arrays Object se inherit karte hain). `typeof` ke ulat, ye custom classes ke liye kaam karta hai par different execution contexts/iframes ke across fail ho jaata hai kyunki har ek ki apni constructor identity hoti hai.',
+    },
+  },
+  {
+    question: 'What is the difference between Object and Map?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A plain Object has string/symbol keys only (numeric keys get stringified), inherits properties from its prototype chain (which can cause collisions with built-in names like "toString"), has no reliable `.size`, and iteration order is a somewhat complex spec rule. A Map allows keys of ANY type (objects, functions, NaN — even objects as keys), has no default inheritance so no accidental collisions, has an O(1) `.size` property, and reliably iterates in insertion order. Use Map when keys are dynamic/unknown or non-string, or when you need frequent additions/removals.',
+      hinglish:
+        'Ek plain Object mein sirf string/symbol keys hoti hain (numeric keys stringify ho jaati hain), apni prototype chain se properties inherit karta hai (jo built-in names jaise "toString" ke saath collisions cause kar sakta hai), koi reliable `.size` nahi, aur iteration order ek somewhat complex spec rule hai. Ek Map ANY type ki keys allow karta hai (objects, functions, NaN — even objects as keys), koi default inheritance nahi isliye koi accidental collisions nahi, ek O(1) `.size` property, aur reliably insertion order mein iterate karta hai. Map use karo jab keys dynamic/unknown ya non-string hon, ya jab frequent additions/removals chahiye hon.',
+    },
+  },
+  {
+    question: 'What is the difference between Array and Object?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'An Array is an ordered, index-based collection (keys are sequential integers 0, 1, 2...) optimised for ordered data and has built-in methods (map, filter, reduce, push, etc.) via `Array.prototype`. An Object is an unordered (technically insertion-ordered for string keys) collection of key-value pairs, better suited for named/labelled data where you look things up by a meaningful key rather than a position. Under the hood, arrays ARE objects — `typeof [] === "object"` — just with special index-based behaviour and a `.length` property.',
+      hinglish:
+        'Ek Array ek ordered, index-based collection hai (keys sequential integers 0, 1, 2... hoti hain) ordered data ke liye optimised aur built-in methods (map, filter, reduce, push, etc.) `Array.prototype` ke through. Ek Object key-value pairs ka ek unordered (technically string keys ke liye insertion-ordered) collection hai, named/labelled data ke liye better suited jahan tum ek meaningful key se cheez dhundhte ho, position se nahi. Under the hood, arrays actually objects HAIN — `typeof [] === "object"` — bas special index-based behaviour aur ek `.length` property ke saath.',
+    },
+  },
+  {
+    question: 'How do you check if a value is an array?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use `Array.isArray(value)` — it returns `true` only for real arrays, and it works reliably even across different iframes/execution contexts (unlike `instanceof Array`, which can fail cross-realm because each realm has its own Array constructor). `typeof` is useless here since `typeof []` is `"object"`, same as a plain object. `Array.isArray()` is the standard, spec-recommended way and has been supported since ES5.',
+      hinglish:
+        '`Array.isArray(value)` use karo — ye sirf real arrays ke liye `true` return karta hai, aur ye reliably kaam karta hai different iframes/execution contexts ke across bhi (unlike `instanceof Array`, jo cross-realm fail ho sakta hai kyunki har realm ka apna Array constructor hota hai). `typeof` yahan bekaar hai kyunki `typeof []` `"object"` hai, plain object jaisa hi. `Array.isArray()` standard, spec-recommended tareeka hai aur ES5 se supported hai.',
+    },
+  },
+  {
+    question: 'What is the difference between slice() and splice()?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`slice(start, end)` is non-mutating — it returns a NEW array containing a shallow copy of the selected portion, leaving the original array untouched. `splice(start, deleteCount, ...items)` is mutating — it changes the original array IN PLACE by removing/replacing/inserting elements, and returns an array of the REMOVED elements. Mnemonic: "slice" for a read-only slice, "splice" for surgery that actually cuts into the original.',
+      hinglish:
+        '`slice(start, end)` non-mutating hai — ye ek NAYA array return karta hai jisme selected portion ki shallow copy hoti hai, original array untouched rehta hai. `splice(start, deleteCount, ...items)` mutating hai — ye original array ko IN PLACE change karta hai elements remove/replace/insert karke, aur REMOVED elements ka array return karta hai. Mnemonic: "slice" read-only slice ke liye, "splice" surgery ke liye jo actually original ko kaat ti hai.',
+    },
+  },
+  {
+    question: 'What is the difference between for, for...of, and for...in?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A classic `for (let i=0; i<n; i++)` loop gives full manual control over the index — best for performance-critical code or non-standard iteration. `for...of` iterates over the VALUES of an iterable (arrays, strings, Maps, Sets, generators) — the modern default for arrays. `for...in` iterates over the ENUMERABLE KEYS (property names, as strings) of an object, including inherited enumerable properties — it is meant for plain objects, NOT arrays (using it on arrays can iterate unexpected inherited/added properties and doesn\'t guarantee numeric order).',
+      hinglish:
+        'Classic `for (let i=0; i<n; i++)` loop index pe full manual control deta hai — performance-critical code ya non-standard iteration ke liye best. `for...of` ek iterable (arrays, strings, Maps, Sets, generators) ki VALUES pe iterate karta hai — arrays ke liye modern default. `for...in` ek object ki ENUMERABLE KEYS (property names, strings ke roop mein) pe iterate karta hai, inherited enumerable properties included — ye plain objects ke liye meant hai, arrays ke liye NAHI (arrays pe use karne se unexpected inherited/added properties iterate ho sakte hain aur numeric order guarantee nahi hota).',
+    },
+  },
+  {
+    question: 'What is the difference between includes() and indexOf()?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`indexOf(item)` returns the numeric position of the first matching element (or `-1` if not found) — useful when you need the POSITION. `includes(item)` returns a simple `true`/`false` for whether the element exists — cleaner and more readable when you only care about presence, not position. Crucially, `includes()` correctly finds `NaN` (`[NaN].includes(NaN)` is `true`), while `indexOf()` cannot (`[NaN].indexOf(NaN)` is `-1`) because `indexOf` uses `===` comparison and `NaN === NaN` is false.',
+      hinglish:
+        '`indexOf(item)` pehle matching element ki numeric position return karta hai (ya `-1` agar na mile) — useful jab tumhe POSITION chahiye. `includes(item)` simple `true`/`false` return karta hai element exist karta hai ya nahi — cleaner aur more readable jab sirf presence matter karti ho, position nahi. Crucially, `includes()` correctly `NaN` find karta hai (`[NaN].includes(NaN)` `true` hai), jabki `indexOf()` nahi kar sakta (`[NaN].indexOf(NaN)` `-1` hai) kyunki `indexOf` `===` comparison use karta hai aur `NaN === NaN` false hai.',
+    },
+  },
+
+  // ─── Functions ───────────────────────────────────────────
+  {
+    question: 'What is a function declaration?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A function declaration uses the `function` keyword with a name at statement level: `function greet() {...}`. It is fully hoisted — both the name AND the implementation are available before the line where it is written, so you can call it earlier in the file. This is different from a function expression, which is only hoisted as a variable (with its value assigned later, at the point of definition).',
+      hinglish:
+        'Ek function declaration `function` keyword ko naam ke saath statement level pe use karta hai: `function greet() {...}`. Ye fully hoisted hota hai — naam AUR implementation dono us line se pehle available hote hain jahan likha gaya hai, isliye tum ise file mein pehle call kar sakte ho. Ye function expression se alag hai, jo sirf ek variable ke roop mein hoisted hota hai (uski value baad mein, definition ke point pe assign hoti hai).',
+    },
+  },
+  {
+    question: 'What is a function expression?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A function expression assigns a function (named or anonymous) to a variable: `const greet = function() {...}`. Unlike a function declaration, it is NOT hoisted with its implementation — only the `const`/`let`/`var` variable binding follows normal hoisting rules, meaning calling `greet()` before this line throws a ReferenceError (with `const`/`let`, due to the TDZ) or gives `undefined is not a function` (with `var`). Function expressions are commonly used for callbacks and conditionally-defined functions.',
+      hinglish:
+        'Ek function expression ek function (named ya anonymous) ko ek variable mein assign karta hai: `const greet = function() {...}`. Function declaration ke ulat, ye apni implementation ke saath hoisted NAHI hota — sirf `const`/`let`/`var` variable binding normal hoisting rules follow karti hai, matlab is line se pehle `greet()` call karne se ReferenceError aata hai (`const`/`let` ke saath, TDZ ki wajah se) ya `undefined is not a function` milta hai (`var` ke saath). Function expressions commonly callbacks aur conditionally-defined functions ke liye use hote hain.',
+    },
+  },
+  {
+    question: 'What is a callback function?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A callback is a function passed as an argument to another function, to be invoked (called back) later — either synchronously (e.g. `[1,2].map(x => x*2)`) or asynchronously (e.g. `setTimeout(() => {...}, 1000)`, or a Node.js `fs.readFile(path, callback)`). Callbacks are how JavaScript handles asynchrony at its core — Promises and async/await are built on top of the same callback mechanism, just with cleaner syntax and better error propagation.',
+      hinglish:
+        'Callback ek function hai jo doosre function mein argument ke roop mein pass hota hai, baad mein invoke (call back) hone ke liye — ya to synchronously (jaise `[1,2].map(x => x*2)`) ya asynchronously (jaise `setTimeout(() => {...}, 1000)`, ya Node.js ka `fs.readFile(path, callback)`). Callbacks core mein JavaScript ke asynchrony handle karne ka tareeka hain — Promises aur async/await usi callback mechanism ke upar bane hain, bas cleaner syntax aur better error propagation ke saath.',
+    },
+  },
+  {
+    question: 'What are first-class functions?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A language has "first-class functions" if functions are treated like any other value: they can be assigned to variables, stored in arrays/objects, passed as arguments (callbacks), and returned from other functions (higher-order functions). JavaScript treats functions this way natively, which is what enables functional programming patterns like map/filter/reduce, currying, and composition to exist without special language support.',
+      hinglish:
+        'Ek language mein "first-class functions" tab hoti hain jab functions ko kisi bhi doosri value ki tarah treat kiya jaaye: variables mein assign ho sakein, arrays/objects mein store ho sakein, arguments (callbacks) ke roop mein pass ho sakein, aur doosre functions se return ho sakein (higher-order functions). JavaScript functions ko natively is tarah treat karta hai, yahi wajah hai functional programming patterns jaise map/filter/reduce, currying, aur composition bina special language support ke exist kar sakte hain.',
+    },
+  },
+  {
+    question: 'What is an IIFE?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An IIFE (Immediately Invoked Function Expression) is a function that runs the moment it is defined: `(function() { console.log("run now"); })();`. It was the classic pre-ES6 way to create a private scope — variables declared inside never leak into the global scope, avoiding naming collisions between scripts. Modern code uses ES modules or simply block scope (`let`/`const` in `{}`) for the same purpose, so IIFEs are less common today but still appear in library/bundler-generated code.',
+      hinglish:
+        'IIFE (Immediately Invoked Function Expression) ek function hai jo define hote hi run hota hai: `(function() { console.log("run now"); })();`. Ye pre-ES6 ka classic tareeka tha private scope banane ka — andar declare kiye variables kabhi global scope mein leak nahi hote, scripts ke beech naming collisions avoid karte hue. Modern code isi purpose ke liye ES modules ya simply block scope (`{}` mein `let`/`const`) use karta hai, isliye IIFEs aaj kam common hain par library/bundler-generated code mein abhi bhi dikhte hain.',
+    },
+  },
+  {
+    question: 'What is recursion?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Recursion is when a function calls itself to break a problem into smaller sub-problems, until it reaches a "base case" that stops the calling. Every recursive function needs: (1) a base case (the simplest, non-recursive scenario that ends the chain), and (2) a recursive case (that calls itself with a smaller/simpler input, moving towards the base case). Example: `function factorial(n) { return n <= 1 ? 1 : n * factorial(n - 1); }`. Deep recursion can cause a "Maximum call stack size exceeded" error since each call adds a frame to the call stack.',
+      hinglish:
+        'Recursion tab hai jab ek function khud ko call kare ek problem ko chhote sub-problems mein tod ne ke liye, jab tak wo ek "base case" tak na pahunche jo calling rok de. Har recursive function ko chahiye: (1) base case (sabse simple, non-recursive scenario jo chain khatam kare), aur (2) recursive case (jo khud ko chhote/simpler input ke saath call kare, base case ki taraf move karte hue). Example: `function factorial(n) { return n <= 1 ? 1 : n * factorial(n - 1); }`. Deep recursion se "Maximum call stack size exceeded" error aa sakti hai kyunki har call call stack mein ek frame add karti hai.',
+    },
+  },
+  {
+    question: 'What are default parameters?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Default parameters (ES6) let you specify a fallback value for a function parameter that is used ONLY when the argument is `undefined` (not passed, or explicitly passed as `undefined`) — `function greet(name = "Guest") {...}`. Note: passing `null` does NOT trigger the default, since `null` is a deliberate value, not "missing". Default values are evaluated at call time and can even reference earlier parameters: `function add(a, b = a) {...}`.',
+      hinglish:
+        'Default parameters (ES6) tumhe ek function parameter ke liye fallback value specify karne dete hain jo SIRF tab use hoti hai jab argument `undefined` ho (pass hi na ho, ya explicitly `undefined` pass ho) — `function greet(name = "Guest") {...}`. Note: `null` pass karne se default trigger NAHI hota, kyunki `null` ek deliberate value hai, "missing" nahi. Default values call time pe evaluate hoti hain aur pehle ke parameters ko reference bhi kar sakti hain: `function add(a, b = a) {...}`.',
+    },
+  },
+  {
+    question: 'What are rest parameters?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Rest parameters (`...args`) collect all remaining arguments passed to a function into a REAL array: `function sum(...nums) { return nums.reduce((a,b) => a+b, 0); }`. This replaces the old `arguments` object, which is an array-LIKE object (has indices and .length but not real array methods like .map/.filter). A rest parameter must be the LAST parameter in the function signature, and there can be only one.',
+      hinglish:
+        'Rest parameters (`...args`) ek function ko pass kiye saare remaining arguments ko ek REAL array mein collect karte hain: `function sum(...nums) { return nums.reduce((a,b) => a+b, 0); }`. Ye purane `arguments` object ki jagah leta hai, jo ek array-LIKE object hai (indices aur .length hote hain par real array methods jaise .map/.filter nahi). Rest parameter function signature mein LAST parameter hona chahiye, aur sirf ek ho sakta hai.',
+    },
+  },
+  {
+    question: 'What is the spread operator?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The spread operator (`...`) EXPANDS an iterable (array, string, Set, Map values) or an object\'s own enumerable properties into individual elements — the opposite direction of rest parameters, which COLLECT into an array. Common uses: copying arrays/objects (`[...arr]`, `{...obj}`), merging arrays/objects (`[...a, ...b]`), passing array elements as individual function arguments (`Math.max(...numbers)`), and converting a Set/string to an array (`[...new Set(arr)]`).',
+      hinglish:
+        'Spread operator (`...`) ek iterable (array, string, Set, Map values) ya ek object ki own enumerable properties ko individual elements mein EXPAND karta hai — rest parameters ki opposite direction, jo array mein COLLECT karte hain. Common uses: arrays/objects copy karna (`[...arr]`, `{...obj}`), arrays/objects merge karna (`[...a, ...b]`), array elements ko individual function arguments ke roop mein pass karna (`Math.max(...numbers)`), aur Set/string ko array mein convert karna (`[...new Set(arr)]`).',
+    },
+  },
+  {
+    question: 'What is the difference between rest and spread?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'They use the SAME `...` syntax but do opposite things depending on context. Rest COLLECTS multiple values into a single array — used in function parameters (`function f(...args)`) or destructuring (`const [a, ...rest] = arr`). Spread EXPANDS a single array/object into multiple individual values — used in function calls (`f(...args)`) or literals (`[...arr1, ...arr2]`, `{...obj}`). Mnemonic: rest appears on the LEFT side of an assignment/parameter list (gathering); spread appears on the RIGHT side / inside a call (scattering).',
+      hinglish:
+        'Dono SAME `...` syntax use karte hain par context ke hisaab se opposite kaam karte hain. Rest multiple values ko ek single array mein COLLECT karta hai — function parameters (`function f(...args)`) ya destructuring (`const [a, ...rest] = arr`) mein use hota hai. Spread ek single array/object ko multiple individual values mein EXPAND karta hai — function calls (`f(...args)`) ya literals (`[...arr1, ...arr2]`, `{...obj}`) mein use hota hai. Mnemonic: rest assignment/parameter list ke LEFT side pe aata hai (gathering); spread RIGHT side pe / call ke andar aata hai (scattering).',
+    },
+  },
+  {
+    question: 'What is function composition?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Function composition is combining two or more simple functions into a single, more complex function, where the output of one becomes the input of the next — `compose(f, g)(x) === f(g(x))`. It is a core functional-programming pattern used to build complex data transformations from small, reusable, testable pieces instead of one large imperative function. Utility libraries like Ramda/Lodash provide `compose`/`pipe` helpers: `const pipe = (...fns) => x => fns.reduce((acc, fn) => fn(acc), x);`.',
+      hinglish:
+        'Function composition do ya zyada simple functions ko ek single, zyada complex function mein combine karna hai, jahan ek ka output agle ka input ban jaata hai — `compose(f, g)(x) === f(g(x))`. Ye ek core functional-programming pattern hai jo complex data transformations ko chhote, reusable, testable pieces se banata hai ek bade imperative function ke bajaye. Ramda/Lodash jaisi utility libraries `compose`/`pipe` helpers dete hain: `const pipe = (...fns) => x => fns.reduce((acc, fn) => fn(acc), x);`.',
+    },
+  },
+
+  // ─── Scope & Closures ───────────────────────────────────────────
+  {
+    question: 'What is scope?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Scope determines where in your code a variable is accessible. JavaScript resolves variable lookups by searching the current scope, then walking outward through enclosing scopes, until it finds the variable or reaches the global scope (throwing a ReferenceError if never found). Understanding scope explains why a variable declared inside a function is invisible outside it, and is the foundation on which closures and the module pattern are built.',
+      hinglish:
+        'Scope decide karta hai ki code mein kahan ek variable accessible hai. JavaScript variable lookups ko current scope search karke resolve karta hai, phir enclosing scopes ke through bahar walk karta hai, jab tak variable mil na jaaye ya global scope tak pahunch jaaye (agar kabhi na mile to ReferenceError throw karte hue). Scope samajhna ye explain karta hai ki ek function ke andar declare kiya variable bahar kyun invisible hai, aur ye foundation hai jispe closures aur module pattern bane hain.',
+    },
+  },
+  {
+    question: 'What are Global, Function, and Block scope?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Global scope: variables declared outside any function/block, accessible everywhere in the program. Function scope: variables declared with `var` inside a function are visible throughout that entire function, regardless of nested blocks (if/for/while) — `var` ignores block boundaries. Block scope (ES6): variables declared with `let`/`const` inside any `{}` block are only visible within that block — this is why `let`/`const` are strongly preferred over `var` for predictable, contained scoping.',
+      hinglish:
+        'Global scope: koi bhi function/block ke bahar declare kiye variables, program mein har jagah accessible. Function scope: ek function ke andar `var` se declare kiye variables us poori function mein visible hote hain, nested blocks (if/for/while) ki parwah kiye bina — `var` block boundaries ignore karta hai. Block scope (ES6): kisi bhi `{}` block ke andar `let`/`const` se declare kiye variables sirf us block ke andar visible hote hain — yahi wajah hai `let`/`const` ko `var` se zyada strongly prefer kiya jaata hai predictable, contained scoping ke liye.',
+    },
+  },
+  {
+    question: 'What is lexical scope?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Lexical (static) scope means a variable\'s accessibility is determined by WHERE it is physically written in the source code, not by how or from where the function is called. A function\'s scope chain is fixed at the moment it is DEFINED, based on its nesting in the code — this is what makes closures possible, since an inner function permanently "remembers" the variables of the outer function it was written inside, no matter where it is later invoked.',
+      hinglish:
+        'Lexical (static) scope ka matlab hai ki ek variable ki accessibility is baat se decide hoti hai ki wo source code mein PHYSICALLY kahan likha hai, is baat se nahi ki function kaise ya kahan se call hota hai. Ek function ka scope chain us moment fix ho jaata hai jab wo DEFINE hota hai, code mein uski nesting ke basis pe — yahi closures ko possible banata hai, kyunki ek inner function permanently outer function ke variables "yaad rakhta hai" jiske andar wo likha gaya tha, chahe wo baad mein kahin bhi invoke ho.',
+    },
+  },
+  {
+    question: 'Give a real-world use case of closures.',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A common real-world use is a private counter/module pattern: `function createCounter() { let count = 0; return { increment: () => ++count, getCount: () => count }; }`. The `count` variable is completely private — it cannot be accessed or modified from outside except through the returned functions, since the returned functions "close over" the `count` variable from their enclosing scope. This pattern powers React\'s `useState` internals, memoization/caching, event handler factories, and the classic module pattern for encapsulation before ES modules existed.',
+      hinglish:
+        'Ek common real-world use hai private counter/module pattern: `function createCounter() { let count = 0; return { increment: () => ++count, getCount: () => count }; }`. `count` variable poori tarah private hai — bahar se access ya modify nahi ho sakta except returned functions ke through, kyunki returned functions apne enclosing scope se `count` variable ko "close over" karte hain. Ye pattern React ke `useState` internals, memoization/caching, event handler factories, aur ES modules exist karne se pehle classic module pattern (encapsulation ke liye) power karta hai.',
+    },
+  },
+  {
+    question: 'What is variable shadowing?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Shadowing happens when a variable declared in an inner scope has the same name as a variable in an outer scope — the inner variable "shadows" (hides) the outer one for the duration of that inner scope, without modifying the outer variable at all. `let x = 1; { let x = 2; console.log(x); } console.log(x);` logs `2` then `1` — the inner `x` never touched the outer `x`. Illegal shadowing occurs if you try to shadow a `let`/`const` with `var` in the same or a nested function scope, which throws a SyntaxError.',
+      hinglish:
+        'Shadowing tab hoti hai jab ek inner scope mein declare kiya variable ek outer scope ke variable jaisa hi naam rakhta hai — inner variable us inner scope ki duration ke liye outer wale ko "shadow" (hide) karta hai, outer variable ko bilkul bhi modify kiye bina. `let x = 1; { let x = 2; console.log(x); } console.log(x);` `2` phir `1` log karta hai — inner `x` ne outer `x` ko kabhi touch nahi kiya. Illegal shadowing tab hoti hai agar tum same ya nested function scope mein `let`/`const` ko `var` se shadow karne ki koshish karo, jo SyntaxError throw karta hai.',
+    },
+  },
+  {
+    question: 'What gets hoisted in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Hoisting means declarations are processed before code execution, during a "creation phase". Function declarations are hoisted COMPLETELY — name and body — so they can be called before their line. `var` declarations are hoisted but only the DECLARATION, initialised to `undefined`; the assignment stays in place. `let`/`const` declarations are also technically hoisted (their name is registered), but they are NOT initialised — accessing them before their line throws a ReferenceError due to the Temporal Dead Zone, rather than returning `undefined`.',
+      hinglish:
+        'Hoisting ka matlab hai declarations code execution se pehle process hote hain, ek "creation phase" ke dauraan. Function declarations POORI TARAH hoisted hote hain — naam aur body dono — isliye unhe unki line se pehle call kiya ja sakta hai. `var` declarations hoisted hote hain par sirf DECLARATION, `undefined` se initialised; assignment apni jagah rehta hai. `let`/`const` declarations bhi technically hoisted hote hain (unka naam register hota hai), par wo initialise NAHI hote — unhe unki line se pehle access karne se ReferenceError aata hai Temporal Dead Zone ki wajah se, `undefined` return karne ke bajaye.',
+    },
+  },
+  {
+    question: 'Can let and const be hoisted?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Yes — `let` and `const` ARE hoisted, contrary to the popular misconception that they are not. What actually differs from `var` is INITIALISATION timing: `var` is hoisted and immediately initialised to `undefined`, so accessing it early gives `undefined`. `let`/`const` are hoisted but left UNINITIALISED, sitting in the "Temporal Dead Zone" from the start of their block until their declaration line executes — accessing them in that window throws `ReferenceError: Cannot access before initialization`, not a silent `undefined`.',
+      hinglish:
+        'Haan — `let` aur `const` HOISTED hote hain, is popular misconception ke ulat ki nahi hote. `var` se actually jo differ karta hai wo hai INITIALISATION timing: `var` hoisted hota hai aur turant `undefined` se initialise ho jaata hai, isliye jaldi access karne pe `undefined` milta hai. `let`/`const` hoisted hote hain par UNINITIALISED chhode jaate hain, apne block ki shuruaat se lekar declaration line execute hone tak "Temporal Dead Zone" mein baithe rehte hain — us window mein access karne se `ReferenceError: Cannot access before initialization` aata hai, silent `undefined` nahi.',
+    },
+  },
+
+  // ─── Objects ───────────────────────────────────────────
+  {
+    question: 'What is an object in JavaScript?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'An object is a collection of key-value pairs (properties), where keys are strings or symbols and values can be any type — including other objects and functions (making them "methods"). Objects are the fundamental building block of JavaScript: arrays, functions, dates, regexes, Maps, and Sets are all specialised kinds of objects under the hood. They are reference types, stored on the heap, and support dynamic addition/removal of properties at runtime.',
+      hinglish:
+        'Ek object key-value pairs (properties) ka collection hai, jahan keys strings ya symbols hoti hain aur values kisi bhi type ki ho sakti hain — including doosre objects aur functions (jo unhe "methods" banata hai). Objects JavaScript ka fundamental building block hain: arrays, functions, dates, regexes, Maps, aur Sets — sab under the hood specialised kinds of objects hain. Ye reference types hain, heap pe store hote hain, aur runtime pe properties ka dynamic addition/removal support karte hain.',
+    },
+  },
+  {
+    question: 'What is object destructuring?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Destructuring is syntax that unpacks values from objects (or arrays) into distinct variables in a single expression: `const { name, age } = user;` extracts `user.name` and `user.age` directly into local variables. It supports renaming (`const { name: userName } = user`), default values (`const { role = "guest" } = user`), nested extraction, and combines with rest (`const { id, ...rest } = user`). It dramatically reduces boilerplate when working with function parameters or API response objects.',
+      hinglish:
+        'Destructuring ek syntax hai jo objects (ya arrays) se values ko ek single expression mein distinct variables mein unpack karta hai: `const { name, age } = user;` `user.name` aur `user.age` ko directly local variables mein extract karta hai. Ye renaming (`const { name: userName } = user`), default values (`const { role = "guest" } = user`), nested extraction support karta hai, aur rest ke saath combine hota hai (`const { id, ...rest } = user`). Function parameters ya API response objects ke saath kaam karte waqt ye boilerplate dramatically kam karta hai.',
+    },
+  },
+  {
+    question: 'What is optional chaining (?.)?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Optional chaining (`?.`) safely accesses a deeply nested property without throwing an error if an intermediate reference is `null` or `undefined` — `user?.address?.city` returns `undefined` instead of crashing if `user` or `user.address` doesn\'t exist, replacing the older, verbose `user && user.address && user.address.city` pattern. It also works with function calls (`obj.method?.()`, only calls if `method` exists) and array/bracket access (`arr?.[0]`).',
+      hinglish:
+        'Optional chaining (`?.`) ek deeply nested property ko safely access karta hai bina error throw kiye agar koi intermediate reference `null` ya `undefined` ho — `user?.address?.city` `undefined` return karta hai crash hone ke bajaye agar `user` ya `user.address` exist nahi karta, purane, verbose `user && user.address && user.address.city` pattern ki jagah leta hai. Ye function calls (`obj.method?.()`, sirf tab call karta hai jab `method` exist kare) aur array/bracket access (`arr?.[0]`) ke saath bhi kaam karta hai.',
+    },
+  },
+  {
+    question: 'What is nullish coalescing (??)?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The nullish coalescing operator (`??`) returns its right-hand side ONLY when the left-hand side is `null` or `undefined` — unlike `||`, which falls back for ANY falsy value (`0`, `""`, `false`, `NaN` too). `const count = userInput ?? 10;` correctly preserves a legitimate `0` from `userInput`, whereas `userInput || 10` would incorrectly replace a valid `0` with `10`. This makes `??` the safer choice specifically for "provide a default only if truly missing" scenarios.',
+      hinglish:
+        'Nullish coalescing operator (`??`) apni right-hand side SIRF tab return karta hai jab left-hand side `null` ya `undefined` ho — `||` ke ulat, jo KISI BHI falsy value ke liye fallback karta hai (`0`, `""`, `false`, `NaN` bhi). `const count = userInput ?? 10;` correctly ek legitimate `0` ko `userInput` se preserve karta hai, jabki `userInput || 10` galat tarike se ek valid `0` ko `10` se replace kar deta. Isse `??` "sirf tab default do jab truly missing ho" scenarios ke liye safer choice ban jaata hai.',
+    },
+  },
+  {
+    question: 'What is the difference between Object.keys(), Object.values(), and Object.entries()?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`Object.keys(obj)` returns an array of the object\'s own enumerable PROPERTY NAMES (strings). `Object.values(obj)` returns an array of the corresponding VALUES, in the same order. `Object.entries(obj)` returns an array of `[key, value]` pairs — ideal for `for...of` iteration (`for (const [k, v] of Object.entries(obj))`) or converting an object to a Map (`new Map(Object.entries(obj))`). All three ignore inherited (prototype-chain) properties, only listing the object\'s own properties.',
+      hinglish:
+        '`Object.keys(obj)` object ki own enumerable PROPERTY NAMES (strings) ka array return karta hai. `Object.values(obj)` corresponding VALUES ka array return karta hai, same order mein. `Object.entries(obj)` `[key, value]` pairs ka array return karta hai — `for...of` iteration ke liye ideal (`for (const [k, v] of Object.entries(obj))`) ya object ko Map mein convert karne ke liye (`new Map(Object.entries(obj))`). Teeno inherited (prototype-chain) properties ignore karte hain, sirf object ki own properties list karte hain.',
+    },
+  },
+  {
+    question: 'What is Object.freeze()?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`Object.freeze(obj)` makes an object fully immutable at the TOP LEVEL: you cannot add, remove, or reassign any of its existing properties — in non-strict mode changes silently fail; in strict mode they throw a TypeError. Important caveat: it is SHALLOW — if a property\'s value is itself an object, that nested object remains fully mutable. `Object.isFrozen(obj)` checks the frozen state. Commonly used for exporting constants or config objects that should never be mutated.',
+      hinglish:
+        '`Object.freeze(obj)` ek object ko TOP LEVEL pe fully immutable bana deta hai: tum uski kisi bhi existing property ko add, remove, ya reassign nahi kar sakte — non-strict mode mein changes silently fail hote hain; strict mode mein TypeError throw hota hai. Important caveat: ye SHALLOW hai — agar ek property ki value khud ek object hai, wo nested object fully mutable rehta hai. `Object.isFrozen(obj)` frozen state check karta hai. Commonly constants ya config objects export karne ke liye use hota hai jo kabhi mutate nahi hone chahiye.',
+    },
+  },
+  {
+    question: 'What is Object.seal()?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`Object.seal(obj)` prevents adding new properties and DELETING existing ones, but — unlike `freeze` — still allows MODIFYING the values of existing writable properties. It essentially locks the object\'s "shape" (its set of keys) while leaving the values flexible. `Object.isSealed(obj)` checks the sealed state. Use `seal` when you want a fixed structure (no new/removed fields) but still need to update values, e.g. a settings object with a known, fixed set of keys.',
+      hinglish:
+        '`Object.seal(obj)` naye properties add karne aur existing properties DELETE karne se rokta hai, par — `freeze` ke ulat — existing writable properties ki values MODIFY karne ki abhi bhi allow karta hai. Ye essentially object ki "shape" (uski keys ka set) lock kar deta hai jabki values flexible chhod deta hai. `Object.isSealed(obj)` sealed state check karta hai. `seal` tab use karo jab tumhe ek fixed structure chahiye (no new/removed fields) par values update karne ki zaroorat abhi bhi ho, jaise ek settings object with a known, fixed set of keys.',
+    },
+  },
+  {
+    question: 'What is the "this" keyword in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`this` refers to the object that is currently "executing" the function — its value is determined by HOW a function is CALLED, not where it is defined (except for arrow functions). Rules: a plain function call (`fn()`) has `this` as `undefined` in strict mode (or the global object in non-strict); a method call (`obj.method()`) has `this` as `obj`; `new Fn()` has `this` as the newly created instance; and `call`/`apply`/`bind` let you explicitly set `this`. This "call-site dependent" behaviour is one of JS\'s most confusing features for beginners.',
+      hinglish:
+        '`this` us object ko refer karta hai jo currently function ko "execute" kar raha hai — iski value is baat se decide hoti hai ki function KAISE call hua, kahan define hua (arrow functions ke alawa). Rules: ek plain function call (`fn()`) mein `this` strict mode mein `undefined` hai (ya non-strict mein global object); ek method call (`obj.method()`) mein `this` `obj` hai; `new Fn()` mein `this` newly created instance hai; aur `call`/`apply`/`bind` tumhe explicitly `this` set karne dete hain. Ye "call-site dependent" behaviour beginners ke liye JS ka sabse confusing feature hai.',
+    },
+  },
+  {
+    question: 'How does "this" work in arrow functions?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Arrow functions do NOT have their own `this` binding — they lexically inherit `this` from the enclosing (surrounding) scope at the time they are DEFINED, and this binding can never be changed, even with `call`/`apply`/`bind`. This makes arrow functions ideal inside callbacks/methods where you want `this` to remain the outer context: `class Timer { start() { setTimeout(() => this.tick(), 1000); } }` — the arrow function correctly keeps `this` as the Timer instance, whereas a regular function would lose it.',
+      hinglish:
+        'Arrow functions ka apna `this` binding NAHI hota — wo lexically enclosing (surrounding) scope se `this` inherit karte hain jab DEFINE hote hain, aur ye binding kabhi change nahi ho sakti, `call`/`apply`/`bind` se bhi nahi. Isse arrow functions callbacks/methods ke andar ideal hain jahan tum chahte ho `this` outer context hi rahe: `class Timer { start() { setTimeout(() => this.tick(), 1000); } }` — arrow function correctly `this` ko Timer instance rakhta hai, jabki ek regular function ise kho deta.',
+    },
+  },
+  {
+    question: 'What is a prototype in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Every JavaScript object has an internal link (`[[Prototype]]`, accessible via `Object.getPrototypeOf(obj)` or the deprecated `__proto__`) to another object called its prototype, from which it inherits properties and methods. `Function.prototype` is the object that becomes the `[[Prototype]]` of every instance created with `new SomeFunction()` — this is how, for example, every array automatically has access to `.map`, `.filter`, `.push`, etc., without those methods being copied onto each array individually.',
+      hinglish:
+        'Har JavaScript object ka ek internal link hota hai (`[[Prototype]]`, `Object.getPrototypeOf(obj)` ya deprecated `__proto__` se accessible) ek doosre object se jise uska prototype kehte hain, jisse wo properties aur methods inherit karta hai. `Function.prototype` wo object hai jo har instance ka `[[Prototype]]` bant jaata hai jo `new SomeFunction()` se banaya jaata hai — isi tarah, for example, har array automatically `.map`, `.filter`, `.push`, etc. ka access rakhta hai, bina in methods ko har array pe individually copy kiye.',
+    },
+  },
+
+  // ─── Arrays ───────────────────────────────────────────
+  {
+    question: 'What is the difference between map() and forEach()?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`map()` transforms each element and RETURNS A NEW ARRAY of the same length containing the results — it is designed for creating a derived dataset and is chainable (`arr.map(...).filter(...)`). `forEach()` simply executes a function for each element for SIDE EFFECTS (logging, pushing into an external array, mutating something) and always returns `undefined` — it cannot be chained. Rule of thumb: use `map` when you need the transformed values back; use `forEach` only when you need to "do something" without producing a new array.',
+      hinglish:
+        '`map()` har element ko transform karta hai aur same length ka EK NAYA ARRAY results ka RETURN karta hai — ye ek derived dataset banane ke liye designed hai aur chainable hai (`arr.map(...).filter(...)`). `forEach()` simply har element ke liye ek function execute karta hai SIDE EFFECTS ke liye (logging, external array mein push karna, kuch mutate karna) aur hamesha `undefined` return karta hai — chain nahi ho sakta. Rule of thumb: `map` use karo jab tumhe transformed values wapas chahiye; `forEach` sirf tab use karo jab "kuch karna" ho bina naya array produce kiye.',
+    },
+  },
+  {
+    question: 'What is the difference between filter() and find()?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`filter(predicate)` returns a NEW ARRAY containing ALL elements that pass the test — the result can be empty, one item, or many. `find(predicate)` returns only the FIRST matching element itself (not wrapped in an array), or `undefined` if none match, and stops searching as soon as it finds a match (more efficient for finding "the one item"). Use `filter` when you need every match; use `find` when you need a single result.',
+      hinglish:
+        '`filter(predicate)` EK NAYA ARRAY return karta hai jisme test pass karne wale SAARE elements hote hain — result empty, ek item, ya bahut saare ho sakte hain. `find(predicate)` sirf PEHLA matching element khud return karta hai (array mein wrap kiye bina), ya `undefined` agar koi match na kare, aur match milte hi search rok deta hai (ek item dhundhne ke liye zyada efficient). `filter` use karo jab har match chahiye; `find` use karo jab ek single result chahiye.',
+    },
+  },
+  {
+    question: 'What is the difference between some() and every()?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`some(predicate)` returns `true` if AT LEAST ONE element passes the test (short-circuits on the first match) — `[]` (empty array) returns `false`. `every(predicate)` returns `true` only if ALL elements pass the test (short-circuits on the first FAILURE) — `[]` (empty array) returns `true` (vacuous truth). Both are more expressive and readable than manually looping with a flag variable.',
+      hinglish:
+        '`some(predicate)` `true` return karta hai agar KAM SE KAM ek element test pass kare (pehle match pe short-circuit) — `[]` (empty array) `false` return karta hai. `every(predicate)` `true` sirf tab return karta hai jab SAARE elements test pass karein (pehli FAILURE pe short-circuit) — `[]` (empty array) `true` return karta hai (vacuous truth). Dono manually flag variable se loop karne se zyada expressive aur readable hain.',
+    },
+  },
+  {
+    question: 'What is reduce() and how does it work?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`reduce(callback, initialValue)` "reduces" an entire array to a SINGLE value by running an accumulator function over each element in order — the callback receives `(accumulator, currentValue, index, array)` and its return value becomes the accumulator for the next iteration. It is the most general array method; sum, count, group-by, flatten, and even `map`/`filter` can all be re-implemented using `reduce` alone, which is why it is a favourite interview topic.',
+      hinglish:
+        '`reduce(callback, initialValue)` poore array ko ek SINGLE value mein "reduce" karta hai ek accumulator function ko har element pe order mein chalate hue — callback ko `(accumulator, currentValue, index, array)` milta hai aur uska return value agli iteration ke liye accumulator ban jaata hai. Ye sabse general array method hai; sum, count, group-by, flatten, aur even `map`/`filter` sab `reduce` se hi re-implement kiye ja sakte hain, yahi wajah hai ye ek favourite interview topic hai.',
+    },
+  },
+  {
+    question: 'How do you flatten a nested array?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The built-in way: `arr.flat(depth)` flattens nested arrays up to `depth` levels (default 1); use `arr.flat(Infinity)` to fully flatten arbitrarily nested arrays. `arr.flatMap(fn)` is a combined map + flat(1), useful when your mapping function itself returns arrays. Before ES2019, this was done manually with recursion: `function flatten(arr) { return arr.reduce((acc, val) => acc.concat(Array.isArray(val) ? flatten(val) : val), []); }`.',
+      hinglish:
+        'Built-in tareeka: `arr.flat(depth)` nested arrays ko `depth` levels tak flatten karta hai (default 1); arbitrarily nested arrays ko fully flatten karne ke liye `arr.flat(Infinity)` use karo. `arr.flatMap(fn)` ek combined map + flat(1) hai, useful hai jab tumhara mapping function khud arrays return kare. ES2019 se pehle, ye manually recursion se hota tha: `function flatten(arr) { return arr.reduce((acc, val) => acc.concat(Array.isArray(val) ? flatten(val) : val), []); }`.',
+    },
+  },
+  {
+    question: 'What is the difference between push() and concat()?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`push(...items)` MUTATES the original array by adding items to its end, and returns the new LENGTH of the array (not the array itself). `concat(...items/arrays)` does NOT mutate anything — it returns a brand NEW array containing the original elements plus the new ones. Use `push` when in-place mutation is fine (e.g. building up a local array); use `concat` (or the spread operator `[...arr, newItem]`) when you need immutability, such as in React state updates.',
+      hinglish:
+        '`push(...items)` original array ko MUTATE karta hai uske end mein items add karke, aur array ki nayi LENGTH return karta hai (array khud nahi). `concat(...items/arrays)` kuch bhi mutate NAHI karta — ye ek BILKUL NAYA array return karta hai jisme original elements plus naye elements hote hain. `push` use karo jab in-place mutation theek ho (jaise ek local array banana); `concat` (ya spread operator `[...arr, newItem]`) use karo jab immutability chahiye, jaise React state updates mein.',
+    },
+  },
+  {
+    question: 'What is the difference between mutable and immutable array methods?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Mutable methods change the ORIGINAL array in place: `push`, `pop`, `shift`, `unshift`, `splice`, `sort`, `reverse`, `fill`. Immutable (non-mutating) methods return a NEW array/value, leaving the original untouched: `map`, `filter`, `reduce`, `slice`, `concat`, `flat`, the spread operator, and the newer ES2023 counterparts `toSorted`, `toReversed`, `toSpliced`. In frameworks like React/Redux that rely on reference-equality checks to detect changes, using mutating methods directly on state is a very common bug — always prefer the immutable alternatives.',
+      hinglish:
+        'Mutable methods ORIGINAL array ko in place change karte hain: `push`, `pop`, `shift`, `unshift`, `splice`, `sort`, `reverse`, `fill`. Immutable (non-mutating) methods ek NAYA array/value return karte hain, original untouched chhodte hue: `map`, `filter`, `reduce`, `slice`, `concat`, `flat`, spread operator, aur newer ES2023 counterparts `toSorted`, `toReversed`, `toSpliced`. React/Redux jaise frameworks mein jo changes detect karne ke liye reference-equality checks pe depend karte hain, state pe directly mutating methods use karna ek bahut common bug hai — hamesha immutable alternatives prefer karo.',
+    },
+  },
+  {
+    question: 'How do you sort numbers correctly in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'By default, `.sort()` converts elements to STRINGS and compares them lexicographically, so `[10, 2, 1].sort()` gives the wrong `[1, 10, 2]` (since "10" < "2" as strings). To sort numbers correctly, always pass a comparator function: `arr.sort((a, b) => a - b)` for ascending, `arr.sort((a, b) => b - a)` for descending. Note that `.sort()` also mutates the original array in place — use `[...arr].sort(...)` or the newer `arr.toSorted(...)` (ES2023) if you need an immutable sort.',
+      hinglish:
+        'By default, `.sort()` elements ko STRINGS mein convert karke lexicographically compare karta hai, isliye `[10, 2, 1].sort()` galat `[1, 10, 2]` deta hai (kyunki strings ke roop mein "10" < "2"). Numbers ko sahi se sort karne ke liye, hamesha ek comparator function pass karo: ascending ke liye `arr.sort((a, b) => a - b)`, descending ke liye `arr.sort((a, b) => b - a)`. Note karo ki `.sort()` original array ko bhi in place mutate karta hai — agar immutable sort chahiye to `[...arr].sort(...)` ya newer `arr.toSorted(...)` (ES2023) use karo.',
+    },
+  },
+
+  // ─── Asynchronous JavaScript ───────────────────────────────────────────
+  {
+    question: 'What is synchronous programming?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Synchronous code executes line by line, in order, and each operation must FINISH before the next one starts — if one line takes 5 seconds (e.g. a heavy loop), everything after it (including UI rendering, in a browser) is blocked for those 5 seconds. Most basic JavaScript code (variable assignment, arithmetic, simple function calls) is synchronous by default; asynchronous behaviour must be explicitly introduced via callbacks, Promises, or async/await.',
+      hinglish:
+        'Synchronous code line by line, order mein execute hota hai, aur har operation ko agla shuru hone se pehle KHATAM hona zaroori hai — agar ek line 5 seconds leti hai (jaise ek heavy loop), uske baad sab kuch (browser mein UI rendering included) un 5 seconds ke liye block ho jaata hai. Zyadatar basic JavaScript code (variable assignment, arithmetic, simple function calls) by default synchronous hota hai; asynchronous behaviour explicitly callbacks, Promises, ya async/await se introduce karna padta hai.',
+    },
+  },
+  {
+    question: 'What is asynchronous programming?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Asynchronous programming lets an operation (network request, file read, timer) START without blocking the rest of the program — the code continues executing other statements, and the async operation\'s result is handled LATER via a callback, Promise `.then()`, or `await`, once it completes. This is essential in JavaScript, especially in browsers, because a single-threaded language would otherwise freeze the entire UI while waiting for slow operations like network calls.',
+      hinglish:
+        'Asynchronous programming ek operation (network request, file read, timer) ko baaki program ko block kiye bina START karne deta hai — code baaki statements execute karta rehta hai, aur async operation ka result BAAD MEIN handle hota hai ek callback, Promise `.then()`, ya `await` ke through, jab wo complete ho jaaye. Ye JavaScript mein essential hai, especially browsers mein, kyunki ek single-threaded language warna poori UI freeze kar degi slow operations jaise network calls ka wait karte hue.',
+    },
+  },
+  {
+    question: 'What are the Promise states?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A Promise has exactly 3 states: **pending** (initial state — the async operation has not completed yet), **fulfilled** (the operation completed successfully, and `.then()` handlers run with the resolved value), and **rejected** (the operation failed, and `.catch()` handlers run with the error/reason). Once a Promise moves from pending to either fulfilled or rejected, it is permanently "settled" — its state and value can never change again, which is what makes Promises reliable and predictable compared to raw callbacks.',
+      hinglish:
+        'Ek Promise ki exactly 3 states hoti hain: **pending** (initial state — async operation abhi complete nahi hua), **fulfilled** (operation successfully complete hua, aur `.then()` handlers resolved value ke saath chalte hain), aur **rejected** (operation fail hua, aur `.catch()` handlers error/reason ke saath chalte hain). Ek baar Promise pending se fulfilled ya rejected mein move ho jaaye, ye permanently "settled" ho jaata hai — iska state aur value kabhi phir se change nahi ho sakti, yahi Promises ko raw callbacks ke comparison mein reliable aur predictable banata hai.',
+    },
+  },
+  {
+    question: 'What is the difference between callbacks and promises?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Callbacks are plain functions passed to be invoked later — nesting multiple async callbacks leads to "callback hell" (deeply indented, hard-to-read pyramid code), and error handling must be manually repeated at every level (usually via an `(err, data)` convention). Promises are objects representing a future value, with built-in chaining (`.then().then()`, flattening the pyramid), a single centralised error path (`.catch()` catches errors from ANY step in the chain), and composability via `Promise.all`/`race`/`allSettled`. Promises are a structural improvement over callbacks, not a different underlying mechanism — they are built on top of callbacks internally.',
+      hinglish:
+        'Callbacks plain functions hain jo baad mein invoke hone ke liye pass hote hain — multiple async callbacks nest karne se "callback hell" hota hai (deeply indented, hard-to-read pyramid code), aur error handling har level pe manually repeat karni padti hai (usually ek `(err, data)` convention se). Promises future value represent karne wale objects hain, built-in chaining ke saath (`.then().then()`, pyramid ko flatten karte hue), ek single centralised error path (`.catch()` chain ke KISI BHI step se errors catch karta hai), aur `Promise.all`/`race`/`allSettled` se composability. Promises callbacks ke upar ek structural improvement hain, ek alag underlying mechanism nahi — wo internally callbacks ke upar hi bane hain.',
+    },
+  },
+  {
+    question: 'What is the difference between async/await and plain Promises?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'async/await (ES2017) is SYNTACTIC SUGAR over Promises — it does not replace them, it makes asynchronous code LOOK synchronous and is easier to read/debug, especially with sequential dependent operations and try/catch error handling. Under the hood, `await someAsyncFn()` is equivalent to `.then()` chaining; an `async function` always implicitly returns a Promise. The trade-off: raw `.then()` chains are sometimes better for PARALLEL operations expressed declaratively (though `Promise.all` with await handles that too), while async/await shines for readable sequential logic.',
+      hinglish:
+        'async/await (ES2017) Promises ke upar SYNTACTIC SUGAR hai — ye unhe replace nahi karta, ye asynchronous code ko synchronous jaisa DIKHATA hai aur padhna/debug karna easier hai, especially sequential dependent operations aur try/catch error handling ke saath. Under the hood, `await someAsyncFn()` `.then()` chaining ke barabar hai; ek `async function` hamesha implicitly ek Promise return karta hai. Trade-off: raw `.then()` chains kabhi-kabhi PARALLEL operations declaratively express karne ke liye better hote hain (chahe `Promise.all` with await bhi wo handle karta hai), jabki async/await readable sequential logic ke liye shine karta hai.',
+    },
+  },
+  {
+    question: 'What is Promise.all()?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`Promise.all(promises)` runs multiple Promises CONCURRENTLY and returns a single Promise that resolves with an ARRAY of all results, IN THE SAME ORDER as the input, once EVERY promise fulfils. Its key trade-off: it is "fail-fast" — if even ONE promise rejects, `Promise.all` immediately rejects with that error, even though the other promises may still be pending/succeeding. It is the go-to tool for running several independent async operations (e.g. multiple API calls) in parallel instead of sequentially awaiting each one.',
+      hinglish:
+        '`Promise.all(promises)` multiple Promises ko CONCURRENTLY run karta hai aur ek single Promise return karta hai jo saare results ke ek ARRAY se resolve hota hai, input ke SAME ORDER mein, jab HAR promise fulfil ho jaaye. Iska key trade-off: ye "fail-fast" hai — agar ek bhi promise reject ho, `Promise.all` turant us error ke saath reject ho jaata hai, chahe baaki promises abhi pending/succeeding hi kyun na hon. Ye multiple independent async operations (jaise multiple API calls) ko sequentially await karne ke bajaye parallel mein chalane ke liye go-to tool hai.',
+    },
+  },
+  {
+    question: 'What is the difference between Promise.all(), Promise.race(), Promise.any(), and Promise.allSettled()?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`Promise.all`: waits for ALL to fulfil, rejects fast on the FIRST rejection. `Promise.race`: settles (fulfils or rejects) as soon as the FIRST promise settles, whatever its outcome — useful for timeouts. `Promise.any` (ES2021): resolves as soon as the FIRST promise FULFILS, ignoring rejections, and only rejects if ALL promises reject (with an AggregateError) — useful for "try multiple sources, use whichever succeeds first". `Promise.allSettled`: waits for ALL to settle (regardless of success/failure) and returns an array of `{status, value|reason}` objects for every one — never rejects, ideal when you need every result even if some failed.',
+      hinglish:
+        '`Promise.all`: SAARE fulfil hone ka wait karta hai, PEHLI rejection pe fast reject hota hai. `Promise.race`: PEHLA promise settle (fulfil ya reject) hote hi settle ho jaata hai, chahe outcome kuch bhi ho — timeouts ke liye useful. `Promise.any` (ES2021): PEHLA promise FULFIL hote hi resolve hota hai, rejections ignore karte hue, aur sirf tab reject hota hai jab SAARE promises reject hon (AggregateError ke saath) — "multiple sources try karo, jo pehle succeed kare wo use karo" ke liye useful. `Promise.allSettled`: SAARE settle hone ka wait karta hai (success/failure ki parwah kiye bina) aur har ek ke liye `{status, value|reason}` objects ka array return karta hai — kabhi reject nahi hota, ideal hai jab har result chahiye chahe kuch fail bhi ho jaayein.',
+    },
+  },
+  {
+    question: 'What is the difference between microtasks and macrotasks?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Macrotasks (the "task queue" / "callback queue") include `setTimeout`, `setInterval`, I/O, and UI rendering — the event loop processes ONE macrotask per loop iteration. Microtasks (the "microtask queue") include Promise `.then/.catch/.finally` callbacks and `queueMicrotask()`. Crucially, the ENTIRE microtask queue is fully drained (including any new microtasks scheduled during draining) after EACH macrotask finishes, and BEFORE the next macrotask or any rendering happens — this is why `Promise.resolve().then(...)` always runs before a `setTimeout(..., 0)`, even though both are "async".',
+      hinglish:
+        'Macrotasks ("task queue" / "callback queue") mein `setTimeout`, `setInterval`, I/O, aur UI rendering shamil hain — event loop har loop iteration mein EK macrotask process karta hai. Microtasks ("microtask queue") mein Promise `.then/.catch/.finally` callbacks aur `queueMicrotask()` shamil hain. Crucially, poori microtask queue HAR macrotask khatam hone ke baad poori tarah drain hoti hai (draining ke dauraan schedule hue kisi bhi naye microtask ko bhi shamil karte hue), aur agle macrotask ya kisi bhi rendering se PEHLE — yahi wajah hai `Promise.resolve().then(...)` hamesha `setTimeout(..., 0)` se pehle chalta hai, chahe dono "async" hon.',
+    },
+  },
+  {
+    question: 'Explain the execution order of: console.log(1); setTimeout(() => console.log(2)); Promise.resolve().then(() => console.log(3)); console.log(4);',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Output order is `1, 4, 3, 2`. Reasoning: `console.log(1)` and `console.log(4)` run immediately as part of the synchronous main script (the call stack). `setTimeout` schedules its callback as a MACROTASK, queued for later — even with a 0ms delay, it must wait its turn. `Promise.resolve().then(...)` schedules its callback as a MICROTASK. After the synchronous code finishes (`1` then `4`), the engine fully drains the microtask queue BEFORE picking the next macrotask — so `3` (microtask) logs before `2` (macrotask).',
+      hinglish:
+        'Output order hai `1, 4, 3, 2`. Reasoning: `console.log(1)` aur `console.log(4)` turant chalte hain synchronous main script (call stack) ke part ke roop mein. `setTimeout` apna callback ek MACROTASK ke roop mein schedule karta hai, baad ke liye queued — 0ms delay ke saath bhi, apni baari ka wait karna padta hai. `Promise.resolve().then(...)` apna callback ek MICROTASK ke roop mein schedule karta hai. Synchronous code khatam hone ke baad (`1` phir `4`), engine agle macrotask uthaane se PEHLE microtask queue poori tarah drain karta hai — isliye `3` (microtask) `2` (macrotask) se pehle log hota hai.',
+    },
+  },
+
+  // ─── Advanced JavaScript ───────────────────────────────────────────
+  {
+    question: 'What are iterators in JavaScript?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'An iterator is any object implementing the "iterator protocol": a `.next()` method that returns `{ value, done }`, where `done` becomes `true` once iteration is complete. An "iterable" is any object implementing `Symbol.iterator` — a method that returns an iterator — which is what makes it usable with `for...of`, spread (`...`), and destructuring. Arrays, strings, Maps, Sets, and generator functions are all natively iterable; you can make a custom object iterable by implementing `[Symbol.iterator]` yourself.',
+      hinglish:
+        'Ek iterator koi bhi object hai jo "iterator protocol" implement karta hai: ek `.next()` method jo `{ value, done }` return karta hai, jahan iteration complete hone pe `done` `true` ban jaata hai. Ek "iterable" koi bhi object hai jo `Symbol.iterator` implement karta hai — ek method jo ek iterator return karta hai — yahi isse `for...of`, spread (`...`), aur destructuring ke saath usable banata hai. Arrays, strings, Maps, Sets, aur generator functions sab natively iterable hain; tum apna khud ka `[Symbol.iterator]` implement karke ek custom object ko iterable bana sakte ho.',
+    },
+  },
+  {
+    question: 'What are modules in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Modules let you split code into separate files, each with its own scope — variables/functions are private by default unless explicitly `export`ed, and other files must `import` what they need. This solves global-scope pollution and dependency management, which used to require manual `<script>` ordering or IIFEs. JavaScript now has native ES Modules (`export`/`import`) supported by browsers and Node.js, alongside the older CommonJS system (`module.exports`/`require`) that dominated Node.js before ES Modules matured.',
+      hinglish:
+        'Modules code ko separate files mein split karne dete hain, har ek ka apna scope hota hai — variables/functions default se private hote hain jab tak explicitly `export` na ho, aur doosri files ko jo chahiye wo `import` karna padta hai. Ye global-scope pollution aur dependency management solve karta hai, jo pehle manual `<script>` ordering ya IIFEs se hota tha. JavaScript ke paas ab native ES Modules (`export`/`import`) hain jo browsers aur Node.js support karte hain, purane CommonJS system (`module.exports`/`require`) ke saath jo ES Modules mature hone se pehle Node.js mein dominate karta tha.',
+    },
+  },
+  {
+    question: 'What is the difference between CommonJS and ES Modules?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'CommonJS (`require`/`module.exports`) is Node.js\'s original module system — it loads modules SYNCHRONOUSLY at runtime, exports are COPIED as plain values at require-time, and it is not natively usable in browsers without a bundler. ES Modules (`import`/`export`) are the official JavaScript standard — they are STATICALLY analysed at parse time (enabling tree-shaking/dead-code elimination by bundlers), support asynchronous loading, exports are LIVE BINDINGS (a reference that updates if the source changes), and work natively in both modern browsers and modern Node.js (with `"type": "module"` or `.mjs` extension).',
+      hinglish:
+        'CommonJS (`require`/`module.exports`) Node.js ka original module system hai — ye modules ko SYNCHRONOUSLY runtime pe load karta hai, exports require-time pe plain values ke roop mein COPY hote hain, aur bina bundler ke browsers mein natively usable nahi hai. ES Modules (`import`/`export`) official JavaScript standard hain — ye parse time pe STATICALLY analyse hote hain (bundlers ke liye tree-shaking/dead-code elimination enable karte hue), asynchronous loading support karte hain, exports LIVE BINDINGS hote hain (ek reference jo source change hone pe update hota hai), aur modern browsers aur modern Node.js dono mein natively kaam karte hain (`"type": "module"` ya `.mjs` extension ke saath).',
+    },
+  },
+  {
+    question: 'What is strict mode in JavaScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`"use strict"` (placed at the top of a file or function) opts into a restricted variant of JavaScript that catches common mistakes and unsafe patterns: it throws errors for assigning to undeclared variables (instead of silently creating globals), disallows duplicate parameter names, makes `this` `undefined` (instead of the global object) in plain function calls, and disallows some legacy syntax like `with`. ES Modules and `class` bodies are automatically strict mode by default, which is one reason modern JS code is generally safer than old-style scripts.',
+      hinglish:
+        '`"use strict"` (file ya function ke top pe rakha jaata hai) JavaScript ke ek restricted variant mein opt-in karta hai jo common mistakes aur unsafe patterns pakadta hai: undeclared variables ko assign karne pe error throw karta hai (silently globals banane ke bajaye), duplicate parameter names disallow karta hai, plain function calls mein `this` ko `undefined` banata hai (global object ke bajaye), aur `with` jaise kuch legacy syntax disallow karta hai. ES Modules aur `class` bodies automatically default se strict mode mein hote hain, yahi ek wajah hai modern JS code generally old-style scripts se safer hota hai.',
+    },
+  },
+  {
+    question: 'What is garbage collection in JavaScript?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'JavaScript automatically manages memory via a garbage collector, so developers don\'t manually allocate/free memory. The dominant algorithm is "mark-and-sweep": the GC periodically starts from GC "roots" (global object, currently executing call stack), marks every object reachable from those roots, then sweeps away (frees) all UNMARKED (unreachable) objects. This replaced the older, flawed "reference counting" approach, which could never free objects in a circular reference (A references B, B references A) even when nothing outside referenced either. Memory leaks in JS usually happen when you accidentally keep a reference alive longer than needed (e.g. forgotten event listeners, closures holding large objects, global variable accumulation).',
+      hinglish:
+        'JavaScript ek garbage collector ke through automatically memory manage karta hai, isliye developers ko manually memory allocate/free nahi karni padti. Dominant algorithm "mark-and-sweep" hai: GC periodically GC "roots" (global object, currently executing call stack) se shuru hota hai, un roots se reachable har object ko mark karta hai, phir saare UNMARKED (unreachable) objects ko sweep karta hai (free karta hai). Isne purane, flawed "reference counting" approach ki jagah li, jo ek circular reference (A B ko reference karta hai, B A ko reference karta hai) mein objects kabhi free nahi kar paata tha chahe bahar se kuch bhi kisi ko reference na kare. JS mein memory leaks usually tab hote hain jab tum accidentally ek reference ko zaroorat se zyada der tak alive rakh dete ho (jaise forgotten event listeners, closures jo bade objects hold karte hain, global variable accumulation).',
+    },
+  },
+  {
+    question: 'Explain the complete JavaScript execution process from writing code to browser execution.',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'End-to-end flow: (1) Parsing — the engine (e.g. V8) reads the source, tokenises it, and builds an Abstract Syntax Tree (AST). (2) Compilation — modern engines are JIT (Just-In-Time) compiled: the AST is first turned into bytecode by an interpreter (e.g. Ignition in V8) for fast startup, and "hot" (frequently run) code paths are later optimised into machine code by a JIT compiler (e.g. TurboFan). (3) Execution context creation — for the global scope and each function call, the engine creates an execution context with two phases: a CREATION phase (hoisting — variables/functions registered, `this` bound, scope chain set up) and an EXECUTION phase (code runs line by line). (4) Call stack — each function invocation pushes a new execution context onto the call stack, popped when it returns. (5) Web APIs / Node APIs — asynchronous operations (timers, fetch, DOM events) are handed off to the browser/Node runtime, not the JS engine itself. (6) Event loop — once the call stack is empty, the event loop pulls completed microtasks (Promises) first, fully draining them, then one macrotask (timers, I/O) at a time, pushing their callbacks back onto the call stack to run. (7) Rendering — in browsers, the engine also fits in rendering/reflow/repaint work between macrotasks. This whole pipeline is why JS feels both single-threaded (the call stack/event loop is synchronous) and capable of handling many concurrent operations (async work is delegated outside the engine).',
+      hinglish:
+        'End-to-end flow: (1) Parsing — engine (jaise V8) source padhta hai, tokenise karta hai, aur ek Abstract Syntax Tree (AST) banata hai. (2) Compilation — modern engines JIT (Just-In-Time) compiled hote hain: AST pehle ek interpreter (jaise V8 mein Ignition) se bytecode mein badalta hai fast startup ke liye, aur "hot" (frequently run) code paths baad mein ek JIT compiler (jaise TurboFan) se machine code mein optimise hote hain. (3) Execution context creation — global scope aur har function call ke liye, engine ek execution context banata hai do phases ke saath: ek CREATION phase (hoisting — variables/functions register hote hain, `this` bind hota hai, scope chain set up hoti hai) aur ek EXECUTION phase (code line by line chalta hai). (4) Call stack — har function invocation call stack pe ek naya execution context push karta hai, return hone pe pop hota hai. (5) Web APIs / Node APIs — asynchronous operations (timers, fetch, DOM events) browser/Node runtime ko handoff hote hain, JS engine ko khud nahi. (6) Event loop — call stack khaali hone ke baad, event loop pehle completed microtasks (Promises) pull karta hai, poori tarah drain karte hue, phir ek macrotask (timers, I/O) ek time pe, unke callbacks ko call stack pe wapas push karke chalane ke liye. (7) Rendering — browsers mein, engine macrotasks ke beech rendering/reflow/repaint kaam bhi fit karta hai. Ye poori pipeline hi wajah hai JS single-threaded bhi feel hota hai (call stack/event loop synchronous hai) aur bahut saare concurrent operations handle karne mein capable bhi (async kaam engine ke bahar delegate hota hai).',
+    },
+  },
 ];
 
 // Final ordered curriculum
