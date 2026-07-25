@@ -23,6 +23,331 @@ export const course = {
   order: 16,
 };
 
+const absoluteBasics = [
+  {
+    title: 'Your First Steps into AI',
+    level: 'beginner',
+    description: 'Bilkul zero se shuru — AI, ML, aur neural networks ko baby steps mein samjho, bina kisi prior knowledge ke.',
+    concepts: [
+      {
+        title: 'What is Artificial Intelligence (AI)?',
+        difficulty: 'easy',
+        tags: ['ai', 'basics', 'first-step'],
+        explanation: {
+          english:
+            "Let's start from absolute zero. **Artificial Intelligence (AI)** is the broadest term — it simply means making a computer do something that normally needs human intelligence: recognising a face in a photo, understanding spoken language, playing chess, or writing a sentence. AI is not one specific technology — it's a GOAL. Different techniques have been used to achieve this goal over the decades: simple hand-written rules in the 1960s ('if the light is red, stop'), then Machine Learning in the 1990s-2010s (computers learning patterns from data instead of being told exact rules), and now Generative AI (computers that can CREATE new things, not just recognise or sort them). Think of AI as the entire umbrella; everything else we'll learn in this course fits somewhere underneath it.",
+          hinglish:
+            "Chalo bilkul zero se shuru karte hain. **Artificial Intelligence (AI)** sabse broad term hai — iska matlab simply hai ek computer se aisa kaam karwana jiske liye normally human intelligence chahiye hoti hai: photo mein face pehchaanna, boli hui language samajhna, chess khelna, ya ek sentence likhna. AI koi ek specific technology nahi hai — ye ek GOAL hai. Is goal ko achieve karne ke liye dashकों mein alag-alag techniques use hui hain: 1960s mein simple hand-written rules ('agar light red hai, ruk jao'), phir 1990s-2010s mein Machine Learning (computers data se patterns seekhte hain, unhe exact rules bataye bina), aur ab Generative AI (computers jo NAYI cheezein bana sakte hain, sirf recognise ya sort nahi karte). AI ko poori umbrella samjho; is course mein hum jo bhi seekhenge wo iske neeche kahin fit hoga.",
+        },
+        dailyLifeExample:
+          "AI waise hai jaise 'transportation' ek broad word hai — cycle, car, train, plane sab transportation ke tareeke hain, par sab alag hain. Waise hi, rule-based systems, Machine Learning, aur Generative AI sab AI ko achieve karne ke alag tareeke hain — sab ka goal same hai (smart behaviour), par kaam karne ka tareeka alag.",
+        codeExample:
+          "# No code yet — just building intuition! Here's the mental map we'll build in this course:\n#\n# ARTIFICIAL INTELLIGENCE (the big goal: 'make computers act smart')\n#   |\n#   +-- Rule-based systems (1960s-80s): humans write exact if-then rules\n#   |\n#   +-- Machine Learning (1990s-2010s): computer learns patterns from examples\n#         |\n#         +-- Deep Learning: ML using 'neural networks' (we'll cover this next)\n#               |\n#               +-- Generative AI (2020s): models that CREATE new text/images/audio\n#                     (this is what the rest of this course is about!)",
+        keyPoints: [
+          'AI is a GOAL (make computers act smart), not one single technology',
+          'Different eras used different techniques to reach that goal: rules, then ML, then deep learning, then generative AI',
+          'Generative AI is the newest, most advanced branch of the AI family tree',
+          'Everything in this course builds on this one big idea, step by step',
+        ],
+        quiz: [
+          {
+            question: 'What is Artificial Intelligence best described as?',
+            options: [
+              'One specific software program',
+              'A broad goal — making computers do things that normally need human intelligence',
+              'Only robots that look like humans',
+              'A programming language',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Which came FIRST in the history of AI techniques?',
+            options: ['Generative AI', 'Simple hand-written rules', 'Deep learning', 'Large Language Models'],
+            correctIndex: 1,
+          },
+          {
+            question: 'Where does Generative AI sit in the AI "family tree"?',
+            options: [
+              'It is completely unrelated to AI',
+              'It is the oldest form of AI',
+              'It is a modern, advanced branch that grew out of Machine Learning and Deep Learning',
+              'It replaced the need for Machine Learning entirely',
+            ],
+            correctIndex: 2,
+          },
+        ],
+      },
+      {
+        title: 'What is Machine Learning? The Simplest Explanation',
+        difficulty: 'easy',
+        tags: ['ml', 'basics', 'first-step'],
+        explanation: {
+          english:
+            "Here's the simplest possible way to understand Machine Learning (ML): instead of a programmer writing exact rules ('if X then Y'), you show the computer LOTS of examples, and it figures out the pattern itself. Say you want a program that tells cats from dogs in photos. The OLD way: a human tries to write rules like 'if it has pointy ears and whiskers, it's a cat' — but this breaks constantly (some dogs have pointy ears too!). The ML way: you show the computer 10,000 photos already labelled 'cat' or 'dog', and it automatically learns which visual patterns tend to mean 'cat' — without anyone writing that rule by hand. This shift — from 'human writes the rules' to 'computer learns the rules from examples' — is THE single most important idea in modern AI, and everything else in this course builds on it.",
+          hinglish:
+            "Machine Learning (ML) samajhne ka sabse simple tareeka: programmer exact rules likhne ke bajaye ('agar X toh Y'), tum computer ko BAHUT saare examples dikhate ho, aur wo khud pattern figure out kar leta hai. Socho tumhe ek program chahiye jo photos mein cats aur dogs bataye. PURANA tareeka: ek insaan rules likhne ki koshish karta hai jaise 'agar pointy ears aur whiskers hain, toh cat hai' — par ye baar-baar fail hota hai (kuch dogs ke bhi pointy ears hote hain!). ML tareeka: tum computer ko 10,000 photos dikhate ho jo already 'cat' ya 'dog' labelled hain, aur wo automatically seekh leta hai kaunse visual patterns 'cat' matlab hote hain — bina koi rule haath se likhe. Ye shift — 'insaan rules likhta hai' se 'computer examples se rules seekhta hai' — modern AI ka SABSE important idea hai, aur is course mein baaki sab kuch isi pe bana hai.",
+        },
+        dailyLifeExample:
+          "ML waise hai jaise ek bachhe ko cooking sikhana bina recipe diye — bas use 100 alag-alag samosas khilao aur bolo 'ye achha hai' ya 'ye kharab hai'. Kuch time baad, bachcha khud samajh jaayega ki achha samosa banane mein kya common hai — bina kisi ne exact recipe (rule) bataye. Yahi ML karta hai, par data ke saath.",
+        codeExample:
+          "# OLD way: human writes exact rules (fragile, breaks easily)\ndef is_cat_old_way(image):\n    if image.has_pointy_ears and image.has_whiskers:\n        return True   # but many dogs also have pointy ears! this rule is bad.\n    return False\n\n# ML way: computer LEARNS the pattern from thousands of labelled examples\n# (conceptual — this is what libraries like scikit-learn/PyTorch do internally)\n# 1. Show the computer 10,000 photos, each labelled 'cat' or 'dog'\n# 2. The computer adjusts its internal 'pattern detector' bit by bit\n#    until it gets better and better at matching photos to labels\n# 3. Now show it a BRAND NEW photo it has never seen\n#    -> it applies the pattern it learned, and guesses 'cat' or 'dog'\n# No human ever wrote down the exact rule for 'what makes a cat a cat'!",
+        keyPoints: [
+          'Traditional programming: humans write exact rules by hand',
+          'Machine Learning: the computer learns the rules itself from many labelled examples',
+          'This shift (rules -> learning from data) is the foundational idea behind all modern AI',
+          'ML models get better with more/better examples, just like people get better with more practice',
+        ],
+        quiz: [
+          {
+            question: 'What is the key difference between traditional programming and Machine Learning?',
+            options: [
+              'ML programs run faster',
+              'In traditional programming, humans write exact rules; in ML, the computer learns the rules itself from examples',
+              'ML does not need a computer',
+              'There is no real difference',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'In the cat-vs-dog example, what does the computer need to learn from ML?',
+            options: [
+              'A dictionary of animal names',
+              'Patterns in labelled photos that tend to distinguish cats from dogs, without an explicit hand-written rule',
+              'The exact biological definition of a cat',
+              'Nothing, ML does not require any examples',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why did the old rule-based approach ("pointy ears + whiskers = cat") break down easily?',
+            options: [
+              'It was too slow to run',
+              'Real-world examples have exceptions (like dogs with pointy ears) that simple hand-written rules cannot capture',
+              'Computers cannot process images at all',
+              'It required too much electricity',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'AI vs ML vs Generative AI: The Family Tree',
+        difficulty: 'easy',
+        tags: ['ai', 'ml', 'gen-ai', 'first-step'],
+        explanation: {
+          english:
+            "Now that you know AI is a broad goal and ML is 'learning from examples', let's place Generative AI precisely in this family. Picture three nested circles: the BIGGEST circle is **AI** (any smart computer behaviour, however achieved). Inside it, a smaller circle is **Machine Learning** (the specific approach of learning patterns from data, rather than hand-written rules). Inside THAT, an even smaller circle is **Deep Learning** (ML using 'neural networks', loosely inspired by the brain — we'll baby-step into this next). And inside deep learning sits the newest, smallest circle: **Generative AI** — models that don't just recognise or classify things, they CREATE brand-new things: a chatbot writing a fresh sentence, an image model painting a picture that never existed before. Every generative AI tool (ChatGPT, Midjourney, GitHub Copilot) is Deep Learning, which is ML, which is AI — but not every AI is generative (a spam filter is AI and ML, but it only SORTS emails, it doesn't CREATE anything new).",
+          hinglish:
+            "Ab jab tumhe pata hai AI ek broad goal hai aur ML matlab 'examples se seekhna', chalo Generative AI ko is family mein exactly place karte hain. Teen nested circles imagine karo: sabse BADA circle hai **AI** (koi bhi smart computer behaviour, chahe kaise bhi achieve ho). Uske andar, ek chhota circle hai **Machine Learning** (data se patterns seekhne ka specific approach, hand-written rules ke bajaye). USKE andar, aur bhi chhota circle hai **Deep Learning** (ML jo 'neural networks' use karta hai, loosely brain se inspired — isme hum agla baby-step lenge). Aur deep learning ke andar baithta hai sabse naya, sabse chhota circle: **Generative AI** — models jo sirf cheezein recognise ya classify nahi karte, wo bilkul NAYI cheezein CREATE karte hain: ek chatbot jo fresh sentence likhta hai, ek image model jo aisi picture banata hai jo pehle kabhi exist nahi karti thi. Har generative AI tool (ChatGPT, Midjourney, GitHub Copilot) Deep Learning hai, jo ML hai, jo AI hai — par har AI generative nahi hoti (ek spam filter AI aur ML hai, par wo sirf emails ko SORT karta hai, kuch naya CREATE nahi karta).",
+        },
+        dailyLifeExample:
+          "Ye waise hai jaise 'Food' ek badi category hai, uske andar 'Indian food' hai, uske andar 'North Indian food' hai, aur uske andar 'Biryani' hai. Biryani North Indian food hai, jo Indian food hai, jo Food hai — par har Food Biryani nahi hoti. Waise hi, har Generative AI, AI hoti hai, par har AI, Generative AI nahi hoti.",
+        codeExample:
+          "# The nested family tree, from biggest to smallest circle:\n#\n#  ┌─────────────────────────────────────────────────────┐\n#  │  AI  (any smart computer behaviour)                   │\n#  │  ┌───────────────────────────────────────────────┐   │\n#  │  │  Machine Learning  (learns from data)           │   │\n#  │  │  ┌─────────────────────────────────────────┐   │   │\n#  │  │  │  Deep Learning  (uses neural networks)    │   │   │\n#  │  │  │  ┌───────────────────────────────────┐   │   │   │\n#  │  │  │  │  Generative AI (CREATES new things) │   │   │   │\n#  │  │  │  │  e.g. ChatGPT, Midjourney, Copilot   │   │   │   │\n#  │  │  │  └───────────────────────────────────┘   │   │   │\n#  │  │  └─────────────────────────────────────────┘   │   │\n#  │  └───────────────────────────────────────────────┘   │\n#  └─────────────────────────────────────────────────────┘\n#\n# A spam filter: AI + ML, but NOT generative (it only sorts, doesn't create)\n# ChatGPT: AI + ML + Deep Learning + Generative (it creates new sentences)",
+        keyPoints: [
+          'AI is the biggest circle; Machine Learning is a specific approach inside it',
+          'Deep Learning is ML that uses neural networks; Generative AI is the newest slice of deep learning',
+          'Every Generative AI tool is AI, but not every AI tool is generative',
+          'The key test for "generative": does it CREATE new content, or just sort/classify existing content?',
+        ],
+        quiz: [
+          {
+            question: 'Which statement correctly describes the relationship between these terms?',
+            options: [
+              'AI, ML, and Generative AI are all completely unrelated fields',
+              'Generative AI is a specific, newer branch that sits inside Deep Learning, which sits inside Machine Learning, which sits inside AI',
+              'Machine Learning is a branch of Generative AI',
+              'AI is a branch of Generative AI',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'A spam filter that sorts emails into "spam" or "not spam" using learned patterns is an example of:',
+            options: [
+              'Generative AI, because it makes decisions',
+              'AI and Machine Learning, but NOT Generative AI, because it classifies rather than creates new content',
+              'Neither AI nor ML',
+              'Pure rule-based programming with no learning involved',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What is the key test for whether something counts as "Generative AI"?',
+            options: [
+              'Whether it runs on a powerful computer',
+              'Whether it CREATES new content, rather than just recognising, sorting, or scoring existing content',
+              'Whether it was made after the year 2020',
+              'Whether it uses the internet',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'How Does a Computer "Guess" the Next Word? A Baby-Step Analogy',
+        difficulty: 'easy',
+        tags: ['prediction', 'llm-intuition', 'first-step'],
+        explanation: {
+          english:
+            "Before we touch any real LLM concepts, let's build the single most important intuition in this entire course, using ZERO technical terms. Imagine this game: I say 'The sky is ___' and ask you to fill in the blank. You'd probably say 'blue' — not because you memorised that exact sentence somewhere, but because you've seen the words 'sky' and 'blue' appear together SO many times in your life that your brain has learned they go together. Now imagine you'd read millions of books, articles, and conversations — you'd get incredibly good at guessing the next word in ANY sentence, on ANY topic, because you've seen so many patterns of how words follow other words. That, in the simplest possible terms, is EXACTLY what a Large Language Model (like ChatGPT) does: it reads a staggering amount of text during training, learns which words tend to follow which other words in which contexts, and then — when you give it a prompt — it just keeps guessing the single most likely next word, over and over, one word at a time, until it has written a full response.",
+          hinglish:
+            "Kisi bhi real LLM concept ko touch karne se pehle, chalo is poore course ki sabse important intuition banate hain, ZERO technical terms ke saath. Ye game imagine karo: main bolta hoon 'The sky is ___' aur tumse blank fill karne ko kehta hoon. Tum probably bologe 'blue' — isliye nahi ki tumne exactly wo sentence kahin yaad kiya hai, balki isliye kyunki tumne 'sky' aur 'blue' words ko itni baar saath mein dekha hai apni zindagi mein ki tumhare brain ne seekh liya hai ki wo saath mein aate hain. Ab imagine karo tumne millions books, articles, aur conversations padhe hain — tum incredibly achhe ban jaoge kisi bhi sentence mein, kisi bhi topic pe, agla word guess karne mein, kyunki tumne itne saare patterns dekhe hain ki words kaise doosre words ke baad aate hain. Yahi, sabse simple terms mein, EXACTLY wo hai jo ek Large Language Model (jaise ChatGPT) karta hai: ye training ke dauraan bahut zyada text padhta hai, seekhta hai ki kaunse words kis context mein kaunse doosre words ke baad aate hain, aur phir — jab tum use ek prompt dete ho — ye bas sabse likely agla word guess karta rehta hai, baar-baar, ek waqt mein ek word, jab tak ye poora response likh na de.",
+        },
+        dailyLifeExample:
+          "Ye tumhare phone ke keyboard ke 'next word suggestion' feature jaisa hai (jo tumhe type karte waqt 3 words suggest karta hai) — bas ChatGPT jaisa LLM ye kaam BAHUT zyada training data aur BAHUT zyada intelligence ke saath karta hai, isliye iske suggestions poore, coherent, meaningful paragraphs bante hain, sirf ek chhota next-word guess nahi.",
+        codeExample:
+          "# The core intuition, illustrated (this is NOT real code, just a mental model):\n\nprompt = \"The sky is\"\n\n# An LLM has learned, from massive training data, rough probabilities like:\nnext_word_probabilities = {\n    \"blue\":   0.62,   # most common continuation\n    \"clear\":  0.15,\n    \"dark\":   0.10,\n    \"purple\": 0.03,\n    # ... thousands more possible words, each with a tiny probability\n}\n\n# It picks (usually) the most likely word: \"blue\"\n# Then it repeats the ENTIRE process again with the new, longer text:\nprompt = \"The sky is blue\"\n# ...and predicts the next word after THAT, and so on, one word at a time,\n# until it decides the response is complete.",
+        keyPoints: [
+          'An LLM is fundamentally a very sophisticated "next word guesser"',
+          'It learns which words tend to follow which other words by reading huge amounts of text during training',
+          'It generates a response one word (technically, one "token") at a time',
+          'This simple idea — repeated billions of times with a huge learned pattern-base — is what produces coherent, human-like text',
+        ],
+        quiz: [
+          {
+            question: 'In the simplest possible terms, what is a Large Language Model doing when it generates a response?',
+            options: [
+              'Looking up the exact answer in a database',
+              'Repeatedly guessing the single most likely next word, based on patterns learned from huge amounts of text',
+              'Randomly picking words with no pattern at all',
+              'Copying a pre-written answer from the internet',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why can you usually guess that "The sky is ___" should be filled with "blue"?',
+            options: [
+              'You memorised this exact sentence somewhere',
+              "You've seen the words 'sky' and 'blue' appear together so often that your brain learned the pattern",
+              'It is a random guess',
+              'There is no reason, it is coincidence',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'How does an LLM produce a full response, according to this baby-step explanation?',
+            options: [
+              'It writes the entire response in one instant step',
+              'It predicts and adds one word/token at a time, repeating the prediction process with the growing text each time',
+              'It picks a random pre-written paragraph',
+              'It asks a human to write the response',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'What is a Neural Network? (No Math, Just Intuition)',
+        difficulty: 'medium',
+        tags: ['neural-network', 'deep-learning', 'first-step'],
+        explanation: {
+          english:
+            "You now know ML models 'learn patterns from data' — but HOW, physically, does a computer store a learned pattern? The answer, for most modern AI (including all of Generative AI), is a **neural network**. Don't worry, no maths here — just intuition. Picture a network loosely (very loosely) inspired by brain cells (neurons): it's made of layers of simple, connected 'nodes'. Each connection between nodes has a 'strength' number attached to it, called a **weight**. When information flows through the network, it passes through these weighted connections, layer by layer, and comes out the other end as an answer or prediction. Here's the key insight: at the start, all the weights are random garbage — the network knows nothing. TRAINING is the process of showing it thousands (or billions) of examples, checking how wrong its answer was each time, and very slightly adjusting all the weights to make it a tiny bit less wrong next time. Repeat this adjustment process billions of times, across billions of examples, and slowly the random garbage weights turn into a network that has genuinely 'learned' the patterns in the data — this is the actual physical mechanism behind everything an LLM or image generator does.",
+          hinglish:
+            "Ab tumhe pata hai ML models 'data se patterns seekhte hain' — par HOW, physically, ek computer ek seekha hua pattern store kaise karta hai? Jawab, zyadatar modern AI ke liye (Generative AI included), hai ek **neural network**. Chinta mat karo, yahan koi maths nahi — sirf intuition. Ek network imagine karo jo (bahut loosely) brain cells (neurons) se inspired hai: ye simple, connected 'nodes' ki layers se bana hota hai. Nodes ke beech har connection pe ek 'strength' number attached hota hai, jise **weight** kehte hain. Jab information network se guzarta hai, ye in weighted connections se, layer by layer, guzarta hai, aur doosre end pe ek answer ya prediction ban ke nikalta hai. Yahan key insight hai: shuruaat mein, sab weights random garbage hote hain — network ko kuch nahi pata. TRAINING wo process hai jisme use hazaron (ya billions) examples dikhaye jaate hain, har baar check kiya jaata hai ki uska answer kitna galat tha, aur sab weights ko bahut thoda adjust kiya jaata hai taaki agli baar wo thoda kam galat ho. Is adjustment process ko billions of times repeat karo, billions of examples ke across, aur dheere-dheere random garbage weights ek aise network mein badal jaate hain jisne genuinely data ke patterns 'seekh' liye hain — yahi actual physical mechanism hai jo LLM ya image generator jo bhi karta hai uske peeche hota hai.",
+        },
+        dailyLifeExample:
+          "Neural network training waise hai jaise archery seekhna bina kisi coach ke, sirf trial-and-error se. Pehla teer bilkul random jagah lagta hai. Har baar tum dekhte ho target se kitna door lage, aur apna aim thoda adjust karte ho. 1000 teer maarne ke baad, tumhara aim (weights) itna refine ho chuka hai ki tum consistently bullseye ke paas lagate ho — bina kisi ne exact formula bataye, sirf repeated small adjustments se.",
+        codeExample:
+          "# Conceptual illustration of training (not real, runnable code)\n\n# Step 0: weights start completely random -> network knows nothing\nweights = random_garbage()\n\n# Training loop (repeated BILLIONS of times on massive datasets):\nfor example in training_data:\n    prediction = neural_network(example.input, weights)\n    error = how_wrong_was(prediction, example.correct_answer)\n    # Nudge every weight slightly in the direction that reduces error\n    weights = adjust_weights_slightly(weights, error)\n\n# After enough iterations, `weights` encode learned patterns from the data\n# This final set of weights IS the 'trained model' you download/use later.",
+        keyPoints: [
+          'A neural network is layers of simple connected nodes, linked by adjustable numbers called "weights"',
+          'At the start, weights are random — the network has learned nothing yet',
+          'Training = repeatedly showing examples, measuring error, and nudging weights to reduce that error',
+          'After enough training examples and adjustments, the weights encode genuinely learned patterns',
+          'This weight-adjustment process is the actual mechanism behind every modern generative AI model',
+        ],
+        quiz: [
+          {
+            question: 'What is a "weight" in a neural network?',
+            options: [
+              'The physical size of the computer running it',
+              'An adjustable number attached to a connection between nodes, which the network tunes during training',
+              'The number of users using the model',
+              'The price of the AI service',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'What do the weights look like at the very start, before any training?',
+            options: [
+              'Perfectly correct from the beginning',
+              'Random, meaningless values — the network has not learned anything yet',
+              'Copied from a human expert',
+              'They do not exist until after training',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'In simple terms, what does "training" a neural network actually do?',
+            options: [
+              'It deletes incorrect data',
+              'It repeatedly checks how wrong the output was and slightly adjusts the weights to reduce that error, over and over',
+              'It makes the computer\'s hardware physically faster',
+              'It translates the model into a different programming language',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+      {
+        title: 'Why Do AI Models Need So Much Data and Computers?',
+        difficulty: 'medium',
+        tags: ['training', 'data', 'compute', 'first-step'],
+        explanation: {
+          english:
+            "You've now seen the WHOLE baby-step picture: models learn by seeing examples and adjusting weights to reduce error. A natural question follows: why do you keep hearing that models like GPT-4 needed 'the entire internet' worth of text and thousands of expensive computer chips? Here's the intuition. Remember the archery analogy — one arrow barely improves your aim; you need THOUSANDS of shots to become consistently accurate. A neural network is the same, but at a MUCH bigger scale: modern LLMs have hundreds of billions of individual weights (numbers) to adjust, and each one needs to be nudged correctly, many times, across a huge variety of examples, before the whole system reliably 'gets it right'. More data means more chances to learn subtle patterns and fewer chances to memorise wrong shortcuts. More compute (many powerful chips called GPUs, running in parallel) means those billions of tiny weight-adjustments can happen fast enough to be practical — training a modern LLM on a single normal computer would take far, far longer than a human lifetime. This is exactly why building a top-tier model from scratch costs millions of dollars, and why most people instead use an ALREADY-trained model via an API rather than training their own.",
+          hinglish:
+            "Ab tumne POORI baby-step picture dekh li hai: models examples dekh kar aur error kam karne ke liye weights adjust karke seekhte hain. Ek natural question aata hai: tum kyun sunte rehte ho ki GPT-4 jaise models ko 'poore internet' jitna text aur hazaron mehnge computer chips chahiye the? Yahan intuition hai. Archery analogy yaad karo — ek teer se tumhara aim mushkil se improve hota hai; consistently accurate banne ke liye tumhe HAZARON shots chahiye. Ek neural network same hai, par MUCH bade scale pe: modern LLMs ke paas sau billion se zyada individual weights (numbers) hote hain jo adjust karne hote hain, aur har ek ko sahi tareeke se, kai baar, bahut saare alag-alag examples ke across nudge karna padta hai, tab jaake poora system reliably 'sahi' karta hai. Zyada data ka matlab hai subtle patterns seekhne ke zyada chances aur galat shortcuts memorise karne ke kam chances. Zyada compute (bahut saare powerful chips jise GPUs kehte hain, parallel mein chalte hue) ka matlab hai ki wo billions chhote weight-adjustments itni fast ho sakein ki practical rahe — ek modern LLM ko ek single normal computer pe train karna ek human lifetime se bhi bahut zyada time lega. Yahi exactly wajah hai ki top-tier model scratch se banane mein millions of dollars lagte hain, aur zyadatar log apna khud ka model train karne ke bajaye ek ALREADY-trained model ko API se use karte hain.",
+        },
+        dailyLifeExample:
+          "Ye waise hai jaise ek bahut bada, bahut detailed jigsaw puzzle solve karna. Ek insaan akela ise years mein solve karega. Par agar tum 1000 logon ko ek saath alag-alag sections pe kaam karne do (parallel compute jaisa), poora puzzle days mein solve ho jaata hai. AI training bhi waisa hi hai — GPUs parallel mein bahut saare chhote calculations ek saath karte hain, jisse ek kaam jo years lega wo weeks mein ho jaata hai.",
+        codeExample:
+          "# A rough sense of scale (illustrative numbers, not exact):\n#\n# Small toy neural network:        ~1,000 weights\n#   -> could train on a laptop in minutes\n#\n# A modern production LLM (e.g. GPT-4 class):\n#   -> hundreds of BILLIONS of weights\n#   -> trained on a large fraction of the internet's text\n#   -> uses thousands of GPUs running for weeks/months, in parallel\n#   -> costs tens of millions of dollars in compute alone\n#\n# This huge gap in scale is exactly why:\n# - Only a handful of companies (OpenAI, Google, Anthropic, Meta) train these from scratch\n# - Everyone else (including you, building an app) calls their API instead\n#   of training a brand-new model from zero",
+        keyPoints: [
+          'More weights (a bigger model) need more examples to adjust correctly, just like more practice improves accuracy',
+          'More/better data helps the model learn real patterns instead of memorising noise or shortcuts',
+          'Training billions of weights requires massive parallel compute (many GPUs working together)',
+          'This is why training a top model from scratch costs millions of dollars and is done by very few companies',
+          'Most developers use an already-trained model via an API instead of training their own from zero',
+        ],
+        quiz: [
+          {
+            question: 'Why do modern AI models need such large amounts of training data?',
+            options: [
+              'Data makes the computer run faster',
+              'More examples give the model more chances to learn genuine patterns rather than memorising incorrect shortcuts',
+              'It has no real effect on the model\'s quality',
+              'Data is only needed to make the file size bigger',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why is massive parallel compute (many GPUs) needed to train a large model?',
+            options: [
+              'GPUs are just cheaper than regular computers',
+              'Adjusting billions of weights across huge datasets would take far longer than practical on a single normal computer, so many chips work in parallel to speed it up',
+              'Parallel compute is only needed for playing video games',
+              'It is not actually needed at all',
+            ],
+            correctIndex: 1,
+          },
+          {
+            question: 'Why do most developers use an existing model via an API instead of training their own from scratch?',
+            options: [
+              'APIs are always technically superior in every way',
+              'Training a top-tier model from scratch requires massive data and compute costing millions of dollars, which is impractical for most people/companies',
+              'It is illegal to train your own model',
+              'APIs are the only way any AI model can ever be used',
+            ],
+            correctIndex: 1,
+          },
+        ],
+      },
+    ],
+  },
+];
+
 const beginner = [
   {
     title: 'Gen AI Foundations',
@@ -651,4 +976,4 @@ export const generalInterviewQuestions = [
   },
 ];
 
-export const curriculum = [...beginner, ...intermediate, ...advanced];
+export const curriculum = [...absoluteBasics, ...beginner, ...intermediate, ...advanced];
