@@ -347,4 +347,538 @@ export const generalInterviewQuestions = [
         'Calculus loss ke derivatives/gradients deta hai model ke weights ke respect mein. Gradient descent in gradients ka use karke weights ko iteratively us direction mein update karta hai jo error kam kare — isi se neural networks seekhte hain.',
     },
   },
+
+  // ─── Linear Algebra ───────────────────────────────────────────
+  {
+    question: 'What is a scalar, vector, matrix, and tensor?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'They form a hierarchy by number of dimensions. A SCALAR is a single number (5). A VECTOR is a 1-D array of numbers ([2, 5, 7]) — used to represent one data point or one feature set. A MATRIX is a 2-D grid of numbers — typically a whole dataset (rows = samples, columns = features). A TENSOR is the general term for any n-dimensional array; a colour image is a 3-D tensor (height x width x colour channels), and a batch of images is 4-D.',
+      hinglish:
+        'Ye dimensions ki number se ek hierarchy banate hain. Ek SCALAR ek single number hai (5). Ek VECTOR numbers ka 1-D array hai ([2, 5, 7]) — ek data point ya ek feature set represent karne ke liye use hota hai. Ek MATRIX numbers ka 2-D grid hai — typically ek poora dataset (rows = samples, columns = features). Ek TENSOR kisi bhi n-dimensional array ka general term hai; ek colour image ek 3-D tensor hai (height x width x colour channels), aur images ka ek batch 4-D hai.',
+    },
+  },
+  {
+    question: 'Why is matrix multiplication so important in machine learning?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Almost every operation in a neural network is a matrix multiplication. A layer computing "weights x inputs" for thousands of neurons at once IS a matrix multiply. This matters practically because matrix multiplication is embarrassingly parallel — thousands of independent multiply-add operations — which is exactly what GPUs are built to do. Expressing your model as matrix operations rather than Python loops is what makes training feasible at all.',
+      hinglish:
+        'Ek neural network mein almost har operation ek matrix multiplication hai. Ek layer jo hazaron neurons ke liye ek saath "weights x inputs" compute karti hai wo ek matrix multiply HI hai. Ye practically matter karta hai kyunki matrix multiplication embarrassingly parallel hai — hazaron independent multiply-add operations — jo exactly wahi hai jo GPUs karne ke liye bane hain. Apne model ko Python loops ke bajaye matrix operations ke roop mein express karna hi training ko feasible banata hai.',
+    },
+  },
+  {
+    question: 'What is the dot product and what does it mean geometrically?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The dot product multiplies corresponding elements of two vectors and sums the results, giving a single number. Geometrically it measures ALIGNMENT: a large positive value means the vectors point in a similar direction, zero means they are perpendicular (unrelated), and negative means they point oppositely. This is the mathematical foundation of similarity search in ML — cosine similarity is just a dot product normalised by the vectors\' lengths.',
+      hinglish:
+        'Dot product do vectors ke corresponding elements ko multiply karta hai aur results ko sum karta hai, ek single number dete hue. Geometrically ye ALIGNMENT measure karta hai: ek bada positive value matlab vectors similar direction mein point karte hain, zero matlab wo perpendicular hain (unrelated), aur negative matlab wo ulti taraf point karte hain. Ye ML mein similarity search ki mathematical foundation hai — cosine similarity bas ek dot product hai jo vectors ki lengths se normalise kiya gaya hai.',
+    },
+  },
+  {
+    question: 'What is cosine similarity and why is it used instead of Euclidean distance for embeddings?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Cosine similarity measures the ANGLE between two vectors, ignoring their magnitude, producing a value from -1 (opposite) to 1 (identical direction). For text embeddings this is preferable to Euclidean distance because document LENGTH shouldn\'t affect meaning — a short tweet and a long article about the same topic point in a similar DIRECTION even though their vector magnitudes differ hugely. Euclidean distance would wrongly treat them as dissimilar; cosine similarity correctly identifies them as related.',
+      hinglish:
+        'Cosine similarity do vectors ke beech ka ANGLE measure karta hai, unki magnitude ignore karte hue, -1 (opposite) se 1 (identical direction) tak value dete hue. Text embeddings ke liye ye Euclidean distance se better hai kyunki document LENGTH meaning ko affect nahi karni chahiye — ek chhota tweet aur ek lamba article same topic pe similar DIRECTION mein point karte hain chahe unki vector magnitudes bahut alag hon. Euclidean distance unhe galat tarike se dissimilar treat karega; cosine similarity correctly unhe related identify karta hai.',
+    },
+  },
+  {
+    question: 'What is the transpose of a matrix?',
+    difficulty: 'easy',
+    frequency: 'rare',
+    answer: {
+      english:
+        'The transpose flips a matrix over its diagonal — rows become columns and columns become rows, so an m x n matrix becomes n x m. In ML it appears constantly for practical reasons: making dimensions line up for matrix multiplication (you can only multiply A x B if A\'s columns match B\'s rows), and in the backpropagation equations, where gradients flowing backward involve the transpose of the forward weight matrix.',
+      hinglish:
+        'Transpose ek matrix ko uske diagonal pe flip karta hai — rows columns ban jaati hain aur columns rows, isliye ek m x n matrix n x m ban jaata hai. ML mein ye practical reasons se constantly dikhta hai: matrix multiplication ke liye dimensions line up karna (tum A x B sirf tab multiply kar sakte ho jab A ke columns B ki rows se match karein), aur backpropagation equations mein, jahan backward flow karne wale gradients forward weight matrix ke transpose ko involve karte hain.',
+    },
+  },
+  {
+    question: 'What is an identity matrix and an inverse matrix?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'The IDENTITY matrix (I) has 1s on its diagonal and 0s elsewhere — it is the matrix equivalent of the number 1, since A x I = A. The INVERSE of A (written A⁻¹) is the matrix that satisfies A x A⁻¹ = I — the matrix equivalent of a reciprocal. Inverses are used to solve linear systems analytically, but in practice ML avoids computing them for large matrices because it is numerically unstable and expensive; iterative methods like gradient descent are used instead.',
+      hinglish:
+        'IDENTITY matrix (I) mein diagonal pe 1s aur baaki jagah 0s hote hain — ye number 1 ka matrix equivalent hai, kyunki A x I = A. A ka INVERSE (A⁻¹ likha jaata hai) wo matrix hai jo A x A⁻¹ = I satisfy karta hai — ek reciprocal ka matrix equivalent. Inverses linear systems ko analytically solve karne ke liye use hote hain, par practically ML bade matrices ke liye unhe compute karne se bachta hai kyunki ye numerically unstable aur expensive hai; iske bajaye gradient descent jaise iterative methods use hote hain.',
+    },
+  },
+  {
+    question: 'What is matrix rank and why does it matter?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Rank is the number of linearly INDEPENDENT rows (or columns) in a matrix — effectively how much genuinely unique information it contains. If one column is just 2x another, it adds no new information and the rank drops. In ML, low rank signals redundant features (multicollinearity), which makes models unstable. It is also the key concept behind LoRA fine-tuning, which approximates a large weight update with two small LOW-RANK matrices, drastically cutting trainable parameters.',
+      hinglish:
+        'Rank ek matrix mein linearly INDEPENDENT rows (ya columns) ki number hai — effectively wo kitni genuinely unique information rakhta hai. Agar ek column bas doosre ka 2x hai, wo koi nayi information add nahi karta aur rank gir jaata hai. ML mein, low rank redundant features (multicollinearity) signal karta hai, jo models ko unstable banata hai. Ye LoRA fine-tuning ke peeche ka key concept bhi hai, jo ek bade weight update ko do chhote LOW-RANK matrices se approximate karta hai, trainable parameters drastically kam karte hue.',
+    },
+  },
+  {
+    question: 'What is Principal Component Analysis (PCA) in mathematical terms?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'PCA finds new axes (principal components) along which the data varies the most, then projects the data onto the first few of them to reduce dimensions while keeping maximum information. Mathematically: compute the covariance matrix of the data, then find its EIGENVECTORS (the new axes) and EIGENVALUES (how much variance each axis captures). Sorting by eigenvalue and keeping the top k gives you the best possible k-dimensional linear compression of your data.',
+      hinglish:
+        'PCA naye axes (principal components) dhundhta hai jinke along data sabse zyada vary karta hai, phir data ko unme se pehle kuch pe project karta hai dimensions kam karne ke liye jabki maximum information rakhte hue. Mathematically: data ka covariance matrix compute karo, phir uske EIGENVECTORS (naye axes) aur EIGENVALUES (har axis kitna variance capture karta hai) dhundho. Eigenvalue se sort karke top k rakhna tumhe tumhare data ka best possible k-dimensional linear compression deta hai.',
+    },
+  },
+  {
+    question: 'What is a norm (L1 vs L2) in linear algebra?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A norm measures the "size" or length of a vector. The L2 norm (Euclidean) is the square root of the sum of squares — ordinary straight-line distance. The L1 norm (Manhattan) is the sum of absolute values — distance if you can only travel along grid lines. In ML these define regularisation penalties: L2 shrinks all weights smoothly toward zero, while L1\'s geometry drives some weights EXACTLY to zero, producing sparse models that effectively perform feature selection.',
+      hinglish:
+        'Ek norm ek vector ka "size" ya length measure karta hai. L2 norm (Euclidean) squares ke sum ka square root hai — ordinary straight-line distance. L1 norm (Manhattan) absolute values ka sum hai — distance agar tum sirf grid lines ke along travel kar sako. ML mein ye regularisation penalties define karte hain: L2 saare weights ko smoothly zero ki taraf shrink karta hai, jabki L1 ki geometry kuch weights ko EXACTLY zero pe le jaati hai, sparse models produce karte hue jo effectively feature selection karte hain.',
+    },
+  },
+
+  // ─── Calculus ───────────────────────────────────────────
+  {
+    question: 'What is a derivative and what does it tell you?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A derivative measures the RATE OF CHANGE — how much the output changes for a tiny change in the input. Geometrically it is the slope of the curve at a point. In ML this is exactly what training needs: the derivative of the loss with respect to a weight tells you "if I nudge this weight up slightly, does the error go up or down, and by how much?" — which is precisely the information gradient descent uses to improve the model.',
+      hinglish:
+        'Ek derivative RATE OF CHANGE measure karta hai — input mein ek tiny change ke liye output kitna badalta hai. Geometrically ye ek point pe curve ka slope hai. ML mein yahi exactly training ko chahiye: ek weight ke respect mein loss ka derivative batata hai "agar main is weight ko thoda upar nudge karoon, error upar jaayega ya neeche, aur kitna?" — jo exactly wo information hai jise gradient descent model improve karne ke liye use karta hai.',
+    },
+  },
+  {
+    question: 'What is a partial derivative and a gradient?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A PARTIAL derivative is the derivative with respect to ONE variable while holding all others fixed — it isolates the effect of a single weight. The GRADIENT is the vector containing every partial derivative at once. Geometrically the gradient points in the direction of STEEPEST INCREASE, which is why gradient descent moves in the NEGATIVE gradient direction to decrease loss. For a model with a billion weights, the gradient is a billion-dimensional vector.',
+      hinglish:
+        'Ek PARTIAL derivative ek variable ke respect mein derivative hai jabki baaki sab fixed rakhe jaate hain — ye ek single weight ka effect isolate karta hai. GRADIENT wo vector hai jisme ek saath har partial derivative hota hai. Geometrically gradient STEEPEST INCREASE ki direction mein point karta hai, isliye gradient descent loss kam karne ke liye NEGATIVE gradient direction mein move karta hai. Ek billion weights wale model ke liye, gradient ek billion-dimensional vector hai.',
+    },
+  },
+  {
+    question: 'What is the chain rule and why is it the heart of backpropagation?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The chain rule computes the derivative of nested (composed) functions: if y depends on u, and u depends on x, then dy/dx = (dy/du) x (du/dx). A neural network is exactly a deeply nested composition of functions — layer after layer. Backpropagation applies the chain rule repeatedly, working backwards from the loss, to figure out how each weight deep inside the network contributed to the final error. Without it, we\'d have no efficient way to train multi-layer networks at all.',
+      hinglish:
+        'Chain rule nested (composed) functions ka derivative compute karta hai: agar y u pe depend karta hai, aur u x pe, toh dy/dx = (dy/du) x (du/dx). Ek neural network exactly functions ka ek deeply nested composition hai — layer ke baad layer. Backpropagation chain rule ko baar-baar apply karta hai, loss se ulta kaam karte hue, ye figure out karne ke liye ki network ke andar deep har weight ne final error mein kitna contribute kiya. Iske bina, multi-layer networks train karne ka koi efficient tareeka hi nahi hota.',
+    },
+  },
+  {
+    question: 'What is a local minimum vs a global minimum?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A GLOBAL minimum is the lowest possible loss anywhere; a LOCAL minimum is a valley that is lowest only in its immediate neighbourhood, where gradient descent can get stuck since every direction points uphill. Interestingly, in very high-dimensional deep networks, true local minima are rarely the practical problem — SADDLE POINTS (flat in some directions, curved in others) are far more common, and most local minima found in practice give similarly good performance.',
+      hinglish:
+        'Ek GLOBAL minimum kahin bhi sabse kam possible loss hai; ek LOCAL minimum ek valley hai jo sirf apne immediate neighbourhood mein sabse kam hai, jahan gradient descent atak sakta hai kyunki har direction uphill point karti hai. Interestingly, bahut high-dimensional deep networks mein, true local minima rarely practical problem hote hain — SADDLE POINTS (kuch directions mein flat, doosron mein curved) bahut zyada common hain, aur practically mile zyadatar local minima similarly achhi performance dete hain.',
+    },
+  },
+  {
+    question: 'What is a convex function and why does convexity matter for optimisation?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A convex function is bowl-shaped: any straight line between two points on the curve lies above the curve. Its critical property is having exactly ONE minimum, so gradient descent is GUARANTEED to find the global optimum. Linear and logistic regression have convex loss functions, which is why they train reliably. Deep neural network losses are highly NON-convex with countless local minima — training them works well in practice, but offers no mathematical guarantee of finding the best solution.',
+      hinglish:
+        'Ek convex function bowl-shaped hai: curve pe do points ke beech koi bhi straight line curve ke upar hoti hai. Iski critical property hai ki isme exactly EK minimum hota hai, isliye gradient descent global optimum dhundhne ki GUARANTEE deta hai. Linear aur logistic regression ke convex loss functions hote hain, isliye wo reliably train hote hain. Deep neural network losses highly NON-convex hote hain countless local minima ke saath — unhe train karna practically achha kaam karta hai, par best solution dhundhne ki koi mathematical guarantee nahi deta.',
+    },
+  },
+  {
+    question: 'What is the learning rate in terms of calculus?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The gradient tells you the DIRECTION to move and the local steepness, but not how FAR to step. The learning rate is the scalar multiplier that converts the gradient into an actual step size: new_weight = old_weight - (learning_rate x gradient). Because the gradient is only accurate very near the current point, too large a step overshoots into a region where the gradient no longer applies — which is exactly why an excessive learning rate causes divergence.',
+      hinglish:
+        'Gradient tumhe move karne ki DIRECTION aur local steepness batata hai, par ye nahi ki KITNA door step lena hai. Learning rate wo scalar multiplier hai jo gradient ko ek actual step size mein convert karta hai: new_weight = old_weight - (learning_rate x gradient). Kyunki gradient sirf current point ke bahut paas accurate hota hai, bahut bada step ek aise region mein overshoot kar jaata hai jahan gradient apply nahi hota — yahi exactly wajah hai ki ek excessive learning rate divergence cause karta hai.',
+    },
+  },
+
+  // ─── Probability & Statistics ───────────────────────────────────────────
+  {
+    question: 'What is the difference between probability and likelihood?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'They ask opposite questions. PROBABILITY: given a known model, how likely is this data? (Model fixed, data varies.) LIKELIHOOD: given observed data, how well does this model explain it? (Data fixed, model parameters vary.) Training a model is Maximum Likelihood Estimation — searching for the parameters that make the observed training data most likely. Cross-entropy loss is mathematically equivalent to negative log-likelihood, which is why minimising it maximises how well the model explains the data.',
+      hinglish:
+        'Ye ulte sawaal poochte hain. PROBABILITY: ek known model diya gaya, ye data kitna likely hai? (Model fixed, data varies.) LIKELIHOOD: observed data diya gaya, ye model use kitna achha explain karta hai? (Data fixed, model parameters vary.) Ek model train karna Maximum Likelihood Estimation hai — un parameters ko dhundhna jo observed training data ko sabse zyada likely banayein. Cross-entropy loss mathematically negative log-likelihood ke barabar hai, isliye ise minimise karna maximise karta hai ki model data ko kitna achha explain karta hai.',
+    },
+  },
+  {
+    question: 'What is a probability distribution?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A probability distribution describes how likely each possible outcome is, with all probabilities summing to 1. DISCRETE distributions cover countable outcomes (a dice roll, class labels) — described by a probability mass function. CONTINUOUS distributions cover ranges (height, temperature) — described by a probability density function. A classifier\'s softmax output IS a probability distribution over the possible classes.',
+      hinglish:
+        'Ek probability distribution batata hai ki har possible outcome kitna likely hai, saari probabilities 1 tak sum hoti hui. DISCRETE distributions countable outcomes cover karti hain (ek dice roll, class labels) — ek probability mass function se describe hoti hain. CONTINUOUS distributions ranges cover karti hain (height, temperature) — ek probability density function se describe hoti hain. Ek classifier ka softmax output possible classes pe ek probability distribution HI hai.',
+    },
+  },
+  {
+    question: 'What is the normal (Gaussian) distribution and why does it appear everywhere?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The normal distribution is the symmetric bell curve, defined entirely by its mean (centre) and standard deviation (spread), with ~68% of values within one standard deviation and ~95% within two. It appears everywhere because of the CENTRAL LIMIT THEOREM: sums or averages of many independent random effects tend toward a normal distribution regardless of the underlying distributions. In ML it underpins weight initialisation schemes, Gaussian noise in diffusion models, and many statistical tests.',
+      hinglish:
+        'Normal distribution symmetric bell curve hai, poori tarah apne mean (centre) aur standard deviation (spread) se defined, ~68% values ek standard deviation ke andar aur ~95% do ke andar. Ye har jagah dikhta hai CENTRAL LIMIT THEOREM ki wajah se: bahut saare independent random effects ke sums ya averages ek normal distribution ki taraf jaate hain, underlying distributions ki parwah kiye bina. ML mein ye weight initialisation schemes, diffusion models mein Gaussian noise, aur bahut saare statistical tests ka base hai.',
+    },
+  },
+  {
+    question: 'What is the difference between mean, median, and mode?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'MEAN is the arithmetic average — sensitive to outliers, since one extreme value drags it. MEDIAN is the middle value when sorted — robust to outliers. MODE is the most frequent value. Classic example: for salaries [30k, 35k, 40k, 45k, 5000k], the mean (~1030k) is misleading while the median (40k) accurately represents a typical salary. For skewed data or data with outliers, always report the median.',
+      hinglish:
+        'MEAN arithmetic average hai — outliers ke liye sensitive, kyunki ek extreme value ise kheench leti hai. MEDIAN sort karne pe middle value hai — outliers ke liye robust. MODE sabse frequent value hai. Classic example: salaries [30k, 35k, 40k, 45k, 5000k] ke liye, mean (~1030k) misleading hai jabki median (40k) accurately ek typical salary represent karta hai. Skewed data ya outliers wale data ke liye, hamesha median report karo.',
+    },
+  },
+  {
+    question: 'What is variance and standard deviation?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Both measure SPREAD. Variance is the average of squared differences from the mean; standard deviation is its square root. The key practical difference is units: variance is in squared units (hard to interpret), while standard deviation is in the SAME units as the original data, making it directly interpretable ("average deviation is 5 kg"). Variance appears in the maths (bias-variance tradeoff, PCA); standard deviation appears in reporting and interpretation.',
+      hinglish:
+        'Dono SPREAD measure karte hain. Variance mean se squared differences ka average hai; standard deviation uska square root hai. Key practical difference units hai: variance squared units mein hai (interpret karna mushkil), jabki standard deviation original data ke SAME units mein hai, jo ise directly interpretable banata hai ("average deviation 5 kg hai"). Variance maths mein dikhta hai (bias-variance tradeoff, PCA); standard deviation reporting aur interpretation mein dikhta hai.',
+    },
+  },
+  {
+    question: 'What is Bayes\' theorem and where is it used in ML?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Bayes\' theorem describes how to UPDATE a belief given new evidence: P(A|B) = P(B|A) x P(A) / P(B). In words: posterior = (likelihood x prior) / evidence. Its ML applications are wide: the Naive Bayes classifier applies it directly (famously for spam filtering), Bayesian optimisation uses it for smart hyperparameter search, and it provides the theoretical foundation for reasoning about uncertainty in probabilistic models.',
+      hinglish:
+        'Bayes\' theorem batata hai ki naye evidence ke saath ek belief ko kaise UPDATE karein: P(A|B) = P(B|A) x P(A) / P(B). Shabdon mein: posterior = (likelihood x prior) / evidence. Iske ML applications wide hain: Naive Bayes classifier ise directly apply karta hai (famously spam filtering ke liye), Bayesian optimisation ise smart hyperparameter search ke liye use karta hai, aur ye probabilistic models mein uncertainty ke baare mein reason karne ki theoretical foundation deta hai.',
+    },
+  },
+  {
+    question: 'What is conditional probability?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Conditional probability P(A|B) is the probability of A GIVEN that B has already happened — it narrows the sample space to only cases where B is true. Example: the probability someone owns a car might be 40%, but P(owns car | earns over 1 crore) is far higher. This concept is fundamental to language models, which literally compute P(next word | all previous words) at every generation step.',
+      hinglish:
+        'Conditional probability P(A|B) A ki probability hai YE MAANTE HUE ki B already ho chuka hai — ye sample space ko sirf un cases tak narrow karta hai jahan B true hai. Example: kisi ke paas car hone ki probability 40% ho sakti hai, par P(car hai | 1 crore se zyada kamaata hai) bahut zyada hai. Ye concept language models ke liye fundamental hai, jo literally har generation step pe P(next word | saare previous words) compute karte hain.',
+    },
+  },
+  {
+    question: 'What is entropy in information theory?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Entropy measures UNCERTAINTY or "surprise" in a distribution. A fair coin has maximum entropy (1 bit — genuinely unpredictable); a coin that always lands heads has zero entropy (no information gained from a flip). In ML: decision trees split on the feature that most REDUCES entropy (information gain), and cross-entropy loss measures how much extra uncertainty your predicted distribution has compared to the true one — minimising it means making your predictions match reality.',
+      hinglish:
+        'Entropy ek distribution mein UNCERTAINTY ya "surprise" measure karta hai. Ek fair coin ki maximum entropy hoti hai (1 bit — genuinely unpredictable); ek coin jo hamesha heads aata hai uski zero entropy hai (ek flip se koi information nahi milti). ML mein: decision trees us feature pe split karte hain jo entropy sabse zyada KAM kare (information gain), aur cross-entropy loss measure karta hai ki tumhare predicted distribution mein true wale ke comparison mein kitni extra uncertainty hai — ise minimise karna matlab apni predictions ko reality se match karana.',
+    },
+  },
+  {
+    question: 'What is the Central Limit Theorem?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The Central Limit Theorem states that the distribution of SAMPLE MEANS approaches a normal distribution as sample size grows, REGARDLESS of the shape of the original population distribution. This is remarkably powerful: it means you can use normal-distribution-based statistics (confidence intervals, z-tests, A/B test significance) on almost any data, as long as your samples are reasonably large and independent — you don\'t need the underlying data itself to be normally distributed.',
+      hinglish:
+        'Central Limit Theorem kehta hai ki SAMPLE MEANS ka distribution ek normal distribution ki taraf jaata hai jaise sample size badhta hai, original population distribution ke shape ki PARWAH KIYE BINA. Ye remarkably powerful hai: iska matlab tum almost kisi bhi data pe normal-distribution-based statistics (confidence intervals, z-tests, A/B test significance) use kar sakte ho, jab tak tumhare samples reasonably bade aur independent hon — tumhe underlying data ko khud normally distributed hone ki zaroorat nahi.',
+    },
+  },
+  {
+    question: 'What is a p-value?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A p-value is the probability of observing a result at least as extreme as yours, ASSUMING the null hypothesis (no real effect) is true. A small p-value (conventionally < 0.05) means your result would be unlikely by pure chance, so you reject the null hypothesis. Crucially, it is NOT the probability that your hypothesis is correct — a very common misinterpretation. It only tells you how surprising your data would be in a world with no real effect.',
+      hinglish:
+        'Ek p-value tumhare jitne ya usse zyada extreme result observe karne ki probability hai, YE MAANTE HUE ki null hypothesis (koi real effect nahi) true hai. Ek chhoti p-value (conventionally < 0.05) matlab tumhara result pure chance se unlikely hoga, isliye tum null hypothesis reject karte ho. Crucially, ye tumhari hypothesis correct hone ki probability NAHI hai — ek bahut common misinterpretation. Ye sirf batata hai ki ek aise duniya mein jahan koi real effect nahi hai, tumhara data kitna surprising hoga.',
+    },
+  },
+  {
+    question: 'What is the difference between correlation and causation?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Correlation means two variables move together statistically; causation means one actually CAUSES the other. Correlation can arise without causation via a confounding variable (ice cream sales and drowning both rise in summer — heat causes both) or pure coincidence. ML models learn CORRELATIONS, which is why a model can be highly accurate yet capture a spurious pattern that breaks in deployment. Establishing causation requires controlled experiments (A/B tests) or causal inference methods, not just observational data.',
+      hinglish:
+        'Correlation matlab do variables statistically saath move karte hain; causation matlab ek actually doosre ko CAUSE karta hai. Correlation causation ke bina aa sakta hai ek confounding variable ke through (ice cream sales aur drowning dono garmiyon mein badhte hain — heat dono ko cause karti hai) ya pure coincidence se. ML models CORRELATIONS seekhte hain, isliye ek model highly accurate ho sakta hai par ek spurious pattern capture kar sakta hai jo deployment mein toot jaaye. Causation establish karne ke liye controlled experiments (A/B tests) ya causal inference methods chahiye, sirf observational data nahi.',
+    },
+  },
+  {
+    question: 'What is the difference between a population and a sample?',
+    difficulty: 'easy',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A POPULATION is every member of the group you care about (all Indian voters); a SAMPLE is the subset you actually measure (5,000 surveyed voters). Since measuring an entire population is usually impossible, statistics uses samples to INFER population properties — with a margin of error. The critical requirement is that the sample be REPRESENTATIVE; a biased sample (e.g. only surveying smartphone users) produces confidently wrong conclusions no matter how large it is.',
+      hinglish:
+        'Ek POPULATION us group ka har member hai jiski tumhe parwah hai (saare Indian voters); ek SAMPLE wo subset hai jo tum actually measure karte ho (5,000 surveyed voters). Kyunki ek poori population measure karna usually impossible hai, statistics samples use karke population properties INFER karti hai — ek margin of error ke saath. Critical requirement hai ki sample REPRESENTATIVE ho; ek biased sample (jaise sirf smartphone users survey karna) confidently galat conclusions deta hai chahe wo kitna bhi bada ho.',
+    },
+  },
+  {
+    question: 'What is standardisation (z-score) vs normalisation (min-max scaling)?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'STANDARDISATION (z-score) rescales data to mean 0 and standard deviation 1 using (x - mean) / std — it preserves outliers and has no bounded range, preferred when data is roughly normal or for algorithms assuming zero-centred input. NORMALISATION (min-max) squeezes data into a fixed [0, 1] range using (x - min) / (max - min) — simple and bounded, but a single extreme outlier compresses all other values into a tiny sliver of the range.',
+      hinglish:
+        'STANDARDISATION (z-score) data ko mean 0 aur standard deviation 1 pe rescale karta hai (x - mean) / std se — ye outliers preserve karta hai aur iska koi bounded range nahi, preferred jab data roughly normal ho ya zero-centred input assume karne wale algorithms ke liye. NORMALISATION (min-max) data ko ek fixed [0, 1] range mein squeeze karta hai (x - min) / (max - min) se — simple aur bounded, par ek single extreme outlier baaki saari values ko range ke ek tiny sliver mein compress kar deta hai.',
+    },
+  },
+  {
+    question: 'Why is feature scaling necessary for many ML algorithms?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Algorithms that rely on distances or gradients treat larger numeric ranges as more important. If "salary" ranges 0-10,00,000 and "age" ranges 0-100, salary will completely dominate a distance calculation (KNN, K-means) or produce wildly uneven gradients (neural networks, gradient descent), making training slow and unstable. Scaling puts all features on comparable footing. Tree-based models (Decision Trees, Random Forest, XGBoost) are the notable exception — they split on thresholds and are scale-invariant.',
+      hinglish:
+        'Wo algorithms jo distances ya gradients pe depend karte hain, bade numeric ranges ko zyada important treat karte hain. Agar "salary" 0-10,00,000 range karti hai aur "age" 0-100, salary ek distance calculation (KNN, K-means) ko poori tarah dominate karegi ya wildly uneven gradients produce karegi (neural networks, gradient descent), training ko slow aur unstable banate hue. Scaling saare features ko comparable footing pe rakhta hai. Tree-based models (Decision Trees, Random Forest, XGBoost) notable exception hain — wo thresholds pe split karte hain aur scale-invariant hote hain.',
+    },
+  },
+  {
+    question: 'What is the curse of dimensionality?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'As the number of features grows, the volume of the space grows exponentially, so your data points become increasingly sparse and far apart. Consequences: distance-based methods break down (everything becomes roughly equidistant, so "nearest neighbour" loses meaning), the data needed for reliable learning grows exponentially, and overfitting becomes much easier. This is exactly why dimensionality reduction (PCA), feature selection, and regularisation are so important with high-dimensional data.',
+      hinglish:
+        'Jaise features ki number badhti hai, space ka volume exponentially badhta hai, isliye tumhare data points increasingly sparse aur ek doosre se door ho jaate hain. Consequences: distance-based methods toot jaate hain (sab kuch roughly equidistant ho jaata hai, isliye "nearest neighbour" apna matlab kho deta hai), reliable learning ke liye chahiye data exponentially badhta hai, aur overfitting bahut easier ho jaata hai. Yahi exactly wajah hai ki high-dimensional data ke saath dimensionality reduction (PCA), feature selection, aur regularisation itne important hain.',
+    },
+  },
+  {
+    question: 'What is covariance and how is it different from correlation?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'COVARIANCE measures whether two variables move together — positive means they rise together, negative means one rises as the other falls. Its problem is that its magnitude depends on the variables\' units, so you cannot compare covariances across different variable pairs. CORRELATION is covariance normalised to a standard [-1, 1] range, making it unit-free and directly comparable. Covariance appears inside the maths (the covariance matrix in PCA); correlation appears when interpreting relationships.',
+      hinglish:
+        'COVARIANCE measure karta hai ki do variables saath move karte hain ya nahi — positive matlab wo saath badhte hain, negative matlab ek badhta hai jab doosra girta hai. Iski problem hai ki iski magnitude variables ke units pe depend karti hai, isliye tum different variable pairs ke across covariances compare nahi kar sakte. CORRELATION covariance hai jo ek standard [-1, 1] range mein normalise kiya gaya hai, jo ise unit-free aur directly comparable banata hai. Covariance maths ke andar dikhta hai (PCA mein covariance matrix); correlation relationships interpret karte waqt dikhta hai.',
+    },
+  },
+  {
+    question: 'What are eigenvalues and eigenvectors, intuitively?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'When a matrix transforms a vector, most vectors get rotated AND stretched. An EIGENVECTOR is a special vector whose DIRECTION does not change under that transformation — it only gets scaled. Its EIGENVALUE is the scaling factor. Intuitively, eigenvectors reveal the "natural axes" of a transformation. In PCA, the eigenvectors of the covariance matrix are the principal components (the natural axes of variation), and their eigenvalues tell you how much variance each one explains.',
+      hinglish:
+        'Jab ek matrix ek vector ko transform karta hai, zyadatar vectors rotate AUR stretch hote hain. Ek EIGENVECTOR ek special vector hai jiski DIRECTION us transformation mein nahi badalti — wo sirf scale hota hai. Iska EIGENVALUE wo scaling factor hai. Intuitively, eigenvectors ek transformation ke "natural axes" reveal karte hain. PCA mein, covariance matrix ke eigenvectors principal components hote hain (variation ke natural axes), aur unke eigenvalues batate hain ki har ek kitna variance explain karta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between discrete and continuous random variables?',
+    difficulty: 'easy',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A DISCRETE random variable takes countable, separate values — a dice roll (1-6), number of website visits, a class label. Its probabilities are given by a probability MASS function, and P(X = 3) is a meaningful nonzero number. A CONTINUOUS random variable takes any value in a range — height, temperature, time. It uses a probability DENSITY function, and P(X = exactly 1.7000...) is technically zero; only ranges like P(1.6 < X < 1.8) have meaningful probability.',
+      hinglish:
+        'Ek DISCRETE random variable countable, separate values leta hai — ek dice roll (1-6), website visits ki number, ek class label. Iski probabilities ek probability MASS function se milti hain, aur P(X = 3) ek meaningful nonzero number hai. Ek CONTINUOUS random variable ek range mein koi bhi value leta hai — height, temperature, time. Ye ek probability DENSITY function use karta hai, aur P(X = exactly 1.7000...) technically zero hai; sirf P(1.6 < X < 1.8) jaisi ranges ki meaningful probability hoti hai.',
+    },
+  },
+  {
+    question: 'What is maximum likelihood estimation (MLE)?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'MLE is the principle of choosing the model parameters that make the OBSERVED data most probable. You write the likelihood of the data as a function of the parameters, then find the parameters maximising it (in practice, maximising the LOG-likelihood, since sums are easier to differentiate than products). This is not a niche idea — it is the theoretical justification for most standard loss functions: minimising cross-entropy loss IS maximum likelihood estimation for a classifier.',
+      hinglish:
+        'MLE wo principle hai jisme wo model parameters choose karte hain jo OBSERVED data ko sabse zyada probable banayein. Tum data ki likelihood ko parameters ke ek function ke roop mein likhte ho, phir wo parameters dhundhte ho jo use maximise karein (practically, LOG-likelihood maximise karna, kyunki sums products se differentiate karna easier hai). Ye koi niche idea nahi hai — ye zyadatar standard loss functions ka theoretical justification hai: cross-entropy loss minimise karna ek classifier ke liye maximum likelihood estimation HI hai.',
+    },
+  },
+  {
+    question: 'What is a confidence interval?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A confidence interval gives a RANGE of plausible values for an unknown quantity, along with a confidence level. "The average is 50 ± 3 with 95% confidence" means that if you repeated this sampling procedure many times, about 95% of the intervals produced would contain the true value. It communicates UNCERTAINTY, which a single point estimate hides — reporting "accuracy is 91%" is far less honest than "accuracy is 91% ± 2%".',
+      hinglish:
+        'Ek confidence interval ek unknown quantity ke liye plausible values ki ek RANGE deta hai, ek confidence level ke saath. "Average 50 ± 3 hai 95% confidence ke saath" matlab agar tum is sampling procedure ko bahut baar repeat karo, produce hue intervals mein se about 95% mein true value hogi. Ye UNCERTAINTY communicate karta hai, jo ek single point estimate chhupa deta hai — "accuracy 91% hai" report karna "accuracy 91% ± 2% hai" se bahut kam honest hai.',
+    },
+  },
+  {
+    question: 'What is a saddle point and why does it matter in deep learning?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A saddle point is where the gradient is zero but it is neither a minimum nor a maximum — the surface curves UP in some directions and DOWN in others (shaped like a horse saddle or mountain pass). In high-dimensional deep networks, saddle points vastly outnumber true local minima, and they are the more common cause of training stalling, since the gradient is near zero and progress crawls. Momentum-based optimisers help specifically by carrying velocity through these flat regions.',
+      hinglish:
+        'Ek saddle point wahan hai jahan gradient zero hai par wo na minimum hai na maximum — surface kuch directions mein UPAR curve karta hai aur doosron mein NEECHE (ek horse saddle ya mountain pass jaisa shape). High-dimensional deep networks mein, saddle points true local minima se bahut zyada hote hain, aur wo training ruk jaane ka zyada common cause hain, kyunki gradient near zero hota hai aur progress rengti hai. Momentum-based optimisers specifically in flat regions se velocity le jaake madad karte hain.',
+    },
+  },
+  {
+    question: 'What is a Jacobian and a Hessian?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'The JACOBIAN is the matrix of all FIRST-order partial derivatives of a vector-valued function — it generalises the gradient to functions with multiple outputs, and is what backpropagation effectively chains together. The HESSIAN is the matrix of all SECOND-order partial derivatives, describing the CURVATURE of the loss surface. Second-order optimisation methods use the Hessian to take much smarter steps, but for a model with a billion parameters the Hessian would have a billion-squared entries — computationally impossible, which is why deep learning sticks to first-order methods like Adam.',
+      hinglish:
+        'JACOBIAN ek vector-valued function ke saare FIRST-order partial derivatives ka matrix hai — ye gradient ko multiple outputs wale functions tak generalise karta hai, aur yahi hai jise backpropagation effectively chain karta hai. HESSIAN saare SECOND-order partial derivatives ka matrix hai, jo loss surface ki CURVATURE describe karta hai. Second-order optimisation methods Hessian use karke bahut smarter steps lete hain, par ek billion parameters wale model ke liye Hessian mein billion-squared entries hongi — computationally impossible, isliye deep learning Adam jaise first-order methods pe hi rehta hai.',
+    },
+  },
+  {
+    question: 'What is one-hot encoding and why is it needed?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'One-hot encoding converts a categorical value into a vector of all zeros with a single 1 at the position for that category. It is needed because assigning arbitrary integers (red=1, green=2, blue=3) would falsely imply an ORDER and that blue is somehow "3x" red, which no model should learn. One-hot removes that false ordering. Its downside is producing very high-dimensional sparse vectors for categories with many values, which is exactly the problem embeddings solve.',
+      hinglish:
+        'One-hot encoding ek categorical value ko saare zeros ke ek vector mein convert karta hai jisme us category ki position pe ek single 1 hota hai. Ye zaroori hai kyunki arbitrary integers assign karna (red=1, green=2, blue=3) galat tarike se ek ORDER imply karega aur ye ki blue kisi tarah red ka "3x" hai, jo koi model nahi seekhna chahiye. One-hot wo false ordering hata deta hai. Iska downside bahut high-dimensional sparse vectors produce karna hai un categories ke liye jinme bahut values hain, jo exactly wo problem hai jo embeddings solve karte hain.',
+    },
+  },
+  {
+    question: 'What is the difference between L1 and L2 regularisation, mathematically?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'L2 adds the sum of SQUARED weights to the loss. Its derivative is proportional to the weight itself, so the shrinking force gets weaker as weights approach zero — pushing them close to but never exactly zero. L1 adds the sum of ABSOLUTE weights. Its derivative is a CONSTANT regardless of weight size, so the shrinking force stays strong all the way down, driving weights exactly to zero. This mathematical difference is precisely why L1 produces sparse models and L2 does not.',
+      hinglish:
+        'L2 loss mein SQUARED weights ka sum add karta hai. Iska derivative weight ke khud proportional hai, isliye shrinking force weaker ho jaati hai jab weights zero ke paas aate hain — unhe paas tak push karte hue par kabhi exactly zero nahi. L1 ABSOLUTE weights ka sum add karta hai. Iska derivative weight size ki parwah kiye bina ek CONSTANT hai, isliye shrinking force poore neeche tak strong rehti hai, weights ko exactly zero pe le jaate hue. Yahi mathematical difference exactly wajah hai ki L1 sparse models produce karta hai aur L2 nahi.',
+    },
+  },
+  {
+    question: 'What is the softmax function mathematically, and why exponentiate?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Softmax converts a vector of raw scores (logits) into probabilities: exp(zi) / sum(exp(zj)) for all j. Exponentiating serves two purposes: it makes every value POSITIVE (probabilities cannot be negative, and logits can be), and it AMPLIFIES differences so higher scores gain disproportionately more probability. Dividing by the sum guarantees the outputs total exactly 1, forming a valid probability distribution over the classes.',
+      hinglish:
+        'Softmax raw scores (logits) ke ek vector ko probabilities mein convert karta hai: saare j ke liye exp(zi) / sum(exp(zj)). Exponentiate karna do purposes serve karta hai: ye har value ko POSITIVE banata hai (probabilities negative nahi ho sakti, aur logits ho sakte hain), aur ye differences ko AMPLIFY karta hai taaki higher scores disproportionately zyada probability paayein. Sum se divide karna guarantee karta hai ki outputs exactly 1 tak total hon, classes pe ek valid probability distribution banate hue.',
+    },
+  },
+  {
+    question: 'What is gradient clipping and what problem does it solve mathematically?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Gradient clipping caps the gradient\'s magnitude (norm) at a threshold before the weight update, rescaling it if it exceeds that limit while preserving its direction. It solves EXPLODING gradients: when gradients grow enormous, the update step overshoots into a completely different region of the loss surface, destroying the learned weights and producing NaN loss. Clipping keeps the step size bounded and stable, and is standard practice when training RNNs and Transformers.',
+      hinglish:
+        'Gradient clipping weight update se pehle gradient ki magnitude (norm) ko ek threshold pe cap karta hai, agar wo limit exceed kare to use rescale karta hai jabki uski direction preserve karte hue. Ye EXPLODING gradients solve karta hai: jab gradients enormous ho jaate hain, update step loss surface ke ek bilkul different region mein overshoot kar jaata hai, seekhe hue weights destroy karte hue aur NaN loss produce karte hue. Clipping step size ko bounded aur stable rakhta hai, aur RNNs aur Transformers train karte waqt standard practice hai.',
+    },
+  },
+  {
+    question: 'What does it mean for a function to be differentiable, and why must ML models be differentiable?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A function is differentiable if it has a well-defined derivative everywhere — intuitively, it is smooth with no sharp corners or breaks. Gradient-based training REQUIRES this, because you cannot compute a gradient where none exists. This constraint shapes real design choices: accuracy is not differentiable (it jumps in steps), which is why we train against cross-entropy loss and only MEASURE accuracy. ReLU is technically non-differentiable exactly at zero, but frameworks simply define a value there and it works fine in practice.',
+      hinglish:
+        'Ek function differentiable hai agar iska har jagah ek well-defined derivative ho — intuitively, ye smooth hai bina sharp corners ya breaks ke. Gradient-based training ise ZAROORI maangti hai, kyunki tum wahan gradient compute nahi kar sakte jahan koi exist na kare. Ye constraint real design choices shape karta hai: accuracy differentiable nahi hai (ye steps mein jump karti hai), isliye hum cross-entropy loss ke against train karte hain aur accuracy sirf MEASURE karte hain. ReLU technically exactly zero pe non-differentiable hai, par frameworks bas wahan ek value define kar dete hain aur ye practically theek kaam karta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between interpolation and extrapolation, and why is extrapolation risky in ML?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'INTERPOLATION is predicting within the range of values the model saw during training; EXTRAPOLATION is predicting outside it. Models are generally reliable when interpolating and unreliable when extrapolating, because they only learned patterns that held inside the training range and have no basis for what happens beyond it. A model trained on house prices from 500-2000 sq ft can confidently produce an absurd number for a 50,000 sq ft property — which is why checking whether production inputs fall inside the training distribution matters.',
+      hinglish:
+        'INTERPOLATION un values ki range ke andar predict karna hai jo model ne training mein dekhi; EXTRAPOLATION uske bahar predict karna hai. Models generally interpolate karte waqt reliable hote hain aur extrapolate karte waqt unreliable, kyunki unhe sirf wo patterns seekhe jo training range ke andar hold karte the aur uske aage kya hota hai iska koi basis nahi hai. 500-2000 sq ft ke house prices pe train hua model ek 50,000 sq ft property ke liye confidently ek absurd number de sakta hai — isliye ye check karna matter karta hai ki production inputs training distribution ke andar girte hain ya nahi.',
+    },
+  },
+  {
+    question: 'What is a linear transformation and how does it relate to neural network layers?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A linear transformation maps vectors to vectors while preserving addition and scalar multiplication — geometrically it can rotate, scale, shear, or project space, but always keeps the origin fixed and straight lines straight. Every dense neural network layer computes exactly this (weights x input) plus a bias shift. The critical insight: composing linear transformations only ever gives another linear transformation, which is precisely why non-linear activation functions are mandatory between layers.',
+      hinglish:
+        'Ek linear transformation vectors ko vectors pe map karta hai jabki addition aur scalar multiplication preserve karte hue — geometrically ye space ko rotate, scale, shear, ya project kar sakta hai, par hamesha origin ko fixed aur straight lines ko straight rakhta hai. Har dense neural network layer exactly yahi compute karti hai (weights x input) plus ek bias shift. Critical insight: linear transformations compose karne se hamesha ek doosra linear transformation hi milta hai, jo exactly wajah hai ki layers ke beech non-linear activation functions mandatory hain.',
+    },
+  },
+  {
+    question: 'What is the difference between a parametric and non-parametric model?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A PARAMETRIC model has a FIXED number of parameters decided before training (linear regression, neural networks) — once trained, the data can be discarded, since all learned knowledge lives in those parameters. A NON-PARAMETRIC model\'s complexity grows with the data (K-Nearest Neighbours, decision trees) and typically needs to retain the training data (or structures derived from it) at prediction time. Parametric models are compact and fast at inference; non-parametric models are more flexible but heavier.',
+      hinglish:
+        'Ek PARAMETRIC model mein training se pehle decide kiya gaya ek FIXED number of parameters hote hain (linear regression, neural networks) — ek baar trained, data discard kiya ja sakta hai, kyunki saara learned knowledge un parameters mein rehta hai. Ek NON-PARAMETRIC model ki complexity data ke saath badhti hai (K-Nearest Neighbours, decision trees) aur typically prediction time pe training data (ya usse derive kiye structures) rakhna padta hai. Parametric models inference pe compact aur fast hote hain; non-parametric models zyada flexible par bhaari hote hain.',
+    },
+  },
+  {
+    question: 'What is stochastic vs deterministic in the context of ML algorithms?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'DETERMINISTIC means the same input always produces exactly the same output. STOCHASTIC means randomness is involved, so results vary between runs. Many ML components are deliberately stochastic: random weight initialisation, shuffled mini-batches in SGD, dropout, and data augmentation. This randomness genuinely helps (it escapes poor local minima and improves generalisation) but it means you must SET A RANDOM SEED to make experiments reproducible — otherwise two identical training runs give different models.',
+      hinglish:
+        'DETERMINISTIC matlab same input hamesha exactly same output deta hai. STOCHASTIC matlab randomness involved hai, isliye results runs ke beech vary karte hain. Bahut saare ML components deliberately stochastic hain: random weight initialisation, SGD mein shuffled mini-batches, dropout, aur data augmentation. Ye randomness genuinely madad karta hai (ye poor local minima se bachta hai aur generalisation improve karta hai) par iska matlab hai ki experiments reproducible banane ke liye tumhe ek RANDOM SEED SET karna padta hai — warna do identical training runs different models denge.',
+    },
+  },
+  {
+    question: 'What is Type I and Type II error?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A TYPE I error is a FALSE POSITIVE — rejecting a true null hypothesis, i.e. detecting an effect that isn\'t real (a fire alarm with no fire). A TYPE II error is a FALSE NEGATIVE — failing to reject a false null hypothesis, i.e. missing a real effect (a fire with no alarm). There is an inherent tradeoff: making your test stricter reduces Type I errors but increases Type II. Which one you tolerate depends entirely on stakes — medical screening accepts more false positives to avoid missing a real disease.',
+      hinglish:
+        'Ek TYPE I error ek FALSE POSITIVE hai — ek true null hypothesis reject karna, matlab ek aisa effect detect karna jo real nahi hai (bina aag ke fire alarm). Ek TYPE II error ek FALSE NEGATIVE hai — ek false null hypothesis reject karne mein fail hona, matlab ek real effect miss karna (bina alarm ke aag). Ek inherent tradeoff hai: apna test stricter banane se Type I errors kam hote hain par Type II badhte hain. Tum kaunsa tolerate karte ho ye poori tarah stakes pe depend karta hai — medical screening ek real disease miss karne se bachne ke liye zyada false positives accept karti hai.',
+    },
+  },
+  {
+    question: 'Why do we use log-probabilities instead of raw probabilities in ML?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Three reasons. NUMERICAL STABILITY: multiplying many small probabilities (0.001 x 0.002 x ...) underflows to zero in floating-point arithmetic, whereas adding their logs stays in a safe range. SIMPLER MATH: logs turn products into sums, and sums are far easier to differentiate — essential for gradient computation. BETTER GRADIENTS: log-loss penalises confidently wrong predictions very heavily, producing stronger learning signals than raw probabilities would.',
+      hinglish:
+        'Teen wajahein. NUMERICAL STABILITY: bahut saari chhoti probabilities multiply karna (0.001 x 0.002 x ...) floating-point arithmetic mein zero tak underflow kar jaata hai, jabki unke logs add karna ek safe range mein rehta hai. SIMPLER MATH: logs products ko sums mein badal dete hain, aur sums differentiate karna bahut easier hai — gradient computation ke liye essential. BETTER GRADIENTS: log-loss confidently galat predictions ko bahut heavily penalise karta hai, raw probabilities se stronger learning signals produce karte hue.',
+    },
+  },
 ];
