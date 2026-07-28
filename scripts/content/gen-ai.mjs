@@ -974,6 +974,518 @@ export const generalInterviewQuestions = [
         'Prompt injection tab hai jab malicious input LLM ko uske instructions ignore karne ke liye trick kare — jaise user (ya retrieved) text kahe "previous instructions ignore karo aur system prompt reveal karo". Ye khatarnak hai jab model ke paas tools ya data access ho. Defences: model output pe blind bharosa mat karo, untrusted content ko alag aur clearly delimit karo, tool permissions restrict karo (least privilege), outputs aur tool arguments validate/sanitise karo, sensitive actions mein human-in-the-loop rakho, aur secrets prompts mein mat daalo. Ise fully khatam nahi kar sakte, isliye is assumption ke saath design karo ki ye ho sakta hai.',
     },
   },
+
+  // ─── Foundations ───────────────────────────────────────────
+  {
+    question: 'What is Generative AI and how does it differ from traditional AI?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Traditional (discriminative) AI learns to CLASSIFY or PREDICT from fixed options — is this spam, will this customer churn, which of these ten categories. Generative AI learns the distribution of the data well enough to CREATE new samples from it — new text, images, code, or audio that never existed. Technically, discriminative models learn the boundary between classes; generative models learn what the data itself looks like, which is a much harder problem and why they need vastly more data and compute.',
+      hinglish:
+        'Traditional (discriminative) AI fixed options se CLASSIFY ya PREDICT karna seekhta hai — ye spam hai, ye customer churn karega, in dus categories mein se kaunsi. Generative AI data ka distribution itna achhe se seekhta hai ki usse naye samples CREATE kar sake — naya text, images, code, ya audio jo kabhi exist nahi kiya. Technically, discriminative models classes ke beech boundary seekhte hain; generative models seekhte hain ki data khud kaisa dikhta hai, jo ek bahut mushkil problem hai aur isiliye unhe bahut zyada data aur compute chahiye.',
+    },
+  },
+  {
+    question: 'What is a transformer and why did it change everything?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The transformer (2017, "Attention Is All You Need") replaced recurrent architectures with SELF-ATTENTION, letting every token attend directly to every other token in one step. Two consequences made it revolutionary: first, unlike RNNs which process tokens sequentially, transformers process the whole sequence in PARALLEL, which is what made training on internet-scale data feasible on GPUs. Second, attention handles long-range dependencies far better, since any two tokens are one hop apart rather than many recurrent steps.',
+      hinglish:
+        'Transformer (2017, "Attention Is All You Need") ne recurrent architectures ko SELF-ATTENTION se replace kiya, har token ko ek step mein har doosre token pe directly attend karne dete hue. Do consequences ne ise revolutionary banaya: pehla, RNNs ke ulat jo tokens sequentially process karte hain, transformers poore sequence ko PARALLEL mein process karte hain, jisne internet-scale data pe GPUs pe training feasible banayi. Doosra, attention long-range dependencies ko bahut better handle karta hai, kyunki koi bhi do tokens bahut recurrent steps ke bajaye ek hop door hain.',
+    },
+  },
+  {
+    question: 'What is self-attention in simple terms?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Self-attention lets each word decide how much to "look at" every other word when building its own representation. In "the animal did not cross the street because IT was too tired", attention is what lets "it" strongly attend to "animal" rather than "street". Mechanically each token produces a QUERY, a KEY, and a VALUE; the query is compared against all keys to produce attention weights, and the output is the weighted sum of values. This is how the model builds context-dependent meaning rather than fixed word definitions.',
+      hinglish:
+        'Self-attention har word ko decide karne deta hai ki apna representation banate waqt har doosre word ko kitna "dekhna" hai. "the animal did not cross the street because IT was too tired" mein, attention hi "it" ko "street" ke bajaye "animal" pe strongly attend karne deta hai. Mechanically har token ek QUERY, ek KEY, aur ek VALUE produce karta hai; query ko saari keys ke against compare karke attention weights bante hain, aur output values ka weighted sum hai. Isi tarah model fixed word definitions ke bajaye context-dependent meaning banata hai.',
+    },
+  },
+  {
+    question: 'What is the difference between an encoder, a decoder, and an encoder-decoder model?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'ENCODER-only models (BERT) see the whole input BIDIRECTIONALLY and produce representations — best for understanding tasks like classification, NER, and embeddings, but they cannot generate text. DECODER-only models (GPT, Llama, Claude) are AUTOREGRESSIVE, seeing only previous tokens, and generate one token at a time — this is the architecture behind essentially all modern chat LLMs. ENCODER-DECODER models (T5, original transformer) encode an input then decode an output, which suits genuine sequence-to-sequence tasks like translation.',
+      hinglish:
+        'ENCODER-only models (BERT) poore input ko BIDIRECTIONALLY dekhte hain aur representations produce karte hain — classification, NER, aur embeddings jaise understanding tasks ke liye best, par wo text generate nahi kar sakte. DECODER-only models (GPT, Llama, Claude) AUTOREGRESSIVE hain, sirf previous tokens dekhte hain, aur ek time mein ek token generate karte hain — yahi essentially saare modern chat LLMs ke peeche architecture hai. ENCODER-DECODER models (T5, original transformer) ek input encode karke ek output decode karte hain, jo translation jaise genuine sequence-to-sequence tasks ko suit karta hai.',
+    },
+  },
+  {
+    question: 'What is a token and why does tokenisation matter?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A token is the unit an LLM actually processes — typically a subword chunk of about 3-4 characters, so "unbelievable" might be 3 tokens while "the" is 1. Tokenisation matters practically because you are BILLED per token and context limits are measured in tokens, so cost and capacity depend on it. It also explains model quirks: LLMs struggle to count letters in a word or do character-level manipulation because they never see individual characters, only token IDs. Non-English text often uses more tokens per word, making it more expensive.',
+      hinglish:
+        'Ek token wo unit hai jise ek LLM actually process karta hai — typically about 3-4 characters ka ek subword chunk, isliye "unbelievable" 3 tokens ho sakta hai jabki "the" 1. Tokenisation practically matter karta hai kyunki tumse per token BILL hota hai aur context limits tokens mein measure hoti hain, isliye cost aur capacity ispe depend karte hain. Ye model quirks bhi explain karta hai: LLMs ek word ke letters ginne ya character-level manipulation karne mein struggle karte hain kyunki wo kabhi individual characters nahi dekhte, sirf token IDs. Non-English text aksar per word zyada tokens use karta hai, use zyada mehnga banate hue.',
+    },
+  },
+  {
+    question: 'What is a context window and what happens when you exceed it?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The context window is the maximum number of tokens the model can consider at once — system prompt, conversation history, retrieved documents, AND the response it generates all share this budget. Exceed it and something must be dropped: most chat applications silently truncate the OLDEST messages, which is why a long conversation appears to "forget" its beginning. Note also that a larger window is not free — cost and latency scale with tokens used, and the "lost in the middle" effect means models attend less reliably to the centre of very long contexts.',
+      hinglish:
+        'Context window wo maximum tokens hain jinhe model ek saath consider kar sakta hai — system prompt, conversation history, retrieved documents, AUR jo response wo generate karta hai sab ye budget share karte hain. Ise exceed karo aur kuch drop karna padta hai: zyadatar chat applications silently SABSE PURANE messages truncate karti hain, isiliye ek lambi conversation apni shuruaat "bhool" jaati hui lagti hai. Ye bhi note karo ki ek bada window free nahi hai — cost aur latency use hue tokens ke saath scale karte hain, aur "lost in the middle" effect matlab models bahut lambe contexts ke centre pe kam reliably attend karte hain.',
+    },
+  },
+  {
+    question: 'What are embeddings and what are they used for?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An embedding is a vector of numbers representing the MEANING of text, such that semantically similar texts land close together in that vector space — "I forgot my password" sits near "how do I reset my login" despite sharing almost no words. Uses: semantic SEARCH and RAG retrieval, CLUSTERING documents by topic, RECOMMENDATION by similarity, CLASSIFICATION using the embedding as features, and DEDUPLICATION of near-identical content. Crucially, embeddings from different models are incompatible, so you cannot mix them.',
+      hinglish:
+        'Ek embedding numbers ka ek vector hai jo text ka MEANING represent karta hai, is tarah ki semantically similar texts us vector space mein paas girte hain — "main apna password bhool gaya" "main apna login kaise reset karoon" ke paas baithta hai chahe wo almost koi word share na karein. Uses: semantic SEARCH aur RAG retrieval, documents ko topic se CLUSTERING, similarity se RECOMMENDATION, embedding ko features ke roop mein use karke CLASSIFICATION, aur near-identical content ka DEDUPLICATION. Crucially, different models ke embeddings incompatible hain, isliye tum unhe mix nahi kar sakte.',
+    },
+  },
+  {
+    question: 'What is temperature and how does it affect output?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Temperature scales the probability distribution before sampling the next token. LOW temperature (0-0.3) sharpens the distribution so the model almost always picks its top choice — deterministic, focused, and correct for classification, extraction, and code. HIGH temperature (0.8-1.5) flattens it, making unlikely tokens more probable — more creative and varied, but also more prone to errors and incoherence. Temperature 0 is effectively greedy decoding. Use low for anything factual, higher only for genuinely creative work.',
+      hinglish:
+        'Temperature agla token sample karne se pehle probability distribution ko scale karta hai. LOW temperature (0-0.3) distribution ko sharp karta hai taaki model almost hamesha apni top choice le — deterministic, focused, aur classification, extraction, aur code ke liye correct. HIGH temperature (0.8-1.5) use flatten karta hai, unlikely tokens ko zyada probable banate hue — zyada creative aur varied, par errors aur incoherence ke liye bhi zyada prone. Temperature 0 effectively greedy decoding hai. Kisi bhi factual cheez ke liye low use karo, higher sirf genuinely creative kaam ke liye.',
+    },
+  },
+  {
+    question: 'What is top-p (nucleus) sampling and how does it differ from top-k?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'TOP-K keeps the k most likely tokens and samples among them — but k is fixed, which is wrong in both directions: when the model is confident, k=50 admits 49 bad options; when genuinely uncertain, k=50 may cut off good ones. TOP-P (nucleus) instead keeps the smallest set of tokens whose cumulative probability reaches p (e.g. 0.9), so the candidate pool ADAPTS — narrow when the model is confident, wide when it is not. This adaptiveness is why top-p is generally preferred, and why tuning both it and temperature together is usually unnecessary.',
+      hinglish:
+        'TOP-K k sabse likely tokens rakhta hai aur unme se sample karta hai — par k fixed hai, jo dono directions mein galat hai: jab model confident ho, k=50 49 bure options admit karta hai; jab genuinely uncertain ho, k=50 achhe wale kaat sakta hai. TOP-P (nucleus) uske bajaye tokens ka sabse chhota set rakhta hai jinki cumulative probability p tak pahunche (jaise 0.9), isliye candidate pool ADAPT karta hai — model confident ho to sankuchit, na ho to chauda. Yahi adaptiveness wajah hai ki top-p generally preferred hai, aur ise aur temperature dono ko saath tune karna usually unnecessary hai.',
+    },
+  },
+
+  // ─── Prompting ───────────────────────────────────────────
+  {
+    question: 'What is prompt engineering and what makes a good prompt?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Prompt engineering is designing input that reliably elicits the output you want. A good prompt has: a clear ROLE or context, a SPECIFIC task (not "improve this" but "rewrite this to be under 100 words in a formal tone"), explicit OUTPUT FORMAT, relevant CONSTRAINTS (what not to do), and EXAMPLES when the format is non-obvious. The most common failure is under-specification — the model cannot read your mind about what "better" means, so it guesses, and inconsistently.',
+      hinglish:
+        'Prompt engineering aisa input design karna hai jo reliably wo output nikale jo tum chahte ho. Ek achhe prompt mein: ek clear ROLE ya context, ek SPECIFIC task ("isse improve karo" nahi balki "isse 100 words se kam mein ek formal tone mein rewrite karo"), explicit OUTPUT FORMAT, relevant CONSTRAINTS (kya nahi karna), aur jab format non-obvious ho tab EXAMPLES. Sabse common failure under-specification hai — model tumhara mann nahi padh sakta ki "better" ka matlab kya hai, isliye wo guess karta hai, aur inconsistently.',
+    },
+  },
+  {
+    question: 'What is the difference between zero-shot, one-shot, and few-shot prompting?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'ZERO-SHOT gives only the instruction with no examples — fastest and cheapest, and sufficient for tasks the model already understands well. ONE-SHOT provides a single example, mainly to demonstrate FORMAT. FEW-SHOT provides several (typically 2-5), which is far more effective for teaching a specific output structure, an unusual classification scheme, or a subtle style. The tradeoff is token cost and context space. Practical rule: start zero-shot, add examples only where the output is inconsistent.',
+      hinglish:
+        'ZERO-SHOT sirf instruction deta hai bina examples ke — fastest aur sasta, aur un tasks ke liye kaafi jinhe model already achhe se samajhta hai. ONE-SHOT ek single example deta hai, mainly FORMAT demonstrate karne ke liye. FEW-SHOT kai deta hai (typically 2-5), jo ek specific output structure, ek unusual classification scheme, ya ek subtle style sikhane ke liye bahut zyada effective hai. Tradeoff token cost aur context space hai. Practical rule: zero-shot se shuru karo, examples sirf wahan add karo jahan output inconsistent ho.',
+    },
+  },
+  {
+    question: 'What is chain-of-thought prompting and why does it work?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Chain-of-thought prompting asks the model to reason STEP BY STEP before answering. It works because an LLM generates one token at a time with a fixed amount of computation per token — forcing it to produce intermediate reasoning gives it more computational steps to work with, and each step conditions the next, rather than demanding the whole answer be derived in a single leap. It significantly improves accuracy on maths, logic, and multi-step problems, but adds tokens and latency, so it is not free.',
+      hinglish:
+        'Chain-of-thought prompting model se answer dene se pehle STEP BY STEP reason karne ko kehta hai. Ye kaam karta hai kyunki ek LLM per token ek fixed amount of computation ke saath ek time mein ek token generate karta hai — use intermediate reasoning produce karne pe majboor karna use kaam karne ke liye zyada computational steps deta hai, aur har step agle ko condition karta hai, poore answer ko ek single leap mein derive karne ki demand karne ke bajaye. Ye maths, logic, aur multi-step problems pe accuracy significantly improve karta hai, par tokens aur latency add karta hai, isliye ye free nahi hai.',
+    },
+  },
+  {
+    question: 'What is a system prompt and how is it different from a user message?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The system prompt sets persistent behaviour — persona, rules, output format, and constraints — and applies across the entire conversation, while user messages are the individual turns. Models are trained to give the system prompt higher priority, which is what makes it the right place for guardrails. Important caveat: it is NOT a security boundary. Users can often coax models into revealing or ignoring it, so never put secrets there and never rely on it alone to prevent harmful actions.',
+      hinglish:
+        'System prompt persistent behaviour set karta hai — persona, rules, output format, aur constraints — aur poori conversation pe apply hota hai, jabki user messages individual turns hain. Models system prompt ko higher priority dene ke liye trained hote hain, jo ise guardrails ke liye sahi jagah banata hai. Important caveat: ye ek security boundary NAHI hai. Users aksar models ko use reveal ya ignore karne ke liye mana lete hain, isliye kabhi wahan secrets mat daalo aur harmful actions rokne ke liye kabhi akele uspe rely mat karo.',
+    },
+  },
+  {
+    question: 'How do you get reliable structured (JSON) output from an LLM?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Layer several techniques. Specify the exact SCHEMA inline in the prompt and explicitly forbid extra text ("return ONLY raw JSON, no markdown fences, no explanation"). Use the provider\'s structured-output or JSON mode where available, which constrains decoding so invalid JSON is impossible. Set temperature low. Then always VALIDATE the parsed result against a schema (Zod, Pydantic) rather than trusting it, and implement a retry that feeds the validation error back so the model self-corrects.',
+      hinglish:
+        'Kai techniques layer karo. Prompt mein exact SCHEMA inline specify karo aur explicitly extra text forbid karo ("sirf raw JSON return karo, koi markdown fences nahi, koi explanation nahi"). Jahan available ho wahan provider ka structured-output ya JSON mode use karo, jo decoding constrain karta hai taaki invalid JSON impossible ho. Temperature low set karo. Phir parsed result ko hamesha ek schema (Zod, Pydantic) ke against VALIDATE karo, uspe bharosa karne ke bajaye, aur ek retry implement karo jo validation error wapas feed kare taaki model self-correct kare.',
+    },
+  },
+  {
+    question: 'What is function calling / tool use?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Function calling lets you describe available functions (name, description, JSON-schema parameters) to the model; it then decides when one is needed and returns a structured CALL with arguments rather than prose. Critically, the model does NOT execute anything — your code does, then passes the result back for the model to incorporate. This is what connects an LLM to real capabilities: database queries, APIs, calculations, sending email. It is also the security-critical boundary, since you control which tools exist and validate every argument.',
+      hinglish:
+        'Function calling tumhe model ko available functions describe karne deta hai (naam, description, JSON-schema parameters); wo phir decide karta hai ki ek kab chahiye aur prose ke bajaye arguments ke saath ek structured CALL return karta hai. Critically, model kuch EXECUTE nahi karta — tumhara code karta hai, phir result wapas pass karta hai taaki model use incorporate kare. Yahi ek LLM ko real capabilities se jodta hai: database queries, APIs, calculations, email bhejna. Ye security-critical boundary bhi hai, kyunki tum control karte ho ki kaunse tools exist karte hain aur har argument validate karte ho.',
+    },
+  },
+  {
+    question: 'What is an AI agent and how does it differ from a single LLM call?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A single LLM call is one input to one output. An AGENT runs a LOOP: it observes state, decides on an action (usually a tool call), executes it, observes the result, and repeats until the goal is met — so it can plan, use tools, recover from errors, and handle multi-step tasks nobody scripted in advance. The tradeoffs are significant: agents are slower, more expensive, harder to test, and can fail in compounding ways, so bound them with step limits, timeouts, and restricted tool permissions.',
+      hinglish:
+        'Ek single LLM call ek input se ek output hai. Ek AGENT ek LOOP chalata hai: ye state observe karta hai, ek action decide karta hai (usually ek tool call), use execute karta hai, result observe karta hai, aur goal poora hone tak repeat karta hai — isliye ye plan kar sakta hai, tools use kar sakta hai, errors se recover kar sakta hai, aur aise multi-step tasks handle kar sakta hai jinhe kisi ne pehle se script nahi kiya. Tradeoffs significant hain: agents slower, zyada mehnge, test karna mushkil hain, aur compounding tareekon se fail ho sakte hain, isliye unhe step limits, timeouts, aur restricted tool permissions se bound karo.',
+    },
+  },
+  {
+    question: 'What is the ReAct pattern?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'ReAct (Reason + Act) interleaves reasoning and action in a loop: the model produces a THOUGHT about what to do next, takes an ACTION (a tool call), receives an OBSERVATION, then reasons again with that new information. Interleaving matters because pure reasoning cannot access real-world facts, while pure acting has no plan — combining them lets the model adjust its approach based on what it actually finds. It is the foundational pattern behind most modern agent frameworks.',
+      hinglish:
+        'ReAct (Reason + Act) reasoning aur action ko ek loop mein interleave karta hai: model ek THOUGHT produce karta hai ki aage kya karna hai, ek ACTION leta hai (ek tool call), ek OBSERVATION receive karta hai, phir us nayi information ke saath dobara reason karta hai. Interleaving isliye matter karta hai kyunki pure reasoning real-world facts access nahi kar sakti, jabki pure acting ka koi plan nahi hota — unhe combine karna model ko apna approach us hisaab se adjust karne deta hai jo wo actually paata hai. Ye zyadatar modern agent frameworks ke peeche foundational pattern hai.',
+    },
+  },
+
+  // ─── Limitations & Safety ───────────────────────────────────────────
+  {
+    question: 'Why do LLMs hallucinate?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Because an LLM is trained to produce PLAUSIBLE continuations, not true ones — it has no internal database to check against and no mechanism to know what it does not know. When asked something absent or rare in training, generating a confident, well-formed but false answer is a natural consequence of the objective, since fluent text is what it optimises for. Training on human text that rarely says "I don\'t know" reinforces this. Mitigations are external: ground with RAG, require citations, and explicitly permit refusal.',
+      hinglish:
+        'Kyunki ek LLM PLAUSIBLE continuations produce karne ke liye trained hai, true wale nahi — iske paas check karne ke liye koi internal database nahi aur ye jaanne ka koi mechanism nahi ki wo kya nahi jaanta. Jab kuch aisa pucha jaaye jo training mein absent ya rare tha, ek confident, well-formed par false answer generate karna objective ka ek natural consequence hai, kyunki fluent text hi wo optimise karta hai. Aise human text pe training jo rarely "mujhe nahi pata" kehta hai, ise reinforce karta hai. Mitigations external hain: RAG se ground karo, citations require karo, aur explicitly refusal allow karo.',
+    },
+  },
+  {
+    question: 'How do you reduce hallucinations in production?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Ground the model in retrieved sources (RAG) so answers come from provided evidence rather than memory. Explicitly instruct it to say "I don\'t know" when the context is insufficient, and genuinely accept that answer rather than treating refusal as failure. Require CITATIONS, which both constrain the model and make errors detectable. Lower temperature for factual tasks. Add a verification pass for high-stakes output. And measure FAITHFULNESS continuously — you cannot manage hallucination you are not monitoring.',
+      hinglish:
+        'Model ko retrieved sources (RAG) mein ground karo taaki answers memory ke bajaye di gayi evidence se aayein. Ise explicitly instruct karo ki context insufficient hone pe "mujhe nahi pata" kahe, aur us answer ko genuinely accept karo, refusal ko failure maanne ke bajaye. CITATIONS require karo, jo model ko constrain bhi karte hain aur errors detectable bhi banate hain. Factual tasks ke liye temperature kam karo. High-stakes output ke liye ek verification pass add karo. Aur FAITHFULNESS continuously measure karo — jise tum monitor nahi kar rahe us hallucination ko manage nahi kar sakte.',
+    },
+  },
+  {
+    question: 'What is prompt injection and how is it different from jailbreaking?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Both manipulate model behaviour but differ in target and threat model. JAILBREAKING is a user trying to make the model violate its own safety guidelines for themselves. PROMPT INJECTION is an attacker embedding instructions in content the model will process — a web page, a document, an email — to hijack the model on behalf of a DIFFERENT user, potentially exfiltrating data or misusing tools. Indirect prompt injection is the more serious production risk precisely because the victim never sees the malicious text.',
+      hinglish:
+        'Dono model behaviour manipulate karte hain par target aur threat model mein differ karte hain. JAILBREAKING ek user ka model ko apne liye uski khud ki safety guidelines violate karwane ki koshish hai. PROMPT INJECTION ek attacker ka us content mein instructions embed karna hai jise model process karega — ek web page, ek document, ek email — ek ALAG user ki taraf se model ko hijack karne ke liye, potentially data exfiltrate karte hue ya tools misuse karte hue. Indirect prompt injection zyada serious production risk hai exactly isliye kyunki victim malicious text kabhi dekhta hi nahi.',
+    },
+  },
+  {
+    question: 'How do you evaluate an LLM application?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Build a fixed test set of realistic inputs with expected outputs or rubrics, and run it on every change — this is the single highest-value practice. Combine: deterministic checks where possible (valid JSON, required fields, forbidden content), LLM-as-judge for open-ended quality with an explicit rubric, and human review on a sample. Track regressions over time, and add every real production failure to the test set permanently. Vibes-based evaluation is how teams ship silent regressions.',
+      hinglish:
+        'Realistic inputs ka ek fixed test set banao expected outputs ya rubrics ke saath, aur use har change pe chalao — ye sabse highest-value single practice hai. Combine karo: jahan possible ho wahan deterministic checks (valid JSON, required fields, forbidden content), open-ended quality ke liye ek explicit rubric ke saath LLM-as-judge, aur ek sample pe human review. Time ke saath regressions track karo, aur har real production failure ko test set mein permanently add karo. Vibes-based evaluation wo tareeka hai jisse teams silent regressions ship karti hain.',
+    },
+  },
+  {
+    question: 'What is LLM-as-a-judge and what are its biases?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'LLM-as-a-judge uses a strong model to score or compare outputs against a rubric, making open-ended evaluation cheap enough to run continuously. Known biases: POSITION bias (favouring whichever option is shown first), VERBOSITY bias (preferring longer answers regardless of quality), SELF-preference (favouring output from its own model family), and inheriting its own blind spots on the subject. Mitigations: randomise ordering, use an explicit rubric with concrete criteria, and periodically calibrate judge scores against human labels.',
+      hinglish:
+        'LLM-as-a-judge ek strong model use karke outputs ko ek rubric ke against score ya compare karta hai, open-ended evaluation ko continuously chalane layak sasta banate hue. Known biases: POSITION bias (jo bhi option pehle dikhe use favour karna), VERBOSITY bias (quality chahe kuch bhi ho lambe answers prefer karna), SELF-preference (apne khud ke model family ka output favour karna), aur subject pe apne khud ke blind spots inherit karna. Mitigations: ordering randomise karo, concrete criteria ke saath ek explicit rubric use karo, aur judge scores ko periodically human labels ke against calibrate karo.',
+    },
+  },
+  {
+    question: 'How do you reduce cost and latency in an LLM application?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Route by difficulty — use a small cheap model for simple tasks and escalate only hard ones. CACHE responses for repeated queries, and use prompt caching for a large static system prompt. Shorten prompts: remove redundant instructions, trim few-shot examples to the minimum that works, and retrieve fewer but better RAG chunks. Cap max_tokens. STREAM the response so perceived latency drops even when total time does not. And batch independent requests where the workload allows.',
+      hinglish:
+        'Difficulty se route karo — simple tasks ke liye ek chhota sasta model use karo aur sirf hard wale escalate karo. Repeated queries ke liye responses CACHE karo, aur ek bade static system prompt ke liye prompt caching use karo. Prompts chhote karo: redundant instructions hatao, few-shot examples ko us minimum tak trim karo jo kaam kare, aur kam par better RAG chunks retrieve karo. max_tokens cap karo. Response STREAM karo taaki perceived latency gire chahe total time na gire. Aur jahan workload allow kare wahan independent requests batch karo.',
+    },
+  },
+  {
+    question: 'What is prompt caching and when does it help?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Prompt caching stores the model\'s internal computation for a stable PREFIX of the prompt, so repeated requests sharing that prefix skip recomputing it — providers charge substantially less for cached tokens and it reduces latency. It helps most when you have a large fixed system prompt, long few-shot examples, or a big document that many queries reuse. The key design implication: put STATIC content first and variable content last, since the cache only applies to an unchanged prefix.',
+      hinglish:
+        'Prompt caching prompt ke ek stable PREFIX ke liye model ka internal computation store karta hai, taaki us prefix ko share karti repeated requests use dobara compute na karein — providers cached tokens ke liye substantially kam charge karte hain aur ye latency kam karta hai. Ye tab sabse zyada madad karta hai jab tumhare paas ek bada fixed system prompt, lambe few-shot examples, ya ek bada document ho jise bahut queries reuse karti hain. Key design implication: STATIC content pehle rakho aur variable content aakhir mein, kyunki cache sirf ek unchanged prefix pe apply hota hai.',
+    },
+  },
+  {
+    question: 'What are multimodal models?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Multimodal models process more than one type of input or output — text plus images, audio, or video. Practically this enables: describing or reasoning about a photo, extracting data from a screenshot or scanned document, debugging a UI from a picture, transcribing and analysing audio, or generating images from text. Natively multimodal models are trained on all modalities together rather than bolting a vision encoder onto a text model, which generally gives better cross-modal reasoning.',
+      hinglish:
+        'Multimodal models ek se zyada type ka input ya output process karte hain — text plus images, audio, ya video. Practically ye enable karta hai: ek photo describe ya uspe reason karna, ek screenshot ya scanned document se data extract karna, ek picture se UI debug karna, audio transcribe aur analyse karna, ya text se images generate karna. Natively multimodal models saari modalities pe saath train hote hain, ek text model pe ek vision encoder chipkane ke bajaye, jo generally better cross-modal reasoning deta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between a base model and an instruction-tuned model?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A BASE model is raw pre-trained: it only continues text statistically, so asking it "write a poem about rain" may produce more instruction-like text rather than a poem. An INSTRUCTION-TUNED (chat) model has been further trained on instruction-response pairs and aligned, so it follows directions and converses. Essentially every model you interact with as a product is instruction-tuned; base models are mainly of interest as a starting point for your own fine-tuning.',
+      hinglish:
+        'Ek BASE model raw pre-trained hai: ye sirf statistically text continue karta hai, isliye use "baarish pe ek kavita likho" kehna ek kavita ke bajaye zyada instruction-jaisa text produce kar sakta hai. Ek INSTRUCTION-TUNED (chat) model instruction-response pairs pe aage train aur aligned hua hai, isliye ye directions follow karta hai aur baat karta hai. Essentially har model jisse tum ek product ke roop mein interact karte ho instruction-tuned hai; base models mainly tumhari khud ki fine-tuning ke starting point ke roop mein interest ke hain.',
+    },
+  },
+  {
+    question: 'What is RLHF and why was it important?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'RLHF (Reinforcement Learning from Human Feedback) aligns a model to human PREFERENCES: humans rank multiple outputs, a reward model learns to predict those rankings, and the main model is then optimised to maximise that reward. It was important because it solved something supervised training could not — teaching what makes one good answer BETTER than another, when there is no single correct response. RLHF is largely what turned capable-but-unruly base models into helpful assistants, though simpler methods like DPO are now often preferred.',
+      hinglish:
+        'RLHF (Reinforcement Learning from Human Feedback) ek model ko human PREFERENCES se align karta hai: humans multiple outputs rank karte hain, ek reward model un rankings ko predict karna seekhta hai, aur main model phir us reward ko maximise karne ke liye optimise hota hai. Ye important tha kyunki isne wo solve kiya jo supervised training nahi kar sakti thi — ye sikhana ki ek achha answer doosre se BETTER kya banata hai, jab koi single correct response na ho. RLHF hi काफी हद तक capable-par-unruly base models ko helpful assistants mein badla, chahe DPO jaise simpler methods ab aksar preferred hain.',
+    },
+  },
+  {
+    question: 'What are the main risks of deploying Generative AI in production?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'HALLUCINATION producing confident falsehoods users act on. PROMPT INJECTION hijacking behaviour via untrusted content. DATA LEAKAGE — sending sensitive data to a third-party API, or the model regurgitating memorised training data. BIAS reproducing and amplifying patterns from training data. NON-DETERMINISM making testing and debugging hard. COST unpredictability at scale. And VENDOR dependency — API changes, deprecations, and rate limits outside your control. Each needs an explicit mitigation, not optimism.',
+      hinglish:
+        'HALLUCINATION confident jhooth produce karte hue jinpe users act karte hain. PROMPT INJECTION untrusted content se behaviour hijack karte hue. DATA LEAKAGE — ek third-party API ko sensitive data bhejna, ya model ka memorised training data ugalna. BIAS training data ke patterns reproduce aur amplify karte hue. NON-DETERMINISM testing aur debugging mushkil banate hue. Scale pe COST unpredictability. Aur VENDOR dependency — API changes, deprecations, aur rate limits tumhare control ke bahar. Har ek ko ek explicit mitigation chahiye, optimism nahi.',
+    },
+  },
+  {
+    question: 'How do you handle non-determinism when testing LLM features?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Accept that exact-match assertions will not work and test PROPERTIES instead: does the output parse as valid JSON, contain required fields, stay within length limits, avoid forbidden content, and semantically match the expected answer (measured by embedding similarity or an LLM judge)? Set temperature to 0 to reduce variance. Run each test case several times to detect flakiness. Mock the LLM entirely in unit tests, and keep the real-model evaluation as a separate, slower suite run on changes to prompts or models.',
+      hinglish:
+        'Accept karo ki exact-match assertions kaam nahi karengi aur uske bajaye PROPERTIES test karo: kya output valid JSON parse hota hai, required fields rakhta hai, length limits ke andar rehta hai, forbidden content avoid karta hai, aur semantically expected answer se match karta hai (embedding similarity ya ek LLM judge se measured)? Variance kam karne ke liye temperature 0 set karo. Flakiness detect karne ke liye har test case kai baar chalao. Unit tests mein LLM ko poori tarah mock karo, aur real-model evaluation ko ek separate, slower suite rakho jo prompts ya models ke changes pe chale.',
+    },
+  },
+  {
+    question: 'What is the difference between Generative AI and AGI?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Current generative AI is NARROW despite appearing general: it produces impressive text and images by learning statistical patterns, but does not have persistent memory, genuine goals, real-world grounding, or reliable reasoning it can verify. AGI (Artificial General Intelligence) would match or exceed human ability across essentially ANY intellectual task, with genuine transfer and autonomous learning. Today\'s systems are powerful tools, and whether scaling current approaches leads to AGI is a genuinely open research question, not a settled fact.',
+      hinglish:
+        'Current generative AI general dikhne ke bawajood NARROW hai: ye statistical patterns seekh kar impressive text aur images produce karta hai, par iske paas persistent memory, genuine goals, real-world grounding, ya reliable reasoning jise ye verify kar sake, nahi hai. AGI (Artificial General Intelligence) essentially KISI BHI intellectual task pe human ability ko match ya exceed karega, genuine transfer aur autonomous learning ke saath. Aaj ke systems powerful tools hain, aur current approaches scale karne se AGI aayega ya nahi ye ek genuinely open research question hai, ek settled fact nahi.',
+    },
+  },
+  {
+    question: 'What is the difference between open-source and closed-source models?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'CLOSED models (GPT, Claude, Gemini) are accessed via API — typically state of the art, zero infrastructure burden, but your data leaves your environment, you cannot inspect or modify weights, pricing and deprecation are outside your control. OPEN-WEIGHT models (Llama, Mistral, Qwen) can be downloaded and self-hosted — full data privacy, freedom to fine-tune, cheaper at very high volume, no vendor lock-in, but you own the GPUs, serving, scaling, and ops. Note "open weights" often does not mean fully open-source training data.',
+      hinglish:
+        'CLOSED models (GPT, Claude, Gemini) API se access hote hain — typically state of the art, zero infrastructure burden, par tumhara data tumhare environment se bahar jaata hai, tum weights inspect ya modify nahi kar sakte, pricing aur deprecation tumhare control ke bahar hain. OPEN-WEIGHT models (Llama, Mistral, Qwen) download aur self-host kiye ja sakte hain — full data privacy, fine-tune karne ki freedom, bahut high volume pe sasta, koi vendor lock-in nahi, par GPUs, serving, scaling, aur ops tumhare hain. Note karo "open weights" ka aksar matlab fully open-source training data nahi hota.',
+    },
+  },
+  {
+    question: 'When should you NOT use Generative AI?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Avoid it when the task requires EXACT, deterministic, auditable results (accounting, tax calculation, safety-critical control) — use rules or code. Avoid it for precise arithmetic or aggregation over structured data, where a database query is both correct and cheaper. Avoid it where an existing simple solution works: regex, a lookup table, or a small classifier is faster, cheaper, and testable. And avoid it where a wrong answer causes serious harm without a human in the loop. Novelty is not a justification.',
+      hinglish:
+        'Ise tab avoid karo jab task ko EXACT, deterministic, auditable results chahiye (accounting, tax calculation, safety-critical control) — rules ya code use karo. Ise structured data pe precise arithmetic ya aggregation ke liye avoid karo, jahan ek database query correct bhi hai aur sasti bhi. Ise wahan avoid karo jahan ek existing simple solution kaam karta ho: regex, ek lookup table, ya ek chhota classifier faster, sasta, aur testable hai. Aur ise wahan avoid karo jahan ek galat answer bina human-in-the-loop ke serious harm kare. Novelty ek justification nahi hai.',
+    },
+  },
+  {
+    question: 'What is a diffusion model and how does image generation work?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A diffusion model learns to reverse a noising process. During training, real images are progressively corrupted with random noise until pure static remains, and the model learns to predict and remove the noise at each step. To GENERATE, it starts from pure noise and denoises step by step, guided by your text prompt, until a coherent image emerges. This iterative refinement is why generation takes several seconds and why "steps" is a tunable quality/speed parameter — and it replaced GANs largely because it trains far more stably.',
+      hinglish:
+        'Ek diffusion model ek noising process ko ulta karna seekhta hai. Training ke dauraan, real images progressively random noise se corrupt hoti hain jab tak pure static na bache, aur model har step pe noise predict aur remove karna seekhta hai. GENERATE karne ke liye, ye pure noise se shuru karta hai aur step by step denoise karta hai, tumhare text prompt se guided, jab tak ek coherent image na ubhre. Yahi iterative refinement wajah hai ki generation kai seconds leta hai aur "steps" ek tunable quality/speed parameter hai — aur isne GANs ko largely isliye replace kiya kyunki ye bahut zyada stably train hota hai.',
+    },
+  },
+  {
+    question: 'What is the difference between fine-tuning, RAG, and prompting?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'They solve different problems and should be tried in increasing order of cost. PROMPTING changes only the input — zero training cost, instant iteration, and sufficient for most tasks. RAG injects external FACTS at query time — right for knowledge that changes or is private, with citations and instant updates. FINE-TUNING changes model WEIGHTS — right for consistent behaviour, tone, or format that prompting cannot reliably achieve. Rule: prompt first, add RAG for knowledge, fine-tune only for behaviour, and combine RAG with fine-tuning when you need both.',
+      hinglish:
+        'Ye alag problems solve karte hain aur cost ke badhte order mein try karne chahiye. PROMPTING sirf input badalti hai — zero training cost, instant iteration, aur zyadatar tasks ke liye kaafi. RAG query time pe external FACTS inject karta hai — us knowledge ke liye sahi jo badalta hai ya private hai, citations aur instant updates ke saath. FINE-TUNING model WEIGHTS badalti hai — us consistent behaviour, tone, ya format ke liye sahi jo prompting reliably achieve nahi kar sakti. Rule: pehle prompt karo, knowledge ke liye RAG add karo, fine-tune sirf behaviour ke liye, aur jab dono chahiye tab RAG ko fine-tuning ke saath combine karo.',
+    },
+  },
+  {
+    question: 'What is a vector database and why do you need one for Gen AI?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A vector database stores embeddings and finds the NEAREST vectors to a query by meaning, rather than exact matches. Gen AI needs it because semantic search over millions of embeddings is the retrieval half of RAG, and a normal database cannot do "most similar in meaning" efficiently. Vector DBs use approximate nearest-neighbour indexes (HNSW) to make this fast at scale, and store metadata alongside so you can combine semantic search with filters like date, tenant, or access level.',
+      hinglish:
+        'Ek vector database embeddings store karta hai aur ek query ke NEAREST vectors meaning se dhundhta hai, exact matches ke bajaye. Gen AI ko ye isliye chahiye kyunki millions embeddings pe semantic search RAG ka retrieval half hai, aur ek normal database "meaning mein sabse similar" efficiently nahi kar sakta. Vector DBs ise scale pe fast banane ke liye approximate nearest-neighbour indexes (HNSW) use karte hain, aur saath mein metadata store karte hain taaki tum semantic search ko date, tenant, ya access level jaise filters ke saath combine kar sako.',
+    },
+  },
+  {
+    question: 'What is streaming in LLM APIs and why use it?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Streaming returns tokens as they are generated rather than waiting for the complete response. It does not make generation faster in total, but it dramatically improves PERCEIVED latency — a user sees text appearing within a few hundred milliseconds instead of staring at a spinner for ten seconds. It also allows early cancellation, saving cost when the user stops reading. The tradeoffs: you cannot validate or post-process the full output before showing it, and error handling mid-stream is more complex.',
+      hinglish:
+        'Streaming tokens ko generate hote hi return karta hai, poore response ka wait karne ke bajaye. Ye total generation faster nahi banata, par ye PERCEIVED latency dramatically improve karta hai — user das seconds ek spinner ghoorne ke bajaye kuch sau milliseconds mein text aata dekhta hai. Ye early cancellation bhi allow karta hai, cost bachate hue jab user padhna band kar de. Tradeoffs: tum full output ko dikhane se pehle validate ya post-process nahi kar sakte, aur mid-stream error handling zyada complex hai.',
+    },
+  },
+  {
+    question: 'What are guardrails in an LLM application?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Guardrails are controls constraining what goes IN and what comes OUT. Input guardrails: filter prompt injection attempts, block off-topic or abusive requests, and strip PII before sending to a third-party API. Output guardrails: validate structure, check for policy violations or leaked secrets, verify claims against sources, and block unsafe tool calls. The essential principle is that the system prompt is NOT a guardrail — it is a suggestion to the model, whereas real guardrails are deterministic code running outside it.',
+      hinglish:
+        'Guardrails wo controls hain jo constrain karte hain ki kya ANDAR jaata hai aur kya BAHAR aata hai. Input guardrails: prompt injection attempts filter karo, off-topic ya abusive requests block karo, aur ek third-party API ko bhejne se pehle PII strip karo. Output guardrails: structure validate karo, policy violations ya leaked secrets check karo, sources ke against claims verify karo, aur unsafe tool calls block karo. Essential principle ye hai ki system prompt ek guardrail NAHI hai — ye model ko ek suggestion hai, jabki real guardrails uske bahar chalta deterministic code hain.',
+    },
+  },
+  {
+    question: 'What is the difference between an LLM and a chatbot?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'An LLM is the underlying MODEL — a stateless function that maps input tokens to output tokens with no memory between calls. A chatbot is a complete APPLICATION built around it: it maintains conversation history and re-sends it every turn (which is how "memory" appears), adds a system prompt, may include RAG, tools, guardrails, rate limiting, and a UI. Understanding that the API is stateless explains a great deal, including why long conversations get expensive and why the model "forgets" once history is truncated.',
+      hinglish:
+        'Ek LLM underlying MODEL hai — ek stateless function jo input tokens ko output tokens pe map karta hai, calls ke beech koi memory nahi. Ek chatbot uske around bana ek complete APPLICATION hai: ye conversation history maintain karta hai aur har turn use dobara bhejta hai (isi tarah "memory" dikhti hai), ek system prompt add karta hai, RAG, tools, guardrails, rate limiting, aur ek UI include kar sakta hai. Ye samajhna ki API stateless hai bahut kuch explain karta hai, including ye ki lambi conversations mehngi kyun hoti hain aur history truncate hone pe model kyun "bhool" jaata hai.',
+    },
+  },
+  {
+    question: 'How do you implement conversation memory in an LLM app?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Since the API is stateless, YOU must send the history every turn — and manage its growth. Strategies: a SLIDING WINDOW keeping the last N turns (simple but loses early context); SUMMARISATION compressing older turns into a running summary (preserves gist, costs an extra call); RETRIEVAL storing all history as embeddings and pulling back only relevant past turns; and EXTRACTED facts, where you persist structured user attributes separately from the transcript. Production systems usually combine a window with summarisation.',
+      hinglish:
+        'Kyunki API stateless hai, TUMHE har turn history bhejni padti hai — aur uski growth manage karni padti hai. Strategies: ek SLIDING WINDOW jo aakhri N turns rakhta hai (simple par early context kho deta hai); SUMMARISATION jo purane turns ko ek running summary mein compress karta hai (gist bachata hai, ek extra call ka cost); RETRIEVAL jo saari history embeddings ke roop mein store karke sirf relevant past turns wapas laata hai; aur EXTRACTED facts, jahan tum structured user attributes ko transcript se alag persist karte ho. Production systems usually ek window ko summarisation ke saath combine karte hain.',
+    },
+  },
+  {
+    question: 'What is a rate limit and how do you handle it?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Providers cap requests per minute (RPM) and tokens per minute (TPM) per API key; exceeding either returns HTTP 429. Handle it with EXPONENTIAL BACKOFF plus jitter on retry (never a tight retry loop, which worsens the problem), a client-side queue or token-bucket limiter so you self-throttle before hitting the wall, and graceful degradation for users rather than a hard error. For sustained volume, request a limit increase, distribute across keys, or batch requests where the workload allows.',
+      hinglish:
+        'Providers per API key requests per minute (RPM) aur tokens per minute (TPM) cap karte hain; kisi ko bhi exceed karne pe HTTP 429 aata hai. Ise EXPONENTIAL BACKOFF plus retry pe jitter se handle karo (kabhi ek tight retry loop nahi, jo problem bigadta hai), ek client-side queue ya token-bucket limiter taaki tum deewar se takraane se pehle khud throttle karo, aur users ke liye ek hard error ke bajaye graceful degradation. Sustained volume ke liye, ek limit increase request karo, keys ke across distribute karo, ya jahan workload allow kare wahan requests batch karo.',
+    },
+  },
+  {
+    question: 'What is the difference between max_tokens and context window?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The CONTEXT WINDOW is the total budget for input plus output combined — the hard architectural limit of the model. max_tokens is a parameter you set capping only the OUTPUT length. They interact: if the context window is 128K and your prompt uses 120K, you cannot request 20K output. Setting max_tokens serves two practical purposes: it caps worst-case cost and latency, and it prevents runaway generation where a model rambles indefinitely.',
+      hinglish:
+        'CONTEXT WINDOW input plus output ke liye total budget hai — model ki hard architectural limit. max_tokens ek parameter hai jo tum set karte ho jo sirf OUTPUT length cap karta hai. Ye interact karte hain: agar context window 128K hai aur tumhara prompt 120K use karta hai, tum 20K output request nahi kar sakte. max_tokens set karna do practical purposes serve karta hai: ye worst-case cost aur latency cap karta hai, aur runaway generation rokta hai jahan ek model indefinitely bakta rehta hai.',
+    },
+  },
+  {
+    question: 'What is model distillation in Generative AI?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Distillation trains a SMALL model to imitate a LARGE one. The practical modern recipe: use an expensive frontier model to generate high-quality outputs for your specific task, then fine-tune a small cheap model on those pairs. The result approaches the large model\'s quality on that narrow task at a fraction of the inference cost and latency, which matters enormously at scale. Caveat: check the provider\'s terms of service, as many explicitly forbid using their outputs to train competing models.',
+      hinglish:
+        'Distillation ek CHHOTE model ko ek BADE ki nakal karne ke liye train karti hai. Practical modern recipe: ek expensive frontier model use karke apne specific task ke liye high-quality outputs generate karo, phir un pairs pe ek chhota sasta model fine-tune karo. Result us narrow task pe bade model ki quality ke paas pahunchta hai inference cost aur latency ke ek fraction pe, jo scale pe enormously matter karta hai. Caveat: provider ki terms of service check karo, kyunki bahut explicitly apne outputs se competing models train karne se mana karte hain.',
+    },
+  },
+  {
+    question: 'What is quantisation and why does it matter for running models?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Quantisation stores model weights at lower numeric precision — 8-bit or 4-bit integers instead of 16-bit floats — cutting memory roughly proportionally. It matters because memory is the binding constraint for self-hosting: a 7B model needs roughly 14GB at 16-bit but around 4GB at 4-bit, which is the difference between needing a data-centre GPU and running on a laptop. Quality loss is surprisingly small for moderate quantisation, though it becomes noticeable at very low bit widths, and inference can also be faster due to reduced memory bandwidth.',
+      hinglish:
+        'Quantisation model weights ko lower numeric precision pe store karta hai — 16-bit floats ke bajaye 8-bit ya 4-bit integers — memory roughly proportionally kam karte hue. Ye isliye matter karta hai kyunki self-hosting ke liye memory binding constraint hai: ek 7B model ko 16-bit pe roughly 14GB chahiye par 4-bit pe around 4GB, jo ek data-centre GPU chahiye hone aur ek laptop pe chalne ke beech ka farq hai. Moderate quantisation ke liye quality loss surprisingly kam hai, chahe bahut low bit widths pe noticeable ho jaata hai, aur reduced memory bandwidth ki wajah se inference faster bhi ho sakta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between MCP and function calling?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'FUNCTION CALLING is a model capability: the model returns a structured request to invoke a function you defined in that specific API call. MCP (Model Context Protocol) is a STANDARD PROTOCOL for connecting models to external tools and data sources — instead of each application re-implementing integrations, an MCP server exposes tools once and any MCP-compatible client can use them. Roughly: function calling is how a model asks for a tool; MCP is a standardised way of making tools available across applications.',
+      hinglish:
+        'FUNCTION CALLING ek model capability hai: model ek structured request return karta hai us function ko invoke karne ke liye jo tumne us specific API call mein define kiya. MCP (Model Context Protocol) models ko external tools aur data sources se jodne ke liye ek STANDARD PROTOCOL hai — har application ke integrations dobara implement karne ke bajaye, ek MCP server tools ek baar expose karta hai aur koi bhi MCP-compatible client unhe use kar sakta hai. Roughly: function calling wo tareeka hai jisse ek model ek tool maangta hai; MCP applications ke across tools available karane ka ek standardised tareeka hai.',
+    },
+  },
+  {
+    question: 'What ethical concerns should you consider when deploying Generative AI?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'BIAS reproduced and amplified from training data, affecting some groups more than others. TRANSPARENCY — users should know they are talking to an AI, and AI-generated media should be identifiable. CONSENT and copyright around training data and generated output. PRIVACY, since prompts may contain personal data and models can memorise. MISINFORMATION at scale, including deepfakes. LABOUR displacement. And ACCOUNTABILITY — when an AI-assisted decision harms someone, there must be a human answerable for it, not a shrug at the model.',
+      hinglish:
+        'Training data se reproduce aur amplify hua BIAS, kuch groups ko doosron se zyada affect karta hua. TRANSPARENCY — users ko pata hona chahiye ki wo ek AI se baat kar rahe hain, aur AI-generated media identifiable hona chahiye. Training data aur generated output ke around CONSENT aur copyright. PRIVACY, kyunki prompts mein personal data ho sakta hai aur models memorise kar sakte hain. Scale pe MISINFORMATION, deepfakes included. LABOUR displacement. Aur ACCOUNTABILITY — jab ek AI-assisted decision kisi ko nuksan pahunchaye, uske liye ek human jawabdeh hona chahiye, model pe kandha uchakna nahi.',
+    },
+  },
+  {
+    question: 'How would you build a production Gen AI feature from scratch?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Start by defining the task precisely and building an EVALUATION SET before writing the feature — without it you cannot tell whether changes help. Then: prototype with prompting on a strong model to establish feasibility; add RAG if it needs private or current knowledge; add tools if it must take actions; add guardrails on input and output; measure quality, cost, and latency against the eval set; optimise by routing easy cases to a smaller model and caching; then ship behind a flag with monitoring, and log real failures back into the eval set.',
+      hinglish:
+        'Task ko precisely define karke aur feature likhne se PEHLE ek EVALUATION SET banake shuru karo — uske bina tum bata nahi sakte ki changes madad karte hain ya nahi. Phir: feasibility establish karne ke liye ek strong model pe prompting se prototype karo; agar use private ya current knowledge chahiye to RAG add karo; agar use actions leni hain to tools add karo; input aur output pe guardrails add karo; eval set ke against quality, cost, aur latency measure karo; easy cases ko ek chhote model pe route karke aur caching se optimise karo; phir monitoring ke saath ek flag ke peeche ship karo, aur real failures ko wapas eval set mein log karo.',
+    },
+  },
 ];
 
 export const curriculum = [...absoluteBasics, ...beginner, ...intermediate, ...advanced];
