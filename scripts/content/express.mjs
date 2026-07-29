@@ -798,6 +798,371 @@ export const generalInterviewQuestions = [
         '`cookie-parser` ek middleware hai jo incoming requests se `Cookie` header padhta hai aur ise ek convenient `req.cookies` object mein parse karta hai, isliye tumhe raw cookie string manually parse nahi karni padti. Ye SIGNED cookies (`req.signedCookies`) bhi support karta hai ek secret use karke, jo server ko verify karne deta hai ki cookie client ne tamper nahi ki. Note: ye requests se cookies PADHNE ke liye hai — responses pe cookies SET karne ke liye `res.cookie()` use hota hai, jo Express natively support karta hai.',
     },
   },
+
+  // ─── Core Express ───────────────────────────────────────────
+  {
+    question: 'What is the request-response cycle in Express?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A request enters the middleware stack and passes through each matching layer in REGISTRATION ORDER. Each middleware may modify `req`/`res`, end the cycle by sending a response, or call `next()` to continue. The cycle ends the moment any handler sends a response — anything after that is too late (and calling `res.send()` twice throws "Cannot set headers after they are sent"). If no handler responds and nothing calls `next()`, the request simply HANGS until the client times out.',
+      hinglish:
+        'Ek request middleware stack mein aati hai aur har matching layer se REGISTRATION ORDER mein guzarti hai. Har middleware `req`/`res` modify kar sakta hai, ek response bhej kar cycle khatam kar sakta hai, ya continue karne ke liye `next()` call kar sakta hai. Cycle us pal khatam hoti hai jab koi handler ek response bhejta hai — uske baad kuch bhi bahut der ho chuki hoti hai (aur `res.send()` do baar call karna "Cannot set headers after they are sent" throw karta hai). Agar koi handler respond na kare aur kuch `next()` call na kare, request simply HANG ho jaati hai jab tak client timeout na ho.',
+    },
+  },
+  {
+    question: 'Does middleware order matter in Express?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Enormously — Express executes middleware strictly in the order it was registered. `express.json()` must come BEFORE any route reading `req.body`, or the body will be undefined. Authentication must come before protected routes. Error-handling middleware must come LAST, since it only catches errors from layers registered before it. And a catch-all 404 handler must sit after all real routes, otherwise it swallows everything. Most "my middleware is not running" bugs are ordering bugs.',
+      hinglish:
+        'Enormously — Express middleware ko strictly usi order mein execute karta hai jisme register hua. `express.json()` kisi bhi `req.body` padhne wale route se PEHLE aana chahiye, warna body undefined hogi. Authentication protected routes se pehle aana chahiye. Error-handling middleware SABSE AAKHIR mein aana chahiye, kyunki ye sirf apne se pehle register hui layers se errors catch karta hai. Aur ek catch-all 404 handler saare real routes ke baad baithna chahiye, warna wo sab kuch nigal jaata hai. Zyadatar "mera middleware chal nahi raha" bugs ordering bugs hain.',
+    },
+  },
+  {
+    question: 'How do you handle errors in async route handlers?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Express 4 does NOT catch rejected promises, so an async handler that throws leaves the request hanging with an unhandled rejection. You must either wrap the body in try/catch and call `next(err)`, or wrap handlers in a helper such as `const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)`. Express 5 fixes this by forwarding rejected promises to the error handler automatically, which removes a very long-standing footgun.',
+      hinglish:
+        'Express 4 rejected promises catch NAHI karta, isliye ek async handler jo throw kare request ko ek unhandled rejection ke saath latka chhod deta hai. Tumhe ya to body ko try/catch mein wrap karke `next(err)` call karna padta hai, ya handlers ko ek helper mein wrap karna padta hai jaise `const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)`. Express 5 ise rejected promises ko automatically error handler tak forward karke fix karta hai, jo ek bahut purana footgun hataata hai.',
+    },
+  },
+  {
+    question: 'How do you structure a large Express application?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Separate by RESPONSIBILITY, not by putting everything in one file: `routes/` defining endpoints and wiring middleware, `controllers/` holding request-handling logic, `services/` holding business logic independent of HTTP, `models/` for data access, `middleware/` for auth and validation, and `config/` for environment setup. The key discipline is keeping business logic out of controllers so it can be tested without an HTTP request, and mounting each resource as its own Router.',
+      hinglish:
+        'RESPONSIBILITY se separate karo, sab kuch ek file mein daalne ke bajaye: `routes/` jo endpoints define kare aur middleware wire kare, `controllers/` jo request-handling logic rakhe, `services/` jo HTTP se independent business logic rakhe, `models/` data access ke liye, `middleware/` auth aur validation ke liye, aur `config/` environment setup ke liye. Key discipline business logic ko controllers se bahar rakhna hai taaki wo bina ek HTTP request ke test ho sake, aur har resource ko uske apne Router ke roop mein mount karna.',
+    },
+  },
+  {
+    question: 'What is the difference between app.use and app.all?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`app.use(path, fn)` mounts MIDDLEWARE — it matches the path as a PREFIX, so `/api` also matches `/api/users/5`, and it runs for every HTTP method. `app.all(path, fn)` registers a ROUTE handler that matches the path EXACTLY (like `app.get`) but for all methods. So `app.use` is for cross-cutting concerns applied to a whole section, while `app.all` is for a specific endpoint that should behave identically regardless of method.',
+      hinglish:
+        '`app.use(path, fn)` MIDDLEWARE mount karta hai — ye path ko ek PREFIX ki tarah match karta hai, isliye `/api` `/api/users/5` bhi match karta hai, aur ye har HTTP method ke liye chalta hai. `app.all(path, fn)` ek ROUTE handler register karta hai jo path ko EXACTLY match karta hai (`app.get` ki tarah) par saare methods ke liye. Isliye `app.use` ek poore section pe apply hone wale cross-cutting concerns ke liye hai, jabki `app.all` ek specific endpoint ke liye jo method chahe kuch bhi ho identically behave kare.',
+    },
+  },
+  {
+    question: 'How do you validate request data in Express?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Validate at the boundary with a schema library — Zod, Joi, or express-validator — implemented as middleware so the route handler only ever sees clean data. Validate body, params, AND query, since all three are attacker-controlled. Return 400 with structured field-level errors so clients can display them. Crucially, use the PARSED and coerced output rather than the raw request, which both strips unexpected fields and prevents NoSQL injection from operator objects reaching your queries.',
+      hinglish:
+        'Boundary pe ek schema library se validate karo — Zod, Joi, ya express-validator — middleware ke roop mein implement karke taaki route handler kabhi sirf clean data hi dekhe. Body, params, AUR query validate karo, kyunki teeno attacker-controlled hain. Structured field-level errors ke saath 400 return karo taaki clients unhe display kar sakein. Crucially, raw request ke bajaye PARSED aur coerced output use karo, jo unexpected fields bhi strip karta hai aur operator objects ko tumhari queries tak pahunchne se rok kar NoSQL injection rokta hai.',
+    },
+  },
+  {
+    question: 'What is CORS and how do you configure it correctly in Express?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'CORS relaxes the browser\'s same-origin policy, which by default blocks JavaScript from reading cross-origin responses. Use the `cors` package with an explicit ORIGIN allowlist in production — `origin: "*"` is convenient in development but unsafe once credentials are involved, and browsers actually forbid combining a wildcard origin with `credentials: true`. Remember CORS is enforced by the BROWSER, so a failing request will still succeed from curl or another server.',
+      hinglish:
+        'CORS browser ki same-origin policy ko relax karta hai, jo default se JavaScript ko cross-origin responses padhne se blocks karti hai. Production mein ek explicit ORIGIN allowlist ke saath `cors` package use karo — `origin: "*"` development mein convenient hai par credentials involved hone pe unsafe, aur browsers actually ek wildcard origin ko `credentials: true` ke saath combine karne se mana karte hain. Yaad rakho CORS BROWSER enforce karta hai, isliye ek failing request curl ya doosre server se abhi bhi succeed hogi.',
+    },
+  },
+  {
+    question: 'How do you implement authentication middleware in Express?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Write middleware that extracts the token from the `Authorization: Bearer` header or a cookie, verifies it, attaches the decoded user to `req.user`, and either calls `next()` or responds 401. Then apply it selectively — `router.get("/profile", authenticate, handler)` — rather than globally, so public routes still work. Keep AUTHORISATION separate as its own middleware checking `req.user.role`, since "who are you" and "what may you do" are genuinely different questions.',
+      hinglish:
+        'Aisa middleware likho jo token ko `Authorization: Bearer` header ya ek cookie se extract kare, verify kare, decoded user ko `req.user` pe attach kare, aur ya `next()` call kare ya 401 respond kare. Phir use selectively apply karo — `router.get("/profile", authenticate, handler)` — globally ke bajaye, taaki public routes chalte rahein. AUTHORISATION ko `req.user.role` check karte ek alag middleware ke roop mein rakho, kyunki "tum kaun ho" aur "tum kya kar sakte ho" genuinely alag sawaal hain.',
+    },
+  },
+  {
+    question: 'What is helmet and what does it actually do?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Helmet is middleware that sets a collection of security-related HTTP response headers with sensible defaults: `X-Content-Type-Options: nosniff` to block MIME sniffing, `Strict-Transport-Security` to force HTTPS, `X-Frame-Options` to prevent clickjacking, and a Content-Security-Policy. It removes `X-Powered-By: Express`, which otherwise advertises your stack. It is a single line for a meaningful reduction in attack surface, and is considered baseline practice for any production Express app.',
+      hinglish:
+        'Helmet ek middleware hai jo sensible defaults ke saath security-related HTTP response headers ka ek collection set karta hai: MIME sniffing block karne ke liye `X-Content-Type-Options: nosniff`, HTTPS force karne ke liye `Strict-Transport-Security`, clickjacking rokne ke liye `X-Frame-Options`, aur ek Content-Security-Policy. Ye `X-Powered-By: Express` hataata hai, jo warna tumhara stack advertise karta hai. Ye attack surface mein ek meaningful kami ke liye ek single line hai, aur kisi bhi production Express app ke liye baseline practice maani jaati hai.',
+    },
+  },
+  {
+    question: 'How do you handle file uploads in Express?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use `multer`, since `express.json()` cannot parse `multipart/form-data`. Configure storage (disk or memory) and, critically, set LIMITS on file size and count — without them an attacker can exhaust disk or memory. Validate the MIME type and extension rather than trusting the client-supplied filename, and never store uploads under a path derived from user input. For production, streaming directly to object storage such as S3 avoids filling the application server\'s disk entirely.',
+      hinglish:
+        '`multer` use karo, kyunki `express.json()` `multipart/form-data` parse nahi kar sakta. Storage (disk ya memory) configure karo aur, critically, file size aur count pe LIMITS set karo — unke bina ek attacker disk ya memory khatam kar sakta hai. Client-supplied filename pe bharosa karne ke bajaye MIME type aur extension validate karo, aur uploads ko kabhi user input se derive kiye path ke neeche store mat karo. Production ke liye, S3 jaise object storage pe directly stream karna application server ki disk bharne se poori tarah bachata hai.',
+    },
+  },
+  {
+    question: 'What is the difference between res.send, res.json, and res.end?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`res.send()` is flexible — it accepts a string, buffer, or object, infers the Content-Type, and sets Content-Length. `res.json()` explicitly serialises to JSON and always sets `Content-Type: application/json`; it also applies any configured JSON replacer or spacing, so it is the right choice for APIs. `res.end()` is the raw Node method that terminates the response without setting headers or body semantics — useful for an empty 204 response, but you rarely need it directly.',
+      hinglish:
+        '`res.send()` flexible hai — ye ek string, buffer, ya object accept karta hai, Content-Type infer karta hai, aur Content-Length set karta hai. `res.json()` explicitly JSON mein serialise karta hai aur hamesha `Content-Type: application/json` set karta hai; ye koi bhi configured JSON replacer ya spacing bhi apply karta hai, isliye APIs ke liye sahi choice hai. `res.end()` raw Node method hai jo bina headers ya body semantics set kiye response terminate karta hai — ek empty 204 response ke liye useful, par tumhe ise directly rarely chahiye.',
+    },
+  },
+  {
+    question: 'How do you implement rate limiting in Express?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use `express-rate-limit`, applying a general limit to `/api` and a much stricter one to authentication endpoints, since login is the prime brute-force target. Return HTTP 429 with a `Retry-After` header. Two production caveats: behind a proxy or load balancer you must set `app.set("trust proxy", ...)` or every request appears to come from the proxy\'s IP, and the default in-memory store does not work across multiple instances — use a Redis-backed store.',
+      hinglish:
+        '`express-rate-limit` use karo, `/api` pe ek general limit aur authentication endpoints pe ek bahut strict limit apply karte hue, kyunki login prime brute-force target hai. Ek `Retry-After` header ke saath HTTP 429 return karo. Do production caveats: ek proxy ya load balancer ke peeche tumhe `app.set("trust proxy", ...)` set karna padta hai warna har request proxy ke IP se aati hui lagti hai, aur default in-memory store multiple instances ke across kaam nahi karta — ek Redis-backed store use karo.',
+    },
+  },
+  {
+    question: 'What is compression middleware and when does it help?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'The `compression` middleware gzips or brotli-compresses responses, typically cutting JSON and HTML payloads by 70-90% and meaningfully reducing transfer time on slow networks. It costs CPU per response, so it is not free. It offers little benefit for already-compressed content such as images, video, or ZIP files. In many production setups a reverse proxy like Nginx or a CDN handles compression more efficiently, in which case enabling it in Express as well is redundant.',
+      hinglish:
+        '`compression` middleware responses ko gzip ya brotli se compress karta hai, typically JSON aur HTML payloads 70-90% kam karta hai aur slow networks pe transfer time meaningfully kam karta hai. Ye per response CPU cost karta hai, isliye free nahi hai. Ye already-compressed content jaise images, video, ya ZIP files ke liye kam benefit deta hai. Bahut production setups mein Nginx ya ek CDN jaisa reverse proxy compression zyada efficiently handle karta hai, jis case mein Express mein bhi enable karna redundant hai.',
+    },
+  },
+  {
+    question: 'How do you serve a single-page application from Express?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Serve the build directory with `express.static`, then add a catch-all route sending `index.html` for any unmatched GET, so client-side routes like `/dashboard` do not 404 on a direct visit or refresh. Crucially, register your API routes BEFORE the catch-all, otherwise it swallows them and returns HTML to API calls — a very common confusing bug. In Express 5 the catch-all pattern changed, so use a named wildcard rather than the old bare `*`.',
+      hinglish:
+        'Build directory ko `express.static` se serve karo, phir ek catch-all route add karo jo kisi bhi unmatched GET ke liye `index.html` bheje, taaki `/dashboard` jaise client-side routes ek direct visit ya refresh pe 404 na dein. Crucially, apne API routes catch-all se PEHLE register karo, warna wo unhe nigal leta hai aur API calls ko HTML return karta hai — ek bahut common confusing bug. Express 5 mein catch-all pattern badal gaya hai, isliye purane bare `*` ke bajaye ek named wildcard use karo.',
+    },
+  },
+  {
+    question: 'What is the trust proxy setting and why does it matter?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Behind a reverse proxy or load balancer, every request appears to originate from the proxy, so `req.ip` is the proxy\'s address and `req.protocol` is http even when the client used https. `app.set("trust proxy", ...)` tells Express to read the `X-Forwarded-*` headers instead. This directly affects rate limiting (which would otherwise throttle all users as one IP), logging, and any redirect-to-https logic. Set it to a specific trusted value rather than blindly `true`, since these headers are client-spoofable.',
+      hinglish:
+        'Ek reverse proxy ya load balancer ke peeche, har request proxy se aati hui lagti hai, isliye `req.ip` proxy ka address hai aur `req.protocol` http hai chahe client ne https use kiya ho. `app.set("trust proxy", ...)` Express ko batata hai ki uske bajaye `X-Forwarded-*` headers padhe. Ye directly rate limiting (jo warna saare users ko ek IP ki tarah throttle karti), logging, aur kisi bhi redirect-to-https logic ko affect karta hai. Ise blindly `true` ke bajaye ek specific trusted value pe set karo, kyunki ye headers client-spoofable hain.',
+    },
+  },
+  {
+    question: 'How do you log requests in Express?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use `morgan` for simple HTTP access logs, or a structured logger such as pino or winston for production, where JSON output is far easier for log aggregators to query. Log method, path, status, duration, and a correlation ID so a single request can be traced across services. Deliberately EXCLUDE sensitive data — passwords, tokens, and full request bodies — since logs are widely accessible and long-lived, making accidental logging of credentials a real and common breach vector.',
+      hinglish:
+        'Simple HTTP access logs ke liye `morgan` use karo, ya production ke liye pino ya winston jaisa ek structured logger, jahan JSON output log aggregators ke query karne ke liye bahut easier hai. Method, path, status, duration, aur ek correlation ID log karo taaki ek single request services ke across trace ho sake. Sensitive data — passwords, tokens, aur full request bodies — deliberately EXCLUDE karo, kyunki logs widely accessible aur long-lived hote hain, jo credentials ka accidental logging ek real aur common breach vector banata hai.',
+    },
+  },
+  {
+    question: 'How do you test an Express application?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use `supertest` to make requests against your app object WITHOUT starting a real server, which makes tests fast and port-free. Export the app separately from the `listen()` call so tests can import it cleanly. Test routes at the HTTP level (status codes, response shape, auth rejection), and test business logic in services directly as plain unit tests. Use a separate test database reset between runs, and mock genuinely external services rather than calling them.',
+      hinglish:
+        '`supertest` use karke apne app object ke against requests karo BINA ek real server start kiye, jo tests fast aur port-free banata hai. App ko `listen()` call se alag export karo taaki tests use cleanly import kar sakein. Routes ko HTTP level pe test karo (status codes, response shape, auth rejection), aur services mein business logic ko directly plain unit tests ke roop mein test karo. Runs ke beech reset hota ek separate test database use karo, aur genuinely external services ko call karne ke bajaye mock karo.',
+    },
+  },
+  {
+    question: 'What is the difference between req.params, req.query, and req.body?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`req.params` holds named route segments — `/users/:id` gives `req.params.id` — used to identify a specific resource. `req.query` holds everything after `?` — `/users?role=admin&page=2` — used for optional filtering, sorting, and pagination. `req.body` holds the parsed request payload and requires body-parsing middleware to exist at all. Note params and query values arrive as STRINGS, so `req.query.page` is `"2"` not `2`, which is a frequent source of subtle bugs.',
+      hinglish:
+        '`req.params` named route segments rakhta hai — `/users/:id` `req.params.id` deta hai — ek specific resource identify karne ke liye use hota hai. `req.query` `?` ke baad sab kuch rakhta hai — `/users?role=admin&page=2` — optional filtering, sorting, aur pagination ke liye. `req.body` parsed request payload rakhta hai aur ise exist karne ke liye body-parsing middleware chahiye. Note karo params aur query values STRINGS ke roop mein aati hain, isliye `req.query.page` `"2"` hai `2` nahi, jo subtle bugs ka ek frequent source hai.',
+    },
+  },
+  {
+    question: 'How do you handle 404s in Express?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Register a middleware with no path AFTER every real route — if execution reaches it, nothing matched, so respond 404. It must come after all routes but BEFORE the error-handling middleware. A common refinement is to create an error object and pass it to `next(err)` instead of responding directly, so 404s flow through the same error handler as everything else and produce a consistent response shape. Placing it too early is the classic mistake, since it then intercepts valid routes.',
+      hinglish:
+        'Har real route ke BAAD bina path ke ek middleware register karo — agar execution wahan pahunche, kuch match nahi hua, isliye 404 respond karo. Ise saare routes ke baad par error-handling middleware se PEHLE aana chahiye. Ek common refinement ye hai ki directly respond karne ke bajaye ek error object banake `next(err)` mein pass karo, taaki 404s baaki sab ki tarah usi error handler se guzrein aur ek consistent response shape produce karein. Ise bahut jaldi rakhna classic mistake hai, kyunki phir wo valid routes intercept karta hai.',
+    },
+  },
+  {
+    question: 'What are the main differences in Express 5?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The headline change is that Express 5 automatically forwards REJECTED PROMISES from async handlers to the error-handling middleware, removing the long-standing need for a wrapper. It also updates path-to-regexp, which changes wildcard and optional-parameter syntax (a bare `*` must become a named wildcard), removes several long-deprecated methods such as `res.json(status, obj)` and `app.del()`, and requires a modern Node version. Migration is mostly mechanical but the routing-syntax changes are the ones that actually bite.',
+      hinglish:
+        'Headline change ye hai ki Express 5 async handlers se REJECTED PROMISES ko automatically error-handling middleware tak forward karta hai, ek wrapper ki purani zaroorat hataate hue. Ye path-to-regexp bhi update karta hai, jo wildcard aur optional-parameter syntax badalta hai (ek bare `*` ko ek named wildcard banna padta hai), `res.json(status, obj)` aur `app.del()` jaise kai long-deprecated methods hataata hai, aur ek modern Node version chahta hai. Migration zyadatar mechanical hai par routing-syntax changes hi actually kaatte hain.',
+    },
+  },
+  {
+    question: 'How would you scale an Express application?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Keep the app STATELESS so any instance can serve any request — move sessions to Redis rather than memory. Run multiple processes with the cluster module or PM2 to use every CPU core, and multiple instances behind a load balancer. Put a reverse proxy or CDN in front for static assets, TLS termination, and compression. Then remove the usual bottlenecks: add database indexes, cache hot reads, move slow work to a background queue, and never block the event loop with CPU-heavy synchronous code.',
+      hinglish:
+        'App ko STATELESS rakho taaki koi bhi instance koi bhi request serve kar sake — sessions ko memory ke bajaye Redis mein le jao. Har CPU core use karne ke liye cluster module ya PM2 se multiple processes chalao, aur ek load balancer ke peeche multiple instances. Static assets, TLS termination, aur compression ke liye aage ek reverse proxy ya CDN rakho. Phir usual bottlenecks hatao: database indexes add karo, hot reads cache karo, slow kaam ek background queue mein le jao, aur CPU-heavy synchronous code se kabhi event loop block mat karo.',
+    },
+  },
+  {
+    question: 'What is Express and what is it NOT?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Express IS a minimal, unopinionated routing and middleware layer over Node\'s http module. It is NOT a full framework in the Rails or Django sense: it gives you no ORM, no authentication, no validation, no project structure, no CLI, and no opinions about folder layout. That minimalism is deliberate — it is why Express is flexible and long-lived, and also why every team must assemble and maintain its own stack of surrounding decisions.',
+      hinglish:
+        'Express Node ke http module ke upar ek minimal, unopinionated routing aur middleware layer HAI. Ye Rails ya Django wale sense mein ek full framework NAHI hai: ye tumhe koi ORM, koi authentication, koi validation, koi project structure, koi CLI, aur folder layout pe koi opinions nahi deta. Wo minimalism deliberate hai — isiliye Express flexible aur long-lived hai, aur isiliye har team ko surrounding decisions ka apna stack khud assemble aur maintain karna padta hai.',
+    },
+  },
+  {
+    question: 'How do you handle graceful shutdown in an Express app?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Listen for SIGTERM (which orchestrators send before killing a container), stop accepting NEW connections with `server.close()`, allow in-flight requests to finish, then close database connections and exit. Without this, a deployment kills requests mid-flight and users see errors. Add a timeout that force-exits if something hangs, and fail your health check immediately on SIGTERM so the load balancer stops routing new traffic before you begin shutting down.',
+      hinglish:
+        'SIGTERM sunо (jo orchestrators ek container maarne se pehle bhejte hain), `server.close()` se NAYE connections accept karna band karo, in-flight requests ko khatam hone do, phir database connections band karke exit karo. Iske bina, ek deployment requests ko mid-flight maar deta hai aur users errors dekhte hain. Ek timeout add karo jo kuch atakne pe force-exit kare, aur SIGTERM pe apna health check turant fail karo taaki load balancer shutdown shuru karne se pehle naya traffic routing band kar de.',
+    },
+  },
+  {
+    question: 'What is the difference between Express and Fastify or Koa?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'EXPRESS is the incumbent — the largest ecosystem, the most examples, callback-style middleware, and battle-tested stability. KOA, from the same team, is smaller and modern: async/await-native middleware with a genuine downstream-then-upstream flow, but it ships almost nothing by default. FASTIFY focuses on performance and developer experience, with schema-based validation and serialisation that make it notably faster, plus first-class TypeScript support. Express remains the safe default; Fastify is the common choice when throughput matters.',
+      hinglish:
+        'EXPRESS incumbent hai — sabse bada ecosystem, sabse zyada examples, callback-style middleware, aur battle-tested stability. KOA, usi team se, chhota aur modern hai: genuine downstream-then-upstream flow ke saath async/await-native middleware, par ye default se almost kuch nahi deta. FASTIFY performance aur developer experience pe focus karta hai, schema-based validation aur serialisation ke saath jo ise notably faster banate hain, plus first-class TypeScript support. Express safe default bana hua hai; Fastify common choice hai jab throughput matter kare.',
+    },
+  },
+  {
+    question: 'How do you prevent common security vulnerabilities in Express?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Set security headers with helmet. Validate and sanitise ALL input with a schema, and never pass `req.body` straight into a database query, which enables NoSQL injection via operator objects. Use parameterised queries or an ORM. Hash passwords with bcrypt. Rate limit authentication endpoints. Configure CORS with an explicit allowlist. Set `httpOnly`, `secure`, and `sameSite` on cookies. Keep dependencies patched via `npm audit`. And never return stack traces or internal error details to clients in production.',
+      hinglish:
+        'helmet se security headers set karo. SAARE input ko ek schema se validate aur sanitise karo, aur `req.body` ko kabhi seedha ek database query mein mat daalo, jo operator objects se NoSQL injection enable karta hai. Parameterised queries ya ek ORM use karo. Passwords bcrypt se hash karo. Authentication endpoints rate limit karo. CORS ko ek explicit allowlist se configure karo. Cookies pe `httpOnly`, `secure`, aur `sameSite` set karo. `npm audit` se dependencies patched rakho. Aur production mein clients ko kabhi stack traces ya internal error details return mat karo.',
+    },
+  },
+  {
+    question: 'What is the res.locals object used for?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`res.locals` is a per-REQUEST object for passing data between middleware and, in server-rendered apps, into templates automatically. It is scoped to the single request-response cycle, so unlike `app.locals` (application-wide) there is no risk of leaking one user\'s data to another. Typical uses: middleware setting the current user, a request ID, or flash messages that a view then renders. Attaching request state to a module-level variable instead is a classic concurrency bug.',
+      hinglish:
+        '`res.locals` ek per-REQUEST object hai middleware ke beech data pass karne ke liye aur, server-rendered apps mein, templates mein automatically. Ye ek single request-response cycle tak scoped hai, isliye `app.locals` (application-wide) ke ulat ek user ka data doosre tak leak hone ka koi risk nahi. Typical uses: middleware jo current user, ek request ID, ya flash messages set kare jinhe ek view phir render kare. Uske bajaye request state ko ek module-level variable pe attach karna ek classic concurrency bug hai.',
+    },
+  },
+  {
+    question: 'How do you handle long-running or background jobs in an Express app?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Do not do them inside the request. Accept the request, enqueue a job, and return 202 Accepted with an identifier the client can poll or subscribe to. Process the queue in a SEPARATE worker process using BullMQ, RabbitMQ, or similar. This matters for two reasons: HTTP requests time out, and CPU-heavy work inside Express blocks the event loop and stalls every other request on that instance. It also lets you retry failures without the client having to resubmit.',
+      hinglish:
+        'Unhe request ke andar mat karo. Request accept karo, ek job enqueue karo, aur ek identifier ke saath 202 Accepted return karo jise client poll ya subscribe kar sake. Queue ko ek ALAG worker process mein process karo BullMQ, RabbitMQ, ya similar se. Ye do wajahon se matter karta hai: HTTP requests timeout hoti hain, aur Express ke andar CPU-heavy kaam event loop block karta hai aur us instance ki har doosri request rok deta hai. Ye tumhe failures retry karne bhi deta hai bina client ke dobara submit kiye.',
+    },
+  },
+  {
+    question: 'What is the purpose of separating app.js from server.js?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Keeping the Express app configuration in one module and the `listen()` call in another means tests can import and exercise the app WITHOUT binding a port — which makes test suites fast, parallelisable, and free of port conflicts. It also lets the same app run under different entry points: a normal server, a serverless handler, or a clustered process manager. It is a small structural decision that removes a surprising amount of friction later.',
+      hinglish:
+        'Express app configuration ko ek module mein aur `listen()` call ko doosre mein rakhne ka matlab hai ki tests app ko import aur exercise kar sakte hain BINA ek port bind kiye — jo test suites ko fast, parallelisable, aur port conflicts se free banata hai. Ye wahi app ko different entry points ke under chalne bhi deta hai: ek normal server, ek serverless handler, ya ek clustered process manager. Ye ek chhota structural decision hai jo baad mein surprising amount ki friction hataata hai.',
+    },
+  },
+  {
+    question: 'How do you version an Express API?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The most common approach is URL versioning — mounting routers at `/api/v1` and `/api/v2` — because it is explicit, easy to route, cache, and debug. Alternatives are a custom header or content negotiation via Accept, which keep URLs clean but are harder to test and cache. Whichever you choose, version only on BREAKING changes; additive changes should not force a new version. Keep the old version running with a documented deprecation window rather than removing it abruptly.',
+      hinglish:
+        'Sabse common approach URL versioning hai — routers ko `/api/v1` aur `/api/v2` pe mount karna — kyunki ye explicit hai, route, cache, aur debug karna easy hai. Alternatives ek custom header ya Accept se content negotiation hain, jo URLs clean rakhte hain par test aur cache karna mushkil hai. Jo bhi chuno, sirf BREAKING changes pe version karo; additive changes ko ek naya version force nahi karna chahiye. Purane version ko ek documented deprecation window ke saath chalta rakho, use achanak hataane ke bajaye.',
+    },
+  },
+  {
+    question: 'What causes "Cannot set headers after they are sent" and how do you fix it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'It means code tried to send a response after one was already sent. Common causes: calling `res.json()` and then continuing rather than returning; calling `next()` after responding, so a later handler responds again; a forgotten `return` in an early-exit validation branch; or an async callback firing after the request already completed. The fix is almost always to `return` when you respond, making it structurally impossible for execution to continue past the point of response.',
+      hinglish:
+        'Iska matlab hai code ne ek response bhejne ki koshish ki jab ek pehle hi bheja ja chuka tha. Common causes: `res.json()` call karke return karne ke bajaye continue karna; respond karne ke baad `next()` call karna, isliye ek baad ka handler dobara respond karta hai; ek early-exit validation branch mein ek bhoola hua `return`; ya ek async callback jo request complete hone ke baad fire ho. Fix almost hamesha respond karte waqt `return` karna hai, jo execution ke liye response ke point se aage badhna structurally impossible bana deta hai.',
+    },
+  },
+  {
+    question: 'How do you handle environment-specific configuration in Express?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Read everything from `process.env`, loaded from a gitignored `.env` locally via dotenv and from the platform\'s secret manager in production. Validate the whole configuration at STARTUP with a schema and crash immediately if something required is missing — failing fast at boot is far better than a request failing at 3am because a variable was never set. Use `NODE_ENV` to switch behaviour such as error verbosity, and never commit real secrets to the repository.',
+      hinglish:
+        'Sab kuch `process.env` se padho, locally dotenv se ek gitignored `.env` se load karke aur production mein platform ke secret manager se. Poori configuration ko STARTUP pe ek schema se validate karo aur agar kuch required missing ho to turant crash karo — boot pe fast fail hona ek variable kabhi set na hone ki wajah se 3am pe ek request fail hone se bahut better hai. Error verbosity jaise behaviour switch karne ke liye `NODE_ENV` use karo, aur repository mein kabhi real secrets commit mat karo.',
+    },
+  },
+  {
+    question: 'What is the difference between Express Router and a sub-app?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A ROUTER is a lightweight, isolated middleware and route stack that you mount onto an app — the normal way to organise routes by resource. A SUB-APP is a full Express application mounted with `app.use(path, subApp)`, so it has its own settings, view engine, and locals, and inherits little from the parent. Routers cover nearly every real case; sub-apps are worth reaching for only when a section genuinely needs different application-level configuration.',
+      hinglish:
+        'Ek ROUTER ek lightweight, isolated middleware aur route stack hai jise tum ek app pe mount karte ho — routes ko resource se organise karne ka normal tareeka. Ek SUB-APP ek full Express application hai jo `app.use(path, subApp)` se mount hoti hai, isliye uski apni settings, view engine, aur locals hoti hain, aur wo parent se kam inherit karti hai. Routers almost har real case cover karte hain; sub-apps ko uthana sirf tab worth hai jab ek section ko genuinely different application-level configuration chahiye.',
+    },
+  },
+  {
+    question: 'How do you implement pagination in an Express API?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Accept `page` and `limit` (or `cursor`) as query parameters, validate and CAP the limit so a client cannot request a million rows, and return both the data and metadata — total count, current page, and whether more exists. Offset pagination is simple but degrades on deep pages; cursor pagination stays fast and avoids the duplicate-and-skip problem when rows shift between requests, at the cost of not being able to jump to an arbitrary page.',
+      hinglish:
+        '`page` aur `limit` (ya `cursor`) ko query parameters ke roop mein accept karo, limit validate aur CAP karo taaki ek client das lakh rows request na kar sake, aur data aur metadata dono return karo — total count, current page, aur zyada hai ya nahi. Offset pagination simple hai par deep pages pe degrade hoti hai; cursor pagination fast rehti hai aur requests ke beech rows shift hone pe duplicate-and-skip problem avoid karti hai, ek arbitrary page pe jump na kar paane ke cost pe.',
+    },
+  },
 ];
 
 export const curriculum = [...beginner, ...intermediate, ...advanced];

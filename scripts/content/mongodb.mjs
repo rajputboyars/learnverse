@@ -768,6 +768,415 @@ export const generalInterviewQuestions = [
         '`find(query)` query se match hone wale SAARE documents pe ek CURSOR return karta hai — tumhe ek array-like result milta hai (ya cursor iterate karna padta hai), chahe sirf ek document match kare, aur empty array agar koi match na kare. `findOne(query)` ek SINGLE document return karta hai — pehla match — ya `null` agar koi match na kare; ye zyada efficient hai jab tumhe sirf ek result chahiye, kyunki MongoDB ek match milte hi search rok sakta hai, har possible match scan karne ke bajaye.',
     },
   },
+
+  // ─── Data Modelling ───────────────────────────────────────────
+  {
+    question: 'When should you embed documents versus reference them?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'EMBED when the child data is always read with the parent, has a bounded size, and does not change independently — order line items inside an order. This gives a single-query read and atomic updates. REFERENCE when the data is large, shared across many parents, grows unboundedly, or is queried on its own — comments on a viral post, or a user referenced by thousands of orders. The deciding questions are: how is it accessed together, does it grow without limit, and would embedding duplicate data that must stay in sync?',
+      hinglish:
+        'EMBED tab karo jab child data hamesha parent ke saath padha jaaye, uska size bounded ho, aur wo independently na badle — ek order ke andar order line items. Ye ek single-query read aur atomic updates deta hai. REFERENCE tab karo jab data bada ho, bahut parents mein shared ho, unboundedly badhe, ya khud query ho — ek viral post pe comments, ya hazaron orders se referenced ek user. Deciding sawaal hain: ye saath kaise access hota hai, kya ye bina limit badhta hai, aur kya embed karna aisa data duplicate karega jise sync mein rehna hai?',
+    },
+  },
+  {
+    question: 'What is the 16MB document limit and how do you work around it?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A single BSON document cannot exceed 16MB. It exists to prevent excessive memory use and pathological documents. In practice you rarely hit it with sensible modelling — hitting it is usually a signal that an embedded array is growing unboundedly, which is a design problem rather than a limit problem. Fixes: reference the growing collection instead of embedding it, use the bucket pattern to group items into fixed-size chunks, or use GridFS for genuinely large binary files.',
+      hinglish:
+        'Ek single BSON document 16MB se zyada nahi ho sakta. Ye excessive memory use aur pathological documents rokne ke liye hai. Practically tum sensible modelling ke saath ise rarely hit karte ho — ise hit karna usually ek signal hai ki ek embedded array unboundedly badh raha hai, jo ek limit problem ke bajaye ek design problem hai. Fixes: badhti collection ko embed karne ke bajaye reference karo, items ko fixed-size chunks mein group karne ke liye bucket pattern use karo, ya genuinely bade binary files ke liye GridFS.',
+    },
+  },
+  {
+    question: 'What is the aggregation pipeline and what are the key stages?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The aggregation pipeline processes documents through ordered STAGES, each transforming the output of the previous — like Unix pipes. Key stages: `$match` filters (put it FIRST so later stages process fewer documents and it can use an index), `$group` aggregates, `$project` reshapes fields, `$sort`, `$limit`, `$skip`, `$unwind` flattens arrays into separate documents, and `$lookup` performs a left outer join. Stage order matters enormously for performance, not just correctness.',
+      hinglish:
+        'Aggregation pipeline documents ko ordered STAGES se process karti hai, har ek pichhle ka output transform karte hue — Unix pipes ki tarah. Key stages: `$match` filter karta hai (ise PEHLE rakho taaki baad ke stages kam documents process karein aur ye ek index use kar sake), `$group` aggregate karta hai, `$project` fields reshape karta hai, `$sort`, `$limit`, `$skip`, `$unwind` arrays ko separate documents mein flatten karta hai, aur `$lookup` ek left outer join karta hai. Stage order performance ke liye enormously matter karta hai, sirf correctness ke liye nahi.',
+    },
+  },
+  {
+    question: 'What is $lookup and what are its limitations?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`$lookup` performs a LEFT OUTER JOIN with another collection in the same database, producing an array of matched documents. Limitations that matter: it is significantly slower than a relational JOIN since MongoDB is not optimised for joins, the joined collection should be indexed on the join field or it degrades badly, and the result must still respect the 16MB document limit. If you find yourself needing `$lookup` everywhere, that is usually a signal the data model should embed more or that a relational database fits better.',
+      hinglish:
+        '`$lookup` usi database mein doosri collection ke saath ek LEFT OUTER JOIN karta hai, matched documents ka ek array produce karte hue. Matter karti limitations: ye ek relational JOIN se significantly slower hai kyunki MongoDB joins ke liye optimised nahi hai, joined collection join field pe indexed honi chahiye warna ye buri tarah degrade hoti hai, aur result ko abhi bhi 16MB document limit respect karni padti hai. Agar tum khud ko har jagah `$lookup` chahte paao, wo usually ek signal hai ki data model ko zyada embed karna chahiye ya ek relational database better fit hai.',
+    },
+  },
+  {
+    question: 'What types of indexes does MongoDB support?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'SINGLE-FIELD is the basic case. COMPOUND covers multiple fields in a defined order and follows the prefix rule. MULTIKEY is created automatically on array fields, indexing each element. TEXT enables basic full-text search. GEOSPATIAL (2dsphere) supports location queries. HASHED is used for sharding. Special properties: UNIQUE enforces uniqueness, PARTIAL indexes only matching documents, SPARSE skips documents missing the field, and TTL automatically deletes documents after a set time.',
+      hinglish:
+        'SINGLE-FIELD basic case hai. COMPOUND ek defined order mein multiple fields cover karta hai aur prefix rule follow karta hai. MULTIKEY array fields pe automatically banta hai, har element index karte hue. TEXT basic full-text search enable karta hai. GEOSPATIAL (2dsphere) location queries support karta hai. HASHED sharding ke liye use hota hai. Special properties: UNIQUE uniqueness enforce karta hai, PARTIAL sirf matching documents index karta hai, SPARSE field missing wale documents skip karta hai, aur TTL ek set time ke baad documents automatically delete karta hai.',
+    },
+  },
+  {
+    question: 'How does the compound index prefix rule work in MongoDB?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A compound index on `{a: 1, b: 1, c: 1}` can serve queries on `a`, on `a+b`, and on `a+b+c` — any LEFTMOST PREFIX — but not a query on `b` alone or `b+c`, because the index is sorted primarily by `a`. It can also support sorting, but only if the sort direction is consistent with the index (or exactly reversed). This is why field ORDER in a compound index is a design decision: put the most selective and most commonly filtered field first.',
+      hinglish:
+        '`{a: 1, b: 1, c: 1}` pe ek compound index `a` pe, `a+b` pe, aur `a+b+c` pe queries serve kar sakta hai — koi bhi LEFTMOST PREFIX — par akele `b` pe ya `b+c` pe nahi, kyunki index primarily `a` se sorted hai. Ye sorting bhi support kar sakta hai, par sirf tab jab sort direction index ke consistent ho (ya exactly reversed). Isiliye ek compound index mein field ORDER ek design decision hai: sabse selective aur sabse commonly filtered field pehle rakho.',
+    },
+  },
+  {
+    question: 'What is a TTL index and when is it useful?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A TTL index on a date field automatically deletes documents once that date is older than a configured number of seconds, with a background process running roughly every minute. It is ideal for sessions, one-time tokens, caches, and logs — anything with a natural expiry — because expiry becomes a schema property rather than a cron job you have to write and monitor. Note deletion is approximate rather than instant, so it is unsuitable when precise timing is a security requirement.',
+      hinglish:
+        'Ek date field pe ek TTL index documents ko automatically delete karta hai jab wo date ek configured seconds ki number se purani ho jaaye, ek background process roughly har minute chalta hua. Ye sessions, one-time tokens, caches, aur logs ke liye ideal hai — kisi bhi natural expiry wali cheez — kyunki expiry ek cron job ke bajaye ek schema property ban jaati hai jise tumhe likhna aur monitor karna pade. Note karo deletion instant ke bajaye approximate hai, isliye ye tab unsuitable hai jab precise timing ek security requirement ho.',
+    },
+  },
+  {
+    question: 'How do you analyse and improve a slow MongoDB query?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Run `.explain("executionStats")` and read three things: the winning plan stage (COLLSCAN means no index was used, IXSCAN means one was), `totalDocsExamined` versus `nReturned` (a large gap means the query is reading far more than it returns), and execution time. Fixes: add an index matching the filter and sort, use projection to return only needed fields, ensure the sort can use the index rather than performing an in-memory sort, and check whether the aggregation pipeline places `$match` early enough.',
+      hinglish:
+        '`.explain("executionStats")` chalao aur teen cheezein padho: winning plan stage (COLLSCAN matlab koi index use nahi hua, IXSCAN matlab hua), `totalDocsExamined` versus `nReturned` (ek bada gap matlab query return karne se bahut zyada padh rahi hai), aur execution time. Fixes: filter aur sort se match karta ek index add karo, sirf zaroori fields return karne ke liye projection use karo, ensure karo ki sort ek in-memory sort karne ke bajaye index use kar sake, aur check karo ki aggregation pipeline `$match` ko kaafi jaldi rakhti hai ya nahi.',
+    },
+  },
+  {
+    question: 'What is a replica set and how does failover work?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A replica set is a group of mongod instances holding the same data: one PRIMARY accepting all writes, and secondaries replicating its oplog. If the primary becomes unreachable, the remaining members hold an ELECTION and a secondary is promoted, which is why an odd number of voting members matters — it prevents a tie and avoids split-brain. Applications connect to the set rather than a node, so the driver discovers the new primary automatically. Secondaries can also serve reads, at the cost of possible staleness.',
+      hinglish:
+        'Ek replica set mongod instances ka ek group hai jo wahi data rakhta hai: ek PRIMARY jo saare writes accept karta hai, aur secondaries jo uska oplog replicate karte hain. Agar primary unreachable ho jaaye, baaki members ek ELECTION karte hain aur ek secondary promote hota hai, isiliye voting members ki ek odd number matter karti hai — ye ek tie rokti hai aur split-brain avoid karti hai. Applications ek node ke bajaye set se connect karti hain, isliye driver naya primary automatically discover kar leta hai. Secondaries reads bhi serve kar sakte hain, possible staleness ke cost pe.',
+    },
+  },
+  {
+    question: 'What are read and write concerns in MongoDB?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'WRITE CONCERN specifies how many members must acknowledge a write before it is reported successful — `w: 1` is the primary only (fast, small data-loss window on failover), `w: "majority"` guarantees durability across a failover, and `j: true` additionally requires the journal to be flushed to disk. READ CONCERN specifies the consistency of reads — `local` may return data that could still be rolled back, while `majority` returns only data acknowledged by a majority. Together they let you tune the durability-versus-latency trade per operation.',
+      hinglish:
+        'WRITE CONCERN specify karta hai ki ek write successful report hone se pehle kitne members ko acknowledge karna hai — `w: 1` sirf primary hai (fast, failover pe chhota data-loss window), `w: "majority"` ek failover ke across durability guarantee karta hai, aur `j: true` additionally journal ko disk pe flush hone ke liye kehta hai. READ CONCERN reads ki consistency specify karta hai — `local` aisa data return kar sakta hai jo abhi bhi rollback ho sakta hai, jabki `majority` sirf ek majority se acknowledged data return karta hai. Saath mein ye tumhe per operation durability-versus-latency trade tune karne dete hain.',
+    },
+  },
+  {
+    question: 'What is sharding and how do you choose a shard key?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Sharding partitions a collection across multiple servers to scale writes and storage beyond one machine. The shard key determines the distribution and is effectively PERMANENT, so it deserves real analysis. A good key has high cardinality, even write distribution, and matches your common query filters. Bad keys create HOTSPOTS — a monotonically increasing key like a timestamp sends every new write to one shard — or force SCATTER-GATHER queries that hit every shard because the key is absent from your filters.',
+      hinglish:
+        'Sharding ek collection ko multiple servers ke across partition karta hai taaki writes aur storage ek machine se aage scale karein. Shard key distribution determine karti hai aur effectively PERMANENT hai, isliye ise real analysis chahiye. Ek achhi key ki high cardinality hoti hai, even write distribution, aur ye tumhare common query filters se match karti hai. Buri keys HOTSPOTS banati hain — ek monotonically badhti key jaise ek timestamp har naya write ek shard pe bhejti hai — ya SCATTER-GATHER queries force karti hain jo har shard hit karti hain kyunki key tumhare filters mein nahi hoti.',
+    },
+  },
+  {
+    question: 'How do transactions work in MongoDB?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Single-document operations have always been ATOMIC, which handles most cases when the data model embeds related data. Since v4.0 MongoDB also supports multi-document ACID transactions across collections (and since 4.2 across shards), requiring a replica set. They carry real cost — additional locking, a 60-second default time limit, and reduced throughput — so the idiomatic guidance is to model data so that related fields live in one document, and reach for transactions only where atomicity genuinely spans documents.',
+      hinglish:
+        'Single-document operations hamesha ATOMIC rahe hain, jo zyadatar cases handle karta hai jab data model related data embed karta ho. v4.0 se MongoDB collections ke across multi-document ACID transactions bhi support karta hai (aur 4.2 se shards ke across), ek replica set chahte hue. Wo real cost rakhte hain — additional locking, ek 60-second default time limit, aur reduced throughput — isliye idiomatic guidance ye hai ki data ko aise model karo ki related fields ek document mein rahein, aur transactions sirf wahan uthao jahan atomicity genuinely documents ke across faili ho.',
+    },
+  },
+  {
+    question: 'What is the difference between updateOne, updateMany, and replaceOne?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`updateOne` modifies the FIRST matching document using update operators such as `$set` or `$inc`. `updateMany` applies the same modification to EVERY match. `replaceOne` swaps the entire document with a new one, keeping only the `_id` — which is why accidentally passing a plain object instead of a `$set` operator to an update silently wipes every field you did not include. That mistake is one of the most common ways to lose data in MongoDB.',
+      hinglish:
+        '`updateOne` `$set` ya `$inc` jaise update operators se PEHLA matching document modify karta hai. `updateMany` wahi modification HAR match pe apply karta hai. `replaceOne` poore document ko ek naye se swap karta hai, sirf `_id` rakhte hue — isiliye ek update mein ek `$set` operator ke bajaye galti se ek plain object pass karna har us field ko silently mita deta hai jo tumne include nahi ki. Wo mistake MongoDB mein data khone ke sabse common tareekon mein se ek hai.',
+    },
+  },
+  {
+    question: 'What is an upsert in MongoDB?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Passing `{ upsert: true }` to an update tells MongoDB to INSERT a new document if the filter matches nothing, and update otherwise. Its real value is atomicity: the naive alternative of "find, then insert or update" has a race condition where two concurrent requests both find nothing and both insert. `$setOnInsert` lets you set fields only in the insert case, such as a `createdAt` timestamp that should not change on subsequent updates.',
+      hinglish:
+        'Ek update mein `{ upsert: true }` pass karna MongoDB ko batata hai ki agar filter kuch match na kare to ek naya document INSERT karo, warna update karo. Iski asli value atomicity hai: "find, phir insert ya update" ka naive alternative ek race condition rakhta hai jahan do concurrent requests dono kuch nahi paate aur dono insert karte hain. `$setOnInsert` tumhe sirf insert case mein fields set karne deta hai, jaise ek `createdAt` timestamp jo baad ke updates pe nahi badalna chahiye.',
+    },
+  },
+  {
+    question: 'What is the difference between find() and aggregate()?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`find()` retrieves documents matching a filter, with basic projection, sort, skip, and limit — simple and fast for straightforward reads. `aggregate()` runs a multi-stage pipeline capable of grouping, joining, reshaping, computing derived fields, and unwinding arrays. Use `find()` for "give me these documents" and `aggregate()` for "compute something from these documents". Aggregation is more powerful but heavier, so reaching for it when a simple `find` suffices is unnecessary cost.',
+      hinglish:
+        '`find()` ek filter se match karte documents retrieve karta hai, basic projection, sort, skip, aur limit ke saath — straightforward reads ke liye simple aur fast. `aggregate()` ek multi-stage pipeline chalata hai jo grouping, joining, reshaping, derived fields compute karne, aur arrays unwind karne mein saksham hai. "Mujhe ye documents do" ke liye `find()` use karo aur "in documents se kuch compute karo" ke liye `aggregate()`. Aggregation zyada powerful par bhaari hai, isliye jab ek simple `find` kaafi ho tab ise uthana unnecessary cost hai.',
+    },
+  },
+  {
+    question: 'How does Mongoose middleware (hooks) work?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Mongoose lets you run functions before (`pre`) or after (`post`) operations such as `save`, `validate`, `remove`, and query methods. Typical uses: hashing a password before save, populating derived fields, or cascading cleanup after delete. The critical gotcha is that DOCUMENT middleware like `pre("save")` does NOT run for query operations such as `updateOne` or `findOneAndUpdate` — so a password-hashing hook is silently bypassed by an update, which is a genuine security bug people ship regularly.',
+      hinglish:
+        'Mongoose tumhe `save`, `validate`, `remove`, aur query methods jaise operations se pehle (`pre`) ya baad (`post`) functions chalane deta hai. Typical uses: save se pehle ek password hash karna, derived fields populate karna, ya delete ke baad cascading cleanup. Critical gotcha ye hai ki `pre("save")` jaisa DOCUMENT middleware `updateOne` ya `findOneAndUpdate` jaise query operations ke liye NAHI chalta — isliye ek password-hashing hook ek update se silently bypass ho jaata hai, jo ek genuine security bug hai jo log regularly ship karte hain.',
+    },
+  },
+  {
+    question: 'What are Mongoose virtuals?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A virtual is a computed property that exists on the document but is NOT stored in MongoDB — a `fullName` derived from first and last name, or a `url` built from a slug. They keep derived data consistent without duplicating it in storage. Two things to remember: virtuals cannot be used in queries, since the database does not know they exist, and they are excluded from `toJSON()` output unless you explicitly enable `{ virtuals: true }`.',
+      hinglish:
+        'Ek virtual ek computed property hai jo document pe exist karti hai par MongoDB mein STORE nahi hoti — first aur last name se derive ek `fullName`, ya ek slug se bana ek `url`. Ye derived data ko storage mein duplicate kiye bina consistent rakhte hain. Do cheezein yaad rakho: virtuals queries mein use nahi ho sakte, kyunki database ko pata hi nahi ki wo exist karte hain, aur wo `toJSON()` output se excluded hote hain jab tak tum explicitly `{ virtuals: true }` enable na karo.',
+    },
+  },
+  {
+    question: 'What is the difference between lean() and a normal Mongoose query?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'By default Mongoose hydrates results into full Mongoose Documents, which carry change tracking, validation, virtuals, and methods — useful, but meaningfully slower and heavier in memory. `.lean()` returns plain JavaScript objects instead, which is often several times faster for large result sets. Use it for read-only endpoints where you just serialise to JSON. Do NOT use it when you intend to call `.save()`, use virtuals, or rely on document methods, since none of those exist on a plain object.',
+      hinglish:
+        'Default se Mongoose results ko full Mongoose Documents mein hydrate karta hai, jo change tracking, validation, virtuals, aur methods rakhte hain — useful, par meaningfully slower aur memory mein bhaari. `.lean()` uske bajaye plain JavaScript objects return karta hai, jo bade result sets ke liye aksar kai guna faster hai. Ise read-only endpoints ke liye use karo jahan tum bas JSON mein serialise karte ho. Ise tab use MAT karo jab tum `.save()` call karna chahte ho, virtuals use karte ho, ya document methods pe rely karte ho, kyunki wo kuch bhi ek plain object pe exist nahi karta.',
+    },
+  },
+  {
+    question: 'How does populate() work and what are its performance implications?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`populate()` replaces stored ObjectIds with the referenced documents, simulating a join. Mechanically Mongoose issues a SEPARATE query per populated path and stitches the results in application memory — it is not a database join. So populating three paths on a list of results means multiple round trips, and deep or nested population multiplies that. Mitigate by selecting only needed fields, populating only what the response actually uses, or embedding the data if it is always read together.',
+      hinglish:
+        '`populate()` stored ObjectIds ko referenced documents se replace karta hai, ek join simulate karte hue. Mechanically Mongoose per populated path ek SEPARATE query karta hai aur results ko application memory mein jodta hai — ye ek database join nahi hai. Isliye results ki ek list pe teen paths populate karna matlab multiple round trips, aur deep ya nested population use multiply karta hai. Sirf zaroori fields select karke, sirf wo populate karke jo response actually use karta hai, ya data embed karke agar wo hamesha saath padha jaata hai, ise mitigate karo.',
+    },
+  },
+  {
+    question: 'What is an ObjectId and what does it contain?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An ObjectId is a 12-byte identifier: a 4-byte TIMESTAMP, a 5-byte random value per process, and a 3-byte incrementing counter. Because the timestamp comes first, ObjectIds are roughly sortable by creation time and you can extract the creation date without a separate field. They are generated CLIENT-side by the driver, so no round trip is needed to obtain an id. The downside is they are guessable and leak creation timing, so they are not ideal as public identifiers.',
+      hinglish:
+        'Ek ObjectId ek 12-byte identifier hai: ek 4-byte TIMESTAMP, per process ek 5-byte random value, aur ek 3-byte badhta counter. Kyunki timestamp pehle aata hai, ObjectIds creation time se roughly sortable hain aur tum ek separate field ke bina creation date extract kar sakte ho. Ye driver ke through CLIENT-side generate hote hain, isliye ek id paane ke liye koi round trip nahi chahiye. Downside ye hai ki wo guessable hain aur creation timing leak karte hain, isliye wo public identifiers ke roop mein ideal nahi hain.',
+    },
+  },
+  {
+    question: 'How do you prevent NoSQL injection in MongoDB?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The attack works because MongoDB query operators are just JSON keys: passing `req.body` straight into `User.findOne()` lets an attacker send `{"password": {"$ne": null}}` and match any user, bypassing authentication entirely. Prevention: validate and whitelist input with a schema library so only expected types reach the query, cast values explicitly to strings, never spread raw request objects into a filter, and optionally use `express-mongo-sanitize` to strip keys beginning with `$`.',
+      hinglish:
+        'Attack isliye kaam karta hai kyunki MongoDB query operators bas JSON keys hain: `req.body` ko seedha `User.findOne()` mein daalna ek attacker ko `{"password": {"$ne": null}}` bhejne aur kisi bhi user ko match karne deta hai, authentication poori tarah bypass karte hue. Prevention: ek schema library se input validate aur whitelist karo taaki sirf expected types query tak pahunchein, values ko explicitly strings mein cast karo, raw request objects ko kabhi ek filter mein spread mat karo, aur optionally `$` se shuru hone wali keys strip karne ke liye `express-mongo-sanitize` use karo.',
+    },
+  },
+  {
+    question: 'What is the difference between MongoDB and a relational database?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'MongoDB stores flexible JSON-like DOCUMENTS with no enforced schema, favours embedding related data to avoid joins, and scales horizontally through sharding. Relational databases store rows in fixed-schema tables, normalise data and reassemble it with JOINs, and enforce integrity through foreign keys and constraints. The practical distinction is where structure is enforced: MongoDB pushes it into the application, which is flexible but means the database will happily store inconsistent shapes if nothing else checks.',
+      hinglish:
+        'MongoDB flexible JSON-jaise DOCUMENTS store karta hai bina enforced schema ke, joins avoid karne ke liye related data embed karna prefer karta hai, aur sharding se horizontally scale karta hai. Relational databases fixed-schema tables mein rows store karte hain, data normalise karke JOINs se wapas jodte hain, aur foreign keys aur constraints se integrity enforce karte hain. Practical distinction ye hai ki structure kahan enforce hota hai: MongoDB ise application mein dhakel deta hai, jo flexible hai par matlab database khushi se inconsistent shapes store karega agar aur kuch check na kare.',
+    },
+  },
+  {
+    question: 'When should you NOT use MongoDB?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Avoid it when the data is highly relational with many-to-many relationships that would require constant `$lookup`, since joins are its weakest area. Avoid it when you need complex multi-entity ACID transactions as a routine pattern rather than an exception. Avoid it for heavy analytical aggregation over columns, where a columnar warehouse is far better suited. And avoid choosing it purely because "schemas are annoying" — schema flexibility is a genuine trade, not a free win, and unenforced structure becomes a liability as a codebase grows.',
+      hinglish:
+        'Ise tab avoid karo jab data highly relational ho bahut many-to-many relationships ke saath jinhe constant `$lookup` chahiye, kyunki joins iska sabse weak area hai. Ise tab avoid karo jab tumhe complex multi-entity ACID transactions ek exception ke bajaye ek routine pattern ki tarah chahiye. Columns pe heavy analytical aggregation ke liye ise avoid karo, jahan ek columnar warehouse bahut better suited hai. Aur ise purely isliye chunne se bacho ki "schemas annoying hain" — schema flexibility ek genuine trade hai, ek free win nahi, aur unenforced structure ek codebase badhne pe ek liability ban jaata hai.',
+    },
+  },
+  {
+    question: 'What is the oplog?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'The oplog (operations log) is a capped collection on the primary recording every write operation in an idempotent form. Secondaries tail it and replay those operations to stay in sync, which is the mechanism behind replication. Because it is CAPPED, it holds only a fixed window of history — if a secondary falls further behind than the oplog retains, it can no longer catch up incrementally and must be fully resynced. Change Streams are also built on top of the oplog.',
+      hinglish:
+        'Oplog (operations log) primary pe ek capped collection hai jo har write operation ko ek idempotent form mein record karta hai. Secondaries ise tail karte hain aur un operations ko replay karke sync mein rehte hain, jo replication ke peeche mechanism hai. Kyunki ye CAPPED hai, ye sirf history ka ek fixed window rakhta hai — agar ek secondary oplog ke rakhne se zyada peeche gir jaaye, wo ab incrementally catch up nahi kar sakta aur use fully resync karna padta hai. Change Streams bhi oplog ke upar bane hain.',
+    },
+  },
+  {
+    question: 'What are Change Streams?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Change Streams let an application SUBSCRIBE to real-time changes on a collection or database, receiving insert, update, delete, and replace events as they happen. They are built on the oplog and require a replica set. Their value is replacing polling: instead of repeatedly querying for new rows, you receive events, which is how you build live dashboards, cache invalidation, and notification pipelines. They are also resumable via a resume token, so a consumer that disconnects can continue rather than losing events.',
+      hinglish:
+        'Change Streams ek application ko ek collection ya database pe real-time changes SUBSCRIBE karne dete hain, insert, update, delete, aur replace events unke hote hi receive karte hue. Ye oplog pe bane hain aur ek replica set chahte hain. Inki value polling ko replace karna hai: naye rows ke liye baar-baar query karne ke bajaye, tum events receive karte ho, jisse tum live dashboards, cache invalidation, aur notification pipelines banate ho. Ye ek resume token se resumable bhi hain, isliye ek disconnect hua consumer events khone ke bajaye continue kar sakta hai.',
+    },
+  },
+  {
+    question: 'What is GridFS and when do you need it?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'GridFS stores files larger than the 16MB document limit by splitting them into chunks across two collections, allowing streaming and partial reads. It is genuinely useful when you want files inside the database for transactional or operational simplicity. However, for most applications object storage such as S3 is the better choice — it is cheaper, serves files directly via CDN, and keeps large binaries out of your database backups, which otherwise become slow and expensive.',
+      hinglish:
+        'GridFS 16MB document limit se bade files ko do collections ke across chunks mein split karke store karta hai, streaming aur partial reads allow karte hue. Ye tab genuinely useful hai jab tum transactional ya operational simplicity ke liye files database ke andar chahte ho. Halaanki, zyadatar applications ke liye S3 jaisa object storage better choice hai — ye sasta hai, files ko directly CDN se serve karta hai, aur bade binaries ko tumhare database backups se bahar rakhta hai, jo warna slow aur mehnge ho jaate hain.',
+    },
+  },
+  {
+    question: 'What is the bucket pattern in MongoDB?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'The bucket pattern groups many small related documents into a single document holding an array of items — for example one document per sensor per hour containing that hour\'s readings, rather than one document per reading. Benefits: dramatically fewer documents, smaller index sizes, and far faster reads for time-range queries since one fetch returns a whole period. It is the standard approach for time-series and IoT data, and directly addresses the unbounded-array problem by capping each bucket.',
+      hinglish:
+        'Bucket pattern bahut chhote related documents ko ek single document mein group karta hai jo items ka ek array rakhta hai — for example per sensor per hour ek document jisme us hour ki readings hon, per reading ek document ke bajaye. Benefits: dramatically kam documents, chhote index sizes, aur time-range queries ke liye bahut faster reads kyunki ek fetch poora period return karta hai. Ye time-series aur IoT data ke liye standard approach hai, aur har bucket ko cap karke unbounded-array problem ko directly address karta hai.',
+    },
+  },
+  {
+    question: 'How do you model a many-to-many relationship in MongoDB?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Two common approaches. Store an ARRAY OF REFERENCES on one or both sides — a student document holding `courseIds` — which is simple and works well when one side is bounded. Or use a separate JUNCTION collection like a relational database, which is right when the relationship itself has attributes (enrolment date, grade) or when both sides can grow large. Choose based on which side you query from and whether the arrays would grow without bound.',
+      hinglish:
+        'Do common approaches. Ek ya dono sides pe REFERENCES KA ARRAY store karo — ek student document jo `courseIds` rakhta ho — jo simple hai aur tab achha kaam karta hai jab ek side bounded ho. Ya ek relational database ki tarah ek separate JUNCTION collection use karo, jo tab sahi hai jab relationship khud ke attributes hon (enrolment date, grade) ya jab dono sides bade ho sakte hon. Is basis pe choose karo ki tum kis side se query karte ho aur kya arrays bina bound ke badhenge.',
+    },
+  },
+  {
+    question: 'What is the difference between $set and $push?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`$set` assigns a value to a field, replacing whatever was there — using it on an array replaces the ENTIRE array. `$push` appends an element to an array without touching existing items, and supports modifiers such as `$each` for multiple values, `$slice` to cap the array length, and `$sort`. Related operators: `$addToSet` pushes only if the value is not already present, and `$pull` removes matching elements. Reaching for `$set` when you meant `$push` is a common way to silently destroy array data.',
+      hinglish:
+        '`$set` ek field ko ek value assign karta hai, jo bhi wahan tha use replace karte hue — ise ek array pe use karna POORA array replace kar deta hai. `$push` ek element ko ek array mein append karta hai bina existing items ko chhue, aur multiple values ke liye `$each`, array length cap karne ke liye `$slice`, aur `$sort` jaise modifiers support karta hai. Related operators: `$addToSet` sirf tab push karta hai jab value already present na ho, aur `$pull` matching elements hataata hai. `$push` ka matlab hote hue `$set` uthana array data silently destroy karne ka ek common tareeka hai.',
+    },
+  },
+  {
+    question: 'How do you implement pagination in MongoDB?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`skip()` with `limit()` is simplest but degrades badly on deep pages, because MongoDB must walk and discard every skipped document — page 10,000 scans a million records. CURSOR (range) pagination instead filters on the last seen sorted value, such as `{ _id: { $gt: lastId } }`, which uses the index directly and stays fast at any depth. It also avoids the duplicate-and-skip problem that occurs when documents are inserted between page requests, at the cost of no random page access.',
+      hinglish:
+        '`skip()` aur `limit()` sabse simple hai par deep pages pe buri tarah degrade hota hai, kyunki MongoDB ko har skipped document chal kar discard karna padta hai — page 10,000 das lakh records scan karta hai. CURSOR (range) pagination uske bajaye aakhri dekhi sorted value pe filter karta hai, jaise `{ _id: { $gt: lastId } }`, jo index directly use karta hai aur kisi bhi depth pe fast rehta hai. Ye us duplicate-and-skip problem ko bhi avoid karta hai jo page requests ke beech documents insert hone pe hoti hai, random page access na hone ke cost pe.',
+    },
+  },
+  {
+    question: 'What is the working set and why does it matter for MongoDB performance?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'The working set is the portion of data and indexes actively accessed by your queries. MongoDB performs well as long as the working set fits in RAM, because reads are served from memory. Once it exceeds available RAM, the engine must fetch pages from disk, and performance falls off sharply rather than gradually. This is why indexes should be kept lean, why unnecessary indexes are actively harmful, and why "add more RAM" is so often the effective fix for a suddenly slow MongoDB instance.',
+      hinglish:
+        'Working set data aur indexes ka wo hissa hai jise tumhari queries actively access karti hain. MongoDB tab tak achha perform karta hai jab tak working set RAM mein fit ho, kyunki reads memory se serve hoti hain. Available RAM se zyada hone pe, engine ko disk se pages laane padte hain, aur performance gradually ke bajaye sharply girti hai. Isiliye indexes lean rakhne chahiye, isiliye unnecessary indexes actively harmful hain, aur isiliye "zyada RAM add karo" ek achanak slow MongoDB instance ka itni baar effective fix hota hai.',
+    },
+  },
+  {
+    question: 'What are capped collections?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A capped collection has a fixed maximum size and behaves as a circular buffer: once full, the oldest documents are automatically overwritten by new ones. It preserves insertion order and offers very high write throughput. Restrictions: documents cannot be deleted individually, and updates must not increase document size. It suits logs and recent-event buffers where old data is genuinely disposable. The oplog itself is a capped collection, which is why replication lag beyond its window is unrecoverable.',
+      hinglish:
+        'Ek capped collection ka ek fixed maximum size hota hai aur ye ek circular buffer ki tarah behave karta hai: full hone pe, sabse purane documents automatically naye se overwrite ho jaate hain. Ye insertion order preserve karta hai aur bahut high write throughput deta hai. Restrictions: documents individually delete nahi ho sakte, aur updates ko document size nahi badhana chahiye. Ye logs aur recent-event buffers ko suit karta hai jahan purana data genuinely disposable hai. Oplog khud ek capped collection hai, isiliye uske window se aage replication lag unrecoverable hai.',
+    },
+  },
+  {
+    question: 'How do you back up and restore a MongoDB database?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`mongodump`/`mongorestore` produce a logical BSON backup — portable and selective, but slow for very large datasets. Filesystem snapshots are far faster for large deployments but require a consistent snapshot of the data volume. Atlas and enterprise setups offer continuous backup with point-in-time restore built on the oplog. Whichever you use, the essential discipline is testing the RESTORE regularly: an untested backup is an assumption, not a backup, and restore failures are typically discovered at the worst possible moment.',
+      hinglish:
+        '`mongodump`/`mongorestore` ek logical BSON backup produce karte hain — portable aur selective, par bahut bade datasets ke liye slow. Filesystem snapshots bade deployments ke liye bahut faster hain par data volume ka ek consistent snapshot chahte hain. Atlas aur enterprise setups oplog pe bana point-in-time restore ke saath continuous backup dete hain. Jo bhi use karo, essential discipline RESTORE ko regularly test karna hai: ek untested backup ek assumption hai, ek backup nahi, aur restore failures typically sabse bure possible moment pe discover hote hain.',
+    },
+  },
+  {
+    question: 'What is the difference between MongoDB Atlas and self-hosted MongoDB?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'ATLAS is the managed cloud service: it handles provisioning, patching, backups, monitoring, replica-set configuration, and scaling, and adds features such as Atlas Search and Vector Search. SELF-HOSTED gives full control over configuration, version, and placement, and can be cheaper at large scale or where data residency demands it — but you own upgrades, backups, failover testing, and on-call. For most teams Atlas is the correct default, since database operations are genuinely specialised work.',
+      hinglish:
+        'ATLAS managed cloud service hai: ye provisioning, patching, backups, monitoring, replica-set configuration, aur scaling handle karta hai, aur Atlas Search aur Vector Search jaise features add karta hai. SELF-HOSTED configuration, version, aur placement pe full control deta hai, aur bade scale pe ya jahan data residency demand kare wahan sasta ho sakta hai — par upgrades, backups, failover testing, aur on-call tumhare hain. Zyadatar teams ke liye Atlas correct default hai, kyunki database operations genuinely specialised kaam hai.',
+    },
+  },
+  {
+    question: 'How do you enforce schema validation in MongoDB?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Two layers. In the APPLICATION, Mongoose schemas define types, required fields, defaults, and custom validators — convenient, but they only apply to writes that go through Mongoose. In the DATABASE, MongoDB supports JSON Schema validation rules attached to a collection, which apply to EVERY writer including scripts, other services, and manual shell operations. Relying only on the application layer means the first admin script or second service silently introduces malformed documents.',
+      hinglish:
+        'Do layers. APPLICATION mein, Mongoose schemas types, required fields, defaults, aur custom validators define karte hain — convenient, par wo sirf un writes pe apply hote hain jo Mongoose se guzarte hain. DATABASE mein, MongoDB ek collection se attached JSON Schema validation rules support karta hai, jo HAR writer pe apply hote hain including scripts, doosri services, aur manual shell operations. Sirf application layer pe rely karna matlab pehla admin script ya doosri service silently malformed documents le aati hai.',
+    },
+  },
+  {
+    question: 'What is connection pooling in the MongoDB driver?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The driver maintains a POOL of reusable TCP connections rather than opening one per query, since handshake and authentication are expensive. `maxPoolSize` (default 100) caps concurrent operations per instance — set too low, requests queue and latency rises; set too high, you exhaust the server\'s connection limit. The practical rule is to create ONE client for the entire application lifetime and reuse it, rather than connecting per request, which is a very common and very costly mistake in serverless code.',
+      hinglish:
+        'Driver per query ek connection kholne ke bajaye reusable TCP connections ka ek POOL maintain karta hai, kyunki handshake aur authentication mehnge hain. `maxPoolSize` (default 100) per instance concurrent operations cap karta hai — bahut kam set karo to requests queue hoti hain aur latency badhti hai; bahut zyada set karo to tum server ki connection limit khatam kar dete ho. Practical rule ye hai ki poori application lifetime ke liye EK client banao aur reuse karo, per request connect karne ke bajaye, jo serverless code mein ek bahut common aur bahut mehngi mistake hai.',
+    },
+  },
+  {
+    question: 'How do you handle concurrent updates safely in MongoDB?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Prefer ATOMIC operators over read-modify-write: `$inc` on a counter is safe under concurrency, while reading a value, adding one in JavaScript, and saving it loses updates when two requests interleave. For conditional updates, put the expected state in the FILTER — `findOneAndUpdate({ _id, version: 3 }, { $set: {...}, $inc: { version: 1 } })` — which is optimistic locking: if another writer got there first, nothing matches and you can retry. Reserve real transactions for changes spanning multiple documents.',
+      hinglish:
+        'Read-modify-write ke bajaye ATOMIC operators prefer karo: ek counter pe `$inc` concurrency mein safe hai, jabki ek value padhna, JavaScript mein ek jodna, aur save karna do requests interleave hone pe updates kho deta hai. Conditional updates ke liye, expected state FILTER mein daalo — `findOneAndUpdate({ _id, version: 3 }, { $set: {...}, $inc: { version: 1 } })` — jo optimistic locking hai: agar doosra writer pehle pahunch gaya, kuch match nahi hoga aur tum retry kar sakte ho. Real transactions ko multiple documents pe faile changes ke liye reserve rakho.',
+    },
+  },
 ];
 
 export const curriculum = [...beginner, ...intermediate, ...advanced];
