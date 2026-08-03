@@ -75,7 +75,7 @@ const beginner = [
           {
             question: 'What is the difference between Git and GitHub?',
             difficulty: 'easy',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Git is a free, open-source version control system that runs locally on your machine and tracks changes to files. GitHub is a cloud hosting platform for Git repositories that adds collaboration features: pull requests, issues, code review, Actions (CI/CD), and a web UI. You can use Git without GitHub (e.g. with GitLab, Bitbucket, or just locally).',
@@ -187,7 +187,7 @@ const beginner = [
           {
             question: 'What is the difference between git merge and git rebase?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 '`git merge` creates a merge commit that joins two branch histories — history shows the divergence and join. `git rebase` moves (replays) your commits onto the tip of another branch, creating a linear history as if you branched off the latest point. Merge is non-destructive and safer for shared branches. Rebase gives cleaner history but rewrites commits — never rebase shared/public branches.',
@@ -331,7 +331,7 @@ const intermediate = [
           {
             question: 'Explain the GitHub pull request workflow.',
             difficulty: 'easy',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 '1. Fork or clone the repo. 2. Create a feature branch (git checkout -b feature/x). 3. Make commits on the branch. 4. Push the branch to GitHub (git push -u origin feature/x). 5. Open a Pull Request on GitHub from your branch to main/develop. 6. Team reviews, requests changes, approves. 7. Merge the PR into the target branch. 8. Delete the feature branch. This protects main from direct pushes and enables code review.',
@@ -526,7 +526,7 @@ const advanced = [
           {
             question: 'What is the difference between git reset and git revert?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 '`git reset` moves the HEAD and branch pointer backwards, rewriting history — changes after the reset point are gone (or unstaged). Safe only on local/private branches. `git revert` creates a new commit that applies the inverse of the target commit — history is preserved. Safe on shared branches because it doesn\'t rewrite. Rule: use revert for anything already pushed.',
@@ -552,6 +552,503 @@ export const generalInterviewQuestions = [
         'Popular strategies: (1) GitHub Flow — one main branch, short-lived feature branches merged via PRs; simple and works for CI/CD. (2) Gitflow — main + develop + feature/release/hotfix branches; more structure for scheduled releases. For most web apps with continuous deployment, GitHub Flow is simpler and sufficient. Key rule: never commit directly to main; always use feature branches and PRs for code review.',
       hinglish:
         'Popular strategies: (1) GitHub Flow — ek main branch, short-lived feature branches PRs ke through merge; simple aur CI/CD ke liye kaam karta hai. (2) Gitflow — main + develop + feature/release/hotfix branches; scheduled releases ke liye zyada structure. Zyaadatar continuous deployment wale web apps ke liye GitHub Flow simpler aur sufficient hai. Key rule: main pe directly commit mat karo; code review ke liye hamesha feature branches aur PRs use karo.',
+    },
+  },
+
+  // ─── Git Internals & Core Concepts ──────────────────────────
+  {
+    question: 'What are the three areas in Git and how does a change move between them?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'The WORKING DIRECTORY holds your actual files. The STAGING AREA (index) holds the snapshot you are preparing to commit. The REPOSITORY holds committed history. `git add` moves changes from working directory to staging, `git commit` moves staging to repository, and `git checkout`/`git restore` moves content back the other way. The staging area is what lets you commit only PART of your changes, which is why you can split messy work into clean, focused commits.',
+      hinglish:
+        'WORKING DIRECTORY tumhari asli files rakhti hai. STAGING AREA (index) wo snapshot rakhta hai jo tum commit karne ki taiyari kar rahe ho. REPOSITORY committed history rakhta hai. `git add` changes ko working directory se staging mein le jaata hai, `git commit` staging se repository mein, aur `git checkout`/`git restore` content ko wapas doosri taraf. Staging area hi tumhe apne changes ka sirf ek HISSA commit karne deta hai, isiliye tum bikhre kaam ko clean, focused commits mein baant sakte ho.',
+    },
+  },
+  {
+    question: 'What is a commit, internally?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A commit is an immutable object containing a pointer to a TREE (the full snapshot of your project at that moment), pointers to one or more PARENT commits, the author and committer with timestamps, and the message. Its SHA-1 hash is computed from all of that, so changing anything — even a timestamp — produces a different hash and therefore a different commit. This is why rewriting history changes every descendant commit\'s hash, and why Git can detect corruption.',
+      hinglish:
+        'Ek commit ek immutable object hai jisme ek TREE ka pointer hai (us pal tumhare project ka poora snapshot), ek ya zyada PARENT commits ke pointers, timestamps ke saath author aur committer, aur message. Uska SHA-1 hash us sab se compute hota hai, isliye kuch bhi badalna — ek timestamp bhi — ek alag hash aur isliye ek alag commit banata hai. Isiliye history rewrite karna har descendant commit ka hash badalta hai, aur isiliye Git corruption detect kar sakta hai.',
+    },
+  },
+  {
+    question: 'What is a branch in Git, really?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A branch is simply a movable POINTER to a commit — a file containing 40 characters. That is why creating a branch is instant and costs almost nothing, unlike in older version control systems where it meant copying a directory tree. Committing moves the pointer forward; `HEAD` is a pointer to the branch you currently have checked out. Understanding this makes most confusing Git operations obvious: they are just moving pointers around a commit graph.',
+      hinglish:
+        'Ek branch bas ek commit ka ek movable POINTER hai — ek file jisme 40 characters hain. Isiliye ek branch banana instant hai aur almost kuch cost nahi karta, purane version control systems ke ulat jahan iska matlab ek directory tree copy karna tha. Commit karna pointer ko aage badhata hai; `HEAD` us branch ka pointer hai jo tumne abhi checkout ki hui hai. Ye samajhna zyadatar confusing Git operations ko obvious bana deta hai: wo bas ek commit graph ke around pointers hila rahe hain.',
+    },
+  },
+  {
+    question: 'What is the difference between merge and rebase?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'MERGE creates a new commit joining two histories, preserving exactly what happened including the branch structure. REBASE replays your commits on top of another branch, producing a linear history but creating NEW commits with different hashes. Merge is safe and honest; rebase is cleaner to read. The essential rule: never rebase commits that others have already pulled, because rewriting shared history forces everyone else into a painful recovery.',
+      hinglish:
+        'MERGE do histories ko jodta ek naya commit banata hai, bilkul wahi preserve karte hue jo hua including branch structure. REBASE tumhare commits ko ek doosri branch ke upar replay karta hai, ek linear history banate hue par alag hashes ke saath NAYE commits banate hue. Merge safe aur honest hai; rebase padhne mein cleaner hai. Zaroori rule: un commits ko kabhi rebase mat karo jo doosre pehle hi pull kar chuke hain, kyunki shared history rewrite karna baaki sabko ek dukhdayi recovery mein dhakel deta hai.',
+    },
+  },
+  {
+    question: 'What is a fast-forward merge?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'When the target branch has no commits of its own since you branched off, Git can simply MOVE its pointer forward to your commit — no merge commit is needed because there is nothing to reconcile. That is a fast-forward. Use `--no-ff` to force a merge commit anyway, which preserves the fact that a feature branch existed and makes it easy to revert the whole feature as one unit. Teams differ on which they prefer, and both are defensible.',
+      hinglish:
+        'Jab target branch pe tumhare branch karne ke baad se apna koi commit na ho, Git bas uska pointer tumhare commit tak AAGE badha sakta hai — koi merge commit nahi chahiye kyunki reconcile karne ko kuch hai hi nahi. Wahi fast-forward hai. Phir bhi ek merge commit force karne ke liye `--no-ff` use karo, jo ye baat preserve karta hai ki ek feature branch thi aur poore feature ko ek unit ki tarah revert karna easy banata hai. Teams ki pasand alag hoti hai, aur dono defensible hain.',
+    },
+  },
+  {
+    question: 'What is the difference between git reset --soft, --mixed, and --hard?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'All three move the branch pointer to the target commit; they differ in what they do to your files. `--soft` leaves changes STAGED, which is how you squash several commits into one. `--mixed` (the default) unstages them but keeps them in your working directory. `--hard` discards them entirely — this is the one that destroys work, and the only recovery is `git reflog`. Reason about it as "how far back do I want the changes to travel: staging, working directory, or gone".',
+      hinglish:
+        'Teeno branch pointer ko target commit pe le jaate hain; farak ye hai ki wo tumhari files ka kya karte hain. `--soft` changes ko STAGED chhod deta hai, jisse tum kai commits ko ek mein squash karte ho. `--mixed` (default) unhe unstage karta hai par tumhari working directory mein rakhta hai. `--hard` unhe poori tarah mita deta hai — yahi wo hai jo kaam barbaad karta hai, aur ek hi recovery hai `git reflog`. Ise aise socho: "main changes ko kitna peeche bhejna chahta hoon: staging, working directory, ya gayab".',
+    },
+  },
+  {
+    question: 'What is the difference between git reset and git revert?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'RESET rewrites history by moving the branch pointer backwards, so the commits effectively disappear — safe only on local, unpushed work. REVERT creates a NEW commit that undoes a previous one, leaving history intact. On any shared branch, revert is the correct tool: it is non-destructive, it works for everyone who already pulled, and the record shows both the mistake and the fix, which is usually what you want in a team.',
+      hinglish:
+        'RESET branch pointer ko peeche le jaakar history rewrite karta hai, isliye commits effectively gayab ho jaate hain — sirf local, unpushed kaam pe safe. REVERT ek NAYA commit banata hai jo ek pichhle ko undo karta hai, history bachate hue. Kisi bhi shared branch pe, revert sahi tool hai: ye non-destructive hai, ye un sabke liye kaam karta hai jo pehle hi pull kar chuke hain, aur record galti aur fix dono dikhata hai, jo ek team mein usually tum chahte ho.',
+    },
+  },
+  {
+    question: 'What is git reflog and when has it saved you?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The reflog records every position `HEAD` has held locally — every checkout, commit, reset, rebase, and merge — even for commits no branch points to any more. That makes it the recovery tool for "I did a hard reset and lost my work" or "my rebase went wrong": find the previous hash in `git reflog` and `git reset --hard` back to it. It is local-only and expires after roughly 90 days by default, but within that window almost nothing is truly lost.',
+      hinglish:
+        'Reflog har us position ko record karta hai jo `HEAD` ne locally rakhi — har checkout, commit, reset, rebase, aur merge — un commits ke liye bhi jinpe ab koi branch point nahi karti. Isliye ye "maine ek hard reset kiya aur apna kaam kho diya" ya "mera rebase galat ho gaya" ka recovery tool hai: `git reflog` mein pichhla hash dhoondho aur `git reset --hard` se wapas jao. Ye sirf local hai aur default se lagbhag 90 din mein expire hota hai, par us window ke andar almost kuch bhi sach mein nahi khota.',
+    },
+  },
+  {
+    question: 'How do you resolve a merge conflict?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Git marks conflicting regions with `<<<<<<<`, `=======`, and `>>>>>>>`, showing your version and theirs. Open each file, decide what the code SHOULD be — often a combination rather than picking one side — remove the markers, then `git add` the file and continue the merge or rebase. The parts people skip and regret: actually running the tests afterwards, and reading both sides properly instead of blindly taking one. `git merge --abort` gets you back to safety at any point.',
+      hinglish:
+        'Git conflicting regions ko `<<<<<<<`, `=======`, aur `>>>>>>>` se mark karta hai, tumhara version aur unka dikhate hue. Har file kholo, decide karo ki code kya HONA chahiye — aksar ek side chunne ke bajaye ek combination — markers hatao, phir file `git add` karke merge ya rebase continue karo. Jo hisse log skip karke pachhtate hain: baad mein tests actually chalana, aur aankh band karke ek side lene ke bajaye dono sides theek se padhna. `git merge --abort` tumhe kisi bhi point pe wapas safety mein le aata hai.',
+    },
+  },
+  {
+    question: 'What is git stash and when do you use it?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Stash saves your uncommitted changes onto a stack and cleans the working directory, so you can switch branches or pull without committing half-finished work. `git stash pop` reapplies and removes the entry; `apply` reapplies but keeps it. Points people miss: untracked files need `-u`, stashes are not pushed anywhere so they are lost if you lose the machine, and an unlabeled stash from three weeks ago is unidentifiable — use `git stash push -m "message"`.',
+      hinglish:
+        'Stash tumhare uncommitted changes ko ek stack pe save karke working directory saaf kar deta hai, taaki tum aadha-adhoora kaam commit kiye bina branches switch ya pull kar sako. `git stash pop` dobara apply karke entry hata deta hai; `apply` dobara apply karta hai par use rakhta hai. Jo points log chhod dete hain: untracked files ko `-u` chahiye, stashes kahin push nahi hote isliye machine khone pe wo gaye, aur teen hafte purana ek unlabeled stash pehchanne layak nahi hota — `git stash push -m "message"` use karo.',
+    },
+  },
+  {
+    question: 'What is git cherry-pick and when is it appropriate?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Cherry-pick applies a SPECIFIC commit from one branch onto another, creating a new commit with the same changes but a different hash. It is right for backporting a hotfix to a release branch, or rescuing one commit made on the wrong branch. It is wrong as a routine substitute for merging, because the same change then exists twice in history under different hashes, which causes confusing conflicts when the branches eventually merge.',
+      hinglish:
+        'Cherry-pick ek branch se ek KHAAS commit doosri pe apply karta hai, wahi changes par alag hash ke saath ek naya commit banate hue. Ye ek hotfix ko ek release branch pe backport karne, ya galat branch pe kiya ek commit bachane ke liye sahi hai. Ye merging ke ek routine substitute ke roop mein galat hai, kyunki phir wahi change history mein do baar alag hashes ke neeche exist karta hai, jo branches ke aakhir mein merge hone pe confusing conflicts banata hai.',
+    },
+  },
+  {
+    question: 'What is an interactive rebase and what can you do with it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`git rebase -i` opens an editor listing commits, letting you `reword` messages, `squash` or `fixup` commits together, `edit` a commit to change its content, `drop` one entirely, or reorder them. It is how you turn a messy sequence of "wip", "fix typo", "actually fix it" into a clean, reviewable history before opening a PR. Because it rewrites hashes, restrict it to commits you have not pushed, or to a branch only you are working on.',
+      hinglish:
+        '`git rebase -i` commits ki list wala ek editor kholta hai, tumhe messages `reword` karne, commits ko `squash` ya `fixup` karne, content badalne ke liye ek commit `edit` karne, ek ko poori tarah `drop` karne, ya unhe reorder karne deta hai. Isi se tum "wip", "fix typo", "actually fix it" ke ek bikhre sequence ko ek PR kholne se pehle ek clean, reviewable history mein badalte ho. Kyunki ye hashes rewrite karta hai, ise un commits tak seemit rakho jo tumne push nahi kiye, ya ek aisi branch tak jispe sirf tum kaam kar rahe ho.',
+    },
+  },
+  {
+    question: 'What does git rebase --onto do?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`git rebase --onto newBase oldBase branch` replays only the commits between `oldBase` and `branch` onto `newBase`. It is the tool for transplanting a branch that was accidentally created from the wrong parent, or for extracting a feature that was built on top of another unmerged feature. It is genuinely the hardest common Git command to reason about, and the reliable approach is to draw the commit graph and identify exactly which range you want to move.',
+      hinglish:
+        '`git rebase --onto newBase oldBase branch` sirf `oldBase` aur `branch` ke beech ke commits ko `newBase` pe replay karta hai. Ye us branch ko transplant karne ka tool hai jo galti se galat parent se bani, ya ek aise feature ko nikaalne ka jo ek doosre unmerged feature ke upar bana tha. Ye genuinely sabse mushkil common Git command hai samajhne mein, aur reliable approach commit graph banana aur theek se pehchanana hai ki tum kaunsi range hilana chahte ho.',
+    },
+  },
+  {
+    question: 'What is the difference between git fetch and git pull?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`fetch` downloads new commits from the remote and updates your remote-tracking branches, but does NOT touch your working branch — nothing in your files changes. `pull` is `fetch` followed immediately by `merge` (or `rebase` with `--rebase`). Fetching first is the safer habit: you can inspect what changed with `git log HEAD..origin/main` before deciding how to integrate it, rather than being dropped into a conflict unexpectedly.',
+      hinglish:
+        '`fetch` remote se naye commits download karke tumhari remote-tracking branches update karta hai, par tumhari working branch ko NAHI chhoota — tumhari files mein kuch nahi badalta. `pull` `fetch` hai jiske turant baad `merge` (ya `--rebase` ke saath `rebase`). Pehle fetch karna surakshit aadat hai: tum `git log HEAD..origin/main` se dekh sakte ho ki kya badla, phir decide karo ki kaise integrate karna hai, achanak ek conflict mein girne ke bajaye.',
+    },
+  },
+  {
+    question: 'What is a detached HEAD state?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Normally `HEAD` points to a branch, which points to a commit. When you check out a commit hash or tag directly, `HEAD` points straight at the commit with no branch attached — detached. You can look around and even commit, but those commits belong to no branch, so checking out anything else leaves them unreachable and eventually garbage collected. The fix if you did work there is `git switch -c new-branch` before leaving, or `git reflog` to recover afterwards.',
+      hinglish:
+        'Normally `HEAD` ek branch pe point karta hai, jo ek commit pe point karti hai. Jab tum ek commit hash ya tag seedha checkout karte ho, `HEAD` bina kisi branch ke seedha commit pe point karta hai — detached. Tum dekh sakte ho aur commit bhi kar sakte ho, par wo commits kisi branch ke nahi hain, isliye kuch aur checkout karna unhe unreachable chhod deta hai aur aakhir mein garbage collect ho jaate hain. Agar tumne wahan kaam kiya to fix hai nikalne se pehle `git switch -c new-branch`, ya baad mein recover karne ke liye `git reflog`.',
+    },
+  },
+  {
+    question: 'What is the difference between git switch, git restore, and git checkout?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`git checkout` historically did two unrelated jobs — switching branches and discarding file changes — which made it confusing and dangerous, since a typo could silently destroy work. Git 2.23 split it: `git switch` changes branches, and `git restore` restores file contents. The split matters because the intent is now explicit in the command name, and `restore` is clearly the destructive one. `checkout` still works for backward compatibility.',
+      hinglish:
+        '`git checkout` historically do alag kaam karta tha — branches switch karna aur file changes mitana — jisne ise confusing aur khatarnak banaya, kyunki ek typo chupke se kaam barbaad kar sakta tha. Git 2.23 ne ise baanta: `git switch` branches badalta hai, aur `git restore` file contents restore karta hai. Ye baant isliye matter karta hai kyunki intent ab command ke naam mein explicit hai, aur `restore` saaf taur pe destructive wala hai. `checkout` backward compatibility ke liye abhi bhi kaam karta hai.',
+    },
+  },
+  {
+    question: 'What is a .gitignore file and what if a file is already tracked?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`.gitignore` lists patterns Git should not track — `node_modules`, build output, `.env`, editor files. The catch that surprises everyone: gitignore only affects UNTRACKED files, so adding a pattern for something already committed does nothing. You must run `git rm --cached <file>` to stop tracking it. And if a secret was ever committed, removing it from the latest commit is not enough — it remains in history, so the key must be rotated.',
+      hinglish:
+        '`.gitignore` un patterns ki list hai jinhe Git track na kare — `node_modules`, build output, `.env`, editor files. Wo catch jo sabko chaunkata hai: gitignore sirf UNTRACKED files ko affect karta hai, isliye pehle se commit ki gayi kisi cheez ke liye ek pattern add karna kuch nahi karta. Use track karna band karne ke liye tumhe `git rm --cached <file>` chalana padega. Aur agar ek secret kabhi commit hua, use aakhri commit se hataana kaafi nahi — wo history mein rehta hai, isliye key rotate karni hi padegi.',
+    },
+  },
+  {
+    question: 'How do you remove a secret that was accidentally committed?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'First and most importantly, ROTATE the credential — assume it is compromised, because it may already be cloned, cached, or indexed. Then remove it from history with `git filter-repo` (or BFG); `filter-branch` is deprecated and slow. Force-push the rewritten history and have every collaborator re-clone, since rewriting shared history breaks their local copies. Then add it to `.gitignore` and ideally install a pre-commit secret scanner so it cannot recur.',
+      hinglish:
+        'Sabse pehle aur sabse zaroori, credential ROTATE karo — maan lo wo compromised hai, kyunki wo pehle hi clone, cache, ya index ho chuka ho sakta hai. Phir use `git filter-repo` (ya BFG) se history se hatao; `filter-branch` deprecated aur slow hai. Rewritten history force-push karo aur har collaborator se dobara clone karwao, kyunki shared history rewrite karna unki local copies todta hai. Phir use `.gitignore` mein add karo aur ideally ek pre-commit secret scanner lagao taaki ye dobara na ho.',
+    },
+  },
+  {
+    question: 'What is git bisect and how do you use it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Bisect finds the commit that introduced a bug using BINARY SEARCH over history. You mark a known-good commit and a known-bad one, and Git checks out the midpoint repeatedly, narrowing by half each time — a thousand commits takes about ten tests. If you have a script that exits non-zero on failure, `git bisect run ./test.sh` automates the whole thing. It turns "when did this break?" from an afternoon of guessing into a few minutes of mechanical work.',
+      hinglish:
+        'Bisect us commit ko dhoondhta hai jisne ek bug laaya, history pe BINARY SEARCH se. Tum ek known-good commit aur ek known-bad mark karte ho, aur Git baar-baar midpoint checkout karta hai, har baar aadha kam karte hue — ek hazaar commits mein lagbhag das tests. Agar tumhare paas ek aisa script hai jo failure pe non-zero exit kare, `git bisect run ./test.sh` poori cheez automate kar deta hai. Ye "ye kab toota?" ko ek dopahar ke andaaze se kuch minute ke mechanical kaam mein badal deta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between a lightweight and an annotated tag?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A LIGHTWEIGHT tag is just a pointer to a commit, like a branch that does not move. An ANNOTATED tag (`git tag -a`) is a full object storing the tagger, date, a message, and optionally a GPG signature. Releases should always use annotated tags, because that metadata is what tells you who cut the release and when, and signing lets consumers verify authenticity. Also remember tags are not pushed by default — you need `git push --tags` or push the tag by name.',
+      hinglish:
+        'Ek LIGHTWEIGHT tag bas ek commit ka pointer hai, ek aisi branch ki tarah jo hilti nahi. Ek ANNOTATED tag (`git tag -a`) ek poora object hai jo tagger, date, ek message, aur optionally ek GPG signature store karta hai. Releases ko hamesha annotated tags use karne chahiye, kyunki wahi metadata batata hai ki release kisne kaata aur kab, aur signing consumers ko authenticity verify karne deta hai. Ye bhi yaad rakho ki tags default se push nahi hote — tumhe `git push --tags` chahiye ya tag ko naam se push karna hoga.',
+    },
+  },
+  {
+    question: 'What is a fork versus a clone?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A FORK is a server-side copy of a repository under your own account — a GitHub concept, not a Git one. A CLONE is a local copy on your machine, which Git itself provides. You fork when you lack write access to the original and want to contribute via pull requests; you clone whatever repository you intend to work in. The usual open-source flow is fork, clone your fork, add the original as an `upstream` remote to stay in sync, then open a PR.',
+      hinglish:
+        'Ek FORK ek repository ki server-side copy hai tumhare apne account ke neeche — ek GitHub concept, Git ka nahi. Ek CLONE tumhari machine pe ek local copy hai, jo Git khud deta hai. Tum tab fork karte ho jab tumhare paas original pe write access na ho aur tum pull requests se contribute karna chaho; tum us repository ko clone karte ho jisme kaam karna hai. Usual open-source flow hai fork karo, apna fork clone karo, sync mein rehne ke liye original ko ek `upstream` remote add karo, phir ek PR kholo.',
+    },
+  },
+  {
+    question: 'What makes a good commit message?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A short imperative subject line under about fifty characters — "Fix null check in auth middleware", not "fixed stuff" — then a blank line, then a body explaining WHY the change was made, since the diff already shows what. Reference the issue or ticket. The reason this matters is that six months later `git log` and `git blame` are the only record of intent, and "why" is exactly the thing nobody can reconstruct from the code alone.',
+      hinglish:
+        'Ek chhoti imperative subject line lagbhag pachaas characters ke andar — "Fix null check in auth middleware", "fixed stuff" nahi — phir ek blank line, phir ek body jo bataye ki change KYUN kiya, kyunki diff pehle hi dikhata hai ki kya. Issue ya ticket reference karo. Ye isliye matter karta hai kyunki chheh mahine baad `git log` aur `git blame` hi intent ka ekmatr record hain, aur "kyun" theek wahi cheez hai jise koi sirf code se dobara nahi bana sakta.',
+    },
+  },
+  {
+    question: 'What are conventional commits?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A convention where the subject line starts with a type and optional scope: `feat(auth): add refresh tokens`, `fix:`, `docs:`, `refactor:`, `chore:`, and `feat!:` or a `BREAKING CHANGE` footer for breaking changes. The practical payoff is automation — tools can derive the semantic version bump and generate a changelog directly from history. Even without automation it makes `git log` scannable, since you can see at a glance what kind of change each commit was.',
+      hinglish:
+        'Ek convention jahan subject line ek type aur optional scope se shuru hoti hai: `feat(auth): add refresh tokens`, `fix:`, `docs:`, `refactor:`, `chore:`, aur breaking changes ke liye `feat!:` ya ek `BREAKING CHANGE` footer. Practical faayda automation hai — tools semantic version bump derive karke seedha history se ek changelog bana sakte hain. Automation ke bina bhi ye `git log` ko scannable banata hai, kyunki tum ek nazar mein dekh sakte ho ki har commit kis tarah ka change tha.',
+    },
+  },
+  {
+    question: 'What is the difference between squash merge, merge commit, and rebase merge on GitHub?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'SQUASH collapses the whole PR into one commit on main — the cleanest history and the easiest to revert, but individual commits and their messages are lost. MERGE COMMIT preserves every commit plus a merge commit, keeping full detail at the cost of a busier graph. REBASE replays each commit onto main linearly, keeping them separate without a merge commit but rewriting hashes. Most teams pick squash for feature branches because the PR, not the commit, is the meaningful unit of change.',
+      hinglish:
+        'SQUASH poore PR ko main pe ek commit mein samet deta hai — sabse clean history aur revert karne mein sabse easy, par individual commits aur unke messages kho jaate hain. MERGE COMMIT har commit plus ek merge commit rakhta hai, ek zyada bhare graph ke cost pe poora detail rakhte hue. REBASE har commit ko main pe linearly replay karta hai, unhe bina merge commit ke alag rakhte hue par hashes rewrite karte hue. Zyadatar teams feature branches ke liye squash chunti hain kyunki PR, commit nahi, change ki meaningful unit hai.',
+    },
+  },
+  {
+    question: 'What is git blame and how do you use it well?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`git blame` shows which commit and author last changed each LINE of a file, so you can find the reasoning behind a puzzling line. Used well it is an archaeology tool, not an accusation tool. The common frustration is that a formatting or rename commit hides the real author — use `-w` to ignore whitespace, `-C` to follow code moved between files, and `git log -S "text"` to find when a specific string entered or left the codebase.',
+      hinglish:
+        '`git blame` dikhata hai ki ek file ki har LINE ko aakhri baar kaunse commit aur author ne badla, taaki tum ek uljhane wali line ke peeche ki wajah dhoondh sako. Achhe se use karne pe ye ek archaeology tool hai, ek ilzaam lagane ka tool nahi. Common frustration ye hai ki ek formatting ya rename commit asli author chhupa deta hai — whitespace ignore karne ke liye `-w`, files ke beech hile code ko follow karne ke liye `-C`, aur ye dhoondhne ke liye ki ek khaas string kab codebase mein aayi ya gayi `git log -S "text"` use karo.',
+    },
+  },
+  {
+    question: 'What are Git hooks and what are they used for?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Hooks are scripts Git runs at points in its lifecycle: `pre-commit` for linting and formatting, `commit-msg` for enforcing a message convention, `pre-push` for running tests. They catch problems before they reach CI. Two practical notes: hooks live in `.git/hooks` and are NOT committed, so teams use Husky or lefthook to share them; and they must stay fast, because a slow pre-commit hook is a hook developers start bypassing with `--no-verify`.',
+      hinglish:
+        'Hooks wo scripts hain jo Git apni lifecycle ke points pe chalata hai: linting aur formatting ke liye `pre-commit`, ek message convention enforce karne ke liye `commit-msg`, tests chalane ke liye `pre-push`. Ye problems ko CI tak pahunchne se pehle pakadte hain. Do practical notes: hooks `.git/hooks` mein rehte hain aur commit NAHI hote, isliye teams unhe share karne ke liye Husky ya lefthook use karti hain; aur unhe fast rehna chahiye, kyunki ek slow pre-commit hook wo hook hai jise developers `--no-verify` se bypass karna shuru kar dete hain.',
+    },
+  },
+  {
+    question: 'What is a Git submodule and what are its problems?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A submodule embeds another repository at a fixed COMMIT inside yours, keeping their histories separate. It genuinely works for vendoring a dependency you also develop. Its problems are well known: clones need `--recurse-submodules` or arrive empty, the pinned commit is easy to forget to update, branch switching does not update submodules automatically, and the whole workflow surprises people repeatedly. Package managers, monorepo tooling, or `git subtree` are usually better answers.',
+      hinglish:
+        'Ek submodule doosri repository ko tumhari ke andar ek fixed COMMIT pe embed karta hai, unki histories alag rakhte hue. Ye ek aisi dependency vendor karne ke liye genuinely kaam karta hai jise tum develop bhi karte ho. Iski problems mashhoor hain: clones ko `--recurse-submodules` chahiye warna khaali aate hain, pinned commit update karna bhool jaana easy hai, branch switching submodules ko automatically update nahi karti, aur poora workflow logon ko baar-baar chaunkata hai. Package managers, monorepo tooling, ya `git subtree` usually better jawab hain.',
+    },
+  },
+  {
+    question: 'What is git worktree?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`git worktree add` checks out an additional branch into a SEPARATE directory sharing the same repository and object store. That lets you have main and a feature branch open simultaneously without stashing, switching, or re-running a full install. It is ideal for reviewing a PR while your own work stays untouched, or running a long build on one branch while editing another. It is far lighter than a second clone since the object database is shared.',
+      hinglish:
+        '`git worktree add` ek additional branch ko ek ALAG directory mein checkout karta hai jo wahi repository aur object store share karti hai. Isse tum main aur ek feature branch ek saath khuli rakh sakte ho bina stash, switch, ya ek poora install dobara chalaye. Ye ek PR review karne ke liye ideal hai jabki tumhara apna kaam achhoota rehta hai, ya ek branch pe ek lamba build chalane ke liye jabki doosri edit kar rahe ho. Ye ek doosre clone se bahut halka hai kyunki object database shared hai.',
+    },
+  },
+  {
+    question: 'How do you undo the last commit?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'It depends on what you want. To fix the message or add a forgotten file, `git commit --amend`. To undo the commit but keep the changes staged, `git reset --soft HEAD~1`. To keep them only in the working directory, `git reset HEAD~1`. To discard them entirely, `git reset --hard HEAD~1`. And if the commit is already PUSHED to a shared branch, use `git revert HEAD` instead — all the others rewrite history and will break things for everyone else.',
+      hinglish:
+        'Ye is pe depend karta hai ki tum kya chahte ho. Message theek karne ya ek bhooli file add karne ke liye, `git commit --amend`. Commit undo karne par changes staged rakhne ke liye, `git reset --soft HEAD~1`. Unhe sirf working directory mein rakhne ke liye, `git reset HEAD~1`. Unhe poori tarah mitane ke liye, `git reset --hard HEAD~1`. Aur agar commit ek shared branch pe PUSH ho chuka hai, uske bajaye `git revert HEAD` use karo — baaki sab history rewrite karte hain aur baaki sabke liye cheezein todenge.',
+    },
+  },
+  {
+    question: 'What does git push --force-with-lease do and why is it safer?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Plain `--force` overwrites the remote branch unconditionally, so if a teammate pushed while you were rebasing, their commits vanish. `--force-with-lease` first checks that the remote is still at the commit you last saw; if someone else pushed, it REFUSES. It gives you the history rewrite you want while protecting against silently destroying work you never knew existed. Make it your default — the plain `--force` habit is how teams lose commits.',
+      hinglish:
+        'Plain `--force` remote branch ko bina shart overwrite karta hai, isliye agar ek teammate ne tumhare rebase karte waqt push kiya, unke commits gayab ho jaate hain. `--force-with-lease` pehle check karta hai ki remote abhi bhi us commit pe hai jo tumne aakhri baar dekha tha; agar kisi aur ne push kiya, ye MANA kar deta hai. Ye tumhe wo history rewrite deta hai jo tum chahte ho jabki us kaam ko silently barbaad hone se bachata hai jiske baare mein tum jaante hi nahi the. Ise apna default banao — plain `--force` ki aadat se hi teams commits khoti hain.',
+    },
+  },
+  {
+    question: 'What is the difference between HEAD, HEAD~1, and HEAD^2?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`HEAD` is your current commit. `~` walks back through FIRST parents, so `HEAD~2` is two commits back along the main line. `^` selects among PARENTS of a merge commit: `HEAD^1` is the first parent (the branch you merged into) and `HEAD^2` is the second (the branch merged in). The distinction only matters at merge commits, which is exactly where people get confused — and it is why `git revert` of a merge needs `-m 1` to say which parent is "mainline".',
+      hinglish:
+        '`HEAD` tumhara current commit hai. `~` PEHLE parents se peeche chalta hai, isliye `HEAD~2` main line pe do commits peeche hai. `^` ek merge commit ke PARENTS mein se chunta hai: `HEAD^1` pehla parent hai (wo branch jisme tumne merge kiya) aur `HEAD^2` doosra (wo branch jo merge hui). Ye farak sirf merge commits pe matter karta hai, jahan theek log confuse hote hain — aur isiliye ek merge ke `git revert` ko `-m 1` chahiye ye batane ke liye ki kaunsa parent "mainline" hai.',
+    },
+  },
+  {
+    question: 'How do you revert a merge commit?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'You need `git revert -m 1 <merge-hash>`, because a merge has two parents and Git cannot guess which one represents "the mainline you want to keep". `-m 1` means the first parent. The subtle trap: reverting a merge tells Git those changes are unwanted, so simply merging the same branch again later brings in nothing. To re-land it you must revert the revert, or rebuild the branch — a genuine source of confusion in real teams.',
+      hinglish:
+        'Tumhe `git revert -m 1 <merge-hash>` chahiye, kyunki ek merge ke do parents hote hain aur Git andaaza nahi laga sakta ki kaunsa "wo mainline jo tum rakhna chahte ho" hai. `-m 1` matlab pehla parent. Sookshm jaal: ek merge revert karna Git ko batata hai ki wo changes anchahe hain, isliye baad mein wahi branch dobara merge karna kuch nahi laata. Use dobara land karne ke liye tumhe revert ko revert karna hoga, ya branch dobara banani hogi — real teams mein confusion ka ek genuine source.',
+    },
+  },
+  {
+    question: 'What is a pull request and what makes a good one?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A PR proposes merging one branch into another and provides the place where review, CI, and discussion happen. A good one is SMALL — a few hundred lines rather than thousands, because review quality falls off a cliff beyond that. It has a description explaining what changed and why, links the issue, includes tests, and is self-reviewed first. Large PRs get rubber-stamped, which defeats the entire purpose of review.',
+      hinglish:
+        'Ek PR ek branch ko doosri mein merge karne ka prastaav deta hai aur wo jagah deta hai jahan review, CI, aur discussion hote hain. Ek achha PR CHHOTA hota hai — hazaaron ke bajaye kuch sau lines, kyunki uske aage review quality ek chattan se girti hai. Uska ek description hota hai jo bataye ki kya badla aur kyun, issue link karta hai, tests include karta hai, aur pehle khud review kiya hota hai. Bade PRs pe bas mohar lag jaati hai, jo review ka poora maksad hi khatam kar deta hai.',
+    },
+  },
+  {
+    question: 'What is a monorepo and how does Git handle it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A monorepo holds many projects in one repository, giving atomic cross-project changes, one place for shared code, and consistent tooling. Git handles it adequately but strains at scale: clones get large, and status and log slow down. Mitigations are `sparse-checkout` to fetch only the directories you need, shallow and partial clones, and build tools such as Nx, Turborepo, or Bazel that understand the dependency graph and only rebuild what actually changed.',
+      hinglish:
+        'Ek monorepo bahut projects ek repository mein rakhta hai, atomic cross-project changes, shared code ke liye ek jagah, aur consistent tooling deta hua. Git ise theek-thaak handle karta hai par scale pe zor padta hai: clones bade ho jaate hain, aur status aur log slow ho jaate hain. Mitigations hain sirf zaroori directories laane ke liye `sparse-checkout`, shallow aur partial clones, aur Nx, Turborepo, ya Bazel jaise build tools jo dependency graph samajhte hain aur sirf wahi rebuild karte hain jo actually badla.',
+    },
+  },
+  {
+    question: 'What is the difference between origin and upstream?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'They are just NAMES for remotes, not built-in concepts. By convention `origin` is the repository you cloned — usually your own fork — and `upstream` is the original project you forked from. The workflow is to `git fetch upstream` and rebase or merge `upstream/main` into your branch to stay current, then push to `origin` and open a PR against upstream. You can rename or add remotes freely; the convention exists purely for shared vocabulary.',
+      hinglish:
+        'Wo bas remotes ke NAAM hain, built-in concepts nahi. Convention se `origin` wo repository hai jo tumne clone ki — usually tumhara apna fork — aur `upstream` wo original project hai jisse tumne fork kiya. Workflow ye hai ki `git fetch upstream` karo aur current rehne ke liye `upstream/main` ko apni branch mein rebase ya merge karo, phir `origin` pe push karke upstream ke against ek PR kholo. Tum remotes ko azaadi se rename ya add kar sakte ho; convention sirf shared vocabulary ke liye hai.',
+    },
+  },
+  {
+    question: 'What is a shallow clone and when would you use one?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`git clone --depth 1` fetches only the most recent commit rather than the entire history, which is dramatically faster and smaller for a repository with years of commits. It is the standard choice in CI, where you only need the current code to build and test. The limits: you cannot run `git log` meaningfully, `git blame` is useless, and some operations refuse to work — though `git fetch --unshallow` can retrieve the rest if you need it later.',
+      hinglish:
+        '`git clone --depth 1` poori history ke bajaye sirf sabse recent commit laata hai, jo saalon ke commits wali ek repository ke liye dramatically faster aur chhota hai. Ye CI mein standard choice hai, jahan tumhe build aur test karne ke liye sirf current code chahiye. Limits: tum `git log` meaningfully nahi chala sakte, `git blame` bekaar hai, aur kuch operations kaam karne se mana kar dete hain — halaanki `git fetch --unshallow` baaki sab laa sakta hai agar baad mein chahiye.',
+    },
+  },
+  {
+    question: 'How does Git store files efficiently?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Git is CONTENT-ADDRESSED: every file is stored as a blob named by the SHA-1 of its contents, so two identical files anywhere in history are stored exactly once. Unchanged files across commits are not duplicated — the new tree simply points to the same blob. Periodically `git gc` compresses loose objects into packfiles using delta compression between similar objects. This is why a repository with years of history is often surprisingly small.',
+      hinglish:
+        'Git CONTENT-ADDRESSED hai: har file ek blob ke roop mein store hoti hai jiska naam uske contents ka SHA-1 hai, isliye history mein kahin bhi do ek jaisi files bilkul ek baar store hoti hain. Commits ke across unchanged files duplicate nahi hoti — naya tree bas usi blob pe point karta hai. Samay-samay pe `git gc` loose objects ko similar objects ke beech delta compression se packfiles mein compress karta hai. Isiliye saalon ki history wali ek repository aksar hairaan karne wali chhoti hoti hai.',
+    },
+  },
+  {
+    question: 'What is the difference between git diff, git diff --staged, and git diff HEAD?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`git diff` alone shows working directory versus STAGING — what you have changed but not yet added. `git diff --staged` (or `--cached`) shows staging versus the last commit — exactly what will go into your next commit. `git diff HEAD` shows working directory versus the last commit, that is everything uncommitted regardless of staging. Reviewing `--staged` right before committing is the habit that catches accidental debug statements and unrelated changes.',
+      hinglish:
+        'Akela `git diff` working directory versus STAGING dikhata hai — jo tumne badla par abhi add nahi kiya. `git diff --staged` (ya `--cached`) staging versus aakhri commit dikhata hai — theek wahi jo tumhare agle commit mein jaayega. `git diff HEAD` working directory versus aakhri commit dikhata hai, matlab staging chahe kuch bhi ho, sab uncommitted. Commit karne se theek pehle `--staged` review karna wo aadat hai jo galti se chhode debug statements aur unrelated changes pakadti hai.',
+    },
+  },
+  {
+    question: 'How do you split a large commit into smaller ones?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Use `git add -p` (patch mode), which walks you through each hunk asking whether to stage it, letting you split even within a single file using `s` to split a hunk or `e` to edit it. Stage one logical change, commit, then repeat. For a commit already made, `git rebase -i` and mark it `edit`, then `git reset HEAD~1` to unstage everything and rebuild it as several commits. This is how a day of tangled work becomes a reviewable series.',
+      hinglish:
+        '`git add -p` (patch mode) use karo, jo tumhe har hunk se guzaarta hai ye poochhte hue ki stage karna hai ya nahi, tumhe ek hi file ke andar bhi split karne deta hua — ek hunk todne ke liye `s` ya edit karne ke liye `e`. Ek logical change stage karo, commit karo, phir dohrao. Pehle se bane ek commit ke liye, `git rebase -i` karke use `edit` mark karo, phir sab unstage karne ke liye `git reset HEAD~1` aur use kai commits mein dobara banao. Isi se ek din ka uljha kaam ek reviewable series ban jaata hai.',
+    },
+  },
+  {
+    question: 'What is trunk-based development?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Everyone commits to one main branch, using very short-lived branches merged within a day or two. The point is that long-lived branches drift, so their merges become large and conflict-heavy — merging often keeps each integration small. Unfinished work ships behind FEATURE FLAGS rather than sitting on a branch. It requires strong automated testing and CI, because main must always be releasable, and it is the model behind most continuous-deployment teams.',
+      hinglish:
+        'Sab ek main branch pe commit karte hain, ek-do din mein merge hone wali bahut short-lived branches use karte hue. Baat ye hai ki lambi chalne wali branches bhatak jaati hain, isliye unke merges bade aur conflict-bhare ho jaate hain — aksar merge karna har integration ko chhota rakhta hai. Adhoora kaam ek branch pe baithne ke bajaye FEATURE FLAGS ke peeche ship hota hai. Ise strong automated testing aur CI chahiye, kyunki main hamesha releasable hona chahiye, aur yahi zyadatar continuous-deployment teams ka model hai.',
+    },
+  },
+  {
+    question: 'What is git rerere?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        '"Reuse recorded resolution" — when enabled, Git remembers how you resolved a particular conflict and applies the same resolution automatically the next time it sees it. It is genuinely useful during a long rebase where the same conflict recurs on commit after commit, or when repeatedly rebasing a long-lived branch. Enable it with `git config --global rerere.enabled true`. It is one of the least known Git features and one of the most appreciated once discovered.',
+      hinglish:
+        '"Reuse recorded resolution" — enable hone pe, Git yaad rakhta hai ki tumne ek khaas conflict kaise solve kiya aur agli baar wahi dekhne pe wahi resolution automatically apply karta hai. Ye ek lambe rebase ke dauraan genuinely useful hai jahan wahi conflict commit dar commit aata rahe, ya ek lambi chalne wali branch ko baar-baar rebase karte waqt. Ise `git config --global rerere.enabled true` se enable karo. Ye sabse kam jaane jaane wale Git features mein se ek hai aur pata chalne ke baad sabse zyada sarahe jaane wale mein se.',
+    },
+  },
+  {
+    question: 'How do you recover a deleted branch?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Deleting a branch only removes the pointer — the commits still exist until garbage collection runs. Find the tip commit in `git reflog`, then `git checkout -b recovered <hash>`. If reflog does not have it, `git fsck --lost-found` lists dangling commits. Both are local-only, so if you deleted the branch on a machine you no longer have, the remaining hope is that someone else still has it or the remote hosting provider retains it.',
+      hinglish:
+        'Ek branch delete karna sirf pointer hataata hai — commits garbage collection chalne tak abhi bhi exist karte hain. `git reflog` mein tip commit dhoondho, phir `git checkout -b recovered <hash>`. Agar reflog mein na ho, `git fsck --lost-found` dangling commits list karta hai. Dono sirf local hain, isliye agar tumne branch aisi machine pe delete ki jo ab tumhare paas nahi, bachi hui ummeed ye hai ki kisi aur ke paas abhi bhi ho ya remote hosting provider ne rakha ho.',
+    },
+  },
+  {
+    question: 'What is git sparse-checkout?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Sparse-checkout populates only the DIRECTORIES you specify in your working tree, while the repository still holds the full history. It is the standard tool for working comfortably in a large monorepo: you check out just the two packages you care about instead of a hundred thousand files. Combined with a partial clone (`--filter=blob:none`), Git downloads only the blobs you actually need, making a very large repository practical on a normal machine.',
+      hinglish:
+        'Sparse-checkout tumhari working tree mein sirf wo DIRECTORIES bharta hai jo tum specify karte ho, jabki repository abhi bhi poori history rakhti hai. Ye ek bade monorepo mein aaraam se kaam karne ka standard tool hai: tum ek lakh files ke bajaye sirf wo do packages checkout karte ho jinki tumhe parwah hai. Ek partial clone (`--filter=blob:none`) ke saath, Git sirf wo blobs download karta hai jo tumhe actually chahiye, ek bahut badi repository ko ek normal machine pe practical banate hue.',
+    },
+  },
+  {
+    question: 'What is the difference between git merge --squash and a squash merge on GitHub?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'They achieve the same result by different routes. `git merge --squash branch` applies all the branch\'s changes to your working directory and STAGES them without committing, so you write the commit message yourself and no merge relationship is recorded. GitHub\'s squash merge does the same server-side, generating a message from the PR title and body, and marks the PR merged. Either way, the branch is not recorded as merged in the graph, so `git branch --merged` will not list it.',
+      hinglish:
+        'Wo alag raaston se wahi nateeja paate hain. `git merge --squash branch` branch ke saare changes tumhari working directory pe apply karke unhe STAGE karta hai bina commit kiye, isliye commit message tum khud likhte ho aur koi merge relationship record nahi hoti. GitHub ka squash merge wahi server-side karta hai, PR title aur body se ek message banate hue, aur PR ko merged mark karta hai. Kisi bhi tarah, branch graph mein merged record nahi hoti, isliye `git branch --merged` use list nahi karega.',
+    },
+  },
+  {
+    question: 'What should you do when a rebase goes wrong halfway through?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'You have three exits. `git rebase --abort` returns everything to exactly how it was before you started — the safe default when confused. `git rebase --skip` drops the current commit and continues, useful when the change is already present upstream. `git rebase --continue` proceeds after you have staged your conflict resolution. And if you have already finished a rebase that went wrong, `git reflog` still holds the pre-rebase position, so nothing is actually lost.',
+      hinglish:
+        'Tumhare paas teen exits hain. `git rebase --abort` sab kuch bilkul waisa hi wapas kar deta hai jaisa shuru karne se pehle tha — confuse hone pe safe default. `git rebase --skip` current commit gira kar aage badhta hai, jo tab useful hai jab change upstream pe pehle se ho. `git rebase --continue` tumhare conflict resolution stage karne ke baad aage badhta hai. Aur agar tum ek galat rebase khatam bhi kar chuke ho, `git reflog` abhi bhi pre-rebase position rakhta hai, isliye actually kuch nahi khota.',
     },
   },
 ];
