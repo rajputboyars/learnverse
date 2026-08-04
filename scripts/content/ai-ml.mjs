@@ -65,7 +65,7 @@ const beginner = [
           {
             question: 'What is the difference between Artificial Intelligence, Machine Learning, and Deep Learning?',
             difficulty: 'easy',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'AI is the broad field of building systems that exhibit intelligent behaviour (which could even be rule-based). Machine Learning is a subset of AI where systems learn patterns from data rather than being explicitly programmed. Deep Learning is a subset of ML that uses neural networks with many layers to learn complex representations, powering modern image, speech, and language systems. So they nest: AI ⊃ ML ⊃ DL.',
@@ -544,7 +544,7 @@ const intermediate = [
           {
             question: 'What is gradient descent and what role does the learning rate play?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Gradient descent is an iterative optimisation algorithm that minimises a loss function by repeatedly moving the model’s parameters in the direction opposite to the gradient of the loss (downhill). The learning rate is the step size of each update: too large and it overshoots the minimum or diverges; too small and convergence is very slow. In practice we use stochastic or mini-batch gradient descent (updating on subsets) for speed, often with adaptive optimisers like Adam that adjust the effective step size per parameter.',
@@ -829,7 +829,7 @@ export const generalInterviewQuestions = [
   {
     question: 'What is the difference between overfitting and underfitting, and how do you address each?',
     difficulty: 'medium',
-    frequency: 'very-common',
+    frequency: 'common',
     answer: {
       english:
         'Underfitting (high bias) is when a model is too simple to capture the underlying pattern — both training and test scores are poor; fix it with a more complex model, better features, or less regularization. Overfitting (high variance) is when a model memorises the training data including noise — great training score but poor test score; fix it with more data, a simpler model, regularization (L1/L2), dropout, early stopping, and cross-validation. The goal is the sweet spot that generalises to unseen data.',
@@ -846,6 +846,492 @@ export const generalInterviewQuestions = [
         'Start from the problem type and data. Is it supervised (labels) or unsupervised? Regression or classification? Then consider data size and dimensionality, interpretability needs, training/inference speed, and whether the data is tabular, text, or images. Practical heuristics: logistic/linear regression as an interpretable baseline; tree ensembles (Random Forest, XGBoost) often win on tabular data; KNN/SVM for small datasets; CNNs for images; Transformers for text/sequences. Always validate empirically with cross-validation rather than trusting one choice — "no free lunch": no single algorithm is best for everything.',
       hinglish:
         'Problem type aur data se shuru karo. Supervised (labels) ya unsupervised? Regression ya classification? Phir data size aur dimensionality, interpretability ki zaroorat, training/inference speed, aur data tabular/text/images hai ya nahi consider karo. Practical heuristics: interpretable baseline ke liye logistic/linear regression; tabular data pe aksar tree ensembles (Random Forest, XGBoost) jeet te hain; chhote datasets pe KNN/SVM; images ke liye CNNs; text/sequences ke liye Transformers. Hamesha cross-validation se empirically validate karo, ek choice pe bharosa mat karo — "no free lunch": koi ek algorithm har cheez ke liye best nahi.',
+    },
+  },
+
+  // ─── Core ML Concepts ────────────────────────────────────────
+  {
+    question: 'What is the bias-variance tradeoff?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'BIAS is error from wrong assumptions — a model too simple to capture the pattern, which underfits and performs poorly on both training and test data. VARIANCE is sensitivity to the particular training sample — a model so flexible it memorises noise, which overfits and performs well on training but badly on test. Total error decomposes into bias² plus variance plus irreducible noise. Reducing one usually raises the other, so the goal is the sweet spot, found empirically with a validation set.',
+      hinglish:
+        'BIAS galat assumptions se aane wali error hai — ek model itna simple ki pattern pakad na sake, jo underfit karta hai aur training aur test dono pe kharab karta hai. VARIANCE khaas training sample ke prati sensitivity hai — ek model itna flexible ki noise ratt le, jo overfit karta hai aur training pe achha par test pe kharab karta hai. Total error bias² plus variance plus irreducible noise mein bant-ti hai. Ek kam karna usually doosra badhata hai, isliye lakshya wo sweet spot hai, jo ek validation set se empirically milta hai.',
+    },
+  },
+  {
+    question: 'What is overfitting and how do you prevent it?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Overfitting is when a model learns noise and quirks specific to the training data instead of the underlying pattern, so training accuracy keeps rising while validation accuracy stalls or falls. Prevention: get more data or augment it, simplify the model, apply regularisation (L1, L2, dropout), use early stopping on a validation set, and cross-validate. The single most reliable signal is a widening gap between training and validation performance.',
+      hinglish:
+        'Overfitting tab hai jab ek model underlying pattern ke bajaye training data ka khaas noise aur quirks seekh le, isliye training accuracy badhti rehti hai jabki validation accuracy ruk jaati ya girti hai. Prevention: zyada data lao ya augment karo, model simple karo, regularisation lagao (L1, L2, dropout), ek validation set pe early stopping use karo, aur cross-validate karo. Sabse reliable signal training aur validation performance ke beech chaudta gap hai.',
+    },
+  },
+  {
+    question: 'What is regularisation and how do L1 and L2 differ?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Regularisation adds a penalty on model complexity to the loss, discouraging the large weights that let a model fit noise. L2 (ridge) penalises squared weights, shrinking them all smoothly towards zero without eliminating any — good when many features contribute a little. L1 (lasso) penalises absolute values and drives some weights exactly to ZERO, so it performs feature selection. Elastic Net combines both. The strength is a hyperparameter tuned on validation data.',
+      hinglish:
+        'Regularisation loss mein model complexity pe ek penalty jodta hai, un bade weights ko rokte hue jo ek model ko noise fit karne dete hain. L2 (ridge) squared weights pe penalty lagata hai, sabko smoothly zero ki taraf sikodta hai bina kisi ko khatam kiye — tab achha jab bahut features thoda-thoda contribute karein. L1 (lasso) absolute values pe penalty lagata hai aur kuch weights ko bilkul ZERO kar deta hai, isliye ye feature selection karta hai. Elastic Net dono jodta hai. Strength ek hyperparameter hai jo validation data pe tune hota hai.',
+    },
+  },
+  {
+    question: 'What is cross-validation and why is a single train-test split not enough?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'K-fold cross-validation splits data into k parts, trains on k-1 and validates on the remaining one, rotating through all k and averaging. A single split gives one estimate that depends heavily on which rows happened to land in the test set — with a small dataset that variance is large enough to mislead you about which model is better. Use STRATIFIED folds for imbalanced classes, and time-series splits when order matters, since random folds leak the future.',
+      hinglish:
+        'K-fold cross-validation data ko k hisson mein baantta hai, k-1 pe train aur bache ek pe validate karta hai, saare k ghumate hue aur average karte hue. Ek single split ek estimate deta hai jo bahut is pe depend karta hai ki kaunsi rows test set mein pahunchi — ek chhote dataset pe wo variance itna bada hota hai ki tumhe galat bata de ki kaunsa model behtar hai. Imbalanced classes ke liye STRATIFIED folds use karo, aur jab order matter kare tab time-series splits, kyunki random folds bhavishya leak karte hain.',
+    },
+  },
+  {
+    question: 'Why is accuracy a poor metric for imbalanced data?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'If 99% of transactions are legitimate, a model predicting "not fraud" every time scores 99% accuracy while catching zero fraud — the metric rewards ignoring the class you actually care about. Use PRECISION (of those flagged, how many were real), RECALL (of the real cases, how many were caught), F1 for their balance, and PR-AUC, which is more informative than ROC-AUC under heavy imbalance. Which one you optimise depends on whether a false positive or a false negative costs more.',
+      hinglish:
+        'Agar 99% transactions legitimate hain, har baar "fraud nahi" predict karne wala ek model 99% accuracy paata hai jabki zero fraud pakadta hai — metric us class ko ignore karne ka inaam deta hai jiski tumhe actually parwah hai. PRECISION (jinhe flag kiya, unme kitne asli the), RECALL (asli cases mein se kitne pakde), unke balance ke liye F1, aur PR-AUC use karo, jo bhaari imbalance mein ROC-AUC se zyada informative hai. Tum kise optimise karte ho ye is pe depend karta hai ki ek false positive ya ek false negative kiska cost zyada hai.',
+    },
+  },
+  {
+    question: 'What is the difference between precision and recall?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'PRECISION is TP/(TP+FP) — of everything the model flagged positive, what fraction really was. RECALL is TP/(TP+FN) — of all the real positives, what fraction the model found. They trade off: lowering the decision threshold catches more positives (higher recall) but flags more false alarms (lower precision). Spam filtering wants high precision, because a lost real email is worse than a spam that slips through; cancer screening wants high recall.',
+      hinglish:
+        'PRECISION TP/(TP+FP) hai — model ne jo bhi positive flag kiya, usme se kitna hissa sach mein tha. RECALL TP/(TP+FN) hai — saare asli positives mein se model ne kitna hissa dhoondha. Wo trade off karte hain: decision threshold girana zyada positives pakadta hai (zyada recall) par zyada false alarms flag karta hai (kam precision). Spam filtering ko high precision chahiye, kyunki ek khoya asli email ek nikal gaye spam se bura hai; cancer screening ko high recall chahiye.',
+    },
+  },
+  {
+    question: 'What is the ROC curve and AUC?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The ROC curve plots true positive rate against false positive rate as the decision threshold sweeps from 0 to 1. AUC, the area under it, is the probability the model ranks a random positive above a random negative — 0.5 is random guessing, 1.0 is perfect. Its strength is being threshold-independent. Its weakness is that under heavy class imbalance it looks optimistic, because false positive rate has a huge denominator, so PR-AUC is the better choice there.',
+      hinglish:
+        'ROC curve true positive rate ko false positive rate ke against plot karta hai jab decision threshold 0 se 1 tak jhaadu maare. AUC, uske neeche ka area, wo probability hai ki model ek random positive ko ek random negative se upar rank kare — 0.5 random andaaza hai, 1.0 perfect. Iski taakat threshold-independent hona hai. Iski kamzori ye hai ki bhaari class imbalance mein ye optimistic dikhta hai, kyunki false positive rate ka denominator bahut bada hai, isliye wahan PR-AUC behtar choice hai.',
+    },
+  },
+  {
+    question: 'What is gradient descent and what are its variants?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Gradient descent minimises loss by repeatedly stepping in the direction of steepest descent, scaled by a learning rate. BATCH uses all data per step — stable but slow. STOCHASTIC uses one sample — fast and noisy, and the noise can help escape shallow minima. MINI-BATCH uses 32-256 samples and is the practical standard, balancing stability with GPU efficiency. Adaptive optimisers such as Adam adjust a per-parameter learning rate using running estimates of gradient moments.',
+      hinglish:
+        'Gradient descent loss ko baar-baar sabse tez dhalaan ki disha mein kadam rakh kar kam karta hai, ek learning rate se scale karke. BATCH per step saara data use karta hai — stable par slow. STOCHASTIC ek sample use karta hai — fast aur noisy, aur wo noise shallow minima se nikalne mein madad kar sakta hai. MINI-BATCH 32-256 samples use karta hai aur practical standard hai, stability ko GPU efficiency ke saath balance karte hue. Adam jaise adaptive optimisers gradient moments ke running estimates se per-parameter learning rate adjust karte hain.',
+    },
+  },
+  {
+    question: 'What happens if the learning rate is too high or too low?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'TOO HIGH and updates overshoot the minimum: loss oscillates, spikes, or diverges to NaN. TOO LOW and training crawls, may stall in a poor region, and wastes enormous compute. Practical approach: use a learning-rate finder or start around 1e-3 for Adam, then apply a SCHEDULE — warmup followed by cosine or step decay — so early steps are large enough to explore and later steps small enough to converge. It is the single most impactful hyperparameter.',
+      hinglish:
+        'BAHUT ZYADA hone pe updates minimum se aage nikal jaate hain: loss jhoolti hai, uchhalti hai, ya NaN tak bhatak jaati hai. BAHUT KAM hone pe training rengti hai, ek kharab region mein atak sakti hai, aur bahut saara compute barbaad karti hai. Practical approach: ek learning-rate finder use karo ya Adam ke liye lagbhag 1e-3 se shuru karo, phir ek SCHEDULE lagao — warmup ke baad cosine ya step decay — taaki shuruaati steps explore karne ke liye kaafi bade hon aur baad ke converge karne ke liye kaafi chhote. Ye sabse zyada asar daalne wala hyperparameter hai.',
+    },
+  },
+  {
+    question: 'What is the difference between parameters and hyperparameters?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'PARAMETERS are learned from data during training — the weights and biases the optimiser updates. HYPERPARAMETERS are set BEFORE training and control how learning happens: learning rate, number of layers, regularisation strength, batch size, tree depth. Parameters are found by gradient descent; hyperparameters are found by search — grid, random, or Bayesian — evaluated on a validation set, never on the test set, or your final estimate becomes optimistic.',
+      hinglish:
+        'PARAMETERS training ke dauraan data se seekhe jaate hain — wo weights aur biases jinhe optimiser update karta hai. HYPERPARAMETERS training se PEHLE set hote hain aur control karte hain ki seekhna kaise ho: learning rate, layers ki sankhya, regularisation strength, batch size, tree depth. Parameters gradient descent se milte hain; hyperparameters search se — grid, random, ya Bayesian — jo ek validation set pe evaluate hote hain, kabhi test set pe nahi, warna tumhara final estimate optimistic ho jaata hai.',
+    },
+  },
+  {
+    question: 'What is feature engineering and why does it matter?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Feature engineering creates informative inputs from raw data — extracting day-of-week from a timestamp, computing a ratio, aggregating a user\'s past behaviour, binning a skewed variable. On tabular problems it typically moves the metric more than swapping algorithms does, because a good feature encodes domain knowledge the model cannot infer from the raw columns. Deep learning reduces the need for it on images and text, but on tabular data it remains decisive.',
+      hinglish:
+        'Feature engineering raw data se informative inputs banati hai — ek timestamp se day-of-week nikalna, ek ratio compute karna, ek user ka pichhla behaviour aggregate karna, ek skewed variable ko bin karna. Tabular problems pe ye typically algorithms badalne se zyada metric hilati hai, kyunki ek achha feature wo domain knowledge encode karta hai jo model raw columns se nahi nikal sakta. Deep learning images aur text pe iski zaroorat kam karta hai, par tabular data pe ye nirnaayak rehti hai.',
+    },
+  },
+  {
+    question: 'What is data leakage and how do you avoid it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Leakage is when information unavailable at prediction time reaches the model during training, producing brilliant validation scores that collapse in production. Classic causes: fitting a scaler or imputer on the FULL dataset before splitting, including a feature computed from the target, using future data in a time-series split, or duplicate rows spanning both sets. Prevention: split first, fit every transformation inside a pipeline on the training fold only, and question any feature that seems too predictive.',
+      hinglish:
+        'Leakage tab hai jab prediction ke waqt unavailable jaankaari training ke dauraan model tak pahunch jaaye, aise shandaar validation scores banate hue jo production mein dhah jaate hain. Classic causes: split se pehle POORE dataset pe ek scaler ya imputer fit karna, target se compute kiya ek feature include karna, ek time-series split mein future data use karna, ya dono sets mein failay duplicate rows. Prevention: pehle split karo, har transformation ko ek pipeline ke andar sirf training fold pe fit karo, aur kisi bhi bahut predictive lagte feature pe sawaal karo.',
+    },
+  },
+  {
+    question: 'How do you handle missing data?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'First ask WHY it is missing, since that determines what is valid. Missing at random can be imputed with mean, median, or a model-based method; missing not at random carries information, so adding an "is_missing" indicator often helps more than any imputation. Dropping rows is fine when few and random, dangerous when the missingness correlates with the target. Critically, fit the imputer on the training fold only — computing a mean over the full dataset is leakage.',
+      hinglish:
+        'Pehle poochho ki wo KYUN missing hai, kyunki wahi decide karta hai ki kya valid hai. Random se missing ko mean, median, ya ek model-based method se impute kiya ja sakta hai; jo random se missing nahi wo jaankaari rakhta hai, isliye ek "is_missing" indicator jodna aksar kisi bhi imputation se zyada madad karta hai. Rows girana tab theek hai jab kam aur random hon, khatarnak jab missingness target se correlate kare. Critically, imputer ko sirf training fold pe fit karo — poore dataset pe ek mean compute karna leakage hai.',
+    },
+  },
+  {
+    question: 'What is the curse of dimensionality?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'As dimensions grow, the volume of the space explodes, so any fixed number of samples becomes sparse and every point ends up roughly equidistant from every other. That breaks distance-based methods such as KNN and clustering, makes overfitting easier since there are more ways to separate points spuriously, and means the data needed grows exponentially. Remedies: feature selection, dimensionality reduction such as PCA, regularisation, and using domain knowledge to keep only meaningful features.',
+      hinglish:
+        'Dimensions badhne pe space ka volume phat jaata hai, isliye samples ki koi bhi fixed sankhya sparse ho jaati hai aur har point har doosre se lagbhag barabar doori pe pahunch jaata hai. Ye KNN aur clustering jaise distance-based methods ko todta hai, overfitting aasaan banata hai kyunki points ko jhoothe tareeke se alag karne ke zyada raaste hain, aur matlab hai ki zaroori data exponentially badhta hai. Ilaaj: feature selection, PCA jaisi dimensionality reduction, regularisation, aur sirf meaningful features rakhne ke liye domain knowledge.',
+    },
+  },
+  {
+    question: 'What is PCA and when should you use it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'PCA finds orthogonal directions of maximum variance and projects data onto the top few, reducing dimensions while retaining most of the variation. Use it to compress correlated features, speed up training, remove multicollinearity, or visualise high-dimensional data in 2D. Caveats: it requires SCALED features or large-magnitude ones dominate, the resulting components are linear combinations and therefore not interpretable, and it is unsupervised, so it may discard a low-variance direction that predicts the target well.',
+      hinglish:
+        'PCA maximum variance ki orthogonal directions dhoondhta hai aur data ko upar ki kuch pe project karta hai, dimensions kam karte hue jabki zyadatar variation rakhte hue. Ise correlated features compress karne, training tez karne, multicollinearity hataane, ya high-dimensional data ko 2D mein dekhne ke liye use karo. Caveats: ise SCALED features chahiye warna badi magnitude wale haavi ho jaate hain, banne wale components linear combinations hain aur isliye interpretable nahi, aur ye unsupervised hai, isliye ye ek low-variance direction gira sakta hai jo target achha predict karti ho.',
+    },
+  },
+  {
+    question: 'What is the difference between bagging and boosting?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'BAGGING trains many models INDEPENDENTLY on bootstrap samples and averages them, which reduces VARIANCE — Random Forest is the canonical example, and it parallelises trivially. BOOSTING trains models SEQUENTIALLY, each correcting the previous one\'s errors, which reduces BIAS — XGBoost and LightGBM are the standard implementations and usually win on tabular data. Boosting typically achieves higher accuracy but overfits more easily and cannot be parallelised across trees.',
+      hinglish:
+        'BAGGING bahut models ko bootstrap samples pe SWATANTR roop se train karke unka average leta hai, jo VARIANCE kam karta hai — Random Forest canonical example hai, aur ye aasaani se parallel hota hai. BOOSTING models ko KRAMANUSAAR train karta hai, har ek pichhle ki errors sudhaarte hue, jo BIAS kam karta hai — XGBoost aur LightGBM standard implementations hain aur usually tabular data pe jeette hain. Boosting typically zyada accuracy paata hai par asaani se overfit karta hai aur trees ke across parallel nahi ho sakta.',
+    },
+  },
+  {
+    question: 'Why do gradient boosted trees usually beat neural networks on tabular data?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Tabular data has heterogeneous features with no spatial or sequential structure for a network to exploit, often with skewed distributions and many irrelevant columns. Tree ensembles handle mixed types natively, are invariant to monotonic feature scaling, capture non-linear thresholds and interactions directly, and need far less tuning and data. Neural networks excel where structure exists — images, text, audio — which is exactly what tabular data lacks.',
+      hinglish:
+        'Tabular data mein heterogeneous features hote hain bina kisi spatial ya sequential structure ke jise ek network use kar sake, aksar skewed distributions aur bahut irrelevant columns ke saath. Tree ensembles mixed types natively handle karte hain, monotonic feature scaling ke prati invariant hain, non-linear thresholds aur interactions seedha pakadte hain, aur bahut kam tuning aur data chahte hain. Neural networks wahan excel karte hain jahan structure ho — images, text, audio — jo theek wahi hai jo tabular data mein nahi hai.',
+    },
+  },
+  {
+    question: 'What is the difference between supervised, unsupervised, and reinforcement learning?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'SUPERVISED learning has labelled examples and learns a mapping from input to output — classification and regression. UNSUPERVISED learning has no labels and finds structure — clustering, dimensionality reduction, anomaly detection. REINFORCEMENT learning has an agent taking actions in an environment and learning from delayed REWARDS rather than labelled answers. Self-supervised learning sits between: labels are generated from the data itself, which is how modern language models are pretrained.',
+      hinglish:
+        'SUPERVISED learning mein labelled examples hote hain aur ye input se output ka ek mapping seekhta hai — classification aur regression. UNSUPERVISED learning mein labels nahi hote aur ye structure dhoondhta hai — clustering, dimensionality reduction, anomaly detection. REINFORCEMENT learning mein ek agent ek environment mein actions leta hai aur labelled jawabon ke bajaye der se milne wale REWARDS se seekhta hai. Self-supervised learning beech mein baithta hai: labels data se hi generate hote hain, jisse modern language models pretrain hote hain.',
+    },
+  },
+  {
+    question: 'What is the difference between a training, validation, and test set?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'The TRAINING set fits the model parameters. The VALIDATION set tunes hyperparameters and selects between models. The TEST set is touched ONCE, at the very end, to estimate real-world performance. The reason for three is that any set you make decisions on becomes optimistically biased — if you tune against the test set, you have effectively trained on it, and its estimate is no longer honest. A typical split is 60/20/20, or cross-validation plus a held-out test set.',
+      hinglish:
+        'TRAINING set model parameters fit karta hai. VALIDATION set hyperparameters tune karta hai aur models ke beech chunta hai. TEST set EK BAAR chhua jaata hai, bilkul aakhir mein, real-world performance ka andaaza lagane ke liye. Teen hone ki wajah ye hai ki jis bhi set pe tum decisions lete ho wo optimistically biased ho jaata hai — agar tum test set ke against tune karte ho, tumne effectively us pe train kar liya, aur uska estimate ab imaandaar nahi. Ek typical split 60/20/20 hai, ya cross-validation plus ek held-out test set.',
+    },
+  },
+  {
+    question: 'How do you handle class imbalance?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Options at three levels. DATA: oversample the minority (SMOTE synthesises new points rather than duplicating), or undersample the majority. ALGORITHM: use class weights so minority errors cost more, which most libraries support directly. EVALUATION: use precision, recall, F1, and PR-AUC rather than accuracy, and tune the decision THRESHOLD instead of accepting 0.5. Threshold tuning is often the cheapest effective fix and is frequently overlooked.',
+      hinglish:
+        'Teen levels pe options. DATA: minority ko oversample karo (SMOTE duplicate karne ke bajaye naye points banata hai), ya majority ko undersample karo. ALGORITHM: class weights use karo taaki minority errors zyada cost karein, jo zyadatar libraries seedha support karti hain. EVALUATION: accuracy ke bajaye precision, recall, F1, aur PR-AUC use karo, aur 0.5 maanne ke bajaye decision THRESHOLD tune karo. Threshold tuning aksar sabse sasta effective fix hai aur baar-baar chhoot jaata hai.',
+    },
+  },
+  {
+    question: 'What is the difference between a decision tree and a random forest?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A single decision tree splits data on feature thresholds and is highly interpretable, but it is unstable — a small change in data can produce a completely different tree — and it overfits readily. A RANDOM FOREST trains many trees on bootstrap samples with a random subset of features considered at each split, then averages them. The randomness decorrelates the trees, so averaging cancels much of their individual variance, at the cost of interpretability.',
+      hinglish:
+        'Ek single decision tree data ko feature thresholds pe split karta hai aur bahut interpretable hai, par ye unstable hai — data mein ek chhota change ek bilkul alag tree bana sakta hai — aur ye aasaani se overfit karta hai. Ek RANDOM FOREST bahut trees ko bootstrap samples pe train karta hai, har split pe features ka ek random subset dekhte hue, phir unka average leta hai. Randomness trees ko decorrelate karti hai, isliye averaging unki individual variance ka bahut hissa kaat deta hai, interpretability ke cost pe.',
+    },
+  },
+  {
+    question: 'What is the difference between logistic and linear regression?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'LINEAR regression predicts a continuous value and minimises squared error. LOGISTIC regression predicts a PROBABILITY for a binary outcome: it passes the linear combination through a sigmoid to squash it into (0,1) and minimises log loss. Despite the name it is a classifier. Using linear regression for classification fails because it produces values outside [0,1] and its squared-error loss is a poor fit for a probability, giving a non-convex optimisation.',
+      hinglish:
+        'LINEAR regression ek continuous value predict karta hai aur squared error kam karta hai. LOGISTIC regression ek binary outcome ke liye ek PROBABILITY predict karta hai: ye linear combination ko ek sigmoid se guzaar kar (0,1) mein daba deta hai aur log loss kam karta hai. Naam ke bawajood ye ek classifier hai. Classification ke liye linear regression use karna fail hota hai kyunki ye [0,1] ke bahar values banata hai aur uska squared-error loss ek probability ke liye kharab fit hai, ek non-convex optimisation dete hue.',
+    },
+  },
+  {
+    question: 'What is a confusion matrix?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A table cross-tabulating predicted against actual classes, giving true positives, false positives, true negatives, and false negatives. Every classification metric is derived from these four numbers. Its practical value is showing WHICH errors the model makes — a model with 90% accuracy might be failing entirely on one class, which a single accuracy figure completely hides. For multi-class problems it reveals exactly which pairs of classes are being confused.',
+      hinglish:
+        'Ek table jo predicted ko actual classes ke against cross-tabulate karta hai, true positives, false positives, true negatives, aur false negatives deta hua. Har classification metric in chaar numbers se nikalta hai. Iski practical value ye dikhana hai ki model KAUNSI errors karta hai — 90% accuracy wala ek model ek class pe poori tarah fail ho sakta hai, jise ek akela accuracy figure poori tarah chhupa deta hai. Multi-class problems ke liye ye theek dikhata hai ki kaunse class pairs confuse ho rahe hain.',
+    },
+  },
+  {
+    question: 'What is the difference between generative and discriminative models?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A DISCRIMINATIVE model learns the boundary between classes directly, modelling P(y|x) — logistic regression, SVMs, most neural classifiers. A GENERATIVE model learns how the data itself is distributed, P(x|y) and P(x), so it can also generate new samples — Naive Bayes, GANs, diffusion models, language models. Discriminative models usually classify better with enough data; generative models can work with less labelled data and support sampling and density estimation.',
+      hinglish:
+        'Ek DISCRIMINATIVE model classes ke beech ki seema seedha seekhta hai, P(y|x) model karte hue — logistic regression, SVMs, zyadatar neural classifiers. Ek GENERATIVE model seekhta hai ki data khud kaise distributed hai, P(x|y) aur P(x), isliye wo naye samples bhi bana sakta hai — Naive Bayes, GANs, diffusion models, language models. Discriminative models kaafi data ke saath usually behtar classify karte hain; generative models kam labelled data se kaam kar sakte hain aur sampling aur density estimation support karte hain.',
+    },
+  },
+  {
+    question: 'What is k-means clustering and what are its limitations?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'K-means partitions data into k clusters by alternately assigning each point to its nearest centroid and recomputing centroids until stable. Limitations: you must choose k in advance (use the elbow method or silhouette score), it assumes roughly spherical, similarly sized clusters, it is sensitive to initialisation — hence k-means++ — and to outliers, and it requires scaled features. For irregular shapes or unknown cluster counts, DBSCAN or hierarchical clustering fit better.',
+      hinglish:
+        'K-means data ko k clusters mein baantta hai, baari-baari har point ko uske sabse paas ke centroid pe assign karke aur centroids dobara compute karke jab tak sthir na ho. Limitations: tumhe k pehle chunna padta hai (elbow method ya silhouette score use karo), ye lagbhag gol, ek jaise size ke clusters maanta hai, ye initialisation ke prati sensitive hai — isiliye k-means++ — aur outliers ke prati, aur ise scaled features chahiye. Tedhe shapes ya anjaan cluster counts ke liye, DBSCAN ya hierarchical clustering behtar fit hain.',
+    },
+  },
+  {
+    question: 'What is transfer learning?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Transfer learning reuses a model trained on a large general dataset as the starting point for a related task, so you inherit learned representations rather than starting from random weights. With a small dataset you FREEZE most layers and train only the head; with more data you fine-tune the whole network at a low learning rate. It is why practitioners can get strong results from a few thousand images, and it is the foundation of the entire pretrained-model ecosystem.',
+      hinglish:
+        'Transfer learning ek bade general dataset pe train hue model ko ek related task ke liye shuruaat ki tarah dobara use karta hai, isliye tum random weights se shuru karne ke bajaye seekhe hue representations paate ho. Ek chhote dataset ke saath tum zyadatar layers FREEZE karke sirf head train karte ho; zyada data ke saath tum poore network ko ek kam learning rate pe fine-tune karte ho. Isiliye practitioners kuch hazaar images se strong results paa sakte hain, aur yahi poore pretrained-model ecosystem ki neev hai.',
+    },
+  },
+  {
+    question: 'What is the difference between fine-tuning and prompting for an LLM?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'PROMPTING changes only the input, so it needs no training, is instant to iterate on, and adapts per request — but it consumes context and cannot teach genuinely new behaviour. FINE-TUNING updates weights on task examples, which produces consistent formatting, encodes domain style, and reduces prompt length — but it requires curated data, compute, and versioning. Practical order: prompt engineering first, then RAG for knowledge, then fine-tuning only when the first two are demonstrably insufficient.',
+      hinglish:
+        'PROMPTING sirf input badalta hai, isliye ise koi training nahi chahiye, iterate karna instant hai, aur ye per request adapt hota hai — par ye context khaata hai aur genuinely naya behaviour nahi sikha sakta. FINE-TUNING task examples pe weights update karta hai, jo consistent formatting banata hai, domain style encode karta hai, aur prompt length kam karta hai — par ise curated data, compute, aur versioning chahiye. Practical order: pehle prompt engineering, phir knowledge ke liye RAG, phir fine-tuning sirf tab jab pehle do saaf taur pe kaafi na hon.',
+    },
+  },
+  {
+    question: 'What is an embedding?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An embedding maps a discrete item — a word, sentence, image, or product — to a dense vector where SEMANTIC similarity corresponds to geometric closeness, so "king" sits near "queen". Unlike one-hot encoding, dimensions are learned and shared, so the model generalises across similar items. Embeddings power semantic search, recommendation, clustering, and RAG retrieval, and are typically compared with cosine similarity in a vector database.',
+      hinglish:
+        'Ek embedding ek discrete item — ek word, sentence, image, ya product — ko ek dense vector pe map karta hai jahan SEMANTIC similarity geometric nazdeeki se milti hai, isliye "king" "queen" ke paas baithta hai. One-hot encoding ke ulat, dimensions seekhe aur share hote hain, isliye model similar items ke across generalise karta hai. Embeddings semantic search, recommendation, clustering, aur RAG retrieval chalate hain, aur typically ek vector database mein cosine similarity se compare hote hain.',
+    },
+  },
+  {
+    question: 'What is model drift and how do you detect it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'DATA DRIFT is when the input distribution shifts — new user demographics, a changed upstream pipeline. CONCEPT DRIFT is when the relationship between inputs and target changes, so the same input should now yield a different answer. Detection: monitor input feature distributions with a statistical test such as KS or PSI, track prediction distributions, and watch live metrics against delayed ground truth. The response is retraining on recent data, ideally automated on a schedule or a drift alert.',
+      hinglish:
+        'DATA DRIFT tab hai jab input distribution khisak jaaye — naye user demographics, ek badla hua upstream pipeline. CONCEPT DRIFT tab hai jab inputs aur target ka rishta badle, isliye wahi input ab ek alag jawab dena chahiye. Detection: input feature distributions ko KS ya PSI jaise ek statistical test se monitor karo, prediction distributions track karo, aur live metrics ko der se aati ground truth ke against dekho. Jawab recent data pe retraining hai, ideally ek schedule ya ek drift alert pe automated.',
+    },
+  },
+  {
+    question: 'How do you deploy a machine learning model?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Serialise the model along with the full preprocessing pipeline, so training and serving apply identical transformations — a mismatch here is the most common production bug. Wrap it in an API, containerise it, and version model, data, and code together so any prediction can be traced. Roll out with shadow traffic or a canary before full release, and monitor latency, error rate, input distributions, and prediction distributions. Batch scoring is simpler than real-time serving when latency permits.',
+      hinglish:
+        'Model ko poore preprocessing pipeline ke saath serialise karo, taaki training aur serving ek jaise transformations lagayein — yahan ka mismatch sabse common production bug hai. Use ek API mein wrap karo, containerise karo, aur model, data, aur code ko saath version karo taaki koi bhi prediction trace ho sake. Poore release se pehle shadow traffic ya ek canary se roll out karo, aur latency, error rate, input distributions, aur prediction distributions monitor karo. Jab latency ijaazat de to batch scoring real-time serving se simpler hai.',
+    },
+  },
+  {
+    question: 'What is SHAP and why is model interpretability important?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'SHAP assigns each feature a contribution to a specific prediction using Shapley values from cooperative game theory, giving both local explanations for one case and global feature importance. Interpretability matters for debugging (a feature dominating unexpectedly usually indicates leakage), for regulated domains such as credit and healthcare where explanation is a legal requirement, for detecting bias, and for earning the trust of the people expected to act on the output.',
+      hinglish:
+        'SHAP har feature ko ek khaas prediction mein ek contribution deta hai, cooperative game theory ke Shapley values se, ek case ke liye local explanations aur global feature importance dono dete hue. Interpretability debugging ke liye matter karti hai (ek feature ka anaapekshit roop se haavi hona usually leakage batata hai), credit aur healthcare jaise regulated domains ke liye jahan explanation ek kanooni zaroorat hai, bias pakadne ke liye, aur un logon ka bharosa kamane ke liye jinse output pe kaam karne ki ummeed hai.',
+    },
+  },
+  {
+    question: 'What is the difference between batch and online learning?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'BATCH learning trains on the full dataset at once and is redeployed periodically — simple, reproducible, and the right default for most systems. ONLINE learning updates incrementally as each example arrives, adapting quickly to change and handling data too large to hold in memory. Its costs are real: it is much harder to debug and reproduce, and it can be poisoned by bad or adversarial data, since a bad batch immediately degrades the live model.',
+      hinglish:
+        'BATCH learning poore dataset pe ek baar train karta hai aur samay-samay pe dobara deploy hota hai — simple, reproducible, aur zyadatar systems ke liye sahi default. ONLINE learning har example aane pe incrementally update karta hai, badlav ke saath jaldi adapt karte hue aur itna bada data handle karte hue jo memory mein na aa sake. Iske costs asli hain: ise debug aur reproduce karna bahut mushkil hai, aur ise kharab ya adversarial data se zeher diya ja sakta hai, kyunki ek kharab batch turant live model bigaad deta hai.',
+    },
+  },
+  {
+    question: 'What is A/B testing for machine learning models?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Route a fraction of live traffic to the new model and the rest to the current one, then compare BUSINESS metrics — conversion, revenue, retention — not just offline accuracy, because a model that scores better offline frequently does not improve the outcome that matters. Randomise assignment, run long enough for statistical significance, and pick the metric before you start. Shadow mode, where the new model predicts without affecting users, is a useful safety step first.',
+      hinglish:
+        'Live traffic ka ek hissa naye model pe aur baaki current pe bhejo, phir BUSINESS metrics compare karo — conversion, revenue, retention — sirf offline accuracy nahi, kyunki offline behtar score karne wala model aksar us nateeje ko behtar nahi karta jo matter karta hai. Assignment randomise karo, statistical significance ke liye kaafi lamba chalao, aur metric shuru karne se pehle chuno. Shadow mode, jahan naya model bina users ko affect kiye predict karta hai, pehle ek useful safety step hai.',
+    },
+  },
+  {
+    question: 'What is the difference between AI, machine learning, and deep learning?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'They are nested. AI is the broadest field: any system performing tasks that appear to require intelligence, including rule-based expert systems with no learning at all. MACHINE LEARNING is the subset that learns patterns from data rather than following hand-written rules. DEEP LEARNING is the subset of ML using multi-layer neural networks, which excel when data is abundant and unstructured — images, audio, text — and where features are best learned rather than engineered.',
+      hinglish:
+        'Wo ek doosre ke andar hain. AI sabse chaudi field hai: koi bhi system jo aise kaam kare jo intelligence maangte lagein, including bina kisi learning ke rule-based expert systems. MACHINE LEARNING wo subset hai jo haath se likhe rules follow karne ke bajaye data se patterns seekhta hai. DEEP LEARNING ML ka wo subset hai jo multi-layer neural networks use karta hai, jo tab excel karte hain jab data bharpoor aur unstructured ho — images, audio, text — aur jahan features engineer karne ke bajaye seekhna behtar ho.',
+    },
+  },
+  {
+    question: 'What is an activation function and why is it needed?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An activation function introduces NON-LINEARITY between layers. Without it, stacking layers is pointless — a composition of linear maps is itself just one linear map, so a hundred-layer network would have exactly the expressive power of a single layer. ReLU is the standard hidden-layer choice for being cheap and avoiding saturation; sigmoid outputs a probability for binary classification; softmax normalises to a distribution for multi-class. Variants such as GELU are common in transformers.',
+      hinglish:
+        'Ek activation function layers ke beech NON-LINEARITY laata hai. Iske bina, layers stack karna bekaar hai — linear maps ka ek composition khud bas ek linear map hai, isliye ek sau-layer network ki expressive power theek ek single layer jitni hoti. ReLU standard hidden-layer choice hai kyunki ye sasta hai aur saturation se bachta hai; sigmoid binary classification ke liye ek probability deta hai; softmax multi-class ke liye ek distribution mein normalise karta hai. GELU jaise variants transformers mein common hain.',
+    },
+  },
+  {
+    question: 'What is dropout?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Dropout randomly deactivates a fraction of neurons during each training step, so the network cannot rely on any single unit and must learn redundant, distributed representations. It is effectively training an ensemble of subnetworks that share weights. It applies only during TRAINING — at inference all neurons are active with activations scaled appropriately, which is why forgetting to call `model.eval()` in PyTorch produces mysteriously inconsistent predictions.',
+      hinglish:
+        'Dropout har training step ke dauraan neurons ka ek hissa randomly band kar deta hai, isliye network kisi ek unit pe bharosa nahi kar sakta aur use redundant, distributed representations seekhne padte hain. Ye effectively weights share karte subnetworks ka ek ensemble train karna hai. Ye sirf TRAINING ke dauraan lagta hai — inference pe saare neurons active hote hain activations theek se scale hokar, isiliye PyTorch mein `model.eval()` call karna bhoolna rahasyamayi roop se inconsistent predictions banata hai.',
+    },
+  },
+  {
+    question: 'What is batch normalisation?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Batch norm normalises each layer\'s inputs using the mean and variance of the current mini-batch, then rescales with learned parameters. It allows higher learning rates, speeds convergence, and acts as mild regularisation. It depends on batch statistics, so it behaves poorly with very small batches and must switch to running averages at inference. Layer normalisation, which normalises across features rather than the batch, is preferred in transformers for exactly that reason.',
+      hinglish:
+        'Batch norm har layer ke inputs ko current mini-batch ke mean aur variance se normalise karta hai, phir seekhe hue parameters se dobara scale karta hai. Ye zyada learning rates allow karta hai, convergence tez karta hai, aur halki regularisation ki tarah kaam karta hai. Ye batch statistics pe depend karta hai, isliye bahut chhote batches ke saath kharab behave karta hai aur inference pe running averages pe switch karna padta hai. Layer normalisation, jo batch ke bajaye features ke across normalise karta hai, theek isi wajah se transformers mein prefer kiya jaata hai.',
+    },
+  },
+  {
+    question: 'What is the vanishing gradient problem?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'In a deep network, backpropagation multiplies gradients layer by layer. If those factors are consistently below one — as with saturated sigmoid or tanh activations — the product shrinks exponentially and early layers receive almost no gradient, so they stop learning. Solutions: ReLU-family activations that do not saturate for positive inputs, residual connections giving gradients a direct path, careful initialisation, and normalisation layers. The opposite failure, exploding gradients, is handled with gradient clipping.',
+      hinglish:
+        'Ek deep network mein, backpropagation gradients ko layer dar layer multiply karta hai. Agar wo factors lagatar ek se kam hain — jaise saturated sigmoid ya tanh activations ke saath — product exponentially sikudta hai aur shuruaati layers ko almost koi gradient nahi milta, isliye wo seekhna band kar deti hain. Solutions: ReLU-family activations jo positive inputs ke liye saturate nahi hote, residual connections jo gradients ko ek seedha raasta dete hain, dhyaan se initialisation, aur normalisation layers. Ulti failure, exploding gradients, gradient clipping se sambhali jaati hai.',
+    },
+  },
+  {
+    question: 'What is a confusion between correlation and causation in ML?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Models learn CORRELATIONS, which is enough for prediction but not for deciding interventions. A model may learn that customers who contact support churn more — but removing support would not reduce churn, because contacting support is a symptom, not a cause. The distinction becomes critical the moment someone uses model output to justify an action. Establishing causation needs experiments or causal inference methods, not a better fit on observational data.',
+      hinglish:
+        'Models CORRELATIONS seekhte hain, jo prediction ke liye kaafi hai par interventions decide karne ke liye nahi. Ek model seekh sakta hai ki support se sampark karne wale customers zyada churn karte hain — par support hataana churn kam nahi karega, kyunki support se sampark ek lakshan hai, ek karan nahi. Ye farak us pal critical ho jaata hai jab koi ek action justify karne ke liye model output use kare. Causation sthapit karne ke liye experiments ya causal inference methods chahiye, observational data pe ek behtar fit nahi.',
+    },
+  },
+  {
+    question: 'How do you detect and reduce bias in a machine learning model?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Detect it by measuring performance SEPARATELY across demographic groups rather than only in aggregate, since an overall metric hides a model that works well for the majority and poorly for a minority. Audit the training data for representation, and check whether proxy features encode a protected attribute — postcode often encodes race. Mitigations: rebalance or augment data, apply fairness constraints during training, adjust thresholds per group, and keep humans in the loop for consequential decisions.',
+      hinglish:
+        'Ise performance ko demographic groups ke across ALAG-ALAG maap kar pakado, sirf aggregate mein nahi, kyunki ek overall metric ek aise model ko chhupa deta hai jo majority ke liye achha aur ek minority ke liye kharab kaam karta hai. Training data ka representation ke liye audit karo, aur check karo ki proxy features ek protected attribute encode karte hain ya nahi — postcode aksar race encode karta hai. Mitigations: data rebalance ya augment karo, training ke dauraan fairness constraints lagao, per group thresholds adjust karo, aur bade nateeje wale decisions ke liye insaan loop mein rakho.',
+    },
+  },
+  {
+    question: 'What is the difference between a loss function and an evaluation metric?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The LOSS is what the optimiser minimises during training, so it must be differentiable and well-behaved — cross-entropy, MSE. The METRIC is what you actually care about and report — accuracy, F1, revenue, click-through rate — and it often is NOT differentiable, so it cannot be optimised directly. That gap is why a model can improve on loss while the metric stagnates, and why you should always track both, selecting models on the metric.',
+      hinglish:
+        'LOSS wo hai jise optimiser training ke dauraan kam karta hai, isliye use differentiable aur achhe behaviour wala hona chahiye — cross-entropy, MSE. METRIC wo hai jiski tumhe actually parwah hai aur jise tum report karte ho — accuracy, F1, revenue, click-through rate — aur wo aksar differentiable NAHI hota, isliye use seedha optimise nahi kiya ja sakta. Wahi gap wajah hai ki ek model loss pe behtar ho sakta hai jabki metric ruka rahe, aur isiliye tumhe hamesha dono track karne chahiye, models metric pe chunte hue.',
+    },
+  },
+  {
+    question: 'What is early stopping?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Early stopping monitors validation loss during training and halts when it stops improving for a set number of epochs (the patience), restoring the best checkpoint. It prevents overfitting without needing to guess the right number of epochs, and saves compute. Two practical points: monitor VALIDATION loss, never training loss, which keeps falling regardless; and set patience high enough that a temporary plateau does not stop a run that would have improved.',
+      hinglish:
+        'Early stopping training ke dauraan validation loss monitor karta hai aur tab rok deta hai jab wo tay sankhya ke epochs (patience) tak behtar hona band kar de, sabse achha checkpoint wapas laate hue. Ye sahi epochs ka andaaza lagaye bina overfitting rokta hai, aur compute bachata hai. Do practical points: VALIDATION loss monitor karo, kabhi training loss nahi, jo chahe kuch bhi ho girti rehti hai; aur patience itna zyada rakho ki ek asthayi plateau ek aise run ko na roke jo behtar hone wala tha.',
+    },
+  },
+  {
+    question: 'What is the difference between epoch, batch, and iteration?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'An EPOCH is one complete pass over the training dataset. A BATCH is the group of samples processed before a single weight update. An ITERATION is one such update. So with 10,000 samples and a batch size of 100, one epoch equals 100 iterations. Larger batches give more stable gradients and better GPU utilisation but fewer updates per epoch and sometimes worse generalisation, which is why batch size interacts with learning rate.',
+      hinglish:
+        'Ek EPOCH training dataset pe ek poora pass hai. Ek BATCH samples ka wo group hai jo ek single weight update se pehle process hota hai. Ek ITERATION ek aisa update hai. Isliye 10,000 samples aur 100 ke batch size ke saath, ek epoch 100 iterations ke barabar hai. Bade batches zyada stable gradients aur behtar GPU utilisation dete hain par per epoch kam updates aur kabhi-kabhi kharab generalisation, isiliye batch size learning rate se interact karta hai.',
+    },
+  },
+  {
+    question: 'Why do you need to scale features for some algorithms but not others?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Algorithms that use DISTANCES or gradients are sensitive to scale: KNN, SVM, k-means, PCA, and neural networks all let a feature measured in thousands dominate one measured in fractions. Tree-based models split on thresholds within a single feature at a time, so any monotonic rescaling leaves the splits unchanged and scaling is unnecessary. Standardisation suits roughly normal data; min-max suits bounded ranges; and the scaler must be fitted on training data only.',
+      hinglish:
+        'Jo algorithms DISTANCES ya gradients use karte hain wo scale ke prati sensitive hain: KNN, SVM, k-means, PCA, aur neural networks sab hazaaron mein maape ek feature ko dashamlav mein maape ek pe haavi hone dete hain. Tree-based models ek baar mein ek hi feature ke andar thresholds pe split karte hain, isliye koi bhi monotonic rescaling splits ko nahi badalti aur scaling gair-zaroori hai. Standardisation lagbhag normal data ko suit karta hai; min-max bounded ranges ko; aur scaler sirf training data pe fit hona chahiye.',
     },
   },
 ];

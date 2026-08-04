@@ -785,7 +785,7 @@ const advanced = [
           {
             question: 'How do you generate unique short codes and avoid collisions?',
             difficulty: 'hard',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Two common approaches. (1) Counter + base62: keep a globally unique auto-incrementing ID (from the DB or a distributed ID generator like a ticket server / Snowflake) and encode it in base62 to get a short string. This guarantees uniqueness with no collision check, and 7 base62 chars cover ~3.5 trillion codes. (2) Hashing: hash the long URL (e.g. MD5) and take the first N characters; this can collide, so you check the DB and, on a clash, append/retry or rehash. The counter approach is simpler and collision-free but reveals ordering; hashing hides ordering but needs collision handling. For custom aliases, just check availability and reserve the chosen code.',
@@ -915,7 +915,7 @@ export const generalInterviewQuestions = [
   {
     question: 'How would you design a URL shortener (like bit.ly)?',
     difficulty: 'hard',
-    frequency: 'very-common',
+    frequency: 'common',
     answer: {
       english:
         'Core: map a short code to a long URL. Generate a unique short code (base62 of an auto-increment ID, or a hash with collision checks). Store the mapping in a database (key = short code), and put a cache (Redis) in front for fast, read-heavy lookups. On redirect, look up the code (cache then DB) and return an HTTP 301/302 to the long URL. Scale reads with caching and read replicas; scale writes/storage with sharding by short code. Add analytics via an async queue, rate limiting to prevent abuse, and a CDN. Discuss trade-offs: code length vs capacity, custom aliases, and expiry.',
@@ -932,6 +932,503 @@ export const generalInterviewQuestions = [
         'Rate limiting caps how many requests a client can make in a time window (e.g. 100 requests/minute). It protects services from abuse, DDoS, and accidental overload, ensures fair usage, and controls cost. Common algorithms: fixed window, sliding window, token bucket (allows bursts up to a capacity), and leaky bucket (smooths output). It is usually enforced at the API gateway or load balancer using a fast store like Redis to track counters per client/key.',
       hinglish:
         'Rate limiting cap karta hai ek client ek time window mein kitni requests kar sakta hai (jaise 100 requests/minute). Ye services ko abuse, DDoS, aur accidental overload se bachata hai, fair usage ensure karta hai, aur cost control karta hai. Common algorithms: fixed window, sliding window, token bucket (capacity tak bursts allow), aur leaky bucket (output smooth). Ye aksar API gateway ya load balancer pe enforce hota hai, Redis jaise fast store se per client/key counters track karke.',
+    },
+  },
+
+  // ─── Fundamentals ───────────────────────────────────────────
+  {
+    question: 'How do you approach a system design interview question?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Clarify REQUIREMENTS first — functional features, then non-functional ones: expected users, read/write ratio, latency target, consistency needs. Estimate scale roughly, since 1,000 users and 100 million lead to different designs. Define the API, then the data model, then a simple high-level architecture. Only THEN identify bottlenecks and scale them — caching, replicas, sharding, queues. Discuss trade-offs explicitly. Jumping straight to "we will use Kafka and microservices" without requirements is the classic failure.',
+      hinglish:
+        'Pehle REQUIREMENTS saaf karo — functional features, phir non-functional: expected users, read/write ratio, latency target, consistency ki zaroorat. Scale ka mota andaaza lagao, kyunki 1,000 users aur 10 crore alag designs tak le jaate hain. API define karo, phir data model, phir ek simple high-level architecture. TAB jaakar bottlenecks pehchano aur unhe scale karo — caching, replicas, sharding, queues. Trade-offs explicitly discuss karo. Bina requirements ke seedha "hum Kafka aur microservices use karenge" pe koodna classic failure hai.',
+    },
+  },
+  {
+    question: 'What is the CAP theorem and what does it actually mean in practice?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'CAP says a distributed system cannot simultaneously guarantee Consistency, Availability, and Partition tolerance. In practice partitions WILL happen on a real network, so P is not optional — the actual choice is what to do DURING a partition: refuse requests to stay consistent (CP, like a traditional relational database or etcd) or keep serving possibly stale data (AP, like Cassandra or DynamoDB). Note the choice applies only during a partition; the rest of the time you can have both.',
+      hinglish:
+        'CAP kehta hai ki ek distributed system ek saath Consistency, Availability, aur Partition tolerance guarantee nahi kar sakta. Practically ek real network pe partitions HONGE hi, isliye P optional nahi — asli choice ye hai ki partition ke DAURAAN kya karein: consistent rehne ke liye requests mana karo (CP, ek traditional relational database ya etcd ki tarah) ya shayad purana data serve karte raho (AP, Cassandra ya DynamoDB ki tarah). Note karo ye choice sirf partition ke dauraan lagti hai; baaki waqt tum dono paa sakte ho.',
+    },
+  },
+  {
+    question: 'What is eventual consistency?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Eventual consistency guarantees that if writes stop, all replicas will CONVERGE to the same value — but for some window, different replicas may return different answers. It buys availability and low latency, which is why it powers DNS, social feeds, and shopping carts, where a few seconds of staleness harms nobody. It is wrong for anything where a stale read causes real damage — account balances, inventory at checkout, or a permission check.',
+      hinglish:
+        'Eventual consistency guarantee karti hai ki agar writes ruk jaayein, saare replicas ek hi value pe MIL jaayenge — par kuch samay ke liye, alag replicas alag jawab de sakte hain. Ye availability aur kam latency khareedti hai, isiliye ye DNS, social feeds, aur shopping carts chalati hai, jahan kuch second ka puranapan kisi ko nuksaan nahi karta. Ye us har cheez ke liye galat hai jahan ek purana read asli nuksaan kare — account balances, checkout pe inventory, ya ek permission check.',
+    },
+  },
+  {
+    question: 'What is the difference between vertical and horizontal scaling?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'VERTICAL scaling adds resources to one machine — simple, requires no code change, but has a hard hardware ceiling, is expensive at the top end, and leaves a single point of failure. HORIZONTAL scaling adds more machines behind a load balancer, which scales far further and improves fault tolerance, but demands the application be STATELESS and introduces distributed-systems problems. Most designs start vertical and move horizontal, because horizontal complexity is only worth paying when you need it.',
+      hinglish:
+        'VERTICAL scaling ek machine mein resources jodta hai — simple, code badalne ki zaroorat nahi, par iski ek sakht hardware chhat hai, upar ke sire pe mehnga hai, aur ek single point of failure chhod deta hai. HORIZONTAL scaling ek load balancer ke peeche zyada machines jodta hai, jo bahut aage tak scale karta hai aur fault tolerance behtar karta hai, par application ka STATELESS hona maangta hai aur distributed-systems ki problems laata hai. Zyadatar designs vertical se shuru karke horizontal jaate hain, kyunki horizontal complexity tabhi bharni chahiye jab zaroorat ho.',
+    },
+  },
+  {
+    question: 'What is a load balancer and what algorithms does it use?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A load balancer distributes traffic across servers, removes failed instances from rotation, and often terminates TLS. Algorithms: ROUND ROBIN cycles evenly; LEAST CONNECTIONS favours the least busy server and suits long-lived connections; IP HASH sends the same client to the same server, giving session affinity; WEIGHTED accounts for uneven server capacity. Layer 4 balances on IP and port and is faster; Layer 7 reads HTTP and can route by path or header.',
+      hinglish:
+        'Ek load balancer traffic ko servers ke across baantta hai, fail hue instances ko rotation se hataata hai, aur aksar TLS terminate karta hai. Algorithms: ROUND ROBIN barabar ghumata hai; LEAST CONNECTIONS sabse kam vyast server chunta hai aur lambe connections ko suit karta hai; IP HASH usi client ko usi server pe bhejta hai, session affinity dete hue; WEIGHTED asमान server capacity ka hisaab rakhta hai. Layer 4 IP aur port pe balance karta hai aur tez hai; Layer 7 HTTP padhta hai aur path ya header se route kar sakta hai.',
+    },
+  },
+  {
+    question: 'What are the common caching strategies?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'CACHE-ASIDE (lazy loading) is the most common: the app checks the cache, and on a miss reads the database and populates it — simple, but the first request is always slow and stale data is possible. READ-THROUGH puts the cache in front of the database transparently. WRITE-THROUGH writes to both synchronously, keeping them consistent at the cost of write latency. WRITE-BEHIND writes to the cache and flushes asynchronously — fastest, but data can be lost if the cache dies.',
+      hinglish:
+        'CACHE-ASIDE (lazy loading) sabse common hai: app cache check karta hai, aur miss pe database padh kar use bharta hai — simple, par pehli request hamesha slow hai aur purana data possible hai. READ-THROUGH cache ko database ke aage transparently rakhta hai. WRITE-THROUGH dono mein ek saath likhta hai, unhe consistent rakhte hue write latency ke cost pe. WRITE-BEHIND cache mein likh kar asynchronously flush karta hai — sabse tez, par cache marne pe data kho sakta hai.',
+    },
+  },
+  {
+    question: 'What are cache eviction policies?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'When a cache is full, something must be removed. LRU evicts the least recently used and is the sensible default, since recency predicts reuse well. LFU evicts the least frequently used, which suits stable popularity but can keep a once-hot item forever. FIFO evicts the oldest regardless of use. TTL expires entries after a fixed time and is what bounds staleness. Most systems combine LRU with a TTL: LRU handles memory pressure, TTL handles correctness.',
+      hinglish:
+        'Jab ek cache bhar jaaye, kuch hataana padta hai. LRU sabse kam haal mein use hua hataata hai aur samajhdaar default hai, kyunki recency dobara use hone ka achha andaaza deti hai. LFU sabse kam baar use hua hataata hai, jo sthir popularity ko suit karta hai par ek kabhi-hot item ko hamesha rakh sakta hai. FIFO use chahe kuch bhi ho sabse purana hataata hai. TTL entries ko ek tay samay ke baad expire karta hai aur wahi puranapan seemit karta hai. Zyadatar systems LRU ko ek TTL ke saath jodte hain: LRU memory pressure sambhalta hai, TTL correctness.',
+    },
+  },
+  {
+    question: 'How do you invalidate a cache?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Three approaches. TTL-based expiry is simplest and bounds staleness without any coordination, at the cost of serving stale data until it expires. EXPLICIT invalidation deletes or updates the key when the underlying data changes — accurate but easy to miss a write path, and hard when one change affects many cached keys. VERSIONED keys sidestep deletion by including a version in the key, so old entries simply age out. Cache invalidation is genuinely one of the hard problems.',
+      hinglish:
+        'Teen approaches. TTL-based expiry sabse simple hai aur bina kisi coordination ke puranapan seemit karta hai, expire hone tak purana data serve karne ke cost pe. EXPLICIT invalidation underlying data badalne pe key delete ya update karta hai — sateek par ek write path chhootna aasaan, aur mushkil jab ek change bahut cached keys ko affect kare. VERSIONED keys key mein ek version daal kar deletion se bachte hain, isliye purani entries bas puraani padkar nikal jaati hain. Cache invalidation genuinely mushkil problems mein se ek hai.',
+    },
+  },
+  {
+    question: 'What is database sharding and how do you choose a shard key?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Sharding splits data horizontally across servers so writes and storage scale beyond one machine. The shard key determines placement and is effectively permanent, so it deserves careful thought: it needs high cardinality, even distribution, and should appear in your common queries so requests hit one shard rather than all of them. Bad keys create HOTSPOTS — a timestamp sends every new write to one shard — or force scatter-gather reads. Cross-shard joins and transactions become expensive or impossible.',
+      hinglish:
+        'Sharding data ko servers ke across horizontally baantta hai taaki writes aur storage ek machine se aage scale karein. Shard key placement decide karti hai aur effectively permanent hai, isliye ise dhyaan chahiye: use high cardinality, even distribution chahiye, aur wo tumhari common queries mein aani chahiye taaki requests sab shards ke bajaye ek pe jaayein. Buri keys HOTSPOTS banati hain — ek timestamp har naya write ek shard pe bhejta hai — ya scatter-gather reads force karti hain. Cross-shard joins aur transactions mehnge ya asambhav ho jaate hain.',
+    },
+  },
+  {
+    question: 'What is consistent hashing and why is it useful?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'With plain modulo hashing, adding or removing a node changes the mapping for almost EVERY key, so a cache cluster effectively empties on any topology change. Consistent hashing places nodes and keys on a ring, and each key goes to the next node clockwise — so adding a node remaps only the keys in its arc, roughly 1/n of them. VIRTUAL NODES spread each physical node across many ring positions to even out the distribution. It underpins DynamoDB, Cassandra, and distributed caches.',
+      hinglish:
+        'Plain modulo hashing ke saath, ek node jodna ya hataana ALMOST HAR key ki mapping badal deta hai, isliye ek cache cluster kisi bhi topology change pe effectively khaali ho jaata hai. Consistent hashing nodes aur keys ko ek ring pe rakhta hai, aur har key clockwise agle node pe jaati hai — isliye ek node jodna sirf uske arc ki keys remap karta hai, lagbhag 1/n. VIRTUAL NODES har physical node ko bahut ring positions pe failate hain taaki distribution barabar ho. Ye DynamoDB, Cassandra, aur distributed caches ke neeche hai.',
+    },
+  },
+  {
+    question: 'What is the difference between replication and sharding?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'REPLICATION copies the SAME data to multiple servers, which improves read throughput and provides redundancy for failover — but every replica holds the full dataset, so it does not help with storage size or write throughput. SHARDING splits DIFFERENT data across servers, which scales both writes and storage but adds no redundancy on its own. Real systems use both: shard for capacity, then replicate each shard for availability.',
+      hinglish:
+        'REPLICATION WAHI data multiple servers pe copy karta hai, jo read throughput behtar karta hai aur failover ke liye redundancy deta hai — par har replica poora dataset rakhta hai, isliye ye storage size ya write throughput mein madad nahi karta. SHARDING ALAG data servers ke across baantta hai, jo writes aur storage dono scale karta hai par khud koi redundancy nahi deta. Asli systems dono use karte hain: capacity ke liye shard karo, phir availability ke liye har shard ko replicate karo.',
+    },
+  },
+  {
+    question: 'What is the difference between SQL and NoSQL, and how do you choose?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'SQL databases offer a fixed schema, ACID transactions, powerful joins, and mature tooling — the right default when data is relational and correctness matters. NoSQL covers several families: document stores for flexible schemas, key-value for simple high-throughput lookups, wide-column for massive write volumes, and graph for relationship traversal. Choose by ACCESS PATTERN, not by fashion. Modern Postgres handles JSON and scales far enough that "we need NoSQL for scale" is usually premature.',
+      hinglish:
+        'SQL databases ek fixed schema, ACID transactions, taakatwar joins, aur pakka tooling dete hain — sahi default jab data relational ho aur correctness matter kare. NoSQL kai families cover karta hai: flexible schemas ke liye document stores, simple high-throughput lookups ke liye key-value, bade write volumes ke liye wide-column, aur relationship traversal ke liye graph. ACCESS PATTERN se chuno, fashion se nahi. Modern Postgres JSON handle karta hai aur itna scale karta hai ki "scale ke liye NoSQL chahiye" usually jaldbaazi hai.',
+    },
+  },
+  {
+    question: 'What is a message queue and when do you need one?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A queue decouples a producer from a consumer: the producer enqueues work and returns immediately, and a worker processes it later. You need one when work is slow (video encoding, report generation), when you must absorb traffic SPIKES without dropping requests, when a failing downstream service should not fail the user request, or when several consumers need the same event. The costs are added latency, eventual consistency, and the need to handle duplicates and failures.',
+      hinglish:
+        'Ek queue ek producer ko ek consumer se alag karti hai: producer kaam enqueue karke turant lautta hai, aur ek worker use baad mein process karta hai. Ye tab chahiye jab kaam slow ho (video encoding, report generation), jab tumhe traffic ke UBHAAR bina requests gira ye sokhne hon, jab ek fail hoti downstream service user request fail na kare, ya jab kai consumers ko wahi event chahiye. Costs hain badhi latency, eventual consistency, aur duplicates aur failures sambhalne ki zaroorat.',
+    },
+  },
+  {
+    question: 'What is the difference between a message queue and a pub-sub system?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'In a QUEUE, each message is delivered to exactly ONE consumer, so adding workers distributes load — the model for task processing. In PUB-SUB, each message goes to EVERY subscriber, so one event can trigger many independent reactions — the model for event notification. Kafka blends both with consumer groups: within a group messages are split like a queue, while separate groups each receive the full stream like pub-sub.',
+      hinglish:
+        'Ek QUEUE mein, har message theek EK consumer tak jaata hai, isliye workers jodna load baantta hai — task processing ka model. PUB-SUB mein, har message HAR subscriber tak jaata hai, isliye ek event bahut swatantra reactions trigger kar sakta hai — event notification ka model. Kafka consumer groups se dono milata hai: ek group ke andar messages ek queue ki tarah bantte hain, jabki alag groups har ek poora stream pub-sub ki tarah paate hain.',
+    },
+  },
+  {
+    question: 'What is idempotency and why does it matter in distributed systems?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'An idempotent operation produces the same result whether applied once or many times. It matters because networks are unreliable: a client that times out will retry, and a queue that guarantees at-least-once delivery will redeliver — so without idempotency a user gets charged twice. Implement it with an idempotency KEY the server records, or design operations to be naturally idempotent (set the value to X rather than increment it). Any retry mechanism demands this.',
+      hinglish:
+        'Ek idempotent operation ek baar lagane ya bahut baar lagane pe wahi nateeja deta hai. Ye isliye matter karta hai kyunki networks bharosemand nahi: ek client jo timeout hota hai retry karega, aur ek queue jo at-least-once delivery guarantee karti hai dobara bhejegi — isliye idempotency ke bina ek user do baar charge ho jaata hai. Ise ek idempotency KEY se implement karo jise server record kare, ya operations ko swabhavik roop se idempotent banao (increment karne ke bajaye value ko X set karo). Koi bhi retry mechanism ye maangta hai.',
+    },
+  },
+  {
+    question: 'What are monoliths and microservices, and when should you choose each?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A MONOLITH is one deployable unit — simple to develop, test, deploy, and debug, with in-process calls and easy transactions. MICROSERVICES split by business capability, allowing independent deployment, scaling, and technology choices, at the cost of network calls, distributed transactions, harder debugging, and real operational overhead. The honest guidance is to start with a well-structured monolith and extract services only when a specific team or scaling pressure justifies it.',
+      hinglish:
+        'Ek MONOLITH ek deployable unit hai — develop, test, deploy, aur debug karna simple, in-process calls aur aasaan transactions ke saath. MICROSERVICES business capability se bantte hain, swatantra deployment, scaling, aur technology choices dete hue, network calls, distributed transactions, mushkil debugging, aur asli operational bojh ke cost pe. Imaandaar salah ye hai ki ek achhe structure wale monolith se shuru karo aur services tabhi nikaalo jab ek khaas team ya scaling ka dabaav ise sahi thehraaye.',
+    },
+  },
+  {
+    question: 'What is the saga pattern?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A saga manages a transaction spanning multiple services, where a single ACID transaction is impossible. It is a sequence of local transactions, each publishing an event that triggers the next; if any step fails, COMPENSATING transactions undo the earlier ones — refunding a payment rather than rolling back a database. CHOREOGRAPHY has services react to each other\'s events; ORCHESTRATION uses a central coordinator, which is easier to reason about and debug.',
+      hinglish:
+        'Ek saga multiple services pe faili ek transaction manage karta hai, jahan ek single ACID transaction asambhav hai. Ye local transactions ka ek sequence hai, har ek ek event publish karta hua jo agla trigger kare; agar koi step fail ho, COMPENSATING transactions pichhle undo karte hain — ek database rollback karne ke bajaye ek payment refund karna. CHOREOGRAPHY mein services ek doosre ke events pe react karti hain; ORCHESTRATION ek central coordinator use karta hai, jise samajhna aur debug karna easier hai.',
+    },
+  },
+  {
+    question: 'What is an API gateway?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An API gateway is a single entry point in front of many services, handling cross-cutting concerns centrally: routing, authentication, rate limiting, TLS termination, request aggregation, and logging. It means each service does not reimplement auth, and clients see one address instead of a dozen. Its risks are becoming a single point of failure and accumulating business logic that belongs in a service — keep it about routing and policy, not domain rules.',
+      hinglish:
+        'Ek API gateway bahut services ke aage ek single entry point hai, cross-cutting concerns ko ek jagah sambhalte hue: routing, authentication, rate limiting, TLS termination, request aggregation, aur logging. Iska matlab har service auth dobara nahi banati, aur clients ek darjan ke bajaye ek address dekhte hain. Iske risks ek single point of failure ban jaana aur aisi business logic ikattha karna hai jo ek service ki hai — ise routing aur policy tak rakho, domain rules tak nahi.',
+    },
+  },
+  {
+    question: 'What is a CDN and how does it work?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A CDN is a network of geographically distributed edge servers caching content near users, so a request from Delhi is served from Mumbai rather than Virginia. That cuts latency dramatically, reduces origin load, and absorbs traffic spikes and some DDoS. Traditionally for static assets, modern CDNs also cache API responses and run edge compute. Control it with cache headers, and use content-hashed filenames so a deploy invalidates naturally rather than requiring a purge.',
+      hinglish:
+        'Ek CDN bhaugolik roop se faile edge servers ka ek network hai jo users ke paas content cache karta hai, isliye Delhi se ek request Virginia ke bajaye Mumbai se serve hoti hai. Ye latency dramatically kam karta hai, origin load ghataata hai, aur traffic ubhaar aur kuch DDoS sokh leta hai. Traditionally static assets ke liye, modern CDNs API responses bhi cache karte hain aur edge compute chalate hain. Ise cache headers se control karo, aur content-hashed filenames use karo taaki ek deploy purge maange bina swabhavik roop se invalidate ho.',
+    },
+  },
+  {
+    question: 'How would you design a URL shortener?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Two endpoints: create a short code for a URL, and redirect. Generate the code from a distributed counter encoded in base62 (short and collision-free) rather than hashing, which needs collision handling. Store the mapping in a key-value store — reads vastly outnumber writes, so cache aggressively and put popular codes in Redis. Return a 301 for permanent or 302 if you want to count clicks. Scale reads with replicas and a CDN; shard by code when storage demands it.',
+      hinglish:
+        'Do endpoints: ek URL ke liye ek short code banao, aur redirect karo. Code ko base62 mein encode kiye ek distributed counter se banao (chhota aur bina collision) hashing ke bajaye, jise collision handling chahiye. Mapping ko ek key-value store mein rakho — reads writes se bahut zyada hain, isliye aggressively cache karo aur popular codes Redis mein rakho. Permanent ke liye 301 ya clicks ginne ke liye 302 lautao. Reads ko replicas aur ek CDN se scale karo; storage maange to code se shard karo.',
+    },
+  },
+  {
+    question: 'How would you design a rate limiter?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Pick the algorithm by requirement. FIXED WINDOW is simplest but allows a double burst at the boundary. SLIDING WINDOW LOG is exact but stores every timestamp. TOKEN BUCKET allows controlled bursts and is the usual choice for APIs. Store counters in Redis so limits are shared across instances, and use atomic operations or a Lua script to avoid races. Return 429 with `Retry-After`. Decide the key carefully: per user, per IP, or per endpoint.',
+      hinglish:
+        'Algorithm requirement se chuno. FIXED WINDOW sabse simple hai par boundary pe ek dugna burst allow karta hai. SLIDING WINDOW LOG sateek hai par har timestamp store karta hai. TOKEN BUCKET controlled bursts allow karta hai aur APIs ke liye usual choice hai. Counters Redis mein rakho taaki limits instances ke across share hon, aur races se bachne ke liye atomic operations ya ek Lua script use karo. `Retry-After` ke saath 429 lautao. Key dhyaan se decide karo: per user, per IP, ya per endpoint.',
+    },
+  },
+  {
+    question: 'How would you design a news feed?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Two models. FAN-OUT ON WRITE precomputes each user\'s feed when a post is created, giving very fast reads but enormous write amplification for a user with millions of followers. FAN-OUT ON READ assembles the feed at request time — cheap writes, slow reads. Real systems use a HYBRID: fan out on write for ordinary users, and fetch celebrity posts at read time and merge. Add ranking, pagination by cursor, and heavy caching of the assembled feed.',
+      hinglish:
+        'Do models. FAN-OUT ON WRITE post banate waqt har user ka feed pehle se banata hai, bahut tez reads dete hue par crore followers wale user ke liye bahut badi write amplification. FAN-OUT ON READ request ke waqt feed jodta hai — saste writes, slow reads. Asli systems ek HYBRID use karte hain: aam users ke liye write pe fan out, aur celebrity posts read ke waqt laakar merge. Ranking, cursor se pagination, aur jude hue feed ki bhaari caching jodo.',
+    },
+  },
+  {
+    question: 'How would you design a chat application?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use WEBSOCKETS for a persistent bidirectional connection rather than polling. A connection registry maps user to the server holding their socket, so a message routes to the right node — with a pub-sub layer such as Redis to deliver across servers. Persist messages in a store partitioned by conversation and ordered by time. Queue messages for offline users and deliver on reconnect. Add delivery receipts, and handle ordering, deduplication, and reconnection explicitly.',
+      hinglish:
+        'Polling ke bajaye ek sthir bidirectional connection ke liye WEBSOCKETS use karo. Ek connection registry user ko us server pe map karti hai jo uska socket rakhta hai, isliye ek message sahi node pe route hota hai — servers ke across pahunchane ke liye Redis jaisi ek pub-sub layer ke saath. Messages ko conversation se partition aur samay se order kiye ek store mein rakho. Offline users ke liye messages queue karo aur reconnect pe pahuncha do. Delivery receipts jodo, aur ordering, deduplication, aur reconnection explicitly sambhalo.',
+    },
+  },
+  {
+    question: 'What is the difference between WebSockets, long polling, and server-sent events?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'LONG POLLING holds an HTTP request open until data arrives, then reconnects — works everywhere but is inefficient and adds latency per cycle. SERVER-SENT EVENTS is a one-way server-to-client stream over plain HTTP with automatic reconnection — ideal for notifications and live updates. WEBSOCKETS provide a full-duplex persistent connection, which is what chat, collaboration, and games need. Choose SSE when the client only receives; WebSockets when it must also send frequently.',
+      hinglish:
+        'LONG POLLING ek HTTP request ko data aane tak khula rakhta hai, phir dobara judta hai — har jagah kaam karta hai par inefficient hai aur per cycle latency jodta hai. SERVER-SENT EVENTS plain HTTP pe ek taraf ka server-se-client stream hai automatic reconnection ke saath — notifications aur live updates ke liye ideal. WEBSOCKETS ek full-duplex sthir connection dete hain, jo chat, collaboration, aur games ko chahiye. SSE tab chuno jab client sirf receive kare; WebSockets jab use aksar bhejna bhi ho.',
+    },
+  },
+  {
+    question: 'What is database indexing and what is its cost?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An index is a sorted structure, usually a B-tree, letting the database find rows without scanning the table — turning O(n) into O(log n). The costs are real: every index consumes storage and must be updated on every insert, update, and delete, so an over-indexed table has slow writes. Index the columns you filter, join, and sort on; a compound index follows the leftmost-prefix rule, so column order is a design decision.',
+      hinglish:
+        'Ek index ek sorted structure hai, usually ek B-tree, jo database ko table scan kiye bina rows dhoondhne deta hai — O(n) ko O(log n) mein badalte hue. Costs asli hain: har index storage khaata hai aur har insert, update, aur delete pe update hona padta hai, isliye zyada index wali ek table ke writes slow hote hain. Un columns pe index karo jinpe tum filter, join, aur sort karte ho; ek compound index leftmost-prefix rule follow karta hai, isliye column order ek design decision hai.',
+    },
+  },
+  {
+    question: 'What is the N+1 query problem?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'One query fetches a list of N items, then a separate query runs for each one to load a relation — 101 round trips for 100 posts and their authors. It is usually invisible in development with ten rows and catastrophic in production. Fixes: a JOIN, an eager-loading option in your ORM, or a batched second query using `WHERE id IN (...)`. In GraphQL, DataLoader batches and deduplicates within a request. Detect it by logging query counts per request.',
+      hinglish:
+        'Ek query N items ki ek list laati hai, phir har ek ke liye ek relation load karne ko ek alag query chalti hai — 100 posts aur unke authors ke liye 101 round trips. Ye development mein das rows ke saath usually invisible hai aur production mein vinaashkari. Fixes: ek JOIN, tumhare ORM mein ek eager-loading option, ya `WHERE id IN (...)` use karti ek batched doosri query. GraphQL mein, DataLoader ek request ke andar batch aur deduplicate karta hai. Ise per request query counts log karke pakado.',
+    },
+  },
+  {
+    question: 'What is a read replica and what problem does it introduce?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A read replica copies the primary database and serves read queries, which scales read-heavy workloads and provides a failover candidate. The problem it introduces is REPLICATION LAG: a user who writes and immediately reads may hit a replica that has not caught up and see their own change missing. Solutions: route read-after-write to the primary, use a sticky session briefly after a write, or design the UI to reflect the change optimistically.',
+      hinglish:
+        'Ek read replica primary database copy karta hai aur read queries serve karta hai, jo read-heavy workloads scale karta hai aur ek failover candidate deta hai. Jo problem ye laata hai wo REPLICATION LAG hai: ek user jo likh kar turant padhta hai wo ek aise replica pe pahunch sakta hai jo abhi pahuncha nahi aur apna hi change gayab dekhe. Solutions: read-after-write ko primary pe bhejo, ek write ke baad thodi der ek sticky session use karo, ya UI ko change optimistically dikhane ke liye design karo.',
+    },
+  },
+  {
+    question: 'What is a circuit breaker?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A circuit breaker monitors calls to a downstream service and, after a threshold of failures, OPENS — failing fast without attempting the call. After a timeout it goes HALF-OPEN, letting a probe through, and closes if it succeeds. The purpose is preventing a cascading failure: without it, every request queues on a dead dependency, exhausting threads and taking down the caller too. Pair it with timeouts, retries with backoff, and a sensible fallback.',
+      hinglish:
+        'Ek circuit breaker ek downstream service pe calls monitor karta hai aur, failures ki ek threshold ke baad, KHULTA hai — call ki koshish kiye bina turant fail karte hue. Ek timeout ke baad ye HALF-OPEN hota hai, ek probe jaane deta hai, aur safal hone pe band ho jaata hai. Maksad ek cascading failure rokna hai: iske bina, har request ek mari hui dependency pe queue hoti hai, threads khatam karte hue aur caller ko bhi gira deti hai. Ise timeouts, backoff ke saath retries, aur ek samajhdaar fallback ke saath jodo.',
+    },
+  },
+  {
+    question: 'What is backpressure and how do you handle it?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Backpressure is the signal a consumer sends when it cannot keep up with a producer. Ignoring it means queues grow without bound until memory is exhausted and the system collapses — worse than degrading gracefully. Handling it: bound queue sizes and reject or shed load beyond them, apply rate limiting upstream, use pull-based consumption so consumers set the pace, scale consumers, or drop lower-priority work. The principle is that a system should degrade predictably rather than fail catastrophically.',
+      hinglish:
+        'Backpressure wo signal hai jo ek consumer bhejta hai jab wo ek producer ke saath nahi chal paata. Ise ignore karne ka matlab hai queues bina seema badhti hain jab tak memory khatam na ho aur system dhah jaaye — gracefully degrade hone se bura. Ise sambhalna: queue sizes seemit karo aur uske aage load reject ya shed karo, upstream rate limiting lagao, pull-based consumption use karo taaki consumers raftaar tay karein, consumers scale karo, ya kam priority ka kaam giraao. Siddhant ye hai ki ek system vinaashkari roop se fail hone ke bajaye anumaan lagane layak degrade ho.',
+    },
+  },
+  {
+    question: 'How do you make a system highly available?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Eliminate single points of failure: run redundant instances across availability zones, replicate data with automatic failover, and put health-checked load balancers in front. Design for graceful degradation so a failed non-critical dependency reduces functionality rather than taking the whole system down. Add timeouts, retries with backoff and jitter, and circuit breakers. Then TEST failure deliberately — chaos engineering exists because untested failover is an assumption, not a capability.',
+      hinglish:
+        'Single points of failure hatao: availability zones ke across redundant instances chalao, automatic failover ke saath data replicate karo, aur aage health-checked load balancers rakho. Graceful degradation ke liye design karo taaki ek fail hui non-critical dependency poore system ko giraane ke bajaye functionality kam kare. Timeouts, backoff aur jitter ke saath retries, aur circuit breakers jodo. Phir failure ko jaan boojh kar TEST karo — chaos engineering isliye hai kyunki bina test kiya failover ek assumption hai, ek kshamta nahi.',
+    },
+  },
+  {
+    question: 'What is the difference between latency and throughput?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'LATENCY is the time for a single request — how fast one thing is. THROUGHPUT is requests handled per unit time — how much work gets done. They are not the same: batching raises throughput while raising latency, and a system can have excellent average latency and terrible throughput. Always report latency as PERCENTILES, not averages: p99 is what your worst-served users experience, and an average hides it completely.',
+      hinglish:
+        'LATENCY ek single request ka samay hai — ek cheez kitni tez hai. THROUGHPUT per unit time handle hui requests hai — kitna kaam ho raha hai. Wo ek nahi hain: batching throughput badhati hai jabki latency bhi badhati hai, aur ek system ki average latency shaandaar aur throughput bekaar ho sakti hai. Latency hamesha PERCENTILES mein batao, averages mein nahi: p99 wo hai jo tumhare sabse bure serve hue users anubhav karte hain, aur ek average use poori tarah chhupa deta hai.',
+    },
+  },
+  {
+    question: 'Why do you measure p99 latency instead of average?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'An average is dominated by the bulk of fast requests and hides the tail. If 99% of requests take 50ms and 1% take 10 seconds, the average looks fine while one user in a hundred has a broken experience. At scale that 1% is thousands of people, and because a single page often makes many backend calls, the chance of hitting the slow tail at least once compounds. Set SLOs on p95 and p99, and investigate the tail rather than the mean.',
+      hinglish:
+        'Ek average tez requests ke thok se haavi hota hai aur poonchh chhupa deta hai. Agar 99% requests 50ms leti hain aur 1% 10 second, average theek dikhta hai jabki sau mein se ek user ka anubhav toota hai. Scale pe wo 1% hazaaron log hain, aur kyunki ek single page aksar bahut backend calls karta hai, slow poonchh se kam se kam ek baar takraane ka mauka jud jaata hai. SLOs p95 aur p99 pe rakho, aur mean ke bajaye poonchh ki jaanch karo.',
+    },
+  },
+  {
+    question: 'How do you estimate capacity for a system?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Work from users to load to resources. Take daily active users, multiply by actions per user to get daily requests, divide by 86,400 for average QPS, then multiply by a peak factor of two to ten. Estimate storage as records times average size times retention, plus replication factor. Estimate bandwidth from response size times QPS. Round to convenient numbers — the goal is the right ORDER OF MAGNITUDE, since that is what determines whether one server or a hundred is the answer.',
+      hinglish:
+        'Users se load se resources tak kaam karo. Daily active users lo, per user actions se multiply karke daily requests paao, average QPS ke liye 86,400 se divide karo, phir do se das ke ek peak factor se multiply karo. Storage ka andaaza records guna average size guna retention, plus replication factor. Bandwidth ka andaaza response size guna QPS. Sahoolat ke numbers pe round karo — lakshya sahi ORDER OF MAGNITUDE hai, kyunki wahi decide karta hai ki jawab ek server hai ya sau.',
+    },
+  },
+  {
+    question: 'What is a distributed transaction and why is it avoided?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A distributed transaction spans multiple databases or services and tries to keep them atomic, classically with two-phase commit. It is avoided because it requires every participant to be available for the duration, holds locks across the network, blocks if the coordinator fails at the wrong moment, and scales poorly. Modern designs prefer eventual consistency with sagas and compensating actions, or restructure the data so a single service owns everything a transaction touches.',
+      hinglish:
+        'Ek distributed transaction multiple databases ya services pe failta hai aur unhe atomic rakhne ki koshish karta hai, classically two-phase commit se. Ise isliye avoid kiya jaata hai kyunki ise har participant ka poore samay available hona chahiye, ye network ke across locks rakhta hai, coordinator galat pal fail hone pe block ho jaata hai, aur kharab scale karta hai. Modern designs sagas aur compensating actions ke saath eventual consistency prefer karte hain, ya data ko aise badalte hain ki ek single service wo sab rakhe jise transaction chhoota hai.',
+    },
+  },
+  {
+    question: 'What is event-driven architecture?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Services communicate by emitting EVENTS describing what happened rather than calling each other directly. A producer does not know its consumers, so new consumers can be added without touching it — strong decoupling and natural extensibility. The costs are genuine: eventual consistency, harder end-to-end debugging since no single call stack exists, event ordering and duplicate handling, and schema evolution across producers and consumers that must be managed deliberately.',
+      hinglish:
+        'Services ek doosre ko seedha call karne ke bajaye kya hua batate EVENTS nikaal kar baat karti hain. Ek producer apne consumers ko nahi jaanta, isliye naye consumers use chhue bina jode ja sakte hain — majboot decoupling aur swabhavik extensibility. Costs asli hain: eventual consistency, mushkil end-to-end debugging kyunki koi single call stack nahi, event ordering aur duplicate handling, aur producers aur consumers ke across schema evolution jise jaan boojh kar manage karna padta hai.',
+    },
+  },
+  {
+    question: 'What is CQRS?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Command Query Responsibility Segregation separates the WRITE model from the READ model, so each can be optimised independently — a normalised store for writes and denormalised, pre-joined projections for reads. It suits systems where reads vastly outnumber writes or where read shapes differ sharply from the write shape. The cost is eventual consistency between the two and substantially more moving parts, so it is worth it only when a genuine asymmetry exists.',
+      hinglish:
+        'Command Query Responsibility Segregation WRITE model ko READ model se alag karta hai, taaki har ek swatantra roop se optimise ho — writes ke liye ek normalised store aur reads ke liye denormalised, pehle se jude projections. Ye un systems ko suit karta hai jahan reads writes se bahut zyada hon ya jahan read shapes write shape se bahut alag hon. Cost dono ke beech eventual consistency aur kaafi zyada chalte hisse hain, isliye ye tabhi worth hai jab ek genuine asymmetry ho.',
+    },
+  },
+  {
+    question: 'What is a bloom filter and where is it used?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A bloom filter is a compact probabilistic structure answering "might this element be in the set?" It can return a FALSE POSITIVE but never a false negative, so a negative answer is certain. That is exactly what you want as a cheap pre-check: databases use it to skip reading an SST file that definitely lacks a key, CDNs to avoid caching one-hit items, and crawlers to skip already-seen URLs. It uses a tiny fraction of the memory of a real set.',
+      hinglish:
+        'Ek bloom filter ek compact probabilistic structure hai jo "kya ye element set mein ho sakta hai?" ka jawab deta hai. Ye ek FALSE POSITIVE de sakta hai par kabhi false negative nahi, isliye ek negative jawab pakka hai. Yahi tum ek saste pre-check ke roop mein chahte ho: databases ise ek aisi SST file padhna skip karne ke liye use karte hain jisme key pakka nahi, CDNs ek-baar wale items cache karne se bachne ke liye, aur crawlers pehle dekhe URLs skip karne ke liye. Ye ek asli set ki memory ka bahut chhota hissa leta hai.',
+    },
+  },
+  {
+    question: 'How do you design for failure?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Assume every dependency will fail and every network call will time out. Set explicit timeouts everywhere — an unbounded call is a resource leak waiting to happen. Retry with exponential backoff and JITTER, or synchronised retries create a thundering herd. Add circuit breakers, bulkheads isolating resource pools so one failing dependency cannot consume all threads, and sensible fallbacks such as serving stale cache. Then verify it with deliberate failure injection.',
+      hinglish:
+        'Maan lo har dependency fail hogi aur har network call timeout hogi. Har jagah explicit timeouts rakho — ek bina seema call ek hone waala resource leak hai. Exponential backoff aur JITTER ke saath retry karo, warna ek saath hoti retries ek thundering herd banati hain. Circuit breakers jodo, resource pools alag karte bulkheads taaki ek fail hoti dependency saare threads na khaaye, aur samajhdaar fallbacks jaise purana cache serve karna. Phir ise jaan boojh kar failure injection se verify karo.',
+    },
+  },
+  {
+    question: 'What is the difference between authentication and authorisation?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'AUTHENTICATION establishes WHO you are — verifying a password, a token, a biometric. AUTHORISATION determines WHAT you may do — whether this authenticated user can read this record or call this endpoint. Authentication happens once per session; authorisation must be checked on EVERY request, and checking it only in the UI is the classic vulnerability, since the API is what an attacker actually calls.',
+      hinglish:
+        'AUTHENTICATION sthapit karta hai ki tum KAUN ho — ek password, ek token, ek biometric verify karke. AUTHORISATION decide karta hai ki tum KYA kar sakte ho — kya ye authenticated user ye record padh sakta hai ya ye endpoint call kar sakta hai. Authentication per session ek baar hota hai; authorisation HAR request pe check hona chahiye, aur ise sirf UI mein check karna classic vulnerability hai, kyunki attacker actually API hi call karta hai.',
+    },
+  },
+  {
+    question: 'How do you handle session state in a horizontally scaled system?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Do not keep sessions in server memory — a request routed to a different instance then appears logged out. Options: a SHARED STORE such as Redis, which every instance reads (simple, supports revocation, one more dependency); or STATELESS tokens such as JWTs carrying claims, which need no lookup but cannot be revoked before expiry. Sticky sessions work but break scaling and lose state when an instance dies. Shared Redis is the usual pragmatic answer.',
+      hinglish:
+        'Sessions ko server memory mein mat rakho — ek doosre instance pe gayi request phir logged out dikhti hai. Options: Redis jaisa ek SHARED STORE, jise har instance padhta hai (simple, revocation support karta hai, ek aur dependency); ya JWTs jaise STATELESS tokens jo claims le jaate hain, jinhe koi lookup nahi chahiye par expiry se pehle revoke nahi kiye ja sakte. Sticky sessions kaam karte hain par scaling todte hain aur ek instance marne pe state kho dete hain. Shared Redis usual vyavaharik jawab hai.',
+    },
+  },
+  {
+    question: 'What is the difference between a proxy and a reverse proxy?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A FORWARD proxy sits in front of CLIENTS and acts on their behalf — corporate filtering, anonymity, caching outbound requests. The server sees the proxy, not the client. A REVERSE proxy sits in front of SERVERS and acts on their behalf — load balancing, TLS termination, caching, compression, and hiding the internal topology. The client sees the proxy, not the server. Nginx, HAProxy, and Cloudflare are reverse proxies.',
+      hinglish:
+        'Ek FORWARD proxy CLIENTS ke aage baithta hai aur unki taraf se kaam karta hai — corporate filtering, gumnaami, outbound requests cache karna. Server proxy dekhta hai, client ko nahi. Ek REVERSE proxy SERVERS ke aage baithta hai aur unki taraf se kaam karta hai — load balancing, TLS termination, caching, compression, aur andar ki topology chhupana. Client proxy dekhta hai, server ko nahi. Nginx, HAProxy, aur Cloudflare reverse proxies hain.',
+    },
+  },
+  {
+    question: 'When should you denormalise a database?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Denormalise when reads dominate and joins have become the measured bottleneck — storing a comment count on a post rather than counting rows, or copying a product name into an order line. The trade is duplication: every copy must be kept in sync, and a missed update produces inconsistent data that is hard to detect. So denormalise deliberately, based on profiling rather than assumption, and be explicit about which process owns keeping each copy correct.',
+      hinglish:
+        'Tab denormalise karo jab reads haavi hon aur joins maapa gaya bottleneck ban gaye hon — ek post pe rows ginne ke bajaye ek comment count rakhna, ya ek product naam ek order line mein copy karna. Trade duplication hai: har copy ko sync mein rakhna padta hai, aur ek chhoota update aisa inconsistent data banata hai jise pakadna mushkil hai. Isliye jaan boojh kar denormalise karo, assumption ke bajaye profiling ke aadhaar pe, aur saaf raho ki har copy ko sahi rakhne ka zimma kis process ka hai.',
+    },
+  },
+  {
+    question: 'What is the difference between strong and weak consistency?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'STRONG consistency means every read returns the most recent write — the system behaves as if there were one copy — at the cost of coordination, higher latency, and reduced availability during partitions. WEAK or eventual consistency allows reads to lag, which buys availability and speed. Between them sit useful models: read-your-writes so a user always sees their own change, and monotonic reads so time never appears to move backwards.',
+      hinglish:
+        'STRONG consistency ka matlab hai har read sabse haal ka write lautaata hai — system aise behave karta hai jaise ek hi copy ho — coordination, zyada latency, aur partitions ke dauraan kam availability ke cost pe. WEAK ya eventual consistency reads ko peeche rehne deti hai, jo availability aur speed khareedti hai. Unke beech useful models baithte hain: read-your-writes taaki ek user hamesha apna change dekhe, aur monotonic reads taaki samay kabhi peeche jaata na lage.',
+    },
+  },
+  {
+    question: 'What is a data lake versus a data warehouse?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A DATA WAREHOUSE stores structured, cleaned data in a defined schema for analytics — schema-on-write, expensive but fast to query, and the source for BI reporting. A DATA LAKE stores raw data of any format cheaply — schema-on-read, flexible and suited to machine learning, but it becomes a "data swamp" without governance and cataloguing. The lakehouse pattern combines both, adding warehouse-style transactions and schema over lake storage.',
+      hinglish:
+        'Ek DATA WAREHOUSE structured, saaf data ko analytics ke liye ek tay schema mein rakhta hai — schema-on-write, mehnga par query karne mein tez, aur BI reporting ka source. Ek DATA LAKE kisi bhi format ka raw data sasta store karta hai — schema-on-read, flexible aur machine learning ke liye upyukt, par governance aur cataloguing ke bina ye ek "data swamp" ban jaata hai. Lakehouse pattern dono ko jodta hai, lake storage pe warehouse-jaise transactions aur schema jodte hue.',
+    },
+  },
+  {
+    question: 'What trade-offs would you discuss when designing any system?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Consistency versus availability. Latency versus throughput. Simplicity versus flexibility. Cost versus performance. Read optimisation versus write optimisation. Normalisation versus denormalisation. Build versus buy. The mark of a strong answer is not choosing the "best" option but naming the trade explicitly, tying it to the stated requirements, and stating what you would measure to know whether the choice was right — and what would make you revisit it.',
+      hinglish:
+        'Consistency versus availability. Latency versus throughput. Simplicity versus flexibility. Cost versus performance. Read optimisation versus write optimisation. Normalisation versus denormalisation. Build versus buy. Ek majboot jawab ki pehchaan "sabse achha" option chunna nahi hai balki trade ko explicitly naam dena, use batayi gayi requirements se jodna, aur ye batana ki tum kya maapoge ye jaanne ke liye ki choice sahi thi — aur kya tumhe use dobara dekhne pe majboor karega.',
     },
   },
 ];
