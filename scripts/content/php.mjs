@@ -880,6 +880,459 @@ export const generalInterviewQuestions = [
         'Mool siddhant hai: user input par kabhi bharosa mat karo. Saari database queries ke liye prepared statements (PDO ya mysqli) use karo taaki SQL injection ruke. User data print karne se pehle output ko htmlspecialchars() se escape karo taaki XSS na ho. Har incoming field ko validate aur sanitize karo, aur state-change karne wale actions ke liye POST plus CSRF tokens use karo. Passwords ko password_hash()/password_verify() se hash karo — kabhi plain text mein store mat karo. Production mein display_errors band karo aur errors log karo, PHP updated rakho, aur HTTPS par serve karo taaki session cookies churaai na ja sakein.',
     },
   },
+
+  // ─── Language Fundamentals ──────────────────────────────────
+  {
+    question: 'What is PHP type juggling and where does it cause bugs?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Type juggling is PHP silently converting types during a loose comparison, so `"1" == 1` is true. `===` compares value AND type, so it is false. Historically `==` produced notorious surprises — `"abc" == 0` was true before PHP 8 because the string was coerced to a number. PHP 8 fixed that specific case by comparing numeric strings more sensibly, but the general rule stands: use `===` by default and reach for `==` only when you deliberately want coercion.',
+      hinglish:
+        '`==` values ko TYPE JUGGLING ke baad compare karta hai, isliye `"1" == 1` sach hai. `===` value AUR type compare karta hai, isliye wo jhooth hai. Historically `==` badnaam hairaaniyaan banata tha — PHP 8 se pehle `"abc" == 0` sach tha kyunki string ek number mein badal di jaati thi. PHP 8 ne us khaas case ko numeric strings ko samajhdaari se compare karke theek kiya, par aam niyam wahi hai: default se `===` use karo aur `==` sirf tab uthao jab tum jaan boojh kar coercion chahte ho.',
+    },
+  },
+  {
+    question: 'What is the difference between include, require, include_once, and require_once?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`include` emits a warning and CONTINUES if the file is missing; `require` emits a fatal error and STOPS. The `_once` variants track what has already been loaded and skip a repeat, which prevents "cannot redeclare function" errors. Use `require` for anything the script cannot run without, such as a config or class file. In modern code you rarely write these at all, because Composer\'s autoloader loads classes on demand.',
+      hinglish:
+        '`include` file na milne pe ek warning deta hai aur AAGE BADHTA hai; `require` ek fatal error deta hai aur RUK jaata hai. `_once` variants track karte hain ki kya pehle load ho chuka hai aur dohraav skip karte hain, jo "cannot redeclare function" errors rokta hai. Un cheezon ke liye `require` use karo jinke bina script chal hi nahi sakti, jaise ek config ya class file. Modern code mein tum inhe rarely likhte ho, kyunki Composer ka autoloader classes zaroorat pe load karta hai.',
+    },
+  },
+  {
+    question: 'What is Composer and what is autoloading?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Composer is PHP\'s dependency manager: `composer.json` declares what you need, `composer.lock` pins exact versions so every environment installs identically, and `vendor/` holds the packages. AUTOLOADING means you never write `require` for a class — Composer generates a loader that maps a namespace to a file path following PSR-4, and PHP calls it the first time an undefined class is referenced. Run `composer dump-autoload -o` in production for an optimised class map.',
+      hinglish:
+        'Composer PHP ka dependency manager hai: `composer.json` batata hai ki tumhe kya chahiye, `composer.lock` exact versions pin karta hai taaki har environment ek jaisa install kare, aur `vendor/` packages rakhta hai. AUTOLOADING ka matlab hai tum ek class ke liye kabhi `require` nahi likhte — Composer ek loader banata hai jo PSR-4 follow karte hue ek namespace ko ek file path pe map karta hai, aur PHP use tab call karta hai jab ek undefined class pehli baar reference ho. Production mein ek optimised class map ke liye `composer dump-autoload -o` chalao.',
+    },
+  },
+  {
+    question: 'What are PHP namespaces?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Namespaces prevent name collisions by qualifying class, function, and constant names — `App\\Models\\User` and `Vendor\\Auth\\User` can coexist. Declare with `namespace App\\Models;` at the top of a file, import with `use`, and alias with `use ... as`. Note that a leading backslash means the global namespace, which is why you sometimes see `\\Exception` inside a namespaced file. PSR-4 ties the namespace to the directory structure, which is what makes autoloading work.',
+      hinglish:
+        'Namespaces class, function, aur constant naamon ko qualify karke naam ki takkar rokte hain — `App\\Models\\User` aur `Vendor\\Auth\\User` saath reh sakte hain. Ek file ke upar `namespace App\\Models;` se declare karo, `use` se import karo, aur `use ... as` se alias do. Note karo ki ek shuruaati backslash global namespace batata hai, isiliye tum kabhi ek namespaced file ke andar `\\Exception` dekhte ho. PSR-4 namespace ko directory structure se jodta hai, jisse autoloading kaam karti hai.',
+    },
+  },
+  {
+    question: 'What is the difference between an abstract class and an interface in PHP?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An ABSTRACT class can hold implemented methods, properties, and constructors, and a class may extend only ONE of them — it expresses "is a kind of". An INTERFACE declares method signatures only (plus constants), and a class may implement MANY — it expresses "can do". Use an interface for a contract you want several unrelated classes to satisfy, and an abstract class when subclasses genuinely share implementation. PHP 8.1 added enums and readonly properties, which often replace older uses of both.',
+      hinglish:
+        'Ek ABSTRACT class implemented methods, properties, aur constructors rakh sakti hai, aur ek class sirf EK ko extend kar sakti hai — ye "ek kism ka hai" batati hai. Ek INTERFACE sirf method signatures (plus constants) declare karta hai, aur ek class BAHUT implement kar sakti hai — ye "kar sakta hai" batati hai. Ek aise contract ke liye interface use karo jise tum kai unrelated classes se poora karwana chahte ho, aur abstract class tab jab subclasses genuinely implementation share karein. PHP 8.1 ne enums aur readonly properties jode, jo aksar dono ke purane istemaal replace karte hain.',
+    },
+  },
+  {
+    question: 'What is a trait in PHP?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A trait is a reusable block of methods and properties that a class can COMPOSE in, working around PHP\'s single-inheritance limit. It is a compile-time copy-paste rather than a type: you cannot type-hint against a trait, which is a key distinction from an interface. Conflicts when two traits define the same method must be resolved explicitly with `insteadof` and `as`. Overusing traits produces classes whose behaviour is scattered and hard to trace.',
+      hinglish:
+        'Ek trait methods aur properties ka ek reusable block hai jise ek class apne andar JOD sakti hai, PHP ki single-inheritance seema ke aas-paas kaam karte hue. Ye ek type ke bajaye ek compile-time copy-paste hai: tum ek trait ke against type-hint nahi kar sakte, jo ek interface se ek key farak hai. Do traits ke ek hi method define karne pe conflicts `insteadof` aur `as` se explicitly solve karne padte hain. Traits ka zyada istemaal aisi classes banata hai jinka behaviour bikhra aur trace karna mushkil hai.',
+    },
+  },
+  {
+    question: 'What is the difference between a session and a cookie in PHP?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A COOKIE stores data in the browser and is sent with every request to the domain — visible and editable by the user, so it must never hold anything sensitive or trusted. A SESSION stores data on the SERVER and gives the browser only a session ID cookie. Sessions are therefore the right place for authentication state. Set `httpOnly`, `secure`, and `sameSite` on the session cookie, and call `session_regenerate_id()` on login to prevent session fixation.',
+      hinglish:
+        'Ek COOKIE browser mein data rakhti hai aur domain ki har request ke saath jaati hai — user ko dikhti aur badalne layak, isliye ismein kabhi kuch sensitive ya bharose ka nahi hona chahiye. Ek SESSION data SERVER pe rakhti hai aur browser ko sirf ek session ID cookie deti hai. Isliye sessions authentication state ke liye sahi jagah hain. Session cookie pe `httpOnly`, `secure`, aur `sameSite` set karo, aur session fixation rokne ke liye login pe `session_regenerate_id()` call karo.',
+    },
+  },
+  {
+    question: 'How do prepared statements prevent SQL injection?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A prepared statement sends the SQL STRUCTURE to the database first, with placeholders, and the values separately afterwards. Because the query plan is already fixed by the time values arrive, the database treats them purely as DATA — a value containing `\' OR 1=1--` becomes a literal string to search for, not executable SQL. String concatenation, by contrast, hands the database one blob it must parse as a whole, which is exactly where injection lives. Escaping is a weaker fallback, not an equivalent.',
+      hinglish:
+        'Ek prepared statement pehle SQL ka DHAANCHA database ko bhejta hai, placeholders ke saath, aur values alag se baad mein. Kyunki values aane tak query plan pehle hi tay ho chuka hai, database unhe sirf DATA maanta hai — `\' OR 1=1--` wali ek value dhoondhne ke liye ek literal string ban jaati hai, chalne wala SQL nahi. String concatenation, iske ulat, database ko ek blob deta hai jise use poora parse karna padta hai, jahan theek injection rehta hai. Escaping ek kamzor fallback hai, barabari nahi.',
+    },
+  },
+  {
+    question: 'What is PDO and why prefer it over mysqli?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'PDO is a database abstraction layer supporting twelve-plus drivers, so switching from MySQL to Postgres is largely a DSN change. It offers NAMED placeholders, consistent exception-based error handling via `PDO::ERRMODE_EXCEPTION`, and a uniform API. mysqli is MySQL-only and exposes a few MySQL-specific features. Also set `PDO::ATTR_EMULATE_PREPARES` to false so the driver uses genuine server-side prepared statements rather than emulating them client-side.',
+      hinglish:
+        'PDO ek database abstraction layer hai jo baarah se zyada drivers support karta hai, isliye MySQL se Postgres pe jaana zyadatar ek DSN change hai. Ye NAMED placeholders, `PDO::ERRMODE_EXCEPTION` se consistent exception-based error handling, aur ek ek jaisa API deta hai. mysqli sirf MySQL ke liye hai aur kuch MySQL-khaas features deta hai. `PDO::ATTR_EMULATE_PREPARES` ko false bhi karo taaki driver client-side nakal ke bajaye asli server-side prepared statements use kare.',
+    },
+  },
+  {
+    question: 'What is the difference between echo and print?',
+    difficulty: 'easy',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`echo` is a language construct that accepts MULTIPLE comma-separated arguments and returns nothing. `print` accepts exactly one argument and returns 1, which means it can be used inside an expression such as `$x or print "failed"`. `echo` is marginally faster, and in practice it is what almost everyone uses. Neither requires parentheses, since both are constructs rather than functions.',
+      hinglish:
+        '`echo` ek language construct hai jo KAI comma se alag arguments leta hai aur kuch return nahi karta. `print` theek ek argument leta hai aur 1 return karta hai, jiska matlab hai ki ise ek expression ke andar use kiya ja sakta hai jaise `$x or print "failed"`. `echo` thoda tez hai, aur practically almost sab wahi use karte hain. Kisi ko parentheses nahi chahiye, kyunki dono functions ke bajaye constructs hain.',
+    },
+  },
+  {
+    question: 'What are the main array functions in PHP and their complexity?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'PHP arrays are ORDERED HASH MAPS, so key lookup, `isset`, and `array_key_exists` are O(1). `in_array` and `array_search` scan values, so they are O(n) — using `in_array` inside a loop is a common hidden quadratic cost, and flipping to `isset($lookup[$value])` fixes it. `array_map`, `array_filter`, and `array_reduce` are O(n). Note `array_filter` PRESERVES keys, which surprises people when the result is later JSON-encoded as an object instead of an array.',
+      hinglish:
+        'PHP arrays ORDERED HASH MAPS hain, isliye key lookup, `isset`, aur `array_key_exists` O(1) hain. `in_array` aur `array_search` values scan karte hain, isliye wo O(n) hain — ek loop ke andar `in_array` use karna ek common chhupa quadratic cost hai, aur `isset($lookup[$value])` pe badalna ise theek karta hai. `array_map`, `array_filter`, aur `array_reduce` O(n) hain. Note karo `array_filter` keys BACHATA hai, jo logon ko chaunkata hai jab result baad mein ek array ke bajaye ek object ki tarah JSON-encode hota hai.',
+    },
+  },
+  {
+    question: 'What is the difference between an indexed, associative, and multidimensional array?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'They are not really different types — PHP has ONE array type, an ordered map. An indexed array simply uses sequential integer keys, an associative array uses strings, and a multidimensional array holds arrays as values. The practical consequence is that unsetting an element from an indexed array leaves a GAP in the keys, so `json_encode` then produces an object rather than an array. `array_values()` reindexes and fixes that.',
+      hinglish:
+        'Wo sach mein alag types nahi hain — PHP mein EK array type hai, ek ordered map. Ek indexed array bas sequential integer keys use karta hai, ek associative array strings, aur ek multidimensional array values ki tarah arrays rakhta hai. Practical nateeja ye hai ki ek indexed array se ek element unset karna keys mein ek KHAALI JAGAH chhod deta hai, isliye `json_encode` phir ek array ke bajaye ek object banata hai. `array_values()` dobara index karke ise theek karta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between passing by value and by reference?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'By default PHP passes variables by VALUE, so a function modifying a parameter does not affect the caller — though copy-on-write means no actual copy happens until a write. Prefixing the parameter with `&` passes by REFERENCE, letting the function mutate the original. OBJECTS are a special case: the handle is copied but both point to the same instance, so modifying a property inside a function IS visible outside. References are best avoided; returning a new value is clearer.',
+      hinglish:
+        'Default se PHP variables ko VALUE se pass karta hai, isliye ek parameter badalta function caller ko affect nahi karta — halaanki copy-on-write ka matlab hai ki ek write tak koi actual copy hoti hi nahi. Parameter ke aage `&` lagana REFERENCE se pass karta hai, function ko original mutate karne dete hue. OBJECTS ek khaas case hain: handle copy hota hai par dono usi instance pe point karte hain, isliye ek function ke andar ek property badalna bahar DIKHTA hai. References se bachna behtar hai; ek nayi value return karna clearer hai.',
+    },
+  },
+  {
+    question: 'What are magic methods in PHP?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Magic methods are hooks PHP calls automatically: `__construct`, `__destruct`, `__get` and `__set` for inaccessible properties, `__call` and `__callStatic` for undefined methods, `__toString` for string conversion, `__invoke` to make an object callable, and `__clone`. Frameworks such as Laravel use `__get` and `__call` heavily for fluent APIs. The cost is that magic methods are slower, defeat IDE autocompletion and static analysis, and make behaviour hard to trace.',
+      hinglish:
+        'Magic methods wo hooks hain jinhe PHP automatically call karta hai: `__construct`, `__destruct`, na pahunchne wali properties ke liye `__get` aur `__set`, undefined methods ke liye `__call` aur `__callStatic`, string conversion ke liye `__toString`, ek object ko callable banane ke liye `__invoke`, aur `__clone`. Laravel jaise frameworks fluent APIs ke liye `__get` aur `__call` khoob use karte hain. Cost ye hai ki magic methods slow hain, IDE autocompletion aur static analysis ko harate hain, aur behaviour trace karna mushkil banate hain.',
+    },
+  },
+  {
+    question: 'What is the difference between static and instance methods?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A STATIC method belongs to the class and is called with `::` without an instance, so it has no `$this`. An INSTANCE method operates on a specific object. Static methods suit genuine utilities and factories. Their downside is testability: static calls are hard to mock or substitute, so heavy static use produces tightly coupled code — which is why dependency injection prefers instance methods on injected objects.',
+      hinglish:
+        'Ek STATIC method class ki hai aur bina instance ke `::` se call hoti hai, isliye uske paas `$this` nahi. Ek INSTANCE method ek khaas object pe kaam karti hai. Static methods genuine utilities aur factories ko suit karte hain. Inka nuksaan testability hai: static calls ko mock ya badalna mushkil hai, isliye static ka bhaari istemaal kaskar jude code banata hai — isiliye dependency injection injected objects pe instance methods prefer karta hai.',
+    },
+  },
+  {
+    question: 'What is dependency injection and why does it matter?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Dependency injection means a class RECEIVES its dependencies rather than constructing them itself — passing a `Mailer` into the constructor instead of calling `new Mailer()` inside. It matters because a class that builds its own dependencies cannot be tested without them, and cannot be reconfigured without editing it. Injecting against an INTERFACE lets you substitute a fake in tests and a different implementation in production. A DI container resolves the graph automatically.',
+      hinglish:
+        'Dependency injection ka matlab hai ek class apni dependencies BANANE ke bajaye unhe LETI hai — andar `new Mailer()` call karne ke bajaye ek `Mailer` constructor mein pass karna. Ye isliye matter karta hai kyunki apni dependencies banane wali class unke bina test nahi ho sakti, aur use edit kiye bina dobara configure nahi ho sakti. Ek INTERFACE ke against inject karna tumhe tests mein ek nakli aur production mein ek alag implementation daalne deta hai. Ek DI container graph automatically resolve karta hai.',
+    },
+  },
+  {
+    question: 'What are the PSR standards?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'PHP Standards Recommendations are interoperability specs from the PHP-FIG. The important ones: PSR-4 defines autoloading from namespace to file path, PSR-12 defines coding style (superseding PSR-2), PSR-7 defines HTTP message interfaces, PSR-11 defines a container interface, and PSR-3 defines a logger interface. Their real value is that a package built against PSR-3 works with any compliant logger, so libraries compose without knowing about each other.',
+      hinglish:
+        'PHP Standards Recommendations PHP-FIG se interoperability specs hain. Zaroori wale: PSR-4 namespace se file path tak autoloading define karta hai, PSR-12 coding style (PSR-2 ki jagah), PSR-7 HTTP message interfaces, PSR-11 ek container interface, aur PSR-3 ek logger interface. Inki asli value ye hai ki PSR-3 ke against bana ek package kisi bhi compliant logger ke saath kaam karta hai, isliye libraries ek doosre ko jaane bina judti hain.',
+    },
+  },
+  {
+    question: 'How does error and exception handling work in PHP?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'PHP has both traditional ERRORS and object-oriented EXCEPTIONS. Since PHP 7 most fatal errors are thrown as `Error`, which alongside `Exception` implements `Throwable` — so `catch (Throwable $e)` catches both. Use `try/catch/finally`, create domain-specific exception classes, and register a global handler with `set_exception_handler`. In production, log the details and show the user a generic message: exposing a stack trace leaks file paths, queries, and sometimes credentials.',
+      hinglish:
+        'PHP mein traditional ERRORS aur object-oriented EXCEPTIONS dono hain. PHP 7 se zyadatar fatal errors `Error` ki tarah throw hote hain, jo `Exception` ke saath `Throwable` implement karta hai — isliye `catch (Throwable $e)` dono pakadta hai. `try/catch/finally` use karo, domain-khaas exception classes banao, aur `set_exception_handler` se ek global handler register karo. Production mein, details log karo aur user ko ek aam message dikhao: ek stack trace dikhana file paths, queries, aur kabhi credentials leak karta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between GET and POST in PHP?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`$_GET` reads the URL query string, so data is visible, bookmarkable, cached, logged by servers, and length-limited — right for searches and filters. `$_POST` reads the request body, which is not logged in URLs and has no practical size limit — right for anything that changes state or is sensitive. Note neither is SECURE by itself: both are fully attacker-controlled, so both need validation, and HTTPS is what actually protects the data in transit.',
+      hinglish:
+        '`$_GET` URL query string padhta hai, isliye data dikhta hai, bookmarkable hai, cached, servers se logged, aur length-seemit — searches aur filters ke liye sahi. `$_POST` request body padhta hai, jo URLs mein log nahi hoti aur jiski koi practical size limit nahi — kisi bhi state badalne wali ya sensitive cheez ke liye sahi. Note karo koi bhi khud se SURAKSHIT nahi hai: dono poori tarah attacker-controlled hain, isliye dono ko validation chahiye, aur transit mein data ko actually HTTPS hi bachata hai.',
+    },
+  },
+  {
+    question: 'How do you handle file uploads securely in PHP?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Never trust `$_FILES["file"]["type"]`, which the client sets — detect the real type with `finfo`. Whitelist allowed extensions and types rather than blacklisting. Generate a NEW random filename instead of using the client\'s, which prevents path traversal and overwrites. Store uploads OUTSIDE the web root or in a bucket, so an uploaded `.php` file can never be executed. Enforce size limits, and verify `is_uploaded_file()` before calling `move_uploaded_file()`.',
+      hinglish:
+        '`$_FILES["file"]["type"]` pe kabhi bharosa mat karo, jo client set karta hai — asli type `finfo` se pata karo. Blacklist ke bajaye allowed extensions aur types whitelist karo. Client ka naam use karne ke bajaye ek NAYA random filename banao, jo path traversal aur overwrites rokta hai. Uploads ko web root ke BAHAR ya ek bucket mein rakho, taaki ek upload hui `.php` file kabhi chal na sake. Size limits lagao, aur `move_uploaded_file()` call karne se pehle `is_uploaded_file()` verify karo.',
+    },
+  },
+  {
+    question: 'What are the major features added in PHP 8?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'PHP 8.0 brought the JIT compiler, named arguments, constructor property promotion, union types, `match` expressions, the nullsafe operator `?->`, and attributes for native annotations. 8.1 added enums, readonly properties, fibers, and pure intersection types. 8.2 added readonly classes and deprecated dynamic properties. 8.3 and 8.4 continued with typed class constants and property hooks. Collectively they moved PHP substantially towards a statically-typed, modern language.',
+      hinglish:
+        'PHP 8.0 JIT compiler, named arguments, constructor property promotion, union types, `match` expressions, nullsafe operator `?->`, aur native annotations ke liye attributes laaya. 8.1 ne enums, readonly properties, fibers, aur pure intersection types jode. 8.2 ne readonly classes jode aur dynamic properties deprecate kiye. 8.3 aur 8.4 typed class constants aur property hooks ke saath aage badhe. Milkar inhone PHP ko ek statically-typed, modern language ki taraf kaafi badhaya.',
+    },
+  },
+  {
+    question: 'What is the difference between match and switch in PHP 8?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`match` uses STRICT comparison (`===`), returns a VALUE so it can be assigned, requires no `break` since there is no fall-through, and throws `UnhandledMatchError` if nothing matches and there is no default. `switch` uses loose comparison, falls through without `break` — the source of countless bugs — and produces no value. `match` is the better choice almost always; `switch` remains useful only when you deliberately want fall-through.',
+      hinglish:
+        '`match` STRICT comparison (`===`) use karta hai, ek VALUE return karta hai isliye assign ho sakta hai, `break` nahi chahta kyunki fall-through hai hi nahi, aur kuch match na hone aur default na hone pe `UnhandledMatchError` throw karta hai. `switch` loose comparison use karta hai, `break` ke bina aage bahta hai — anginat bugs ka source — aur koi value nahi deta. `match` almost hamesha behtar choice hai; `switch` sirf tab useful rehta hai jab tum jaan boojh kar fall-through chahte ho.',
+    },
+  },
+  {
+    question: 'What are enums in PHP 8.1?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An enum defines a fixed set of possible values as a TYPE, so `Status::Active` can be type-hinted and the compiler rejects anything else — replacing loose class constants or magic strings. BACKED enums have a scalar value, so `Status::from("active")` and `->value` work for database storage. Enums can implement interfaces and hold methods, which makes them a clean home for behaviour tied to a state, such as a label or a permitted transition.',
+      hinglish:
+        'Ek enum sambhav values ka ek tay set ek TYPE ke roop mein define karta hai, isliye `Status::Active` type-hint ho sakta hai aur compiler baaki sab reject karta hai — dheeli class constants ya magic strings ko replace karte hue. BACKED enums ki ek scalar value hoti hai, isliye database storage ke liye `Status::from("active")` aur `->value` kaam karte hain. Enums interfaces implement kar sakte hain aur methods rakh sakte hain, jo unhe ek state se judi behaviour ka ek saaf ghar banata hai, jaise ek label ya ek allowed transition.',
+    },
+  },
+  {
+    question: 'What is the difference between == and === for arrays and objects?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'For ARRAYS, `==` is true when both have the same key-value pairs regardless of order or types; `===` additionally requires the same ORDER and the same types. For OBJECTS, `==` is true when they are the same class with equal properties, whereas `===` is true only when both variables reference the EXACT SAME instance. That object distinction matters constantly: two identical-looking value objects are `==` but not `===`.',
+      hinglish:
+        'ARRAYS ke liye, `==` tab sach hai jab dono mein wahi key-value pairs hon chahe order ya types kuch bhi; `===` upar se wahi ORDER aur wahi types maangta hai. OBJECTS ke liye, `==` tab sach hai jab wo ek hi class ke hon barabar properties ke saath, jabki `===` sirf tab sach hai jab dono variables THEEK USI instance ko reference karein. Wo object ka farak lagatar matter karta hai: do ek jaise dikhte value objects `==` hain par `===` nahi.',
+    },
+  },
+  {
+    question: 'What is output buffering in PHP?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`ob_start()` captures output into a buffer instead of sending it immediately, and `ob_get_clean()` retrieves and discards it. Its main use is allowing headers to be set AFTER output has begun, which otherwise triggers "headers already sent". It is also used to capture a template\'s rendered output into a string. In a well-structured application you rarely need it, because output should not begin until the response is fully decided.',
+      hinglish:
+        '`ob_start()` output ko turant bhejne ke bajaye ek buffer mein pakadta hai, aur `ob_get_clean()` use laakar hata deta hai. Iska main use headers ko output shuru hone ke BAAD set karne dena hai, jo warna "headers already sent" trigger karta hai. Ye ek template ke rendered output ko ek string mein pakadne ke liye bhi use hota hai. Ek achhe dhaanche wale application mein tumhe ye rarely chahiye, kyunki response poori tarah tay hone tak output shuru nahi hona chahiye.',
+    },
+  },
+  {
+    question: 'What is the difference between PHP-FPM and mod_php?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'MOD_PHP embeds the interpreter inside every Apache process, so PHP memory is consumed even when serving a static image, and it locks you to Apache\'s prefork model. PHP-FPM runs PHP as a SEPARATE process pool that the web server talks to over FastCGI, so Nginx or Apache handles static files efficiently while FPM handles PHP. FPM also gives per-pool user isolation, tunable worker counts, and slow-request logging — it is the standard for production.',
+      hinglish:
+        'MOD_PHP interpreter ko har Apache process ke andar rakhta hai, isliye ek static image serve karte waqt bhi PHP memory khatam hoti hai, aur ye tumhe Apache ke prefork model se baandh deta hai. PHP-FPM PHP ko ek ALAG process pool ki tarah chalata hai jisse web server FastCGI pe baat karta hai, isliye Nginx ya Apache static files efficiently sambhalta hai jabki FPM PHP. FPM per-pool user isolation, tune hone layak worker counts, aur slow-request logging bhi deta hai — ye production ka standard hai.',
+    },
+  },
+  {
+    question: 'What is OPcache?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'OPcache stores the compiled BYTECODE of PHP scripts in shared memory, so each request skips reading and recompiling the source. It typically gives a very large throughput improvement and is essential in production. Configure `opcache.validate_timestamps=0` in production so it never stats files, and clear the cache on deploy. In development leave validation on, or your changes appear not to take effect — a classic and confusing symptom.',
+      hinglish:
+        'OPcache PHP scripts ka compiled BYTECODE shared memory mein rakhta hai, isliye har request source padhna aur dobara compile karna skip karti hai. Ye typically bahut bada throughput sudhaar deta hai aur production mein zaroori hai. Production mein `opcache.validate_timestamps=0` configure karo taaki ye kabhi files stat na kare, aur deploy pe cache clear karo. Development mein validation on rakho, warna tumhare changes lagte hi nahi — ek classic aur uljhane wala lakshan.',
+    },
+  },
+  {
+    question: 'What is the difference between Laravel, Symfony, and plain PHP?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'LARAVEL is opinionated and batteries-included — Eloquent ORM, Blade, queues, auth scaffolding — optimising for developer speed, with heavy use of facades and magic. SYMFONY is a set of decoupled, explicit components favoured for large long-lived applications, and Laravel itself is built on several of them. PLAIN PHP gives full control and no framework overhead but means writing routing, security, and validation yourself, which is rarely the right trade beyond a small script.',
+      hinglish:
+        'LARAVEL opinionated aur sab-kuch-shaamil hai — Eloquent ORM, Blade, queues, auth scaffolding — developer speed ke liye optimise karta hua, facades aur magic ke bhaari istemaal ke saath. SYMFONY alag-alag, explicit components ka ek set hai jo bade lambe chalne wale applications ke liye pasand kiya jaata hai, aur Laravel khud unme se kai pe bana hai. PLAIN PHP poora control aur koi framework bojh nahi deta par matlab routing, security, aur validation khud likhna, jo ek chhote script se aage rarely sahi trade hai.',
+    },
+  },
+  {
+    question: 'What is an ORM and what are its drawbacks?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'An ORM maps database rows to PHP objects, so you work with `$user->posts` instead of writing SQL. It speeds development, handles escaping, and abstracts the database. Drawbacks are real: it generates the N+1 query problem readily, hides the actual SQL so performance issues are hard to see, adds overhead, and struggles with complex analytical queries. The pragmatic approach is an ORM for CRUD plus hand-written SQL for the queries that matter.',
+      hinglish:
+        'Ek ORM database rows ko PHP objects pe map karta hai, isliye tum SQL likhne ke bajaye `$user->posts` se kaam karte ho. Ye development tez karta hai, escaping sambhalta hai, aur database abstract karta hai. Nuksaan asli hain: ye aasaani se N+1 query problem banata hai, asli SQL chhupata hai isliye performance issues dikhna mushkil hai, overhead jodta hai, aur complex analytical queries se joojhta hai. Vyavaharik approach CRUD ke liye ek ORM plus jo queries matter karti hain unke liye haath se likha SQL hai.',
+    },
+  },
+  {
+    question: 'What is the N+1 query problem in an ORM?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Fetching 100 posts and then accessing `$post->author` inside the loop triggers one query per post — 101 total. It is invisible with ten test rows and crippling in production. The fix is EAGER LOADING: `Post::with("author")->get()` in Eloquent issues two queries regardless of row count. Detect it by logging query counts per request or using a debug bar; it is one of the most common real-world performance bugs in ORM-based code.',
+      hinglish:
+        '100 posts laakar phir loop ke andar `$post->author` access karna per post ek query chalata hai — kul 101. Ye das test rows ke saath invisible hai aur production mein apahij karne wala. Fix EAGER LOADING hai: Eloquent mein `Post::with("author")->get()` rows chahe kitni bhi hon do queries chalata hai. Ise per request query counts log karke ya ek debug bar se pakado; ye ORM-based code mein sabse common real-world performance bugs mein se ek hai.',
+    },
+  },
+  {
+    question: 'How do you hash and verify passwords in PHP?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use `password_hash($password, PASSWORD_DEFAULT)`, which currently uses bcrypt, generates a random salt automatically, and stores it inside the resulting hash. Verify with `password_verify()`, which is constant-time and so resists timing attacks. Never use md5 or sha1 — they are fast, which is exactly wrong for passwords, since speed helps the attacker. Use `password_needs_rehash()` after a successful login to upgrade old hashes as the default algorithm changes.',
+      hinglish:
+        '`password_hash($password, PASSWORD_DEFAULT)` use karo, jo abhi bcrypt use karta hai, ek random salt apne aap banata hai, aur use banne wale hash ke andar rakhta hai. `password_verify()` se verify karo, jo constant-time hai aur isliye timing attacks rokta hai. md5 ya sha1 kabhi mat use karo — wo tez hain, jo passwords ke liye theek galat hai, kyunki speed attacker ki madad karti hai. Ek safal login ke baad `password_needs_rehash()` use karo taaki default algorithm badalne pe purane hashes upgrade hon.',
+    },
+  },
+  {
+    question: 'What is CSRF and how do you prevent it in PHP?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'CSRF tricks a logged-in user\'s browser into submitting a request they did not intend — a hidden form on a malicious site posting to your bank. It works because cookies are sent automatically. Prevention: include a random per-session TOKEN in every state-changing form and verify it server-side with `hash_equals()`, since the attacker cannot read your page to obtain it. Set `SameSite=Lax` or `Strict` on session cookies as a second layer, and never change state on a GET request.',
+      hinglish:
+        'CSRF ek logged-in user ke browser ko ek aisi request bhejne ke liye bewakoof banata hai jo usne chaahi hi nahi — ek malicious site pe ek chhupa form jo tumhare bank pe post kare. Ye isliye kaam karta hai kyunki cookies apne aap jaati hain. Prevention: har state badalne wale form mein ek random per-session TOKEN daalo aur use server-side `hash_equals()` se verify karo, kyunki attacker use paane ke liye tumhara page padh nahi sakta. Ek doosri layer ke roop mein session cookies pe `SameSite=Lax` ya `Strict` set karo, aur ek GET request pe kabhi state mat badlo.',
+    },
+  },
+  {
+    question: 'What is the difference between a generator and returning an array?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A function returning an array builds the ENTIRE result in memory before returning — reading a million-row file this way exhausts memory. A GENERATOR uses `yield` to produce values one at a time, computing each only when requested, so memory stays constant regardless of size. Generators are ideal for large files, database cursors, and infinite sequences. The limitation is that you can only iterate forward once and cannot index into the result.',
+      hinglish:
+        'Ek array return karta function POORA nateeja return karne se pehle memory mein banata hai — ek das lakh row wali file aise padhna memory khatam kar deta hai. Ek GENERATOR `yield` se ek-ek karke values banata hai, har ek ko sirf maange jaane pe compute karte hue, isliye size chahe kuch bhi ho memory sthir rehti hai. Generators badi files, database cursors, aur anant sequences ke liye ideal hain. Seema ye hai ki tum sirf ek baar aage iterate kar sakte ho aur nateeje mein index nahi kar sakte.',
+    },
+  },
+  {
+    question: 'What are type declarations in PHP and what is strict_types?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'PHP supports type declarations on parameters, return values, and properties, including union, nullable, and intersection types. By default PHP uses COERCIVE mode, so passing `"5"` to an `int` parameter silently converts it. Adding `declare(strict_types=1)` at the top of a file makes type mismatches throw a `TypeError` instead. Strict types is strongly recommended — silent coercion is the source of subtle bugs that surface far from where they were introduced.',
+      hinglish:
+        'PHP parameters, return values, aur properties pe type declarations support karta hai, including union, nullable, aur intersection types. Default se PHP COERCIVE mode use karta hai, isliye ek `int` parameter mein `"5"` pass karna use chupke se convert kar deta hai. Ek file ke upar `declare(strict_types=1)` jodna type mismatches ko `TypeError` throw karwaata hai. Strict types ki purzor salah di jaati hai — silent coercion un sookshm bugs ka source hai jo jahan bane wahan se bahut door dikhte hain.',
+    },
+  },
+  {
+    question: 'How do you write testable PHP code?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Inject dependencies rather than instantiating them, so tests can supply fakes. Avoid static calls, globals, and superglobals inside domain logic — read `$_POST` once at the boundary and pass plain values inward. Keep functions PURE where possible and separate business logic from I/O, since logic without side effects needs no mocks. Depend on interfaces. Then PHPUnit tests are fast and simple, and the classes that resist testing are usually the ones with a design problem.',
+      hinglish:
+        'Dependencies ko banane ke bajaye inject karo, taaki tests nakli de sakein. Domain logic ke andar static calls, globals, aur superglobals se bacho — `$_POST` ko boundary pe ek baar padho aur plain values andar pass karo. Jahan ho sake functions ko PURE rakho aur business logic ko I/O se alag karo, kyunki bina side effects ki logic ko mocks nahi chahiye. Interfaces pe depend karo. Phir PHPUnit tests tez aur simple hain, aur jo classes test hone se bhaagti hain unme usually ek design problem hoti hai.',
+    },
+  },
+  {
+    question: 'What is the difference between require and Composer autoloading in practice?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Manual `require` means every file must be listed explicitly, in the right order, and adding a class means editing a bootstrap file — which does not scale and breaks silently when the order changes. Composer autoloading loads a class ON DEMAND, the first time it is referenced, using the PSR-4 namespace-to-path mapping. That means only the classes actually used in a request are loaded, which is both faster and far less error-prone.',
+      hinglish:
+        'Manual `require` ka matlab hai har file explicitly, sahi order mein, list karni padti hai, aur ek class jodne ka matlab ek bootstrap file edit karna — jo scale nahi karta aur order badalne pe chupke se toot jaata hai. Composer autoloading ek class ko ZAROORAT PE load karta hai, pehli baar reference hone pe, PSR-4 namespace-se-path mapping use karte hue. Iska matlab hai ek request mein sirf actually use hui classes load hoti hain, jo tez bhi hai aur bahut kam galti-prone bhi.',
+    },
+  },
+  {
+    question: 'How do you handle background jobs in PHP?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Do not do slow work in the request. Push a job onto a QUEUE — Redis, database, SQS, or RabbitMQ — and return immediately, then let a separate long-running worker process it. This matters because PHP has a `max_execution_time`, web servers time out, and a user should not wait for an email or a report. Design jobs to be idempotent and retryable, cap retries, and use a dead-letter queue so a permanently failing job does not loop forever.',
+      hinglish:
+        'Request mein slow kaam mat karo. Ek job ko ek QUEUE pe daalo — Redis, database, SQS, ya RabbitMQ — aur turant lauto, phir ek alag lambe chalne wale worker ko use process karne do. Ye isliye matter karta hai kyunki PHP mein ek `max_execution_time` hai, web servers timeout hote hain, aur ek user ko ek email ya ek report ka intezaar nahi karna chahiye. Jobs ko idempotent aur retryable banao, retries seemit karo, aur ek dead-letter queue use karo taaki ek hamesha fail hota job hamesha loop na kare.',
+    },
+  },
+  {
+    question: 'What is the difference between array_merge and the + operator?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`array_merge` appends numeric-keyed elements and REINDEXES them, while for string keys the LATER array wins. The `+` operator keeps the LEFT array\'s value whenever a key exists in both and does not reindex. So `[1,2] + [3,4,5]` gives `[1,2,5]`, which surprises almost everyone the first time. Use `array_merge` for combining lists and `+` when you want defaults that an existing value should override.',
+      hinglish:
+        '`array_merge` numeric-key wale elements ko jodta hai aur DOBARA INDEX karta hai, jabki string keys ke liye BAAD wala array jeetta hai. `+` operator jab bhi ek key dono mein ho tab BAAYE array ki value rakhta hai aur dobara index nahi karta. Isliye `[1,2] + [3,4,5]` `[1,2,5]` deta hai, jo pehli baar almost sabko chaunkata hai. Lists jodne ke liye `array_merge` use karo aur `+` tab jab tum aise defaults chahte ho jinhe ek maujood value override kare.',
+    },
+  },
+  {
+    question: 'What is the difference between isset, empty, and is_null?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`isset` returns true when a variable exists and is NOT null, and it emits no warning for an undefined index — which is why it is used to guard array access. `empty` returns true for anything FALSY: null, `0`, `"0"`, `""`, `false`, and an empty array — so `empty("0")` is true, a genuine trap when checking form input. `is_null` checks specifically for null and does warn on an undefined variable. Modern code often prefers `??` for the isset case.',
+      hinglish:
+        '`isset` tab true deta hai jab ek variable exist kare aur null NA ho, aur ek undefined index pe koi warning nahi deta — isiliye ye array access sambhalne ke liye use hota hai. `empty` har FALSY cheez pe true deta hai: null, `0`, `"0"`, `""`, `false`, aur ek khaali array — isliye `empty("0")` true hai, form input check karte waqt ek asli jaal. `is_null` khaas taur pe null check karta hai aur ek undefined variable pe warning deta hai. Modern code isset wale case ke liye aksar `??` prefer karta hai.',
+    },
+  },
+  {
+    question: 'What is the nullsafe operator in PHP 8?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`?->` short-circuits the whole chain to null if the object is null, instead of throwing "call to a member function on null". So `$user?->address?->city` is safe when either is null. It only guards NULL — it does not help if the property simply does not exist. And it can hide a real bug: if a user should always have an address, silently returning null is worse than an error that tells you the data is wrong.',
+      hinglish:
+        '`?->` object null hone pe poori chain ko null pe short-circuit kar deta hai, "call to a member function on null" throw karne ke bajaye. Isliye `$user?->address?->city` surakshit hai jab koi bhi null ho. Ye sirf NULL sambhalta hai — agar property exist hi nahi karti to ye madad nahi karta. Aur ye ek asli bug chhupa sakta hai: agar ek user ka hamesha ek address hona chahiye, chupke se null lautana us error se bura hai jo tumhe bataye ki data galat hai.',
+    },
+  },
+  {
+    question: 'Is PHP still relevant, and where is it used today?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Yes — PHP still powers a very large share of the web, including WordPress, which alone runs a substantial fraction of all websites, plus Laravel and Symfony applications across e-commerce, SaaS, and CMS work. PHP 8 is dramatically faster than PHP 5 and has real type safety, JIT, and modern tooling. Its reputation is largely based on PHP 5-era code. It remains a pragmatic choice for server-rendered web applications with excellent hosting availability.',
+      hinglish:
+        'Haan — PHP abhi bhi web ka ek bahut bada hissa chalata hai, including WordPress, jo akela saari websites ka ek kaafi hissa chalata hai, plus e-commerce, SaaS, aur CMS kaam mein Laravel aur Symfony applications. PHP 8 PHP 5 se dramatically tez hai aur usme asli type safety, JIT, aur modern tooling hai. Iski badnaami zyadatar PHP 5-daur ke code pe aadhaarit hai. Ye server-rendered web applications ke liye ek vyavaharik choice bana hua hai, behtareen hosting availability ke saath.',
+    },
+  },
 ];
 
 export const curriculum = [...beginner, ...intermediate, ...advanced];

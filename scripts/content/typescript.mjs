@@ -65,7 +65,7 @@ const beginner = [
           {
             question: 'What is TypeScript and why would you use it over plain JavaScript?',
             difficulty: 'easy',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'TypeScript is a statically-typed superset of JavaScript. You use it to catch type errors at compile time rather than runtime, get richer editor tooling (autocomplete, refactoring), and make large codebases easier to maintain. It compiles to plain JS so it runs anywhere JS runs.',
@@ -274,7 +274,7 @@ const beginner = [
           {
             question: 'What is the difference between an interface and a type alias in TypeScript?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Both describe types. Key differences: Interfaces are extendable (declaration merging — you can open them again) and use extends for inheritance. Type aliases can represent any type (unions, primitives, tuples) not just objects, and use & for intersection. For object shapes, both work; prefer interface for public API shapes (extensible) and type alias for unions and computed types.',
@@ -435,7 +435,7 @@ const intermediate = [
           {
             question: 'Explain generics in TypeScript with an example.',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Generics allow writing reusable code that works across types while maintaining type safety. A generic function like `function wrap<T>(val: T): { value: T }` preserves the input type through the output. Without generics you\'d use `any` and lose safety, or write duplicate functions for each type. Common uses: utility functions, generic containers (Stack<T>), API response wrappers.',
@@ -666,7 +666,7 @@ const advanced = [
           {
             question: 'Name five TypeScript utility types and what they do.',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Partial<T>: all props optional. Required<T>: all props required. Readonly<T>: props are read-only. Pick<T, K>: keep only keys K. Omit<T, K>: remove keys K. Record<K, V>: map from keys K to values V. ReturnType<F>: extract the return type of a function. NonNullable<T>: remove null and undefined.',
@@ -731,6 +731,459 @@ export const generalInterviewQuestions = [
         'Yes — always enable strict mode (`"strict": true` in tsconfig). It turns on a bundle of checks: strictNullChecks (variables can\'t be null/undefined unless you say so), noImplicitAny (no silent any), strictFunctionTypes, and more. These catch the most common bugs. The initial pain of fixing errors is worth the long-term safety.',
       hinglish:
         'Haan — hamesha strict mode enable karo (tsconfig mein `"strict": true`). Ye kai checks on karta hai: strictNullChecks (variables null/undefined nahi ho sakte jab tak explicitly na likho), noImplicitAny (silent any nahi), strictFunctionTypes, aur aur bhi. Ye sabse common bugs pakad lete hain. Errors fix karne ki initial takleef long-term safety ke liye worth hai.',
+    },
+  },
+
+  // ─── Type System Fundamentals ───────────────────────────────
+  {
+    question: 'What is the difference between an interface and a type alias?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Both describe object shapes and are largely interchangeable. INTERFACES support DECLARATION MERGING — declaring the same interface twice combines them, which is how you augment third-party types — and they produce clearer error messages. TYPE ALIASES can express things interfaces cannot: unions, intersections, tuples, primitives, and mapped or conditional types. The common convention is interfaces for object shapes you may extend, type aliases for everything else.',
+      hinglish:
+        'Dono object shapes batate hain aur zyadatar badle ja sakte hain. INTERFACES DECLARATION MERGING support karte hain — ek hi interface do baar declare karna unhe jod deta hai, jisse tum third-party types badhate ho — aur wo clearer error messages dete hain. TYPE ALIASES wo cheezein bata sakte hain jo interfaces nahi: unions, intersections, tuples, primitives, aur mapped ya conditional types. Common convention hai badhaye ja sakne wale object shapes ke liye interfaces, baaki sab ke liye type aliases.',
+    },
+  },
+  {
+    question: 'What is the difference between any, unknown, and never?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`any` disables type checking entirely — you can call anything on it and TypeScript stays silent, which is how type safety leaks out of a codebase. `unknown` is the SAFE counterpart: it accepts any value but you must narrow it before use, so it forces a check. `never` represents a value that cannot exist — the return type of a function that always throws, and the type of an exhausted union, which is what makes exhaustiveness checking work.',
+      hinglish:
+        '`any` type checking poori tarah band kar deta hai — tum us pe kuch bhi call kar sakte ho aur TypeScript chup rehta hai, jisse type safety ek codebase se rista hai. `unknown` SURAKSHIT jodidaar hai: ye koi bhi value leta hai par use karne se pehle tumhe use narrow karna padta hai, isliye ye ek check majboor karta hai. `never` ek aisi value batata hai jo exist nahi kar sakti — hamesha throw karne wale function ka return type, aur ek khatam ho chuke union ka type, jisse exhaustiveness checking kaam karti hai.',
+    },
+  },
+  {
+    question: 'What is a union type and how do you narrow it?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A union such as `string | number` means the value is one of several types, and TypeScript allows only operations valid for ALL members until you narrow it. Narrowing techniques: `typeof` for primitives, `instanceof` for classes, the `in` operator for a distinguishing property, a literal check on a DISCRIMINANT field, and custom type guards returning `x is T`. After narrowing, TypeScript knows the specific type within that branch.',
+      hinglish:
+        'Ek union jaise `string | number` batata hai ki value kai types mein se ek hai, aur TypeScript tab tak sirf wo operations allow karta hai jo SAARE members ke liye valid hain jab tak tum narrow na karo. Narrowing techniques: primitives ke liye `typeof`, classes ke liye `instanceof`, ek alag karti property ke liye `in` operator, ek DISCRIMINANT field pe ek literal check, aur `x is T` return karte custom type guards. Narrow karne ke baad, TypeScript us branch ke andar khaas type jaanta hai.',
+    },
+  },
+  {
+    question: 'What is a discriminated union and why is it useful?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A discriminated union gives every member a shared LITERAL field — `{ status: "loading" } | { status: "success"; data: T } | { status: "error"; error: E }` — so checking that field narrows the whole object. Its value is making illegal states unrepresentable: you cannot have data and an error simultaneously, unlike three independent booleans. Combined with a `never` check in the default branch, the compiler forces you to handle any newly added case.',
+      hinglish:
+        'Ek discriminated union har member ko ek saanjha LITERAL field deta hai — `{ status: "loading" } | { status: "success"; data: T } | { status: "error"; error: E }` — isliye us field ko check karna poora object narrow kar deta hai. Iski value galat states ko banne hi na dena hai: tumhare paas ek saath data aur ek error nahi ho sakte, teen swatantra booleans ke ulat. Default branch mein ek `never` check ke saath, compiler tumhe koi bhi naya joda case sambhaalne pe majboor karta hai.',
+    },
+  },
+  {
+    question: 'What are generics and when should you use them?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Generics let a function or type work over MANY types while preserving the relationship between input and output — `function first<T>(arr: T[]): T` returns exactly what went in, whereas `any[]` would lose that. Use them when the type genuinely varies but must be tracked through. Do NOT add a type parameter that appears only once in a signature; that is a sign it should just be a concrete type, and it adds noise without safety.',
+      hinglish:
+        'Generics ek function ya type ko BAHUT types pe kaam karne dete hain jabki input aur output ka rishta bacha rehta hai — `function first<T>(arr: T[]): T` theek wahi lautaata hai jo gaya tha, jabki `any[]` wo kho deta. Inhe tab use karo jab type genuinely badalta ho par use track karna zaroori ho. Aisa type parameter mat jodo jo ek signature mein sirf ek baar aaye; wo nishaani hai ki use bas ek concrete type hona chahiye, aur wo bina safety ke shor jodta hai.',
+    },
+  },
+  {
+    question: 'What are generic constraints?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`extends` restricts what a type parameter may be, so you can safely use its members: `function len<T extends { length: number }>(x: T)` guarantees `x.length` exists. A very common pattern is `K extends keyof T`, which ties a key parameter to an object\'s actual keys so `get(obj, "name")` is checked and returns the right type. Constraints are what turn generics from "any type" into "any type that satisfies this contract".',
+      hinglish:
+        '`extends` seemit karta hai ki ek type parameter kya ho sakta hai, isliye tum uske members surakshit roop se use kar sakte ho: `function len<T extends { length: number }>(x: T)` guarantee karta hai ki `x.length` hai. Ek bahut common pattern `K extends keyof T` hai, jo ek key parameter ko ek object ki asli keys se jodta hai taaki `get(obj, "name")` check ho aur sahi type laute. Constraints hi generics ko "koi bhi type" se "koi bhi type jo ye contract poora kare" mein badalte hain.',
+    },
+  },
+  {
+    question: 'What are the main utility types in TypeScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`Partial<T>` makes every property optional — useful for update payloads. `Required<T>` does the reverse. `Pick<T, K>` and `Omit<T, K>` select or exclude properties. `Record<K, V>` builds an object type from a key union. `Readonly<T>` prevents reassignment. `ReturnType<F>` and `Parameters<F>` extract from function types. `Awaited<T>` unwraps a promise. Deriving types from a single source with these keeps them in sync automatically as the source changes.',
+      hinglish:
+        '`Partial<T>` har property optional banata hai — update payloads ke liye useful. `Required<T>` ulta karta hai. `Pick<T, K>` aur `Omit<T, K>` properties chunte ya hataate hain. `Record<K, V>` ek key union se ek object type banata hai. `Readonly<T>` dobara assign hone se rokta hai. `ReturnType<F>` aur `Parameters<F>` function types se nikaalte hain. `Awaited<T>` ek promise kholta hai. Inse ek hi source se types nikaalna unhe source badalne pe apne aap sync mein rakhta hai.',
+    },
+  },
+  {
+    question: 'What is a mapped type?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A mapped type transforms every property of a type: `{ [K in keyof T]: T[K] }` iterates the keys and can add or remove modifiers — `readonly [K in keyof T]?:` makes everything readonly and optional. `Partial`, `Readonly`, and `Record` are all built this way. TypeScript 4.1 added key REMAPPING with `as`, letting you rename keys, which is how you generate a getter type from a data type.',
+      hinglish:
+        'Ek mapped type ek type ki har property badalta hai: `{ [K in keyof T]: T[K] }` keys pe ghoomta hai aur modifiers jod ya hata sakta hai — `readonly [K in keyof T]?:` sab kuch readonly aur optional bana deta hai. `Partial`, `Readonly`, aur `Record` sab isi tarah bane hain. TypeScript 4.1 ne `as` se key REMAPPING joda, tumhe keys rename karne dete hue, jisse tum ek data type se ek getter type banate ho.',
+    },
+  },
+  {
+    question: 'What is a conditional type?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A conditional type picks between two types based on a check: `T extends U ? X : Y`. Combined with `infer`, it can EXTRACT a type from another — `type Unwrap<T> = T extends Promise<infer U> ? U : T`. It is how `ReturnType` and `Awaited` are implemented. Note conditional types distribute over unions by default, which is powerful but surprising; wrapping in a tuple, `[T] extends [U]`, disables that.',
+      hinglish:
+        'Ek conditional type ek check ke aadhaar pe do types mein se chunta hai: `T extends U ? X : Y`. `infer` ke saath, ye ek type ko doosre se NIKAAL sakta hai — `type Unwrap<T> = T extends Promise<infer U> ? U : T`. Isi se `ReturnType` aur `Awaited` bane hain. Note karo conditional types default se unions pe bant jaate hain, jo taakatwar par chaunkane wala hai; ek tuple mein wrap karna, `[T] extends [U]`, ise band kar deta hai.',
+    },
+  },
+  {
+    question: 'What is type inference and when should you write types explicitly?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'TypeScript infers types from initialisers, return values, and context, so annotating `const x: number = 5` is redundant noise. Write types explicitly where inference is absent or where you want the compiler to CHECK you rather than follow you: function parameters, public API boundaries, and exported function return types — which also prevents an accidental change to the return shape from silently propagating. Inside a function body, let inference do the work.',
+      hinglish:
+        'TypeScript initialisers, return values, aur context se types infer karta hai, isliye `const x: number = 5` likhna faltu shor hai. Types wahan explicitly likho jahan inference na ho ya jahan tum chahte ho ki compiler tumhe FOLLOW karne ke bajaye CHECK kare: function parameters, public API boundaries, aur exported function return types — jo return shape mein ek galti se hua change chupke se failne se bhi rokta hai. Ek function body ke andar, inference ko kaam karne do.',
+    },
+  },
+  {
+    question: 'What is the difference between structural and nominal typing?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'TypeScript is STRUCTURAL: two types are compatible if their shapes match, regardless of name or declaration. So a `Dog` with the same properties is assignable to a `Cat` parameter, which is flexible but can be dangerous when two types coincidentally match. Nominal languages such as Java compare by declared identity. You can simulate nominal typing with a BRANDED type — adding a unique phantom property — which is how `UserId` and `OrderId` can be kept distinct despite both being strings.',
+      hinglish:
+        'TypeScript STRUCTURAL hai: do types compatible hain agar unke shapes match karein, naam ya declaration chahe kuch bhi ho. Isliye wahi properties wala ek `Dog` ek `Cat` parameter mein assign ho sakta hai, jo flexible hai par khatarnak jab do types sanyog se match karein. Java jaisi nominal languages declared pehchaan se compare karti hain. Tum ek BRANDED type se nominal typing ki nakal kar sakte ho — ek unique phantom property jodkar — jisse `UserId` aur `OrderId` dono string hone ke bawajood alag rakhe ja sakte hain.',
+    },
+  },
+  {
+    question: 'What is a type guard?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A type guard narrows a type within a scope. Built-in ones are `typeof`, `instanceof`, `in`, and truthiness checks. A CUSTOM guard is a function returning `value is Dog`, which tells the compiler the narrowing after it returns true. The important caveat is that a custom guard is a PROMISE you make — TypeScript trusts your predicate without verifying it, so a buggy guard silently lies to the whole codebase.',
+      hinglish:
+        'Ek type guard ek scope ke andar ek type narrow karta hai. Built-in wale hain `typeof`, `instanceof`, `in`, aur truthiness checks. Ek CUSTOM guard ek function hai jo `value is Dog` return karta hai, jo compiler ko true lautne ke baad narrowing batata hai. Zaroori caveat ye hai ki ek custom guard ek WAADA hai jo tum karte ho — TypeScript tumhare predicate pe bina jaanche bharosa karta hai, isliye ek buggy guard poore codebase se chupke se jhooth bolta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between a type assertion and type casting?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A type assertion (`x as Foo`) is a COMPILE-TIME instruction telling TypeScript "trust me, this is a Foo". It performs no runtime conversion and no check whatsoever, so an incorrect assertion produces a crash later at a confusing place. Real casting — `Number(x)`, `String(x)` — converts at runtime. Prefer narrowing and validation over assertions; `as` is essentially opting out of the type system, and `as unknown as T` is a loud sign something is wrong.',
+      hinglish:
+        'Ek type assertion (`x as Foo`) ek COMPILE-TIME nirdesh hai jo TypeScript ko kehta hai "bharosa karo, ye ek Foo hai". Ye koi runtime conversion aur koi check nahi karta, isliye ek galat assertion baad mein ek uljhaane wali jagah crash banati hai. Asli casting — `Number(x)`, `String(x)` — runtime pe convert karti hai. Assertions ke bajaye narrowing aur validation prefer karo; `as` asal mein type system se bahar nikalna hai, aur `as unknown as T` ek zor ka nishaan hai ki kuch galat hai.',
+    },
+  },
+  {
+    question: 'How do you type an API response safely?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Do not simply write `await res.json() as User` — `json()` returns `any`, and the assertion is a lie the compiler cannot check, so a changed API silently produces wrong-shaped data that crashes far away. Validate at the BOUNDARY with a runtime schema library such as Zod: `UserSchema.parse(data)` both checks at runtime and infers the static type from the same schema, so there is one source of truth and the types cannot drift from reality.',
+      hinglish:
+        'Bas `await res.json() as User` mat likho — `json()` `any` lautaata hai, aur assertion ek jhooth hai jise compiler jaanch nahi sakta, isliye ek badla hua API chupke se galat shape ka data banata hai jo bahut door crash karta hai. BOUNDARY pe Zod jaisi ek runtime schema library se validate karo: `UserSchema.parse(data)` runtime pe check bhi karta hai aur usi schema se static type infer bhi karta hai, isliye ek hi sach ka source hai aur types haqeeqat se hat nahi sakte.',
+    },
+  },
+  {
+    question: 'What is the difference between interface extends and intersection types?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`interface B extends A` checks compatibility at declaration time and ERRORS if a property conflicts, which catches mistakes early. An intersection `A & B` silently combines them, and a conflicting property becomes `never` rather than an error — so the failure surfaces later at the use site, which is harder to diagnose. Interfaces also merge declarations and give better error output, so extends is preferable when both would work.',
+      hinglish:
+        '`interface B extends A` declaration ke waqt compatibility check karta hai aur ek property takraane pe ERROR deta hai, jo galtiyaan jaldi pakadta hai. Ek intersection `A & B` unhe chupke se jod deta hai, aur ek takraati property ek error ke bajaye `never` ban jaati hai — isliye failure baad mein use ki jagah dikhti hai, jo diagnose karna mushkil hai. Interfaces declarations bhi merge karte hain aur behtar error output dete hain, isliye jab dono chalein to extends behtar hai.',
+    },
+  },
+  {
+    question: 'What does the keyof operator do?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`keyof T` produces a union of T\'s property names as literal types, so `keyof { a: 1; b: 2 }` is `"a" | "b"`. It is the foundation of type-safe property access: `function get<T, K extends keyof T>(obj: T, key: K): T[K]` guarantees the key exists and returns the correct value type. Paired with `typeof` on a value — `keyof typeof config` — it derives a key union from an actual object rather than a hand-maintained list.',
+      hinglish:
+        '`keyof T` T ke property naamon ka ek union literal types ki tarah banata hai, isliye `keyof { a: 1; b: 2 }` `"a" | "b"` hai. Ye type-safe property access ki neev hai: `function get<T, K extends keyof T>(obj: T, key: K): T[K]` guarantee karta hai ki key hai aur sahi value type lautaata hai. Ek value pe `typeof` ke saath — `keyof typeof config` — ye ek haath se maintain ki list ke bajaye ek asli object se ek key union nikaalta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between typeof in JavaScript and in TypeScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'In a VALUE position, `typeof x` is the JavaScript runtime operator returning a string. In a TYPE position, `typeof x` is a TypeScript operator that extracts the static type of a value — `type Config = typeof defaultConfig`. That lets you derive a type from a real object rather than writing it twice and letting them drift apart. The two meanings never collide because TypeScript knows which position it is in.',
+      hinglish:
+        'Ek VALUE jagah pe, `typeof x` JavaScript ka runtime operator hai jo ek string lautaata hai. Ek TYPE jagah pe, `typeof x` ek TypeScript operator hai jo ek value ka static type nikaalta hai — `type Config = typeof defaultConfig`. Isse tum ek asli object se ek type nikaal sakte ho, use do baar likh kar unhe alag hone dene ke bajaye. Dono matlab kabhi nahi takraate kyunki TypeScript jaanta hai ki wo kis jagah pe hai.',
+    },
+  },
+  {
+    question: 'What are literal types and const assertions?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A literal type is an exact value used as a type — `"GET" | "POST"` accepts only those two strings. TypeScript normally WIDENS a literal to its base type, so `const x = "GET"` infers `"GET"` but an object property infers `string`. `as const` prevents that widening, making every property readonly and literal — which is how you turn a config object into a source of precise types rather than loose strings.',
+      hinglish:
+        'Ek literal type ek exact value hai jo ek type ki tarah use hoti hai — `"GET" | "POST"` sirf wo do strings leta hai. TypeScript normally ek literal ko uske base type tak CHAUDA kar deta hai, isliye `const x = "GET"` `"GET"` infer karta hai par ek object property `string` infer karti hai. `as const` us chaudaai ko rokta hai, har property ko readonly aur literal banate hue — jisse tum ek config object ko dheeli strings ke bajaye sateek types ka ek source bana dete ho.',
+    },
+  },
+  {
+    question: 'What is the difference between readonly and const?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`const` is a JavaScript keyword preventing REASSIGNMENT of a variable binding, but the object it points to remains mutable. `readonly` is a TypeScript modifier preventing assignment to a PROPERTY, checked only at compile time — it disappears at runtime, so nothing stops mutation from untyped code. For genuine runtime immutability you need `Object.freeze`. Both are useful; they simply protect different things at different times.',
+      hinglish:
+        '`const` ek JavaScript keyword hai jo ek variable binding ko DOBARA ASSIGN hone se rokta hai, par jis object pe wo point karta hai wo badalne layak rehta hai. `readonly` ek TypeScript modifier hai jo ek PROPERTY pe assignment rokta hai, sirf compile time pe check hokar — ye runtime pe gayab ho jaata hai, isliye untyped code se mutation ko kuch nahi rokta. Asli runtime immutability ke liye tumhe `Object.freeze` chahiye. Dono useful hain; wo bas alag samay pe alag cheezein bachate hain.',
+    },
+  },
+  {
+    question: 'What is strictNullChecks and why does it matter?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Without it, `null` and `undefined` are assignable to every type, so TypeScript cannot warn you about the single most common runtime error in JavaScript. With it enabled, a value that may be absent must be typed `string | null` and NARROWED before use, so the compiler forces you to handle the missing case. It is the highest-value flag in `strict`, and it is exactly why enabling strict on an existing codebase produces hundreds of genuine findings.',
+      hinglish:
+        'Iske bina, `null` aur `undefined` har type mein assign ho sakte hain, isliye TypeScript tumhe JavaScript ki sabse common runtime error ke baare mein warn nahi kar sakta. Ise enable karne pe, ek gayab ho sakti value ko `string | null` type karna padta hai aur use karne se pehle NARROW karna padta hai, isliye compiler tumhe missing case sambhaalne pe majboor karta hai. Ye `strict` mein sabse zyada value wala flag hai, aur isiliye ek maujood codebase pe strict enable karna sau genuine findings deta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between the ?. and ! operators?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`?.` is JavaScript optional chaining: it short-circuits to `undefined` at RUNTIME if the value is nullish, so it genuinely prevents a crash. `!` is the TypeScript non-null assertion: it only tells the compiler to stop complaining and DISAPPEARS at runtime, so if the value really is null you still get the crash — just without a warning. Every `!` is an unverified claim, and most of them should be a real check instead.',
+      hinglish:
+        '`?.` JavaScript ki optional chaining hai: value nullish hone pe ye RUNTIME pe `undefined` pe short-circuit karta hai, isliye ye genuinely ek crash rokta hai. `!` TypeScript ka non-null assertion hai: ye sirf compiler ko shikayat band karne ko kehta hai aur runtime pe GAYAB ho jaata hai, isliye agar value sach mein null hai to crash phir bhi milta hai — bas bina warning ke. Har `!` ek bina jaancha daawa hai, aur unme se zyadatar ko ek asli check hona chahiye.',
+    },
+  },
+  {
+    question: 'How does TypeScript handle function parameter and return type variance?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Return types are COVARIANT — a function returning `Dog` is assignable where one returning `Animal` is expected, which is intuitive. Parameters are properly CONTRAVARIANT, but TypeScript checks method parameters BIVARIANTLY by default for historical convenience, which is technically unsound. `strictFunctionTypes` enables correct contravariant checking for function-type properties, though methods declared with method syntax remain bivariant. It is why an array of `Dog` is assignable to an array of `Animal` even though that is not fully safe.',
+      hinglish:
+        'Return types COVARIANT hain — `Dog` lautaata ek function wahan assign ho sakta hai jahan `Animal` lautaane wala chahiye, jo swabhavik hai. Parameters theek se CONTRAVARIANT hain, par TypeScript method parameters ko historical sahoolat ke liye default se BIVARIANTLY check karta hai, jo technically galat hai. `strictFunctionTypes` function-type properties ke liye sahi contravariant checking enable karta hai, halaanki method syntax se declare hui methods bivariant rehti hain. Isiliye `Dog` ka ek array `Animal` ke array mein assign ho jaata hai chahe wo poori tarah surakshit na ho.',
+    },
+  },
+  {
+    question: 'What is declaration merging?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'TypeScript combines multiple declarations of the same name into one. Two interfaces with the same name merge their members; a namespace can merge with a function or class to attach static members. Its practical use is AUGMENTING types you do not control — adding a property to Express\'s `Request`, or extending a library\'s options interface — via `declare module`. Type aliases cannot merge, which is one concrete reason to prefer interfaces for public object shapes.',
+      hinglish:
+        'TypeScript ek hi naam ki kai declarations ko ek mein jod deta hai. Ek hi naam ke do interfaces apne members merge karte hain; ek namespace static members lagane ke liye ek function ya class ke saath merge ho sakta hai. Iska vyavaharik use un types ko BADHANA hai jo tumhare control mein nahi — Express ke `Request` mein ek property jodna, ya ek library ka options interface badhana — `declare module` se. Type aliases merge nahi ho sakte, jo public object shapes ke liye interfaces prefer karne ki ek thos wajah hai.',
+    },
+  },
+  {
+    question: 'What are declaration files and what is DefinitelyTyped?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A `.d.ts` file declares types WITHOUT implementation, describing the shape of JavaScript code to the compiler. Libraries either ship their own types or have community-maintained ones on DefinitelyTyped, installed as `@types/package`. Modern libraries usually bundle types directly, so an `@types` package is often a sign of an older library. For untyped JavaScript you can write a minimal `.d.ts` yourself rather than resorting to `any`.',
+      hinglish:
+        'Ek `.d.ts` file BINA implementation ke types declare karti hai, compiler ko JavaScript code ka shape batate hue. Libraries ya to apne types deti hain ya unke community-maintained types DefinitelyTyped pe hote hain, jo `@types/package` ki tarah install hote hain. Modern libraries usually types seedha saath deti hain, isliye ek `@types` package aksar ek purani library ki nishaani hai. Untyped JavaScript ke liye tum `any` pe girne ke bajaye khud ek chhoti `.d.ts` likh sakte ho.',
+    },
+  },
+  {
+    question: 'What is the difference between compile-time and runtime in TypeScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'TypeScript types are ERASED during compilation — the emitted JavaScript contains none of them. So you cannot check a type at runtime, `instanceof` does not work with interfaces, and generics carry no runtime information. Anything that must be verified while the program runs — API responses, user input, parsed JSON — needs an actual runtime check. The types tell you what SHOULD be true; only validation tells you what IS.',
+      hinglish:
+        'TypeScript ke types compilation ke dauraan MITA diye jaate hain — nikla JavaScript unme se kuch nahi rakhta. Isliye tum runtime pe ek type check nahi kar sakte, `instanceof` interfaces ke saath kaam nahi karta, aur generics koi runtime jaankaari nahi le jaate. Jo bhi program chalte waqt jaanchna zaroori hai — API responses, user input, parsed JSON — use ek asli runtime check chahiye. Types batate hain ki kya SACH HONA CHAHIYE; sirf validation batati hai ki kya HAI.',
+    },
+  },
+  {
+    question: 'What is an enum in TypeScript and why do some teams avoid it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'An enum defines a named set of constants and, unlike most TypeScript features, EMITS runtime code — an object generated in the output. Teams avoid it because numeric enums are not type-safe (any number is assignable to one), `const enum` breaks under isolated modules and bundlers, and it is the only construct that violates the "types disappear" mental model. A union of string literals or `as const` object achieves the same thing with no runtime cost.',
+      hinglish:
+        'Ek enum constants ka ek named set define karta hai aur, zyadatar TypeScript features ke ulat, runtime code NIKAALTA hai — output mein ek object banta hai. Teams ise isliye avoid karti hain kyunki numeric enums type-safe nahi hain (koi bhi number assign ho jaata hai), `const enum` isolated modules aur bundlers ke neeche tootta hai, aur ye ekmatr aisi cheez hai jo "types gayab ho jaate hain" wale mental model ko todti hai. String literals ka ek union ya ek `as const` object wahi cheez bina runtime cost ke deta hai.',
+    },
+  },
+  {
+    question: 'What is the satisfies operator?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`satisfies` checks that a value conforms to a type WITHOUT widening its inferred type to that type. With `const config: Config = {...}` you lose the specific literal types; with `const config = {...} satisfies Config` you get both the validation and the precise inferred keys and values. It solves a long-standing tension where annotating for safety destroyed the inference you actually wanted. Added in TypeScript 4.9.',
+      hinglish:
+        '`satisfies` jaanchta hai ki ek value ek type ke anuroop hai, BINA uske inferred type ko us type tak chauda kiye. `const config: Config = {...}` ke saath tum khaas literal types kho dete ho; `const config = {...} satisfies Config` ke saath tumhe validation aur sateek inferred keys aur values dono milti hain. Ye ek purani khinchtaan solve karta hai jahan safety ke liye annotate karna wo inference mita deta tha jo tum actually chahte the. TypeScript 4.9 mein joda gaya.',
+    },
+  },
+  {
+    question: 'How do you type React props and hooks?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Define props as an interface and annotate the component parameter directly — `function Button({ label }: Props)` — rather than using `React.FC`, which adds an implicit `children` and complicates generics. `useState` usually infers, but needs an explicit parameter when the initial value is null: `useState<User | null>(null)`. Type `useRef` as `useRef<HTMLDivElement>(null)`, and use `React.ReactNode` for children and `React.ChangeEvent<HTMLInputElement>` for handlers.',
+      hinglish:
+        'Props ko ek interface ki tarah define karo aur component parameter ko seedha annotate karo — `function Button({ label }: Props)` — `React.FC` use karne ke bajaye, jo ek chhupa `children` jodta hai aur generics uljhata hai. `useState` usually infer karta hai, par initial value null hone pe ek explicit parameter maangta hai: `useState<User | null>(null)`. `useRef` ko `useRef<HTMLDivElement>(null)` type karo, aur children ke liye `React.ReactNode` aur handlers ke liye `React.ChangeEvent<HTMLInputElement>` use karo.',
+    },
+  },
+  {
+    question: 'How do you migrate a JavaScript codebase to TypeScript?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Do it INCREMENTALLY. Enable `allowJs` so both coexist, and start with `strict: false` so the project compiles at all. Rename files to `.ts` one at a time, beginning with leaf modules that few things depend on, since typing a widely-imported module forces changes everywhere at once. Add `@types` packages. Then enable strict flags ONE at a time — `noImplicitAny` first, then `strictNullChecks`, which is the largest jump. A big-bang rewrite reliably stalls.',
+      hinglish:
+        'Ise DHEERE-DHEERE karo. `allowJs` enable karo taaki dono saath rahein, aur `strict: false` se shuru karo taaki project compile to ho. Files ko ek-ek karke `.ts` mein rename karo, un leaf modules se shuru karke jinpe kam cheezein depend karti hain, kyunki ek widely-imported module ko type karna ek saath har jagah changes majboor karta hai. `@types` packages jodo. Phir strict flags EK-EK karke enable karo — pehle `noImplicitAny`, phir `strictNullChecks`, jo sabse bada chhalaang hai. Ek big-bang rewrite bharose se atak jaata hai.',
+    },
+  },
+  {
+    question: 'What is the difference between esModuleInterop and allowSyntheticDefaultImports?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`allowSyntheticDefaultImports` only silences the type error when default-importing a CommonJS module that has no default export — it changes nothing about the emitted code. `esModuleInterop` additionally emits helper code so the import actually works correctly at runtime, and it implies the other flag. So the first is a type-level permission and the second is a real behaviour change; enabling only the first is how you get code that type-checks and then fails at runtime.',
+      hinglish:
+        '`allowSyntheticDefaultImports` sirf us type error ko chup karata hai jab tum ek aise CommonJS module ko default-import karte ho jiska koi default export nahi — ye nikle code mein kuch nahi badalta. `esModuleInterop` upar se helper code nikaalta hai taaki import runtime pe sach mein sahi kaam kare, aur ye doosre flag ko shaamil kar leta hai. Isliye pehla ek type-level ijaazat hai aur doosra ek asli behaviour change; sirf pehla enable karne se hi aisa code milta hai jo type-check hota hai aur phir runtime pe fail ho jaata hai.',
+    },
+  },
+  {
+    question: 'What is the difference between tsc, Babel, and esbuild for TypeScript?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`tsc` both TYPE-CHECKS and emits JavaScript, and it is the only one that checks types. Babel and esbuild simply STRIP the types without checking anything, which is dramatically faster and is why modern build tools use them. The standard setup is a fast transpiler for the build plus `tsc --noEmit` in CI and the editor for checking. The trap is assuming the build validates your types — it does not, so a broken type only surfaces in CI.',
+      hinglish:
+        '`tsc` TYPE-CHECK bhi karta hai aur JavaScript nikaalta bhi hai, aur ye ekmatr hai jo types check karta hai. Babel aur esbuild bas types HATA dete hain bina kuch check kiye, jo dramatically tez hai aur isiliye modern build tools unhe use karte hain. Standard setup build ke liye ek tez transpiler plus checking ke liye CI aur editor mein `tsc --noEmit` hai. Jaal ye maan lena hai ki build tumhare types validate karta hai — ye nahi karta, isliye ek toota type sirf CI mein dikhta hai.',
+    },
+  },
+  {
+    question: 'What are template literal types?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'They build string literal types from other types: `type Event = \\`on\\${Capitalize<string & keyof T>}\\``. Combined with unions they expand combinatorially — `\\`${"top"|"bottom"}-${"left"|"right"}\\`` yields four literals. They give type-safe string keys for CSS properties, event names, and route paths, catching a typo at compile time. Used carelessly on large unions they can explode the type space and slow the compiler noticeably.',
+      hinglish:
+        'Ye doosre types se string literal types banate hain: `type Event = \\`on\\${Capitalize<string & keyof T>}\\``. Unions ke saath ye combinatorially failte hain — `\\`${"top"|"bottom"}-${"left"|"right"}\\`` chaar literals deta hai. Ye CSS properties, event names, aur route paths ke liye type-safe string keys dete hain, ek typo compile time pe pakadte hue. Bade unions pe laparwaahi se use karne pe ye type space phaila kar compiler ko dhyaan dene layak slow kar sakte hain.',
+    },
+  },
+  {
+    question: 'What is exhaustiveness checking?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'In a switch over a discriminated union, add a default branch assigning the value to `never`: `const _exhaustive: never = value`. As long as every case is handled, the value is narrowed to `never` and it compiles. The moment someone adds a new union member, that assignment ERRORS, so the compiler tells you exactly which switches need updating. It converts "did I handle every case?" from a manual review question into a build failure.',
+      hinglish:
+        'Ek discriminated union pe ek switch mein, ek default branch jodo jo value ko `never` mein assign kare: `const _exhaustive: never = value`. Jab tak har case sambhala gaya hai, value `never` tak narrow hoti hai aur ye compile ho jaata hai. Jis pal koi ek naya union member jodta hai, wo assignment ERROR deta hai, isliye compiler tumhe theek batata hai ki kaunse switches update karne hain. Ye "kya maine har case sambhala?" ko ek manual review sawaal se ek build failure mein badal deta hai.',
+    },
+  },
+  {
+    question: 'How do you type an async function and its errors?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An `async` function always returns `Promise<T>`, and TypeScript infers it. What it does NOT model is what a function might THROW — there is no checked-exception system, so a caught error is typed `unknown` under strict mode and must be narrowed before use. Many codebases therefore return a discriminated `{ ok: true; data } | { ok: false; error }` result instead, which makes failure part of the type and impossible to forget.',
+      hinglish:
+        'Ek `async` function hamesha `Promise<T>` lautaata hai, aur TypeScript use infer kar leta hai. Jo ye model NAHI karta wo ye hai ki ek function kya THROW kar sakta hai — koi checked-exception system nahi hai, isliye ek pakda gaya error strict mode mein `unknown` type hota hai aur use karne se pehle narrow karna padta hai. Isliye bahut codebases uske bajaye ek discriminated `{ ok: true; data } | { ok: false; error }` result lautaate hain, jo failure ko type ka hissa aur bhoolna namumkin bana deta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between Record and an index signature?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`Record<K, V>` is a mapped type where K can be a UNION of specific keys, so `Record<"a"|"b", number>` requires exactly those two and the compiler knows they exist. An index signature `{ [key: string]: V }` allows ANY string key, so the compiler can never tell you a key is missing and every lookup should really be treated as possibly undefined. Use `Record` with a key union when the keys are known; enable `noUncheckedIndexedAccess` when they are not.',
+      hinglish:
+        '`Record<K, V>` ek mapped type hai jahan K khaas keys ka ek UNION ho sakta hai, isliye `Record<"a"|"b", number>` theek wo do maangta hai aur compiler jaanta hai ki wo hain. Ek index signature `{ [key: string]: V }` KOI BHI string key allow karta hai, isliye compiler kabhi nahi bata sakta ki ek key gayab hai aur har lookup ko sach mein possibly undefined maanna chahiye. Jab keys pata hon to key union ke saath `Record` use karo; jab na hon to `noUncheckedIndexedAccess` enable karo.',
+    },
+  },
+  {
+    question: 'What does noUncheckedIndexedAccess do?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'By default, `arr[10]` on a `number[]` is typed `number` even though the array may be shorter — TypeScript lies about it for convenience. This flag adds `| undefined` to every index access, forcing you to check before use. It is genuinely correct and catches a real class of crashes, but it is noisy enough that it is excluded from `strict`. Worth enabling on new code, painful to retrofit onto old code.',
+      hinglish:
+        'Default se, ek `number[]` pe `arr[10]` `number` type hota hai chahe array chhota ho — TypeScript sahoolat ke liye is baare mein jhooth bolta hai. Ye flag har index access mein `| undefined` jodta hai, tumhe use karne se pehle check karne pe majboor karte hue. Ye genuinely sahi hai aur crashes ki ek asli kism pakadta hai, par itna shor karta hai ki ise `strict` se bahar rakha gaya hai. Naye code pe enable karna worth hai, purane code pe lagana takleefdeh.',
+    },
+  },
+  {
+    question: 'How do you share types between a frontend and a backend?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Define them ONCE and consume from both — a shared package in a monorepo, types generated from an OpenAPI or GraphQL schema, a Prisma client, or an end-to-end typed layer such as tRPC. Duplicating an interface on each side means the two silently drift apart the first time someone changes only one, and the compiler cannot help because each side is internally consistent. The goal is one source of truth that a build failure enforces.',
+      hinglish:
+        'Unhe EK BAAR define karo aur dono taraf se use karo — ek monorepo mein ek shared package, ek OpenAPI ya GraphQL schema se generate hue types, ek Prisma client, ya tRPC jaisi ek end-to-end typed layer. Har taraf ek interface duplicate karne ka matlab hai ki jis pal koi sirf ek badalta hai dono chupke se alag ho jaate hain, aur compiler madad nahi kar sakta kyunki har taraf apne andar consistent hai. Lakshya ek hi sach ka source hai jise ek build failure enforce kare.',
+    },
+  },
+  {
+    question: 'What are the most common TypeScript mistakes you see?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Reaching for `any` when the type is inconvenient, which silently disables checking for everything downstream. Using `as` to silence an error instead of narrowing, which is an unverified claim. Asserting API responses rather than validating them at runtime. Over-annotating where inference is better. Writing elaborate conditional types where a simple union would do. And leaving `strict` off, which removes most of the value TypeScript exists to provide.',
+      hinglish:
+        'Type asuvidhajanak hone pe `any` uthana, jo aage sab kuch ke liye checking chupke se band kar deta hai. Narrow karne ke bajaye ek error chup karane ke liye `as` use karna, jo ek bina jaancha daawa hai. API responses ko runtime pe validate karne ke bajaye assert karna. Wahan zyada annotate karna jahan inference behtar hai. Wahan vistrit conditional types likhna jahan ek simple union kaam kar deta. Aur `strict` band chhodna, jo TypeScript ke hone ki zyadatar value hi hata deta hai.',
+    },
+  },
+  {
+    question: 'When is TypeScript not worth using?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'For a genuinely throwaway script, a tiny prototype, or a one-file utility, the build setup and annotation cost outweighs the benefit. It also struggles where data is inherently dynamic and unvalidated. And it is worth being honest that TypeScript prevents type errors, not logic errors — it will happily let you compute the wrong answer with perfect types. For anything with multiple contributors or a lifespan beyond a few weeks, it pays for itself quickly.',
+      hinglish:
+        'Ek sach mein phenkne wale script, ek chhote prototype, ya ek single-file utility ke liye, build setup aur annotation ka cost faayde se zyada hai. Ye wahan bhi joojhta hai jahan data swabhavik roop se dynamic aur bina jaancha ho. Aur imaandaari se maanna chahiye ki TypeScript type errors rokta hai, logic errors nahi — ye khushi se tumhe perfect types ke saath galat jawab compute karne dega. Kai contributors ya kuch hafton se lambi umar wali kisi bhi cheez ke liye, ye jaldi apna cost nikaal leta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between unknown and any in a catch block?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Since TypeScript 4.4 with `useUnknownInCatchVariables` (included in `strict`), a caught error is typed `unknown` rather than `any`. That matters because JavaScript lets you throw ANYTHING — a string, a number, an object — so assuming `err.message` exists is genuinely unsafe and crashes when someone throws a plain string. The correct pattern is narrowing with `err instanceof Error` before touching `.message`, and falling back to `String(err)` otherwise.',
+      hinglish:
+        'TypeScript 4.4 se `useUnknownInCatchVariables` (jo `strict` mein shaamil hai) ke saath, ek pakda gaya error `any` ke bajaye `unknown` type hota hai. Ye isliye matter karta hai kyunki JavaScript tumhe KUCH BHI throw karne deta hai — ek string, ek number, ek object — isliye ye maan lena ki `err.message` hai genuinely asurakshit hai aur tab crash karta hai jab koi ek plain string throw kare. Sahi pattern `.message` chhune se pehle `err instanceof Error` se narrow karna hai, aur warna `String(err)` pe girna.',
+    },
+  },
+  {
+    question: 'What is the difference between a class and an interface in TypeScript?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A CLASS exists at runtime — it emits JavaScript, can be instantiated with `new`, holds implementation, and can be used with `instanceof`. An INTERFACE is purely a compile-time contract that is erased entirely. Confusingly, a class also creates a TYPE of the same name, so you can annotate against it. Use an interface when you only need a shape, and a class when you genuinely need behaviour or runtime identity — an interface costs nothing in the output.',
+      hinglish:
+        'Ek CLASS runtime pe exist karti hai — ye JavaScript nikaalti hai, `new` se banayi ja sakti hai, implementation rakhti hai, aur `instanceof` ke saath use ho sakti hai. Ek INTERFACE sirf ek compile-time contract hai jo poori tarah mit jaata hai. Uljhaane wali baat ye hai ki ek class usi naam ka ek TYPE bhi banati hai, isliye tum uske against annotate kar sakte ho. Jab sirf ek shape chahiye tab interface use karo, aur class jab tumhe genuinely behaviour ya runtime pehchaan chahiye — ek interface output mein kuch cost nahi karta.',
     },
   },
 ];

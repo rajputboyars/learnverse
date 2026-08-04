@@ -722,6 +722,448 @@ export const generalInterviewQuestions = [
         'DELETE rows ko ek-ek karke hataata hai aur specific rows delete karne ke liye WHERE clause use kar sakta hai; ye logged hai, transaction mein rollback ho sakta hai, aur table structure rehta hai. TRUNCATE saari rows ko jaldi hataata hai data pages deallocate karke, AUTO_INCREMENT reset karta hai, WHERE use nahi kar sakta, aur kaafi tez par minimally logged hai. DROP poori table (structure plus data) ko database se hata deta hai. Short mein: selective row removal ke liye DELETE, poori table jaldi khaali karne ke liye TRUNCATE, table ko hi delete karne ke liye DROP.',
     },
   },
+
+  // ─── Engine, Indexes & Query Tuning ─────────────────────────
+  {
+    question: 'What is the difference between InnoDB and MyISAM?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'INNODB is the default and correct choice: it supports ACID transactions, foreign keys, row-level locking (so concurrent writes do not block each other), and crash recovery via its redo log. MYISAM has none of those — no transactions, no foreign keys, and TABLE-level locking, so one write blocks every reader. MyISAM was historically faster for read-only workloads, but InnoDB has long since caught up. There is essentially no reason to choose MyISAM for new work.',
+      hinglish:
+        'INNODB default aur sahi choice hai: ye ACID transactions, foreign keys, row-level locking (isliye concurrent writes ek doosre ko block nahi karte), aur apne redo log se crash recovery support karta hai. MYISAM mein inme se kuch nahi — na transactions, na foreign keys, aur TABLE-level locking, isliye ek write har reader ko rok deta hai. MyISAM historically read-only workloads ke liye tez tha, par InnoDB kab ka aage nikal chuka hai. Naye kaam ke liye MyISAM chunne ki asal mein koi wajah nahi.',
+    },
+  },
+  {
+    question: 'What is a clustered index in InnoDB?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'In InnoDB the PRIMARY KEY is the clustered index — the table rows are physically STORED in primary-key order inside the B-tree leaves. There is exactly one per table. Two consequences follow. Range scans on the primary key are very fast because rows are adjacent on disk. And every SECONDARY index stores the primary key as its pointer, so a large primary key inflates every other index — which is a strong argument for a compact key.',
+      hinglish:
+        'InnoDB mein PRIMARY KEY hi clustered index hai — table ki rows B-tree ke leaves ke andar physically primary-key ke order mein STORE hoti hain. Per table theek ek hota hai. Do nateeje nikalte hain. Primary key pe range scans bahut tez hain kyunki rows disk pe saath-saath hain. Aur har SECONDARY index apne pointer ki tarah primary key rakhta hai, isliye ek badi primary key har doosre index ko phula deti hai — jo ek compact key ke liye ek majboot dalil hai.',
+    },
+  },
+  {
+    question: 'Why should a primary key be small and monotonically increasing?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Because it is the clustered index, an INCREASING key means every insert appends at the end of the B-tree — no page splits, minimal fragmentation. A random key such as UUIDv4 inserts all over the tree, causing constant page splits, poor cache locality, and much slower writes. And since every secondary index carries a copy of the primary key, a 36-character UUID string costs far more storage across the whole database than a 4- or 8-byte integer. UUIDv7 is sortable and avoids most of this.',
+      hinglish:
+        'Kyunki ye clustered index hai, ek BADHTI key ka matlab hai har insert B-tree ke aakhir mein judta hai — na page splits, na khaas fragmentation. UUIDv4 jaisi ek random key poore tree mein insert karti hai, lagatar page splits, kharab cache locality, aur bahut slow writes banate hue. Aur kyunki har secondary index primary key ki ek copy le jaata hai, ek 36-character UUID string poore database mein ek 4 ya 8-byte integer se bahut zyada storage cost karti hai. UUIDv7 sortable hai aur iska zyadatar hissa bacha leta hai.',
+    },
+  },
+  {
+    question: 'What is a covering index?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A covering index contains EVERY column a query needs, so MySQL answers it from the index alone without reading the table rows — `EXPLAIN` shows "Using index". That removes an entire lookup step and can be several times faster. You build one by adding the selected columns to the index after the filtered and sorted ones. The trade is a wider index costing more storage and slowing writes, so cover only the queries that genuinely matter.',
+      hinglish:
+        'Ek covering index mein HAR wo column hota hai jo ek query ko chahiye, isliye MySQL use table rows padhe bina sirf index se jawab de deta hai — `EXPLAIN` "Using index" dikhata hai. Ye ek poora lookup step hata deta hai aur kai guna tez ho sakta hai. Tum ek aisa index filtered aur sorted columns ke baad selected columns jodkar banate ho. Trade ek chauda index hai jo zyada storage cost karta hai aur writes slow karta hai, isliye sirf un queries ko cover karo jo genuinely matter karti hain.',
+    },
+  },
+  {
+    question: 'How do you read the output of EXPLAIN?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Read `type` first: `ALL` is a full table scan and is usually the problem, while `ref`, `range`, `eq_ref`, and `const` are progressively better. Check `key` to see which index was actually chosen, and `rows` for the estimated number examined — a large number relative to what the query returns means wasted work. The `Extra` column is where the real signals live: "Using filesort" and "Using temporary" indicate MySQL could not satisfy the ordering or grouping from an index.',
+      hinglish:
+        'Pehle `type` padho: `ALL` ek full table scan hai aur usually problem hai, jabki `ref`, `range`, `eq_ref`, aur `const` kramash behtar hain. `key` dekho ki kaunsa index actually chuna gaya, aur `rows` mein jaanche gaye ka andaaza — query jitna lautaati hai uske muqable ek bada number matlab barbaad kaam. `Extra` column mein asli signals rehte hain: "Using filesort" aur "Using temporary" batate hain ki MySQL ordering ya grouping ek index se poori nahi kar paaya.',
+    },
+  },
+  {
+    question: 'What is the leftmost prefix rule for composite indexes?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'An index on `(a, b, c)` can serve queries filtering on `a`, on `a` and `b`, or on all three — any LEFTMOST prefix — but not one filtering on `b` alone, because the index is sorted primarily by `a`. A range condition also stops the prefix: `WHERE a = 1 AND b > 5 AND c = 3` uses `a` and `b` but cannot use `c`. So column ORDER is a design decision — put equality columns before range columns.',
+      hinglish:
+        '`(a, b, c)` pe ek index `a` pe, `a` aur `b` pe, ya teeno pe filter karti queries serve kar sakta hai — koi bhi LEFTMOST prefix — par akele `b` pe filter karti nahi, kyunki index primarily `a` se sorted hai. Ek range condition bhi prefix rok deti hai: `WHERE a = 1 AND b > 5 AND c = 3` `a` aur `b` use karta hai par `c` nahi. Isliye column ORDER ek design decision hai — equality columns ko range columns se pehle rakho.',
+    },
+  },
+  {
+    question: 'Why might MySQL ignore an index you created?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Several reasons. Wrapping the column in a FUNCTION — `WHERE YEAR(created_at) = 2024` — prevents index use; rewrite it as a range. A type mismatch, such as comparing a string column to a number, forces an implicit conversion. A leading wildcard in `LIKE "%x"` cannot use a B-tree. Low selectivity means the optimiser judges a full scan cheaper, which is often correct. And stale statistics can mislead it, which `ANALYZE TABLE` fixes.',
+      hinglish:
+        'Kai wajahein. Column ko ek FUNCTION mein lapetna — `WHERE YEAR(created_at) = 2024` — index use rokta hai; ise ek range ki tarah dobara likho. Ek type mismatch, jaise ek string column ko ek number se compare karna, ek chhupa conversion majboor karta hai. `LIKE "%x"` mein ek shuruaati wildcard ek B-tree use nahi kar sakta. Kam selectivity matlab optimiser ek full scan sasta samajhta hai, jo aksar sahi hai. Aur purani statistics use bhatka sakti hain, jise `ANALYZE TABLE` theek karta hai.',
+    },
+  },
+  {
+    question: 'What are the ACID properties?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'ATOMICITY — a transaction happens completely or not at all, so a failed transfer never debits without crediting. CONSISTENCY — the database moves from one valid state to another, respecting constraints. ISOLATION — concurrent transactions do not see each other\'s partial work, controlled by the isolation level. DURABILITY — once committed, data survives a crash, which InnoDB guarantees through its redo log and `innodb_flush_log_at_trx_commit`.',
+      hinglish:
+        'ATOMICITY — ek transaction poora hota hai ya bilkul nahi, isliye ek fail hua transfer bina credit kiye debit nahi karta. CONSISTENCY — database ek valid state se doosri mein jaata hai, constraints maante hue. ISOLATION — concurrent transactions ek doosre ka aadha kaam nahi dekhte, jise isolation level control karta hai. DURABILITY — commit hone ke baad, data ek crash bhi jhel leta hai, jise InnoDB apne redo log aur `innodb_flush_log_at_trx_commit` se guarantee karta hai.',
+    },
+  },
+  {
+    question: 'What are the MySQL transaction isolation levels?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'READ UNCOMMITTED allows dirty reads and is essentially never used. READ COMMITTED sees only committed data but allows non-repeatable reads. REPEATABLE READ is MySQL\'s DEFAULT: it gives a consistent snapshot for the whole transaction, and InnoDB\'s gap locking prevents phantom reads too, which is stricter than the standard requires. SERIALIZABLE is fully isolated but serialises access and hurts concurrency badly. Higher isolation costs concurrency, so the default is the usual right answer.',
+      hinglish:
+        'READ UNCOMMITTED dirty reads allow karta hai aur asal mein kabhi use nahi hota. READ COMMITTED sirf committed data dekhta hai par non-repeatable reads allow karta hai. REPEATABLE READ MySQL ka DEFAULT hai: ye poore transaction ke liye ek consistent snapshot deta hai, aur InnoDB ka gap locking phantom reads bhi rokta hai, jo standard ki maang se sakht hai. SERIALIZABLE poori tarah alag hai par access ko ek-ek karke chalata hai aur concurrency buri tarah bigaadta hai. Zyada isolation concurrency cost karta hai, isliye default usual sahi jawab hai.',
+    },
+  },
+  {
+    question: 'What is MVCC in InnoDB?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Multi-Version Concurrency Control lets readers see a consistent SNAPSHOT without taking locks, so a long-running SELECT never blocks writers and writers never block readers. InnoDB keeps old row versions in the undo log, and each transaction sees the version valid as of its start. The practical consequence: a very long transaction prevents old versions from being purged, so the undo log grows and performance degrades — which is why you keep transactions short.',
+      hinglish:
+        'Multi-Version Concurrency Control readers ko bina locks liye ek consistent SNAPSHOT dekhne deta hai, isliye ek lambi chalti SELECT kabhi writers ko block nahi karti aur writers kabhi readers ko nahi. InnoDB purani row versions undo log mein rakhta hai, aur har transaction wo version dekhta hai jo uske shuru hote waqt valid tha. Vyavaharik nateeja: ek bahut lamba transaction purani versions ko purge hone se rokta hai, isliye undo log badhta hai aur performance girti hai — isiliye transactions chhote rakhte hain.',
+    },
+  },
+  {
+    question: 'What is a deadlock and how does MySQL handle it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A deadlock occurs when two transactions each hold a lock the other needs, so neither can proceed. InnoDB DETECTS this automatically and kills the transaction that has done less work, returning error 1213 to the application. Prevention: acquire locks in a CONSISTENT ORDER across all code paths, keep transactions short, and index your `WHERE` clauses so fewer rows are locked. Crucially, your application must catch 1213 and RETRY — deadlocks are normal under concurrency, not a bug to eliminate.',
+      hinglish:
+        'Ek deadlock tab hota hai jab do transactions mein har ek wo lock rakhta ho jo doosre ko chahiye, isliye koi aage nahi badh sakta. InnoDB ise apne aap PAKADTA hai aur us transaction ko maar deta hai jisne kam kaam kiya, application ko error 1213 lautaate hue. Prevention: saare code paths mein locks ek CONSISTENT ORDER mein lo, transactions chhote rakho, aur apne `WHERE` clauses index karo taaki kam rows lock hon. Critically, tumhare application ko 1213 pakad kar RETRY karna chahiye — concurrency mein deadlocks normal hain, mitane wala bug nahi.',
+    },
+  },
+  {
+    question: 'What is the difference between INNER JOIN and LEFT JOIN?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'INNER JOIN returns only rows with a match in BOTH tables. LEFT JOIN returns every row from the left table, filling unmatched right-side columns with NULL — which is how you find "users with no orders" using `WHERE o.id IS NULL`. The classic mistake is putting a condition on the right table in the `WHERE` clause instead of the `ON` clause, because a `WHERE r.col = x` filters out the NULL rows and silently turns the LEFT JOIN back into an INNER JOIN.',
+      hinglish:
+        'INNER JOIN sirf wo rows lautaata hai jinka DONO tables mein match ho. LEFT JOIN left table ki har row lautaata hai, na milte right-side columns NULL se bharte hue — jisse tum `WHERE o.id IS NULL` se "bina orders wale users" dhoondhte ho. Classic galti right table pe ek condition `ON` clause ke bajaye `WHERE` clause mein daalna hai, kyunki ek `WHERE r.col = x` NULL rows chhaan deta hai aur chupke se LEFT JOIN ko wapas ek INNER JOIN bana deta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between WHERE and HAVING?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`WHERE` filters INDIVIDUAL ROWS before grouping and can use indexes. `HAVING` filters GROUPS after `GROUP BY` and can reference aggregates such as `COUNT(*) > 5`, which `WHERE` cannot. The performance implication matters: filtering in `WHERE` removes rows before the expensive grouping happens, so pushing a condition from `HAVING` into `WHERE` — whenever it does not depend on an aggregate — is a genuine and common optimisation.',
+      hinglish:
+        '`WHERE` grouping se pehle ALAG-ALAG ROWS chhaanta hai aur indexes use kar sakta hai. `HAVING` `GROUP BY` ke baad GROUPS chhaanta hai aur `COUNT(*) > 5` jaise aggregates reference kar sakta hai, jo `WHERE` nahi kar sakta. Performance ka matlab matter karta hai: `WHERE` mein chhaanna mehnga grouping hone se pehle rows hata deta hai, isliye ek condition ko `HAVING` se `WHERE` mein dhakelna — jab wo ek aggregate pe depend na kare — ek genuine aur common optimisation hai.',
+    },
+  },
+  {
+    question: 'Why is OFFSET pagination slow on deep pages?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`LIMIT 20 OFFSET 100000` forces MySQL to fetch and DISCARD 100,000 rows before returning 20, so cost grows linearly with page depth. It also produces duplicate or skipped rows when data changes between requests. KEYSET (cursor) pagination fixes both: remember the last row\'s sort value and use `WHERE id > :lastId ORDER BY id LIMIT 20`, which uses the index directly and stays constant-time at any depth. The trade is you cannot jump to an arbitrary page number.',
+      hinglish:
+        '`LIMIT 20 OFFSET 100000` MySQL ko 20 lautane se pehle 100,000 rows laakar PHENKNE pe majboor karta hai, isliye cost page ki gehraai ke saath seedhe badhti hai. Ye tab duplicate ya chhooti rows bhi banata hai jab requests ke beech data badle. KEYSET (cursor) pagination dono theek karta hai: aakhri row ki sort value yaad rakho aur `WHERE id > :lastId ORDER BY id LIMIT 20` use karo, jo index seedha use karta hai aur kisi bhi gehraai pe constant-time rehta hai. Trade ye hai ki tum kisi bhi page number pe kood nahi sakte.',
+    },
+  },
+  {
+    question: 'What is the difference between a subquery, a CTE, and a JOIN?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A JOIN combines tables row by row and is usually the fastest for combining data. A SUBQUERY nests a query inside another; a correlated subquery re-executes per outer row, which can be very slow. A CTE (`WITH`, available from MySQL 8) names a result set for readability and enables RECURSION for hierarchies. Modern MySQL often optimises these into similar plans, so choose for READABILITY first and verify with `EXPLAIN` rather than assuming one is inherently faster.',
+      hinglish:
+        'Ek JOIN tables ko row dar row jodta hai aur data jodne ke liye usually sabse tez hai. Ek SUBQUERY ek query ko doosri ke andar rakhta hai; ek correlated subquery per outer row dobara chalti hai, jo bahut slow ho sakti hai. Ek CTE (`WITH`, MySQL 8 se) padhne ki aasani ke liye ek result set ko naam deta hai aur hierarchies ke liye RECURSION enable karta hai. Modern MySQL inhe aksar ek jaise plans mein optimise karta hai, isliye pehle PADHNE KI AASANI se chuno aur `EXPLAIN` se jaancho, ye maan kar mat chalo ki koi swabhavik roop se tez hai.',
+    },
+  },
+  {
+    question: 'What is normalisation and when should you denormalise?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Normalisation removes redundancy by splitting data into related tables — 1NF removes repeating groups, 2NF removes partial dependencies on a composite key, 3NF removes transitive dependencies. It prevents update anomalies and keeps one fact in one place. DENORMALISE deliberately when joins have become a MEASURED bottleneck: store a comment count on a post, or copy a product name into an order line so history is preserved. The cost is keeping duplicates in sync.',
+      hinglish:
+        'Normalisation data ko related tables mein baant kar dohraav hataata hai — 1NF repeating groups hataata hai, 2NF ek composite key pe partial dependencies, 3NF transitive dependencies. Ye update anomalies rokta hai aur ek baat ko ek jagah rakhta hai. DENORMALISE jaan boojh kar tab karo jab joins ek MAAPA GAYA bottleneck ban jaayein: ek post pe ek comment count rakho, ya ek product naam ek order line mein copy karo taaki itihaas bacha rahe. Cost duplicates ko sync mein rakhna hai.',
+    },
+  },
+  {
+    question: 'What is the difference between CHAR and VARCHAR?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`CHAR(n)` is fixed-length: it always occupies n characters and pads with spaces, which are stripped on retrieval. `VARCHAR(n)` stores only what is used plus a length prefix of one or two bytes. Use `CHAR` for genuinely fixed values such as a two-letter country code, where it avoids the length overhead and fragmentation. Use `VARCHAR` for everything else. Note the declared length in `VARCHAR(255)` is not a storage cost, so there is no benefit in guessing small.',
+      hinglish:
+        '`CHAR(n)` fixed-length hai: ye hamesha n characters ghera karta hai aur spaces se bharta hai, jo laate waqt hata diye jaate hain. `VARCHAR(n)` sirf utna store karta hai jitna use hua plus ek ya do byte ka length prefix. `CHAR` un genuinely fixed values ke liye use karo jaise ek do-akshar ka country code, jahan ye length overhead aur fragmentation bachata hai. Baaki sab ke liye `VARCHAR`. Note karo `VARCHAR(255)` mein likhi length ek storage cost nahi hai, isliye chhota andaaza lagane ka koi faayda nahi.',
+    },
+  },
+  {
+    question: 'What is the difference between DATETIME and TIMESTAMP?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`TIMESTAMP` stores UTC internally and CONVERTS to the session time zone on read, takes 4 bytes, and is limited to 1970-2038. `DATETIME` stores the literal value with no time-zone conversion, takes 5 bytes, and spans years 1000-9999. For an event that happened at a real moment in time, `TIMESTAMP` (or `DATETIME` with everything explicitly in UTC) is correct. The 2038 limit is genuine, so new systems increasingly use `DATETIME` with UTC discipline.',
+      hinglish:
+        '`TIMESTAMP` andar UTC store karta hai aur padhte waqt session time zone mein BADALTA hai, 4 bytes leta hai, aur 1970-2038 tak seemit hai. `DATETIME` literal value bina time-zone conversion ke store karta hai, 5 bytes leta hai, aur 1000-9999 saal cover karta hai. Ek aise event ke liye jo samay ke ek asli pal pe hua, `TIMESTAMP` (ya sab kuch explicitly UTC mein rakhte hue `DATETIME`) sahi hai. 2038 ki seema asli hai, isliye naye systems badhte roop se UTC anushasan ke saath `DATETIME` use karte hain.',
+    },
+  },
+  {
+    question: 'How does NULL behave in MySQL comparisons and aggregates?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'NULL means UNKNOWN, so any comparison with it yields NULL, not true — `NULL = NULL` is not true, which is why you must use `IS NULL`. It also breaks `NOT IN` with a subquery containing NULL, which then returns no rows at all. Aggregates SKIP NULLs, so `COUNT(col)` differs from `COUNT(*)`, and `AVG` divides by the non-null count. `COALESCE` provides a default. NULL handling is one of the most common sources of subtly wrong query results.',
+      hinglish:
+        'NULL ka matlab ANJAAN hai, isliye uske saath koi bhi comparison NULL deta hai, true nahi — `NULL = NULL` true nahi hai, isiliye tumhe `IS NULL` use karna padta hai. Ye NULL wale subquery ke saath `NOT IN` bhi todta hai, jo phir koi row hi nahi lautaata. Aggregates NULLs SKIP karte hain, isliye `COUNT(col)` `COUNT(*)` se alag hai, aur `AVG` non-null count se divide karta hai. `COALESCE` ek default deta hai. NULL handling sookshm roop se galat query results ke sabse common sources mein se ek hai.',
+    },
+  },
+  {
+    question: 'What is the difference between UNION and UNION ALL?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`UNION` removes duplicate rows, which requires MySQL to sort or hash the entire combined result — genuinely expensive on large sets. `UNION ALL` simply concatenates and is much faster. Use `UNION ALL` by default and reach for `UNION` only when duplicates are actually possible AND unwanted. Writing `UNION` reflexively on result sets that cannot overlap is a common and easily avoided performance cost.',
+      hinglish:
+        '`UNION` duplicate rows hataata hai, jiske liye MySQL ko poora juda result sort ya hash karna padta hai — bade sets pe genuinely mehnga. `UNION ALL` bas jod deta hai aur bahut tez hai. Default se `UNION ALL` use karo aur `UNION` sirf tab uthao jab duplicates actually sambhav AUR anchahe hon. Aise result sets pe reflexively `UNION` likhna jo overlap kar hi nahi sakte ek common aur aasaani se bacha ja sakne wala performance cost hai.',
+    },
+  },
+  {
+    question: 'What is a foreign key and what do ON DELETE options do?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A foreign key constrains a column to reference an existing row in another table, so the database itself enforces referential integrity rather than trusting application code. `ON DELETE CASCADE` deletes children with the parent — convenient but dangerous, since one delete can silently remove a great deal. `SET NULL` nulls the reference. `RESTRICT` (the default) blocks the delete. Note foreign keys require InnoDB and add a small write cost, but that is almost always worth the guarantee.',
+      hinglish:
+        'Ek foreign key ek column ko doosri table ki ek maujood row reference karne pe baandhta hai, isliye application code pe bharosa karne ke bajaye database khud referential integrity enforce karta hai. `ON DELETE CASCADE` children ko parent ke saath delete karta hai — suvidhajanak par khatarnak, kyunki ek delete chupke se bahut kuch hata sakta hai. `SET NULL` reference ko null kar deta hai. `RESTRICT` (default) delete rokta hai. Note karo foreign keys ko InnoDB chahiye aur wo ek chhota write cost jodte hain, par wo guarantee ke aage almost hamesha worth hai.',
+    },
+  },
+  {
+    question: 'What is the difference between a stored procedure and a function?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A PROCEDURE is invoked with `CALL`, can return multiple result sets or none, and may modify data. A FUNCTION returns a single value and can be used inside an expression such as a `SELECT` list or `WHERE` clause. Both keep logic in the database, which reduces round trips. The modern objection is that database logic is harder to version, test, and review than application code, so most teams keep business logic in the application.',
+      hinglish:
+        'Ek PROCEDURE `CALL` se bulaya jaata hai, kai result sets ya koi nahi lauta sakta hai, aur data badal sakta hai. Ek FUNCTION ek single value lautaata hai aur ek expression ke andar use ho sakta hai jaise ek `SELECT` list ya `WHERE` clause. Dono logic ko database mein rakhte hain, jo round trips kam karta hai. Modern aitraaz ye hai ki database logic ko version, test, aur review karna application code se mushkil hai, isliye zyadatar teams business logic application mein rakhti hain.',
+    },
+  },
+  {
+    question: 'What is a trigger and why are triggers often discouraged?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A trigger runs automatically before or after an INSERT, UPDATE, or DELETE — used for audit logs, derived columns, or enforcing a rule. They are discouraged because the behaviour is INVISIBLE from the application: a developer reading the code has no indication that an insert also writes elsewhere, which makes debugging hard. They also run inside the transaction, so a slow trigger slows every write, and cascading triggers can be genuinely difficult to reason about.',
+      hinglish:
+        'Ek trigger ek INSERT, UPDATE, ya DELETE se pehle ya baad apne aap chalta hai — audit logs, derived columns, ya ek niyam enforce karne ke liye. Inhe isliye rokaa jaata hai kyunki behaviour application se ANDEKHA hai: code padhta ek developer ko koi ishaara nahi hota ki ek insert kahin aur bhi likhta hai, jo debugging mushkil banata hai. Wo transaction ke andar bhi chalte hain, isliye ek slow trigger har write slow karta hai, aur cascading triggers ko samajhna genuinely mushkil ho sakta hai.',
+    },
+  },
+  {
+    question: 'What is a view and is it faster than the underlying query?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A view is a stored SELECT statement given a name. It aids readability, encapsulates a complex join, and can restrict which columns a user sees. It is NOT faster — MySQL views are not materialised, so the underlying query runs every time. In fact a view can be slower if the optimiser cannot merge it into the outer query and must materialise it into a temporary table. MySQL has no materialised views; you emulate them with a summary table refreshed on a schedule.',
+      hinglish:
+        'Ek view ek naam diya gaya stored SELECT statement hai. Ye padhne mein madad karta hai, ek complex join lapetta hai, aur seemit kar sakta hai ki ek user kaunse columns dekhe. Ye TEZ NAHI hai — MySQL views materialise nahi hote, isliye underlying query har baar chalti hai. Balki ek view slow ho sakta hai agar optimiser use outer query mein merge na kar paaye aur use ek temporary table mein materialise karna pade. MySQL mein materialised views nahi hain; tum unki nakal ek schedule pe refresh hoti summary table se karte ho.',
+    },
+  },
+  {
+    question: 'How does MySQL replication work?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The source writes changes to a BINARY LOG; each replica has an I/O thread copying that log and an SQL thread applying it. Replication is ASYNCHRONOUS by default, so a replica can lag — which is why a user who writes and immediately reads may not see their own change. Semi-synchronous replication waits for one replica to acknowledge, reducing data loss on failover at some latency cost. Use replicas for reads, backups, and failover, never assuming they are perfectly current.',
+      hinglish:
+        'Source changes ko ek BINARY LOG mein likhta hai; har replica ka ek I/O thread wo log copy karta hai aur ek SQL thread use lagata hai. Replication default se ASYNCHRONOUS hai, isliye ek replica peeche reh sakta hai — isiliye ek user jo likh kar turant padhta hai wo apna hi change na dekhe. Semi-synchronous replication ek replica ke acknowledge karne ka intezaar karta hai, kuch latency cost pe failover pe data loss kam karte hue. Replicas ko reads, backups, aur failover ke liye use karo, kabhi ye maan kar nahi ki wo bilkul current hain.',
+    },
+  },
+  {
+    question: 'What is replication lag and how do you handle it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Lag is the delay between a write committing on the source and appearing on a replica, caused by network delay, a slow single-threaded applier, or a long-running transaction. Handle it by routing READ-AFTER-WRITE queries to the source, using a sticky window after a write, or having the application wait for a known binlog position. Monitor `Seconds_Behind_Master`. And design the UI so a small delay is acceptable, since eliminating lag entirely is not realistic.',
+      hinglish:
+        'Lag source pe ek write commit hone aur ek replica pe dikhne ke beech ki deri hai, jo network deri, ek slow single-threaded applier, ya ek lambe chalte transaction se hoti hai. Ise READ-AFTER-WRITE queries ko source pe bhej kar, ek write ke baad ek sticky window use karke, ya application ko ek known binlog position ka intezaar karwa kar sambhalo. `Seconds_Behind_Master` monitor karo. Aur UI ko aise design karo ki ek chhoti deri sweekar ho, kyunki lag poori tarah mitana vaastavik nahi hai.',
+    },
+  },
+  {
+    question: 'What is the InnoDB buffer pool?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The buffer pool caches table data and index pages in memory, so reads are served without touching disk and writes are batched. It is by far the most important MySQL tuning parameter — `innodb_buffer_pool_size` is typically set to 60-80% of RAM on a dedicated server. If your working set fits in it, performance is excellent; once it does not, MySQL starts reading from disk and throughput falls sharply. Most "MySQL suddenly got slow" incidents trace back to this.',
+      hinglish:
+        'Buffer pool table data aur index pages memory mein cache karta hai, isliye reads disk chhue bina serve hoti hain aur writes batch hoti hain. Ye kaafi aage tak sabse zaroori MySQL tuning parameter hai — ek dedicated server pe `innodb_buffer_pool_size` typically RAM ka 60-80% set hota hai. Agar tumhara working set usme fit hota hai, performance behtareen hai; jab nahi hota, MySQL disk se padhna shuru karta hai aur throughput tezi se girta hai. Zyadatar "MySQL achanak slow ho gaya" ghatnaayein isi pe pahunchti hain.',
+    },
+  },
+  {
+    question: 'What is the slow query log and how do you use it?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'It records queries exceeding `long_query_time`, and optionally those not using an index. It is the starting point for real optimisation, because it tells you what is ACTUALLY slow rather than what you assume is. Analyse it with `pt-query-digest` or `mysqldumpslow`, which aggregate by query pattern — a query taking 50ms but running ten thousand times a minute often matters more than a single 5-second report nobody runs.',
+      hinglish:
+        'Ye `long_query_time` se zyada lene wali queries record karta hai, aur optionally wo jo index use nahi karti. Ye asli optimisation ki shuruaat hai, kyunki ye batata hai ki ACTUALLY kya slow hai, wo nahi jo tum maan lete ho. Ise `pt-query-digest` ya `mysqldumpslow` se dekho, jo query pattern se jodte hain — 50ms leti par ek minute mein das hazaar baar chalti ek query aksar us ek 5-second report se zyada matter karti hai jo koi chalata hi nahi.',
+    },
+  },
+  {
+    question: 'What is the difference between LIKE and FULLTEXT search?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`LIKE "%term%"` scans every row because a leading wildcard cannot use a B-tree index — fine on a small table, unusable on a large one. FULLTEXT indexes tokenise text into words and support `MATCH ... AGAINST` with relevance ranking, boolean operators, and stopwords. It is dramatically faster for text search. For serious requirements — fuzzy matching, faceting, multilingual analysis — a dedicated engine such as Elasticsearch or Meilisearch is the better answer.',
+      hinglish:
+        '`LIKE "%term%"` har row scan karta hai kyunki ek shuruaati wildcard ek B-tree index use nahi kar sakta — ek chhoti table pe theek, ek badi pe bekaar. FULLTEXT indexes text ko words mein todte hain aur relevance ranking, boolean operators, aur stopwords ke saath `MATCH ... AGAINST` support karte hain. Text search ke liye ye dramatically tez hai. Serious zarooraton ke liye — fuzzy matching, faceting, multilingual analysis — Elasticsearch ya Meilisearch jaisa ek dedicated engine behtar jawab hai.',
+    },
+  },
+  {
+    question: 'What is the JSON column type in MySQL and when should you use it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'MySQL 5.7 added a native JSON type with validation, efficient binary storage, and path operators such as `->>`. You can index a JSON path via a GENERATED COLUMN. Use it for genuinely schemaless data — user preferences, third-party payloads, sparse attributes. Do NOT use it for data you filter, join, or aggregate on regularly, because a proper column with a real index is faster, self-documenting, and constrained by the database rather than by hope.',
+      hinglish:
+        'MySQL 5.7 ne ek native JSON type joda validation, efficient binary storage, aur `->>` jaise path operators ke saath. Tum ek JSON path ko ek GENERATED COLUMN se index kar sakte ho. Ise genuinely schemaless data ke liye use karo — user preferences, third-party payloads, sparse attributes. Ise us data ke liye use MAT karo jispe tum regularly filter, join, ya aggregate karte ho, kyunki ek asli index wala theek column tez, khud-batata, aur ummeed ke bajaye database se bandha hota hai.',
+    },
+  },
+  {
+    question: 'How do you take and restore a MySQL backup?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`mysqldump` produces a portable logical backup — use `--single-transaction` on InnoDB so it does not lock tables — but it is slow to restore on large databases. Percona XtraBackup takes a physical hot backup that restores far faster. Combine either with BINARY LOGS to enable point-in-time recovery. The essential discipline is testing the RESTORE regularly on real data: an untested backup is an assumption, and restore failures are discovered at the worst possible moment.',
+      hinglish:
+        '`mysqldump` ek portable logical backup banata hai — InnoDB pe `--single-transaction` use karo taaki ye tables lock na kare — par bade databases pe restore slow hai. Percona XtraBackup ek physical hot backup leta hai jo bahut tez restore hota hai. Kisi ko bhi BINARY LOGS ke saath jodo taaki point-in-time recovery ho. Zaroori anushasan asli data pe RESTORE ko regularly test karna hai: ek bina test kiya backup ek assumption hai, aur restore failures sabse bure sambhav pal pe pata chalte hain.',
+    },
+  },
+  {
+    question: 'What is the difference between DISTINCT and GROUP BY?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Both eliminate duplicates and often produce identical plans. `DISTINCT` simply removes duplicate rows from a result. `GROUP BY` collapses rows into groups and, crucially, lets you apply AGGREGATES per group. So use `DISTINCT` when you only want unique values and `GROUP BY` when you also want a count, sum, or average. Note that `SELECT DISTINCT` combined with `ORDER BY` on a column not selected is an error, which surprises people.',
+      hinglish:
+        'Dono duplicates hataate hain aur aksar ek jaise plans banate hain. `DISTINCT` bas ek result se duplicate rows hataata hai. `GROUP BY` rows ko groups mein samet-ta hai aur, critically, tumhe per group AGGREGATES lagane deta hai. Isliye `DISTINCT` tab use karo jab sirf unique values chahiye aur `GROUP BY` jab ek count, sum, ya average bhi chahiye. Note karo ki `SELECT DISTINCT` ko ek aise column pe `ORDER BY` ke saath jodna jo select nahi hua ek error hai, jo logon ko chaunkata hai.',
+    },
+  },
+  {
+    question: 'What are window functions and how do they differ from GROUP BY?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A window function computes across a set of rows related to the current one WITHOUT collapsing them, so each input row still appears in the output alongside its aggregate. `ROW_NUMBER() OVER (PARTITION BY dept ORDER BY salary DESC)` ranks within each department while keeping every row. `GROUP BY` reduces many rows to one. Window functions arrived in MySQL 8 and make "top N per group" and running totals straightforward, which previously required awkward self-joins.',
+      hinglish:
+        'Ek window function current row se judi rows ke ek set pe compute karta hai BINA unhe samete, isliye har input row apne aggregate ke saath output mein rehti hai. `ROW_NUMBER() OVER (PARTITION BY dept ORDER BY salary DESC)` har department ke andar rank deta hai jabki har row rehti hai. `GROUP BY` bahut rows ko ek mein kam kar deta hai. Window functions MySQL 8 mein aaye aur "per group top N" aur running totals ko seedha bana dete hain, jinke liye pehle ajeeb self-joins chahiye the.',
+    },
+  },
+  {
+    question: 'What is the difference between AUTO_INCREMENT and a UUID primary key?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'AUTO_INCREMENT is compact, sequential, and ideal for the clustered index, but it leaks how many records exist, cannot be generated by the client, and collides when merging data from multiple sources. A UUID is globally unique and client-generatable, but UUIDv4 is random, which fragments the clustered index and bloats every secondary index. The practical compromises are storing UUIDs as `BINARY(16)`, or using UUIDv7, which is time-ordered and keeps inserts sequential.',
+      hinglish:
+        'AUTO_INCREMENT compact, kramik, aur clustered index ke liye ideal hai, par ye batata hai ki kitne records hain, client se generate nahi ho sakta, aur kai sources ka data milaate waqt takraata hai. Ek UUID globally unique aur client-generatable hai, par UUIDv4 random hai, jo clustered index ko todta hai aur har secondary index ko phulaata hai. Vyavaharik samjhaute UUIDs ko `BINARY(16)` mein rakhna, ya UUIDv7 use karna hai, jo samay se order hai aur inserts ko kramik rakhta hai.',
+    },
+  },
+  {
+    question: 'How do you safely alter a large table in production?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A naive `ALTER TABLE` on a huge table can lock it for a long time and take the application down. MySQL 8 supports INSTANT and INPLACE algorithms for many changes, so check which applies before assuming. For the rest, use `pt-online-schema-change` or `gh-ost`, which build a shadow table, copy rows in batches, keep it in sync with triggers or the binlog, then swap atomically. Always run it on a replica or staging copy first and monitor replication lag.',
+      hinglish:
+        'Ek bade table pe ek naive `ALTER TABLE` use lambe samay lock karke application gira sakta hai. MySQL 8 bahut changes ke liye INSTANT aur INPLACE algorithms support karta hai, isliye maan lene se pehle check karo ki kaunsa lagta hai. Baaki ke liye, `pt-online-schema-change` ya `gh-ost` use karo, jo ek shadow table banate hain, rows batches mein copy karte hain, use triggers ya binlog se sync mein rakhte hain, phir atomically badal dete hain. Ise hamesha pehle ek replica ya staging copy pe chalao aur replication lag monitor karo.',
+    },
+  },
+  {
+    question: 'What is connection pooling and why does MySQL need it?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Opening a MySQL connection requires a TCP handshake and authentication, which is expensive to repeat per request. A pool keeps connections open and hands them out, so requests reuse them. MySQL also has a hard `max_connections` limit and each connection costs memory, so uncontrolled connection creation exhausts the server — a classic outage where the database is fine but refuses new connections. In serverless environments, a proxy such as ProxySQL or RDS Proxy handles pooling externally.',
+      hinglish:
+        'Ek MySQL connection kholne ke liye ek TCP handshake aur authentication chahiye, jo per request dohraana mehnga hai. Ek pool connections khule rakhta hai aur baant-ta hai, isliye requests unhe dobara use karti hain. MySQL mein ek sakht `max_connections` seema bhi hai aur har connection memory leta hai, isliye bina control connection banana server khatam kar deta hai — ek classic outage jahan database theek hai par naye connections mana kar deta hai. Serverless environments mein, ProxySQL ya RDS Proxy jaisa ek proxy pooling bahar se sambhalta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between horizontal and vertical partitioning in MySQL?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'HORIZONTAL partitioning splits ROWS across partitions by a key — typically by date range, so old data sits in its own partition and can be dropped instantly rather than deleted row by row. VERTICAL partitioning splits COLUMNS into separate tables, moving rarely-read large columns such as a text blob out of the hot table so more useful rows fit in the buffer pool. Note MySQL partitioning is within one server; splitting across servers is sharding, which the application must handle.',
+      hinglish:
+        'HORIZONTAL partitioning ROWS ko ek key se partitions mein baantta hai — typically date range se, isliye purana data apne partition mein baithta hai aur row dar row delete karne ke bajaye turant giraya ja sakta hai. VERTICAL partitioning COLUMNS ko alag tables mein baantta hai, kam padhe jaate bade columns jaise ek text blob ko hot table se bahar le jaate hue taaki buffer pool mein zyada useful rows aayein. Note karo MySQL partitioning ek server ke andar hai; servers ke across baantna sharding hai, jise application ko sambhalna padta hai.',
+    },
+  },
+  {
+    question: 'What is SQL injection and how do prepared statements stop it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Injection happens when user input is concatenated into a query string, so input like `\' OR 1=1--` changes the query\'s STRUCTURE rather than supplying a value. A prepared statement sends the structure first with placeholders and the values separately, so by the time values arrive the plan is fixed and they can only ever be treated as DATA. Escaping is a weaker fallback that depends on getting the character set and every call site right. Never build SQL by concatenation.',
+      hinglish:
+        'Injection tab hota hai jab user input ek query string mein joda jaaye, isliye `\' OR 1=1--` jaisa input query ka DHAANCHA badal deta hai, ek value dene ke bajaye. Ek prepared statement pehle dhaancha placeholders ke saath bhejta hai aur values alag se, isliye values aane tak plan tay ho chuka hota hai aur unhe kabhi sirf DATA hi maana ja sakta hai. Escaping ek kamzor fallback hai jo character set aur har call site sahi karne pe depend karta hai. SQL kabhi jod kar mat banao.',
+    },
+  },
+  {
+    question: 'How do you find and fix a slow query?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Find it in the slow query log or performance schema rather than guessing. Run `EXPLAIN` and check for a full scan, a missing index, or "Using filesort". Then fix in order of impact: add or reorder an index matching the filter and sort, select only needed columns so a covering index becomes possible, remove functions wrapping indexed columns, replace deep `OFFSET` with keyset pagination, and reduce the rows examined. Re-measure afterwards — assumed optimisations are frequently wrong.',
+      hinglish:
+        'Ise andaaza lagane ke bajaye slow query log ya performance schema mein dhoondho. `EXPLAIN` chalao aur ek full scan, ek missing index, ya "Using filesort" dekho. Phir asar ke kram mein theek karo: filter aur sort se milta ek index jodo ya dobara order karo, sirf zaroori columns select karo taaki ek covering index sambhav ho, indexed columns ko lapetne wale functions hatao, gehre `OFFSET` ko keyset pagination se badlo, aur jaanchi gayi rows kam karo. Baad mein dobara maapo — maani gayi optimisations aksar galat hoti hain.',
+    },
+  },
+  {
+    question: 'When should you use MySQL versus PostgreSQL?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'MYSQL is simpler to operate, extremely well supported by managed hosting and shared hosts, and excellent for read-heavy web workloads — it is the default in the PHP and WordPress ecosystems. POSTGRESQL has a richer type system, stronger standards compliance, better handling of complex queries and CTEs, native support for arrays, JSONB, and full-text search, plus extensions such as PostGIS. For a new greenfield application Postgres is often the stronger default; for an existing MySQL estate the migration rarely pays for itself.',
+      hinglish:
+        'MYSQL chalane mein simpler hai, managed hosting aur shared hosts se bahut achhe se support hai, aur read-heavy web workloads ke liye behtareen — ye PHP aur WordPress ecosystems mein default hai. POSTGRESQL ka type system zyada rich hai, standards compliance majboot, complex queries aur CTEs ki handling behtar, arrays, JSONB, aur full-text search ka native support, plus PostGIS jaise extensions. Ek naye greenfield application ke liye Postgres aksar majboot default hai; ek maujood MySQL estate ke liye migration rarely apna cost nikaalti hai.',
+    },
+  },
 ];
 
 export const curriculum = [...beginner, ...intermediate, ...advanced];
