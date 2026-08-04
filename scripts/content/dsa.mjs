@@ -103,7 +103,7 @@ const beginner = [
           {
             question: 'What is Big O notation and why do we ignore constants?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Big O describes the asymptotic upper bound on how an algorithm\'s running time (or space) grows relative to input size. We ignore constants and lower-order terms because, as n grows large, the dominant term decides scalability — O(2n) and O(n) both scale linearly, so both are O(n). It lets us compare algorithms independent of hardware or language.',
@@ -569,7 +569,7 @@ const intermediate = [
           {
             question: 'How do you check for balanced parentheses?',
             difficulty: 'easy',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Use a stack. Push every opening bracket. On a closing bracket, pop the stack and check it matches the corresponding opening type; if it does not match (or the stack is empty), the string is invalid. At the end, a valid string leaves the stack empty. This is O(n) time and O(n) space.',
@@ -688,7 +688,7 @@ const intermediate = [
           {
             question: 'How does a hash map achieve O(1) lookups, and what causes collisions?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'A hash function converts a key into an array index, so you jump straight to the bucket instead of scanning — average O(1). Collisions happen when different keys hash to the same index (the pigeonhole principle guarantees this since the key space exceeds the table size). They are resolved by separate chaining (a linked list/array per bucket) or open addressing (probing for the next free slot). A good hash function and load-factor-based resizing keep performance near O(1).',
@@ -913,7 +913,7 @@ const intermediate = [
           {
             question: 'Compare merge sort and quick sort.',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Both are divide-and-conquer. Merge sort is always O(n log n), stable, but needs O(n) extra space — good for linked lists and when stability matters. Quick sort is average O(n log n), in-place (O(log n) stack), usually faster in practice due to cache locality, but worst case O(n^2) with bad pivots and it is not stable. Use quick sort for general in-memory arrays (with randomised pivot); merge sort when you need stability or are sorting linked lists / huge external data.',
@@ -966,7 +966,7 @@ const intermediate = [
           {
             question: 'Why does binary search need a sorted array, and what is a common bug?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Binary search relies on the sorted order to decide which half to discard after comparing with the middle — without order, "go left/right" is meaningless. Common bugs: integer overflow computing mid = (lo + hi) (use lo + (hi - lo) / 2 in languages where it matters), wrong loop condition (lo <= hi vs lo < hi), and not updating bounds correctly (infinite loop). The search space halves each step, giving O(log n).',
@@ -1485,7 +1485,7 @@ const advanced = [
           {
             question: 'How do you recognise a DP problem and approach it?',
             difficulty: 'hard',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Signs: the problem asks for an optimum (max/min/count/“number of ways”), choices at each step affect the future, and a naive recursion recomputes the same subproblems (overlapping subproblems). Approach: (1) define the state (what parameters uniquely describe a subproblem), (2) write the recurrence/transition between states, (3) set base cases, (4) implement top-down with memoization or bottom-up with tabulation, (5) optimise space if only recent states are needed.',
@@ -1681,7 +1681,7 @@ export const generalInterviewQuestions = [
   {
     question: 'What data structure would you use to implement an LRU cache?',
     difficulty: 'hard',
-    frequency: 'very-common',
+    frequency: 'common',
     answer: {
       english:
         'A hash map plus a doubly linked list. The hash map gives O(1) lookup from key to its node; the doubly linked list maintains usage order (most-recently-used at the front, least at the back). On access you move the node to the front in O(1); on insertion past capacity you evict the tail in O(1). Together they give O(1) get and put.',
@@ -1703,12 +1703,465 @@ export const generalInterviewQuestions = [
   {
     question: 'What is the difference between an array and a linked list?',
     difficulty: 'easy',
-    frequency: 'very-common',
+    frequency: 'common',
     answer: {
       english:
         'Arrays store elements contiguously: O(1) index access and great cache locality, but O(n) insert/delete in the middle (shifting) and a fixed/resized capacity. Linked lists store nodes with pointers: O(1) insert/delete at a known position and easy growth, but O(n) access (no indexing) and worse cache performance plus pointer overhead. Choose arrays for random access and iteration; linked lists for frequent splicing where you already hold the node.',
       hinglish:
         'Arrays elements ko contiguously store karte hain: O(1) index access aur badhiya cache locality, par beech mein O(n) insert/delete (shifting) aur fixed/resized capacity. Linked lists nodes ko pointers ke saath store karte hain: known position pe O(1) insert/delete aur easy growth, par O(n) access (no indexing) aur kamzor cache performance plus pointer overhead. Random access aur iteration ke liye arrays; jahan node already paas ho wahan frequent splicing ke liye linked lists.',
+    },
+  },
+
+  // ─── Complexity & Problem Solving ───────────────────────────
+  {
+    question: 'What is the difference between Big-O, Big-Theta, and Big-Omega?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Big-O is an UPPER bound — the algorithm grows no faster than this. Big-Omega is a LOWER bound. Big-Theta is a tight bound, meaning both apply, so it describes the growth exactly. Technically stating "quicksort is O(n²)" is true but uninformative, and Theta is often what people mean when they say Big-O. In practice interviewers accept Big-O loosely, but you should still name which CASE — best, average, or worst — you are describing.',
+      hinglish:
+        'Big-O ek UPPER seema hai — algorithm isse tez nahi badhta. Big-Omega ek LOWER seema hai. Big-Theta ek tight seema hai, matlab dono lagti hain, isliye ye growth theek batata hai. Technically "quicksort O(n²) hai" kehna sach hai par bekaar, aur log jab Big-O kehte hain to aksar unka matlab Theta hota hai. Practically interviewers Big-O ko dheele maante hain, par tumhe phir bhi batana chahiye ki tum kaunsa CASE — best, average, ya worst — bata rahe ho.',
+    },
+  },
+  {
+    question: 'How do you analyse the time complexity of a recursive algorithm?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Write a RECURRENCE describing the cost — merge sort is T(n) = 2T(n/2) + O(n) — then solve it. The Master Theorem handles the common `T(n) = aT(n/b) + f(n)` form by comparing f(n) against n^(log_b a). Alternatively draw the recursion TREE and sum the work per level: merge sort does O(n) work across log n levels, giving O(n log n). For non-uniform recursion such as Fibonacci, count the nodes in the call tree instead.',
+      hinglish:
+        'Cost batata ek RECURRENCE likho — merge sort T(n) = 2T(n/2) + O(n) hai — phir use solve karo. Master Theorem common `T(n) = aT(n/b) + f(n)` form ko f(n) ko n^(log_b a) se compare karke sambhalta hai. Ya recursion ka PED banao aur per level kaam jodo: merge sort log n levels pe O(n) kaam karta hai, O(n log n) dete hue. Fibonacci jaisi asamaan recursion ke liye, uske bajaye call tree ke nodes gino.',
+    },
+  },
+  {
+    question: 'What is the difference between a stack and a queue?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A STACK is LIFO — the last item added is the first removed — used for the call stack, undo history, bracket matching, expression evaluation, and DFS. A QUEUE is FIFO — first in, first out — used for task scheduling, buffering, and BFS. Both give O(1) insert and remove. The key insight in problem solving is that a stack naturally reverses order and unwinds, while a queue preserves order and processes level by level.',
+      hinglish:
+        'Ek STACK LIFO hai — aakhri joda item pehle nikalta hai — call stack, undo history, bracket matching, expression evaluation, aur DFS ke liye. Ek QUEUE FIFO hai — pehle andar, pehle bahar — task scheduling, buffering, aur BFS ke liye. Dono O(1) insert aur remove dete hain. Problem solving mein key insight ye hai ki ek stack swabhavik roop se order ulta karta hai aur unwind karta hai, jabki ek queue order bachata hai aur level dar level process karta hai.',
+    },
+  },
+  {
+    question: 'What is a hash table and how are collisions handled?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A hash table maps a key to a bucket index via a hash function, so lookup jumps directly there — O(1) average. Collisions, where two keys land in the same bucket, are resolved by CHAINING (each bucket holds a linked list or tree) or OPEN ADDRESSING (probe for the next free slot). Worst case degrades to O(n) if everything collides. Load factor drives resizing, and a resize rehashes everything, which is why insert is O(1) amortised rather than strictly O(1).',
+      hinglish:
+        'Ek hash table ek key ko ek hash function se ek bucket index pe map karta hai, isliye lookup seedha wahan koodta hai — O(1) average. Collisions, jahan do keys ek hi bucket mein girein, CHAINING (har bucket ek linked list ya tree rakhta hai) ya OPEN ADDRESSING (agli khaali jagah dhoondho) se solve hote hain. Worst case O(n) tak girta hai agar sab collide karein. Load factor resizing chalata hai, aur ek resize sab dobara hash karta hai, isiliye insert strictly O(1) ke bajaye O(1) amortised hai.',
+    },
+  },
+  {
+    question: 'What makes a good hash function?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'It should distribute keys UNIFORMLY across buckets so no bucket becomes disproportionately long, be fast to compute since it runs on every operation, and be DETERMINISTIC — the same key must always hash the same. It should also be avalanche-sensitive, meaning a one-bit change in the key changes many bits of the hash. A poor hash function silently degrades every operation to O(n), and a predictable one enables hash-flooding denial-of-service attacks, which is why languages randomise the seed.',
+      hinglish:
+        'Ise keys ko buckets ke across EK SAMAAN baantna chahiye taaki koi bucket zaroorat se zyada lamba na ho, compute karne mein tez hona chahiye kyunki ye har operation pe chalta hai, aur NISHCHIT hona chahiye — wahi key hamesha wahi hash de. Ise avalanche-sensitive bhi hona chahiye, matlab key mein ek bit ka badlaav hash ke bahut bits badle. Ek kharab hash function chupke se har operation ko O(n) bana deta hai, aur ek anumaan lagane layak hash-flooding denial-of-service attacks enable karta hai, isiliye languages seed randomise karti hain.',
+    },
+  },
+  {
+    question: 'What is a binary search tree and when does it degrade?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A BST keeps smaller keys left and larger right, giving O(log n) search, insert, and delete when balanced. It DEGENERATES into a linked list when keys arrive in sorted order, at which point every operation is O(n) — and this happens silently, with no error, which is exactly the trap. Self-balancing variants (AVL, Red-Black) restructure on insert to guarantee logarithmic height, which is why production libraries use them rather than a plain BST.',
+      hinglish:
+        'Ek BST chhoti keys baaye aur badi daaye rakhta hai, balanced hone pe O(log n) search, insert, aur delete dete hue. Ye ek linked list mein GIR jaata hai jab keys sorted order mein aayein, jis point pe har operation O(n) hai — aur ye chupke se hota hai, bina error ke, jo theek wahi jaal hai. Self-balancing variants (AVL, Red-Black) insert pe dobara dhaancha banate hain taaki logarithmic height pakki ho, isiliye production libraries ek plain BST ke bajaye unhe use karti hain.',
+    },
+  },
+  {
+    question: 'What is the difference between an AVL tree and a Red-Black tree?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Both self-balance and guarantee O(log n), but they trade differently. AVL is STRICTLY balanced — heights differ by at most one — giving faster lookups but more rotations on insert and delete. RED-BLACK is loosely balanced, allowing a path up to twice as long, so it does fewer rotations and handles writes faster. That is why write-heavy standard libraries such as Java\'s TreeMap and C++\'s std::map use Red-Black, while AVL suits read-heavy workloads.',
+      hinglish:
+        'Dono khud balance karte hain aur O(log n) guarantee karte hain, par wo alag tarah trade karte hain. AVL SAKHTI se balanced hai — heights zyada se zyada ek se alag — tez lookups dete hue par insert aur delete pe zyada rotations. RED-BLACK dheele balanced hai, ek path ko dugna lamba hone deta hai, isliye ye kam rotations karta hai aur writes tez sambhalta hai. Isiliye Java ka TreeMap aur C++ ka std::map jaisi write-heavy standard libraries Red-Black use karti hain, jabki AVL read-heavy workloads ko suit karta hai.',
+    },
+  },
+  {
+    question: 'What is a heap and how is it stored?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A binary heap is a COMPLETE binary tree where every parent is smaller (min-heap) or larger (max-heap) than its children. Because it is complete, it is stored in a plain ARRAY with no pointers: the children of index i are at 2i+1 and 2i+2, which gives excellent cache locality. Peek is O(1), insert and extract are O(log n), and building a heap from n elements is O(n) — not O(n log n), which surprises people.',
+      hinglish:
+        'Ek binary heap ek POORA binary tree hai jahan har parent apne children se chhota (min-heap) ya bada (max-heap) hai. Kyunki ye poora hai, ye bina pointers ke ek plain ARRAY mein store hota hai: index i ke children 2i+1 aur 2i+2 pe hain, jo behtareen cache locality deta hai. Peek O(1) hai, insert aur extract O(log n), aur n elements se ek heap banana O(n) hai — O(n log n) nahi, jo logon ko chaunkata hai.',
+    },
+  },
+  {
+    question: 'How do you find the top k elements efficiently?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Sorting is O(n log n) and does more work than needed. A MIN-HEAP of size k gives O(n log k): push each element and pop when the heap exceeds k, so the heap always holds the k largest. QUICKSELECT gives O(n) average by partitioning and recursing into only one side, though worst case is O(n²) without a random pivot. Choose the heap for streaming data or when k is small, and quickselect when the array is in memory and you can mutate it.',
+      hinglish:
+        'Sorting O(n log n) hai aur zaroorat se zyada kaam karti hai. Size k ka ek MIN-HEAP O(n log k) deta hai: har element push karo aur heap k se bada hone pe pop karo, isliye heap hamesha k sabse bade rakhta hai. QUICKSELECT partition karke aur sirf ek side mein recurse karke O(n) average deta hai, halaanki ek random pivot ke bina worst case O(n²) hai. Streaming data ke liye ya k chhota hone pe heap chuno, aur quickselect jab array memory mein ho aur tum use badal sako.',
+    },
+  },
+  {
+    question: 'What is the difference between BFS and DFS and when do you use each?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'BFS explores level by level with a QUEUE; DFS goes deep first with a STACK or recursion. Both are O(V+E). Use BFS when you need the SHORTEST path in an unweighted graph or anything "nearest first" — it is guaranteed, DFS is not. Use DFS for cycle detection, topological sort, connected components, and backtracking. Memory differs: BFS holds an entire level, so on a wide graph it can use far more memory than DFS, which holds one path.',
+      hinglish:
+        'BFS ek QUEUE se level dar level explore karta hai; DFS ek STACK ya recursion se pehle gehra jaata hai. Dono O(V+E) hain. BFS tab use karo jab ek unweighted graph mein SABSE CHHOTA path chahiye ya koi bhi "nearest first" cheez — ye pakka hai, DFS nahi. DFS cycle detection, topological sort, connected components, aur backtracking ke liye. Memory alag hai: BFS ek poora level rakhta hai, isliye ek chaude graph pe ye DFS se bahut zyada memory le sakta hai, jo ek path rakhta hai.',
+    },
+  },
+  {
+    question: 'What is Dijkstra\'s algorithm and what is its limitation?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Dijkstra finds the shortest path from a source in a weighted graph by greedily expanding the closest unvisited node, using a priority queue for O((V+E) log V). Its limitation is that it fails with NEGATIVE edge weights: once a node is finalised it is never revisited, so a later negative edge that would improve the path is ignored. Bellman-Ford handles negative weights in O(VE) and detects negative cycles. A-star adds a heuristic to guide the search when a goal is known.',
+      hinglish:
+        'Dijkstra ek weighted graph mein source se sabse chhota path dhoondhta hai, greedily sabse paas ke unvisited node ko phailate hue, O((V+E) log V) ke liye ek priority queue use karte hue. Iski seema ye hai ki ye NEGATIVE edge weights ke saath fail hota hai: ek baar ek node tay ho jaaye to wo dobara nahi dekha jaata, isliye ek baad ka negative edge jo path behtar karta ignore ho jaata hai. Bellman-Ford negative weights O(VE) mein sambhalta hai aur negative cycles pakadta hai. A-star ek goal pata hone pe search guide karne ke liye ek heuristic jodta hai.',
+    },
+  },
+  {
+    question: 'What is a minimum spanning tree?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'An MST connects every vertex of a weighted graph with the minimum total edge weight and no cycles, using exactly V-1 edges. KRUSKAL sorts all edges and adds the cheapest that does not form a cycle, using union-find to detect cycles — good for sparse graphs. PRIM grows a single tree from a starting vertex using a priority queue — good for dense graphs. Applications include network design, clustering, and laying cable or road networks at minimum cost.',
+      hinglish:
+        'Ek MST ek weighted graph ke har vertex ko kam se kam kul edge weight aur bina cycles ke jodta hai, theek V-1 edges use karte hue. KRUSKAL saare edges sort karta hai aur sabse sasta jodta hai jo cycle na banaye, cycles pakadne ke liye union-find use karte hue — sparse graphs ke liye achha. PRIM ek priority queue se ek shuruaati vertex se ek hi tree badhata hai — dense graphs ke liye achha. Applications mein network design, clustering, aur kam se kam cost pe cable ya road networks bichhana shaamil hai.',
+    },
+  },
+  {
+    question: 'What is the union-find data structure?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Union-find (disjoint set union) tracks a partition of elements into disjoint sets, supporting `find` (which set is x in?) and `union` (merge two sets). Two optimisations make it nearly O(1) amortised: PATH COMPRESSION flattens the tree during find, and UNION BY RANK attaches the smaller tree under the larger. It powers Kruskal\'s MST, connected-component detection, and cycle detection in an undirected graph, and it is deceptively simple to implement.',
+      hinglish:
+        'Union-find (disjoint set union) elements ke ek bantwaare ko alag-alag sets mein track karta hai, `find` (x kis set mein hai?) aur `union` (do sets milao) support karte hue. Do optimisations ise lagbhag O(1) amortised banate hain: PATH COMPRESSION find ke dauraan tree ko chapta karta hai, aur UNION BY RANK chhote tree ko bade ke neeche jodta hai. Ye Kruskal ka MST, connected-component detection, aur ek undirected graph mein cycle detection chalata hai, aur ise implement karna dhokha dene wala simple hai.',
+    },
+  },
+  {
+    question: 'What is dynamic programming and what are the two approaches?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'DP applies when a problem has OPTIMAL SUBSTRUCTURE and OVERLAPPING SUBPROBLEMS. TOP-DOWN memoisation writes the natural recursion and caches results, which is easier to derive from a brute force and only computes states you actually reach. BOTTOM-UP tabulation fills a table iteratively, which avoids recursion depth limits and often lets you reduce the table to one or two rows, cutting space from O(n²) to O(n).',
+      hinglish:
+        'DP tab lagta hai jab ek problem mein OPTIMAL SUBSTRUCTURE aur OVERLAPPING SUBPROBLEMS hon. TOP-DOWN memoisation swabhavik recursion likhta hai aur results cache karta hai, jo brute force se nikaalna easier hai aur sirf wo states compute karta hai jinpe tum actually pahunchte ho. BOTTOM-UP tabulation ek table ko baari-baari bharta hai, jo recursion depth seemayein bachata hai aur aksar tumhe table ko ek ya do rows tak kam karne deta hai, space ko O(n²) se O(n) karte hue.',
+    },
+  },
+  {
+    question: 'How do you recognise that a problem needs dynamic programming?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Look for a question asking for a MAXIMUM, MINIMUM, COUNT of ways, or whether something is achievable, combined with a set of choices at each step. Then check whether a brute-force recursion would recompute the same state repeatedly — if the same arguments recur, memoisation applies. Classic families are knapsack, longest common subsequence, edit distance, coin change, and grid paths. If the greedy choice happens to always be optimal, greedy is simpler and you do not need DP.',
+      hinglish:
+        'Ek aisa sawaal dhoondho jo MAXIMUM, MINIMUM, tareekon ka COUNT, ya kya kuch sambhav hai poochhe, har step pe choices ke ek set ke saath. Phir check karo ki ek brute-force recursion wahi state baar-baar compute karti ya nahi — agar wahi arguments dohraate hain, memoisation lagta hai. Classic families hain knapsack, longest common subsequence, edit distance, coin change, aur grid paths. Agar greedy choice hamesha optimal nikalti hai, greedy simpler hai aur tumhe DP nahi chahiye.',
+    },
+  },
+  {
+    question: 'What is the knapsack problem?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Given items with weights and values and a capacity limit, choose a subset maximising value. In the 0/1 version each item is taken or not, which requires DP over a capacity table in O(nW). The FRACTIONAL version, where you may take part of an item, is solved greedily by value-to-weight ratio in O(n log n). The distinction matters because greedy is provably optimal for fractional and provably wrong for 0/1 — a common interview trap.',
+      hinglish:
+        'Weights aur values wale items aur ek capacity seema diye, value badhaata ek subset chuno. 0/1 version mein har item liya jaata hai ya nahi, jiske liye ek capacity table pe DP chahiye O(nW) mein. FRACTIONAL version, jahan tum ek item ka hissa le sakte ho, value-se-weight ratio se greedily O(n log n) mein solve hota hai. Farak isliye matter karta hai kyunki greedy fractional ke liye saabit roop se optimal aur 0/1 ke liye saabit roop se galat hai — ek common interview jaal.',
+    },
+  },
+  {
+    question: 'What is memoisation and how does it differ from caching?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Memoisation caches a function\'s result KEYED BY ITS ARGUMENTS, so repeated calls with the same input return instantly — turning exponential Fibonacci into linear. It requires the function to be PURE, since caching something with side effects or changing dependencies gives wrong answers. Caching is the broader idea of storing any expensive result. The practical caution is memory: an unbounded memo on high-cardinality inputs is a leak, so real implementations bound it.',
+      hinglish:
+        'Memoisation ek function ka nateeja USKE ARGUMENTS SE KEYED cache karta hai, isliye wahi input ke saath dohraayi calls turant lautti hain — exponential Fibonacci ko linear banate hue. Ise function ka PURE hona chahiye, kyunki side effects ya badalti dependencies wali cheez cache karna galat jawab deta hai. Caching kisi bhi mehnge nateeje ko rakhne ka chaudaa idea hai. Vyavaharik saavdhaani memory hai: high-cardinality inputs pe ek bina seema memo ek leak hai, isliye asli implementations use seemit karte hain.',
+    },
+  },
+  {
+    question: 'What is the difference between a greedy algorithm and dynamic programming?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'GREEDY makes the locally best choice at each step and never reconsiders — fast, simple, and correct only when the problem has the greedy-choice property. DP explores all relevant choices and combines subproblem results, which is slower but correct wherever the recurrence holds. Coin change illustrates it: greedy works for standard currency but fails for coins {1,3,4} making 6, where greedy gives 4+1+1 while the optimum is 3+3. Proving greedy correctness is the hard part.',
+      hinglish:
+        'GREEDY har step pe locally best choice karta hai aur kabhi dobara nahi sochta — tez, simple, aur sirf tab sahi jab problem mein greedy-choice property ho. DP saare relevant choices dekhta hai aur subproblem results jodta hai, jo slow hai par jahan recurrence sahi ho wahan sahi. Coin change ise dikhata hai: greedy standard currency pe chalta hai par {1,3,4} sikkon se 6 banane pe fail hota hai, jahan greedy 4+1+1 deta hai jabki optimum 3+3 hai. Greedy ka sahi hona saabit karna mushkil hissa hai.',
+    },
+  },
+  {
+    question: 'What is backtracking and how does it differ from brute force?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Both explore a solution space, but backtracking PRUNES: it abandons a partial candidate the moment it cannot possibly lead to a valid answer, rather than completing it and then checking. In N-Queens, brute force places all queens and tests; backtracking rejects a placement the instant it is attacked, cutting the search space enormously. The implementation shape is consistent — choose, recurse, un-choose — and the pruning is what makes an exponential space tractable.',
+      hinglish:
+        'Dono ek solution space explore karte hain, par backtracking CHHAANTTA hai: ye ek aadhe candidate ko us pal chhod deta hai jab wo kisi tarah ek valid jawab tak nahi ja sakta, use poora karke phir check karne ke bajaye. N-Queens mein, brute force saari queens rakh kar test karta hai; backtracking ek placement us pal reject karta hai jab wo attack mein aaye, search space bahut kam karte hue. Implementation ka aakaar ek jaisa hai — choose, recurse, un-choose — aur pruning hi ek exponential space ko sambhaalne layak banata hai.',
+    },
+  },
+  {
+    question: 'What is the difference between a graph and a tree?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A TREE is a special graph: connected, acyclic, and with exactly n-1 edges for n nodes, so there is exactly ONE path between any two nodes. A general GRAPH may have cycles, be disconnected, and have many paths between nodes. That difference drives the algorithms: tree traversal needs no visited set because you cannot revisit a node, while graph traversal absolutely does, and forgetting it causes an infinite loop.',
+      hinglish:
+        'Ek TREE ek khaas graph hai: juda, bina cycles, aur n nodes ke liye theek n-1 edges, isliye kisi bhi do nodes ke beech theek EK path hai. Ek aam GRAPH mein cycles ho sakte hain, wo juda na ho, aur nodes ke beech bahut paths ho sakte hain. Wo farak algorithms chalata hai: tree traversal ko visited set nahi chahiye kyunki tum ek node dobara nahi dekh sakte, jabki graph traversal ko bilkul chahiye, aur ise bhoolna ek anant loop banata hai.',
+    },
+  },
+  {
+    question: 'How do you represent a graph and which representation should you choose?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An ADJACENCY LIST stores each node\'s neighbours, using O(V+E) space and giving fast neighbour iteration — the right choice for sparse graphs, which is most real data. An ADJACENCY MATRIX uses O(V²) space but answers "is there an edge between a and b" in O(1) and suits dense graphs or algorithms needing constant-time edge lookup, such as Floyd-Warshall. An EDGE LIST is simplest and is what Kruskal\'s algorithm consumes directly.',
+      hinglish:
+        'Ek ADJACENCY LIST har node ke neighbours rakhti hai, O(V+E) space use karke aur tez neighbour iteration deti hui — sparse graphs ke liye sahi choice, jo zyadatar asli data hai. Ek ADJACENCY MATRIX O(V²) space leta hai par "a aur b ke beech edge hai kya" O(1) mein batata hai aur dense graphs ya Floyd-Warshall jaise constant-time edge lookup chahne wale algorithms ko suit karta hai. Ek EDGE LIST sabse simple hai aur Kruskal ka algorithm ise seedha use karta hai.',
+    },
+  },
+  {
+    question: 'What is topological sorting?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'It orders a directed acyclic graph so every edge points forward — each dependency comes before whatever needs it. Kahn\'s algorithm repeatedly removes nodes with in-degree zero; a DFS variant pushes nodes onto a stack when finished. It exists only for a DAG, so if the algorithm cannot emit every node, a cycle exists — which is how build tools detect circular dependencies. Applications include build systems, module bundlers, task schedulers, and course prerequisites.',
+      hinglish:
+        'Ye ek directed acyclic graph ko aise order karta hai ki har edge aage point kare — har dependency us se pehle aaye jise wo chahiye. Kahn ka algorithm baar-baar in-degree zero wale nodes hataata hai; ek DFS variant nodes ko khatam hone pe ek stack pe daalta hai. Ye sirf ek DAG ke liye hai, isliye agar algorithm har node nahi nikaal paaye, ek cycle hai — jisse build tools circular dependencies pakadte hain. Applications mein build systems, module bundlers, task schedulers, aur course prerequisites hain.',
+    },
+  },
+  {
+    question: 'What is a trie and what is its trade-off?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A trie stores strings along tree paths, sharing common prefixes, so lookup and insert cost O(m) where m is the word length — independent of how many words are stored, unlike a BST. It is the right structure for autocomplete, prefix matching, spell-check, and IP routing. The trade-off is MEMORY: every node carries child pointers, so a trie typically uses considerably more space than a hash set for the same words. It only pays off when PREFIX queries matter.',
+      hinglish:
+        'Ek trie strings ko tree paths ke saath rakhta hai, common prefixes share karte hue, isliye lookup aur insert ka cost O(m) hai jahan m word length hai — kitne words hain us se swatantra, ek BST ke ulat. Ye autocomplete, prefix matching, spell-check, aur IP routing ke liye sahi structure hai. Trade-off MEMORY hai: har node child pointers rakhta hai, isliye ek trie usually usi words ke liye ek hash set se kaafi zyada jagah leta hai. Ye sirf tab faayda deta hai jab PREFIX queries matter karein.',
+    },
+  },
+  {
+    question: 'What is the difference between stable and unstable sorting?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A STABLE sort preserves the relative order of elements comparing equal; an unstable one may reorder them. It matters when sorting by multiple keys in sequence — sort by name, then stably by department, and names stay alphabetical within each department. Merge sort, insertion sort, and TimSort are stable; quicksort and heapsort are not. It also matters when the payload carries data beyond the sort key, since "equal" rows are not actually interchangeable.',
+      hinglish:
+        'Ek STABLE sort barabar compare hote elements ka relative order bachata hai; ek unstable unhe reorder kar sakta hai. Ye tab matter karta hai jab kai keys pe kram se sort karo — naam se sort karo, phir stably department se, aur naam har department ke andar alphabetical rehte hain. Merge sort, insertion sort, aur TimSort stable hain; quicksort aur heapsort nahi. Ye tab bhi matter karta hai jab payload sort key se aage ka data rakhta ho, kyunki "barabar" rows actually ek jaisi nahi hain.',
+    },
+  },
+  {
+    question: 'Why is quicksort usually faster than merge sort in practice?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Both are O(n log n) on average, but quicksort has smaller constants: it sorts IN PLACE with no extra allocation, and its partitioning has excellent cache locality since it works on contiguous regions. Merge sort needs O(n) auxiliary space and copies data between buffers. Quicksort\'s weakness is a worst case of O(n²) on bad pivots, mitigated by random or median-of-three pivots, and it is not stable — which is why merge-based TimSort is chosen where stability is required.',
+      hinglish:
+        'Dono average pe O(n log n) hain, par quicksort ke constants chhote hain: ye bina extra allocation ke JAGAH PE sort karta hai, aur uski partitioning ki cache locality behtareen hai kyunki wo saath-saath ke ilaakon pe kaam karta hai. Merge sort ko O(n) extra space chahiye aur wo buffers ke beech data copy karta hai. Quicksort ki kamzori bure pivots pe O(n²) worst case hai, jise random ya median-of-three pivots kam karte hain, aur ye stable nahi hai — isiliye jahan stability chahiye wahan merge-based TimSort chuna jaata hai.',
+    },
+  },
+  {
+    question: 'What is counting sort and when can you use it?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Counting sort tallies how many times each value occurs and reconstructs the output from the counts, giving O(n+k) where k is the value range — linear time, beating the O(n log n) comparison lower bound because it does not compare elements at all. It only works for integers or discrete keys within a BOUNDED, reasonably small range: sorting ages is fine, sorting arbitrary 64-bit integers is not, since k would dwarf n. Radix sort extends the idea digit by digit.',
+      hinglish:
+        'Counting sort ginta hai ki har value kitni baar aayi aur counts se output dobara banata hai, O(n+k) dete hue jahan k value range hai — linear samay, O(n log n) comparison lower bound ko haraate hue kyunki ye elements compare karta hi nahi. Ye sirf ek SEEMIT, thodi chhoti range ke integers ya discrete keys ke liye chalta hai: umar sort karna theek hai, koi bhi 64-bit integers sort karna nahi, kyunki k n se bahut bada hota. Radix sort is idea ko ank dar ank aage badhata hai.',
+    },
+  },
+  {
+    question: 'What is the lower bound for comparison-based sorting?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Ω(n log n). The proof is a decision-tree argument: there are n! possible orderings, each comparison has two outcomes, so a tree distinguishing all of them needs depth at least log₂(n!) which is Θ(n log n). No comparison sort can beat this. Counting, radix, and bucket sort achieve linear time only because they do NOT compare elements — they exploit structure in the keys, which is why they need bounded ranges.',
+      hinglish:
+        'Ω(n log n). Saboot ek decision-tree dalil hai: n! sambhav orderings hain, har comparison ke do nateeje hain, isliye un sabko alag karta ek tree ko kam se kam log₂(n!) gehraai chahiye jo Θ(n log n) hai. Koi comparison sort ise nahi hara sakta. Counting, radix, aur bucket sort linear samay sirf isliye paate hain kyunki wo elements compare NAHI karte — wo keys ke dhaanche ka faayda uthate hain, isiliye unhe seemit ranges chahiye.',
+    },
+  },
+  {
+    question: 'What is binary search and where does it apply beyond sorted arrays?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Binary search halves a search range each step for O(log n), requiring the data to be sorted. The deeper insight is that it applies to any MONOTONIC predicate — "what is the smallest value for which this is true?" That covers binary search on the ANSWER: finding the minimum capacity that lets you ship packages in d days, or the smallest speed to finish eating in h hours. Recognising that pattern converts many hard problems into a short loop.',
+      hinglish:
+        'Binary search har step pe ek search range aadhi karta hai O(log n) ke liye, data ka sorted hona chahte hue. Gehri insight ye hai ki ye kisi bhi MONOTONIC predicate pe lagta hai — "sabse chhoti value kya hai jiske liye ye sach hai?" Isme JAWAB pe binary search shaamil hai: wo kam se kam capacity dhoondhna jo tumhe d din mein packages bhejne de, ya h ghante mein khana khatam karne ki sabse chhoti speed. Us pattern ko pehchanana bahut mushkil problems ko ek chhote loop mein badal deta hai.',
+    },
+  },
+  {
+    question: 'What is the two-pointer technique?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Two pointers move through a structure simultaneously, converting many O(n²) nested loops into O(n). The two shapes are OPPOSITE ENDS converging inward, used on sorted arrays for two-sum, palindromes, and container-with-most-water; and SAME DIRECTION at different speeds, used for in-place duplicate removal, partitioning, and cycle detection. The signal in a problem is a sorted array, a pair or triplet target, or an in-place rearrangement requirement.',
+      hinglish:
+        'Do pointers ek dhaanche mein ek saath chalte hain, bahut O(n²) nested loops ko O(n) mein badalte hue. Do aakaar hain ULTE SIREY jo andar milte hain, sorted arrays pe two-sum, palindromes, aur container-with-most-water ke liye; aur EK HI DISHA mein alag speeds pe, jagah pe duplicates hataane, partitioning, aur cycle detection ke liye. Problem mein signal ek sorted array, ek pair ya triplet target, ya ek jagah-pe rearrangement ki zaroorat hai.',
+    },
+  },
+  {
+    question: 'What is the sliding window technique?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A sliding window maintains a contiguous range and moves its boundaries instead of recomputing from scratch, turning O(n·k) into O(n). FIXED windows suit "maximum sum of k consecutive elements" — add the entering element, subtract the leaving one. VARIABLE windows suit "longest substring satisfying a condition" — expand the right edge greedily and shrink from the left when the condition breaks. The trigger phrase is "contiguous subarray or substring".',
+      hinglish:
+        'Ek sliding window ek saath-saath ki range rakhta hai aur shuru se dobara compute karne ke bajaye uski seemayein hilata hai, O(n·k) ko O(n) mein badalte hue. FIXED windows "k lagataar elements ka maximum sum" suit karti hain — aane wala element jodo, jaane wala ghatao. VARIABLE windows "ek condition poori karti sabse lambi substring" suit karti hain — right kinaara greedily badhao aur condition tootne pe baaye se sikodo. Trigger phrase "contiguous subarray ya substring" hai.',
+    },
+  },
+  {
+    question: 'What is the difference between an array and a dynamic array?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A static array has a FIXED capacity chosen at creation. A dynamic array (vector, ArrayList, Python list) grows automatically: when full it allocates a larger buffer — typically double — and copies everything over. That copy is O(n), but because capacity doubles, the cost spread over n appends is O(1) AMORTISED. Doubling specifically matters: growing by a constant amount instead would make n appends O(n²).',
+      hinglish:
+        'Ek static array ki capacity banate waqt TAY hoti hai. Ek dynamic array (vector, ArrayList, Python list) apne aap badhta hai: bharne pe ye ek bada buffer banata hai — typically dugna — aur sab copy karta hai. Wo copy O(n) hai, par kyunki capacity dugni hoti hai, n appends pe faila cost O(1) AMORTISED hai. Dugna karna khaas taur pe matter karta hai: uske bajaye ek tay maatra se badhna n appends ko O(n²) bana deta.',
+    },
+  },
+  {
+    question: 'How do you detect a cycle in a linked list?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Floyd\'s tortoise-and-hare: advance one pointer one node and another two. If they meet, a cycle exists; if the fast pointer reaches null, it does not. That is O(n) time and O(1) space, versus a hash set which also works but costs O(n) memory. To find the cycle\'s START, reset one pointer to the head and advance both one step at a time — they meet at the entry node, which follows from the distance arithmetic.',
+      hinglish:
+        'Floyd ka tortoise-and-hare: ek pointer ek node aur doosra do node aage badhao. Agar wo milein, ek cycle hai; agar fast pointer null pahunche, nahi hai. Ye O(n) samay aur O(1) space hai, versus ek hash set jo chalta to hai par O(n) memory leta hai. Cycle ka SHURU dhoondhne ke liye, ek pointer head pe reset karke dono ko ek-ek step badhao — wo entry node pe milte hain, jo distance arithmetic se nikalta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between an iterative and a recursive solution?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Recursion mirrors the problem structure and is usually shorter and clearer for trees and divide-and-conquer, but consumes O(depth) call-stack space and risks overflow. Iteration with an explicit stack has the same complexity but keeps the memory on the heap, so it handles arbitrary depth and lets you pause or inspect the traversal state. Write recursion by default; convert to iteration when depth is unbounded or you need explicit control.',
+      hinglish:
+        'Recursion problem ke dhaanche ko mirror karti hai aur trees aur divide-and-conquer ke liye usually chhoti aur clearer hai, par O(depth) call-stack space leti hai aur overflow ka khatra rakhti hai. Ek explicit stack wali iteration ki complexity wahi hai par memory heap pe rehti hai, isliye ye koi bhi gehraai sambhalti hai aur tumhe traversal state rokne ya dekhne deti hai. Default se recursion likho; jab gehraai bina seema ho ya explicit control chahiye tab iteration mein badlo.',
+    },
+  },
+  {
+    question: 'What is tail recursion?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A call is tail-recursive when the recursive call is the LAST operation, so the current frame\'s state is no longer needed and could be reused rather than pushed. Languages that implement tail-call optimisation therefore run it in constant stack space. The important caveat is that Python and JavaScript do NOT optimise tail calls in practice, so writing tail-recursive code there gives no protection from stack overflow — you must convert to a loop.',
+      hinglish:
+        'Ek call tail-recursive hai jab recursive call AAKHRI operation ho, isliye current frame ki state ab zaroori nahi aur push karne ke bajaye dobara use ho sakti hai. Isliye jo languages tail-call optimisation implement karti hain wo ise sthir stack space mein chalati hain. Zaroori caveat ye hai ki Python aur JavaScript practically tail calls optimise NAHI karte, isliye wahan tail-recursive code likhna stack overflow se koi bachaav nahi deta — tumhe ek loop mein badalna padega.',
+    },
+  },
+  {
+    question: 'What is the difference between depth and height of a tree?',
+    difficulty: 'easy',
+    frequency: 'rare',
+    answer: {
+      english:
+        'DEPTH of a node is its distance from the ROOT, so the root has depth 0. HEIGHT of a node is the distance to its deepest LEAF, so leaves have height 0. The height of the TREE is the height of the root, which equals the maximum depth. Depth is computed top-down as you descend, height is computed bottom-up as recursion returns — which is exactly why height calculations naturally use post-order traversal.',
+      hinglish:
+        'Ek node ki DEPTH ROOT se uski doori hai, isliye root ki depth 0 hai. Ek node ki HEIGHT uske sabse gehre LEAF tak ki doori hai, isliye leaves ki height 0 hai. TREE ki height root ki height hai, jo zyada se zyada depth ke barabar hai. Depth utarte waqt upar se neeche compute hoti hai, height recursion lautte waqt neeche se upar — isiliye height ke hisaab swabhavik roop se post-order traversal use karte hain.',
+    },
+  },
+  {
+    question: 'What is a balanced tree and why does balance matter?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A balanced tree keeps its height O(log n) rather than letting it approach n. Balance matters because every tree operation costs O(height) — a balanced tree of a million nodes needs about twenty steps, while a degenerate one needs a million. Different definitions exist: AVL requires subtree heights to differ by at most one, Red-Black allows a looser factor of two. Without rebalancing, sorted insertions silently produce the worst case.',
+      hinglish:
+        'Ek balanced tree apni height ko n ke paas jaane dene ke bajaye O(log n) rakhta hai. Balance isliye matter karta hai kyunki har tree operation O(height) cost karta hai — das lakh nodes ke ek balanced tree ko lagbhag bees steps chahiye, jabki ek bigde hue ko das lakh. Alag paribhaashaayein hain: AVL subtree heights ko zyada se zyada ek se alag chahta hai, Red-Black do ka ek dheela factor deta hai. Bina rebalancing, sorted insertions chupke se worst case bana dete hain.',
+    },
+  },
+  {
+    question: 'What is the difference between a min-heap and a BST?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A min-heap only guarantees each parent is smaller than its CHILDREN, with no ordering between siblings — so it gives O(1) access to the minimum but cannot search for an arbitrary value faster than O(n), and an in-order traversal is meaningless. A BST maintains a full ordering, so it supports O(log n) search for any key and yields sorted output in-order. Use a heap when you only ever need the extreme; use a BST when you need ordered search.',
+      hinglish:
+        'Ek min-heap sirf ye pakka karta hai ki har parent apne CHILDREN se chhota hai, siblings ke beech koi order nahi — isliye ye minimum tak O(1) pahunch deta hai par kisi bhi value ko O(n) se tez nahi dhoondh sakta, aur ek in-order traversal ka koi matlab nahi. Ek BST poora order rakhta hai, isliye ye kisi bhi key ke liye O(log n) search deta hai aur in-order sorted output deta hai. Heap tab use karo jab sirf sabse chhota ya bada chahiye; BST jab ordered search chahiye.',
+    },
+  },
+  {
+    question: 'How do you choose the right data structure for a problem?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Ask what OPERATIONS dominate and how often. Need O(1) lookup by key — hash map. Need ordered iteration or range queries — balanced BST or sorted array. Need the minimum or maximum repeatedly — heap. Need LIFO or FIFO processing — stack or queue. Need prefix matching — trie. Need connectivity between groups — union-find. Then weigh memory and cache behaviour, since an array often beats a theoretically better structure at small sizes.',
+      hinglish:
+        'Poochho ki kaunse OPERATIONS haavi hain aur kitni baar. Key se O(1) lookup chahiye — hash map. Ordered iteration ya range queries chahiye — balanced BST ya sorted array. Baar-baar minimum ya maximum chahiye — heap. LIFO ya FIFO processing chahiye — stack ya queue. Prefix matching chahiye — trie. Groups ke beech connectivity chahiye — union-find. Phir memory aur cache behaviour tolo, kyunki chhote sizes pe ek array aksar ek theory mein behtar structure ko hara deta hai.',
+    },
+  },
+  {
+    question: 'What is cache locality and why does it affect performance?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'CPUs fetch memory in cache lines, so accessing data stored contiguously is far faster than chasing pointers scattered across the heap. That is why an array often outperforms a linked list even for operations where the linked list has better asymptotic complexity — a cache miss costs roughly a hundred times an L1 hit. It also explains why heaps are stored in arrays, why row-major iteration beats column-major, and why Big-O alone can mislead you about real speed.',
+      hinglish:
+        'CPUs memory ko cache lines mein laate hain, isliye saath-saath rakhe data tak pahunchna heap pe bikhre pointers ka peechha karne se bahut tez hai. Isiliye ek array aksar ek linked list se behtar chalta hai un operations pe bhi jahan linked list ki asymptotic complexity behtar hai — ek cache miss ek L1 hit se lagbhag sau guna cost karta hai. Ye ye bhi samjhaata hai ki heaps arrays mein kyun rakhe jaate hain, row-major iteration column-major ko kyun haraati hai, aur akela Big-O asli speed ke baare mein kyun bhatka sakta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between in-place and out-of-place algorithms?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An IN-PLACE algorithm uses O(1) extra space, transforming the input directly — quicksort, heapsort, array reversal. An OUT-OF-PLACE algorithm allocates proportional extra space — merge sort, or building a new filtered array. In-place saves memory, which matters on large data, but it MUTATES the input, so the caller loses the original. That side effect makes the function harder to reason about and unsafe if the caller still needs the input.',
+      hinglish:
+        'Ek IN-PLACE algorithm O(1) extra space use karta hai, input ko seedha badalte hue — quicksort, heapsort, array reversal. Ek OUT-OF-PLACE algorithm anupaat mein extra space leta hai — merge sort, ya ek naya filtered array banana. In-place memory bachata hai, jo bade data pe matter karta hai, par ye input BADAL deta hai, isliye caller original kho deta hai. Wo side effect function ko samajhna mushkil banata hai aur asurakshit agar caller ko abhi bhi input chahiye.',
+    },
+  },
+  {
+    question: 'How do you approach an unfamiliar algorithm problem?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Restate the problem and confirm constraints and edge cases — empty input, duplicates, negatives, size limits — before writing anything. Work a small example by hand to find the pattern. State a brute-force solution and its complexity so you always have a working answer, then optimise by asking what redundant work it repeats, which points to hashing, sorting, two pointers, or DP. Code while narrating your reasoning, then dry-run it. Communication is assessed as heavily as the solution.',
+      hinglish:
+        'Kuch likhne se pehle problem dobara batao aur constraints aur edge cases confirm karo — khaali input, duplicates, negatives, size seemayein. Pattern dhoondhne ke liye ek chhota example haath se karo. Ek brute-force solution aur uski complexity batao taaki tumhare paas hamesha ek chalta jawab ho, phir ye poochh kar optimise karo ki wo kaunsa faltu kaam dohraata hai, jo hashing, sorting, two pointers, ya DP ki taraf ishaara karta hai. Apni soch bolte hue code likho, phir use dry-run karo. Communication ko solution jitna hi aanka jaata hai.',
     },
   },
 ];
