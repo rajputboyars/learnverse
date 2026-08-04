@@ -66,7 +66,7 @@ const beginner = [
           {
             question: 'Explain how Java achieves platform independence.',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Java source code (.java) is compiled by javac into bytecode (.class), which is not specific to any operating system. The JVM, which has a different implementation for each OS, reads this bytecode and translates it into machine instructions for that particular platform at runtime. So the same bytecode runs anywhere a JVM exists — that is "Write Once, Run Anywhere".',
@@ -117,7 +117,7 @@ const beginner = [
           {
             question: 'What is the difference between JDK, JRE, and JVM?',
             difficulty: 'easy',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'JVM is the virtual machine that executes Java bytecode. JRE is the JVM bundled with the core libraries required to run Java applications. JDK is the full development kit: it contains the JRE plus tools needed to develop Java, such as the javac compiler, debugger, and javadoc. In short, JDK > JRE > JVM in terms of what they contain.',
@@ -354,7 +354,7 @@ const beginner = [
           {
             question: 'What is the difference between break and continue?',
             difficulty: 'easy',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'break immediately terminates the entire loop and execution continues after it. continue skips the rest of the current iteration and jumps to the next iteration (re-checking the loop condition). So break stops looping altogether, while continue only skips one pass.',
@@ -410,7 +410,7 @@ const intermediate = [
           {
             question: 'Is Java pass-by-value or pass-by-reference?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Java is strictly pass-by-value. For primitives, a copy of the actual value is passed, so changes inside the method do not affect the original. For objects, a copy of the reference (the address) is passed by value, so you can mutate the object the reference points to, but reassigning the parameter to a new object does not affect the caller. This is why people sometimes get confused and call it pass-by-reference.',
@@ -456,7 +456,7 @@ const intermediate = [
           {
             question: 'What is the difference between an array and an ArrayList in Java?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'An array has a fixed size set at creation and can store both primitives and objects, with fast index access. An ArrayList is a resizable list from the Collections framework that grows automatically, stores only objects (using wrapper types for primitives), and provides convenient methods like add, remove, and size. Use an array for a fixed number of elements and performance; use an ArrayList when the size changes dynamically.',
@@ -514,7 +514,7 @@ const intermediate = [
           {
             question: 'What is a constructor and how is it different from a method?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'A constructor is a special block that initializes a new object. It has the same name as the class, has no return type (not even void), and is invoked automatically when you use new. A regular method has any name, a declared return type, and is called explicitly on an object. If you write no constructor, Java provides a default no-argument one.',
@@ -565,7 +565,7 @@ const intermediate = [
           {
             question: 'What is encapsulation and why is it important?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Encapsulation is the OOP principle of bundling data (fields) and the methods that operate on it into a single unit, and restricting direct access to the data by marking fields private. Access is given only through public getters and setters, which can enforce validation. It is important because it protects data integrity, hides implementation details, and lets you change internals later without breaking outside code.',
@@ -662,7 +662,7 @@ const intermediate = [
           {
             question: 'What is the difference between method overriding and method overloading?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Overriding happens between a superclass and subclass: the subclass provides a new implementation for a method with the exact same name, parameters, and return type — it is resolved at runtime (runtime polymorphism). Overloading happens within the same class: multiple methods share a name but differ in parameter list (number or type) — it is resolved at compile time (compile-time polymorphism).',
@@ -713,7 +713,7 @@ const intermediate = [
           {
             question: 'What is the difference between an abstract class and an interface?',
             difficulty: 'hard',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'An abstract class can have constructors, instance fields with state, and a mix of abstract and concrete methods; a class can extend only one. An interface traditionally holds only method signatures (and constants), supports multiple implementation, and since Java 8 can also have default and static methods. Use an abstract class to share common code and state across closely related classes; use an interface to define a capability that unrelated classes can fulfil.',
@@ -769,7 +769,7 @@ const advanced = [
           {
             question: 'What is the difference between an ArrayList and a HashSet?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'An ArrayList is an ordered, index-based list that allows duplicate elements and preserves insertion order, with O(1) access by index. A HashSet is an unordered collection that stores only unique elements (it uses hashCode and equals to detect duplicates) and offers O(1) average add/contains, but no indexing. Use an ArrayList when order and duplicates matter; use a HashSet for uniqueness and fast membership checks.',
@@ -827,7 +827,7 @@ const advanced = [
           {
             question: 'What is the difference between checked and unchecked exceptions?',
             difficulty: 'hard',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Checked exceptions are checked at compile time: the compiler forces you to either catch them or declare them with throws (for example IOException, SQLException). They usually represent recoverable, external conditions. Unchecked exceptions extend RuntimeException and are not checked at compile time (for example NullPointerException, ArrayIndexOutOfBoundsException); they usually indicate programming bugs. Both can be caught, but only checked ones are enforced by the compiler.',
@@ -886,7 +886,7 @@ export const generalInterviewQuestions = [
   {
     question: 'What are the four main pillars of OOP in Java?',
     difficulty: 'medium',
-    frequency: 'very-common',
+    frequency: 'common',
     answer: {
       english:
         'The four pillars are: Encapsulation (bundling data with methods and hiding internal state via private fields and getters/setters), Inheritance (a subclass reusing and extending a superclass with extends), Polymorphism (the same method call taking many forms through overriding and overloading), and Abstraction (exposing only essential features via abstract classes and interfaces while hiding implementation). Together they make Java code modular, reusable, and maintainable.',
@@ -897,12 +897,487 @@ export const generalInterviewQuestions = [
   {
     question: 'What is the difference between == and equals() in Java?',
     difficulty: 'medium',
-    frequency: 'very-common',
+    frequency: 'common',
     answer: {
       english:
         'The == operator compares references for objects (whether two variables point to the same object in memory) and compares actual values for primitives. The equals() method compares the logical content of two objects, and classes like String override it to compare characters. So for two different String objects with the same text, == may be false but equals() is true. Always use equals() to compare object content.',
       hinglish:
         '== operator objects ke liye references compare karta hai (kya do variables memory mein same object ko point karte hain) aur primitives ke liye actual values. equals() method do objects ka logical content compare karta hai, aur String jaisi classes ise override karti hain taaki characters compare ho. Toh same text wale do alag String objects ke liye == false ho sakta hai par equals() true hota hai. Object content compare karne ke liye hamesha equals() use karo.',
+    },
+  },
+
+  // ─── Core Java ──────────────────────────────────────────────
+  {
+    question: 'What is the JVM, JRE, and JDK?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'The JVM is the virtual machine that executes bytecode, providing platform independence — "write once, run anywhere" — plus garbage collection and JIT compilation. The JRE is the JVM plus the standard class libraries, enough to RUN a Java program. The JDK is the JRE plus development tools: the compiler `javac`, the debugger, and `jar`. You need the JDK to build and the JRE to run, though modern distributions generally ship the JDK only.',
+      hinglish:
+        'JVM wo virtual machine hai jo bytecode chalati hai, platform swatantrata deti hai — "ek baar likho, kahin bhi chalao" — plus garbage collection aur JIT compilation. JRE JVM plus standard class libraries hai, ek Java program CHALANE ke liye kaafi. JDK JRE plus development tools hai: compiler `javac`, debugger, aur `jar`. Build karne ko JDK aur chalane ko JRE chahiye, halaanki modern distributions aam taur pe sirf JDK dete hain.',
+    },
+  },
+  {
+    question: 'What is the difference between an abstract class and an interface?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An ABSTRACT class can hold state, constructors, and any access modifier, and a class extends only ONE — it expresses "is a kind of". An INTERFACE declares a contract and a class may implement MANY — it expresses "can do". Since Java 8 interfaces can have `default` and `static` methods, and since 9 `private` ones, which narrows the gap, but interfaces still cannot hold instance state. Use an interface for a capability, an abstract class for shared implementation.',
+      hinglish:
+        'Ek ABSTRACT class state, constructors, aur koi bhi access modifier rakh sakti hai, aur ek class sirf EK extend karti hai — ye "ek kism ka hai" batati hai. Ek INTERFACE ek contract batata hai aur ek class BAHUT implement kar sakti hai — ye "kar sakta hai" batata hai. Java 8 se interfaces mein `default` aur `static` methods ho sakte hain, aur 9 se `private`, jo farak kam karta hai, par interfaces abhi bhi instance state nahi rakh sakte. Ek kshamta ke liye interface, saanjhe implementation ke liye abstract class.',
+    },
+  },
+  {
+    question: 'What is the difference between method overloading and overriding?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'OVERLOADING defines several methods with the same name but different parameter lists in the same class; the compiler picks one at COMPILE time based on the static types. OVERRIDING replaces a superclass method in a subclass with the same signature; the JVM picks it at RUNTIME based on the actual object type, which is polymorphism. Overriding cannot reduce visibility or add broader checked exceptions, and `@Override` catches signature typos at compile time.',
+      hinglish:
+        'OVERLOADING ek hi class mein ek naam par alag parameter lists wali kai methods banata hai; compiler static types ke aadhaar pe COMPILE waqt ek chunta hai. OVERRIDING ek subclass mein ek superclass method ko usi signature se badalta hai; JVM asli object type ke aadhaar pe RUNTIME pe chunta hai, jo polymorphism hai. Overriding visibility kam nahi kar sakti ya chaude checked exceptions nahi jod sakti, aur `@Override` compile waqt signature ki galtiyaan pakadta hai.',
+    },
+  },
+  {
+    question: 'Why are Java Strings immutable?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Immutability makes Strings safe to SHARE: the string pool can intern literals so identical strings reuse one object, the hash code can be cached, and a String used as a map key or in a security check cannot be changed after validation. It also makes them inherently thread-safe. The cost is that every modification creates a new object, which is why building a string in a loop should use `StringBuilder` rather than `+`, which is O(n²).',
+      hinglish:
+        'Immutability Strings ko SHARE karne layak surakshit banati hai: string pool literals ko intern kar sakta hai taaki ek jaisi strings ek object use karein, hash code cache ho sakta hai, aur ek map key ya ek security check mein use hui String validation ke baad badli nahi ja sakti. Ye unhe swabhavik roop se thread-safe bhi banata hai. Cost ye hai ki har badlaav ek naya object banata hai, isiliye ek loop mein string banane ko `+` ke bajaye `StringBuilder` use karna chahiye, jo O(n²) hai.',
+    },
+  },
+  {
+    question: 'What is the difference between String, StringBuilder, and StringBuffer?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`String` is immutable, so every concatenation allocates a new object. `StringBuilder` is a mutable buffer and is the right choice for building strings in a loop — it is NOT synchronised, so it is fast. `StringBuffer` is the same but synchronised, making it thread-safe and measurably slower; it is rarely needed since a builder is usually local to one method anyway. Note the compiler already optimises simple `+` concatenation outside loops.',
+      hinglish:
+        '`String` immutable hai, isliye har jodna ek naya object banata hai. `StringBuilder` ek badalne layak buffer hai aur ek loop mein strings banane ke liye sahi choice — ye synchronised NAHI hai, isliye tez hai. `StringBuffer` wahi hai par synchronised, jo ise thread-safe aur maapne layak slow banata hai; ise rarely chahiye kyunki ek builder waise bhi usually ek method tak seemit hota hai. Note karo compiler loops ke bahar simple `+` jodna pehle hi optimise karta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between ArrayList and LinkedList?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`ArrayList` is backed by an array: O(1) random access, excellent cache locality, but O(n) insertion in the middle because elements shift. `LinkedList` uses nodes: O(1) insertion at a KNOWN position, but O(n) access and poor cache behaviour plus per-node overhead. In practice `ArrayList` wins almost always, even for insertions, because memory locality dominates at realistic sizes. Reach for `LinkedList` mainly when you need `Deque` behaviour, and `ArrayDeque` is usually better even then.',
+      hinglish:
+        '`ArrayList` ek array pe bana hai: O(1) random access, behtareen cache locality, par beech mein O(n) insertion kyunki elements khisakte hain. `LinkedList` nodes use karta hai: ek JAANI jagah pe O(1) insertion, par O(n) access aur kharab cache behaviour plus per-node bojh. Practically `ArrayList` almost hamesha jeetta hai, insertions ke liye bhi, kyunki asli sizes pe memory locality haavi hoti hai. `LinkedList` mainly tab uthao jab `Deque` behaviour chahiye, aur tab bhi `ArrayDeque` usually behtar hai.',
+    },
+  },
+  {
+    question: 'What is the difference between HashMap, TreeMap, and LinkedHashMap?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`HashMap` gives O(1) average access with NO ordering guarantee. `TreeMap` keeps keys sorted using a Red-Black tree, giving O(log n) and supporting range queries such as `headMap` and `floorKey`. `LinkedHashMap` preserves INSERTION order (or access order, which makes an LRU cache trivial via `removeEldestEntry`) at the cost of a little extra memory. Choose by whether you need ordering, and if so whether sorted or insertion order.',
+      hinglish:
+        '`HashMap` O(1) average access deta hai KOI kram ki guarantee ke bina. `TreeMap` ek Red-Black tree se keys sorted rakhta hai, O(log n) deta hai aur `headMap` aur `floorKey` jaisi range queries deta hai. `LinkedHashMap` INSERTION kram bachata hai (ya access kram, jo `removeEldestEntry` se ek LRU cache aasaan banata hai) thodi extra memory ke cost pe. Is aadhaar pe chuno ki tumhe kram chahiye ya nahi, aur agar haan to sorted ya insertion kram.',
+    },
+  },
+  {
+    question: 'How does HashMap work internally?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A HashMap holds an array of buckets. `hashCode()` determines the bucket, and `equals()` distinguishes keys within it. Collisions form a linked list, which Java 8 converts to a balanced TREE once a bucket exceeds eight entries, bounding worst case at O(log n) instead of O(n). When the load factor (0.75 by default) is exceeded, the map RESIZES and rehashes everything. A mutable key whose hash changes after insertion becomes permanently unreachable.',
+      hinglish:
+        'Ek HashMap buckets ka ek array rakhta hai. `hashCode()` bucket tay karta hai, aur `equals()` uske andar keys alag karta hai. Collisions ek linked list banate hain, jise Java 8 ek bucket ke aath entries paar karne pe ek balanced TREE mein badal deta hai, worst case ko O(n) ke bajaye O(log n) pe rokte hue. Load factor (default 0.75) paar hone pe, map RESIZE hota hai aur sab dobara hash karta hai. Ek badalne layak key jiska hash insertion ke baad badle hamesha ke liye pahunch se bahar ho jaati hai.',
+    },
+  },
+  {
+    question: 'Why must you override hashCode when you override equals?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The contract says equal objects must have equal hash codes. If you override `equals` but not `hashCode`, two objects that are logically equal get different default hashes, land in different buckets, and a HashMap or HashSet fails to find one you just inserted — a silent, baffling bug. Use the same fields in both, keep them IMMUTABLE, and let the IDE or `Objects.hash` generate them. Records generate both correctly for free.',
+      hinglish:
+        'Contract kehta hai barabar objects ke hash codes barabar hone chahiye. Agar tum `equals` override karo par `hashCode` nahi, do logically barabar objects ko alag default hashes milte hain, wo alag buckets mein girte hain, aur ek HashMap ya HashSet use nahi dhoondh paata jo tumne abhi daala — ek chupka, uljhaane wala bug. Dono mein wahi fields use karo, unhe IMMUTABLE rakho, aur IDE ya `Objects.hash` se banwaao. Records dono muft mein sahi banate hain.',
+    },
+  },
+  {
+    question: 'What is the difference between checked and unchecked exceptions?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'CHECKED exceptions extend `Exception` and must be caught or declared, so the compiler forces you to acknowledge them — intended for recoverable conditions such as a missing file. UNCHECKED exceptions extend `RuntimeException` and need no declaration, intended for programming errors such as a null dereference. The debate is real: checked exceptions add ceremony and encourage empty catch blocks, which is why most modern Java libraries and frameworks favour unchecked.',
+      hinglish:
+        'CHECKED exceptions `Exception` extend karte hain aur unhe pakadna ya batana padta hai, isliye compiler tumhe unhe maanne pe majboor karta hai — ek gayab file jaisi sambhalne layak haalaton ke liye. UNCHECKED exceptions `RuntimeException` extend karte hain aur unhe batana nahi padta, ek null dereference jaisi programming galtiyon ke liye. Behes asli hai: checked exceptions dikhawa jodte hain aur khaali catch blocks ko badhaava dete hain, isiliye zyadatar modern Java libraries aur frameworks unchecked prefer karte hain.',
+    },
+  },
+  {
+    question: 'What is the difference between final, finally, and finalize?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`final` is a modifier: a final variable cannot be reassigned, a final method cannot be overridden, a final class cannot be extended. `finally` is a block that runs whether or not an exception was thrown, used for cleanup. `finalize` was a method the garbage collector might call before reclaiming an object — it was unpredictable, could resurrect objects, and is DEPRECATED for removal. Use try-with-resources or a `Cleaner` instead.',
+      hinglish:
+        '`final` ek modifier hai: ek final variable dobara assign nahi ho sakta, ek final method override nahi ho sakti, ek final class extend nahi ho sakti. `finally` ek block hai jo exception aaye ya na aaye chalta hai, safai ke liye. `finalize` ek method thi jise garbage collector ek object hataane se pehle call kar sakta tha — ye anpredictable thi, objects wapas jinda kar sakti thi, aur hataane ke liye DEPRECATED hai. Uske bajaye try-with-resources ya ek `Cleaner` use karo.',
+    },
+  },
+  {
+    question: 'What is try-with-resources?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Any resource declared in the `try(...)` header and implementing `AutoCloseable` is closed automatically when the block exits, in reverse order, whether normally or via an exception. It replaces the old nested `finally` blocks, which were verbose and easy to get wrong. Crucially it also handles SUPPRESSED exceptions: if both the body and `close()` throw, the close exception is attached to the primary one rather than silently replacing it, which the manual pattern got wrong.',
+      hinglish:
+        '`try(...)` header mein bataya aur `AutoCloseable` implement karta koi bhi resource block khatam hone pe apne aap band ho jaata hai, ulte kram mein, chahe normally ya ek exception se. Ye purane nested `finally` blocks ko badalta hai, jo lambe aur galat karna aasaan the. Critically ye DABAAYE gaye exceptions bhi sambhalta hai: agar body aur `close()` dono throw karein, close ka exception mukhya wale se juda jaata hai use chupke se badalne ke bajaye, jo manual pattern galat karta tha.',
+    },
+  },
+  {
+    question: 'What is the difference between == and equals for wrapper types?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`==` compares references. Java CACHES `Integer` values from -128 to 127, so `Integer a = 127, b = 127; a == b` is true, while the same code with 128 is FALSE — the classic autoboxing trap. Always use `equals` for wrapper comparison, or unbox to primitives explicitly. The same caching applies to `Boolean`, `Byte`, `Character`, and small `Long` values, and it produces bugs that appear only with larger data.',
+      hinglish:
+        '`==` references compare karta hai. Java -128 se 127 tak `Integer` values CACHE karta hai, isliye `Integer a = 127, b = 127; a == b` true hai, jabki 128 ke saath wahi code JHOOTH hai — classic autoboxing jaal. Wrapper tulna ke liye hamesha `equals` use karo, ya explicitly primitives mein unbox karo. Wahi caching `Boolean`, `Byte`, `Character`, aur chhoti `Long` values pe lagti hai, aur ye aise bugs banati hai jo sirf bade data ke saath dikhte hain.',
+    },
+  },
+  {
+    question: 'What are Java generics and what is type erasure?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Generics give compile-time type safety and remove casts — `List<String>` cannot hold an Integer. But they are implemented by ERASURE: the type argument is removed at compile time, so at runtime a `List<String>` is just a `List`. That is why you cannot write `new T[]`, cannot use `instanceof List<String>`, and cannot overload on `List<String>` versus `List<Integer>`. Erasure was chosen for backward compatibility with pre-generics code.',
+      hinglish:
+        'Generics compile-waqt type surakshaa dete hain aur casts hataate hain — ek `List<String>` ek Integer nahi rakh sakti. Par wo ERASURE se bane hain: type argument compile waqt hata diya jaata hai, isliye runtime pe ek `List<String>` bas ek `List` hai. Isiliye tum `new T[]` nahi likh sakte, `instanceof List<String>` use nahi kar sakte, aur `List<String>` versus `List<Integer>` pe overload nahi kar sakte. Erasure generics se pehle ke code ke saath compatibility ke liye chuna gaya tha.',
+    },
+  },
+  {
+    question: 'What is the difference between extends and super in generics?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'They control variance. `? extends T` is an upper bound, so you can READ items as T but cannot add any — the list might be of a narrower subtype. `? super T` is a lower bound, so you can WRITE T into it but reads come back as Object. The mnemonic is PECS: Producer Extends, Consumer Super. That is why `Collections.copy` takes `List<? super T>` as the destination and `List<? extends T>` as the source.',
+      hinglish:
+        'Wo variance control karte hain. `? extends T` ek upar ki seema hai, isliye tum items ko T ki tarah PADH sakte ho par kuch jod nahi sakte — list ek sankre subtype ki ho sakti hai. `? super T` ek neeche ki seema hai, isliye tum usme T LIKH sakte ho par padhne pe Object aata hai. Yaad rakhne ka tareeka PECS hai: Producer Extends, Consumer Super. Isiliye `Collections.copy` destination ke liye `List<? super T>` aur source ke liye `List<? extends T>` leta hai.',
+    },
+  },
+  {
+    question: 'What are Java Streams and when should you use them?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Streams express operations over a sequence declaratively — `filter`, `map`, `reduce`, `collect` — with LAZY intermediate operations that only run when a terminal operation is invoked, allowing fusion into a single pass. They make transformation pipelines readable. They are not automatically faster than a loop; for a simple iteration a loop is often quicker and easier to debug. Use them for pipelines, and be cautious with `parallelStream`, which helps only for large CPU-bound work.',
+      hinglish:
+        'Streams ek anukram pe operations declaratively batate hain — `filter`, `map`, `reduce`, `collect` — SUST beech ke operations ke saath jo sirf ek terminal operation pe chalte hain, ek hi pass mein judne dete hue. Ye transformation pipelines padhne layak banate hain. Ye ek loop se apne aap tez nahi hain; ek simple iteration ke liye ek loop aksar tez aur debug karna aasaan hai. Inhe pipelines ke liye use karo, aur `parallelStream` se saavdhaan raho, jo sirf bade CPU-bound kaam ke liye madad karta hai.',
+    },
+  },
+  {
+    question: 'When does parallelStream actually help?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Only when the dataset is large, the per-element work is CPU-bound and substantial, the source splits evenly (an array or ArrayList, not a LinkedList), and the operations are stateless and side-effect free. Otherwise the cost of splitting and merging outweighs the gain and it is SLOWER. It also uses the shared common ForkJoinPool by default, so a blocking operation inside one can starve the entire application. Measure rather than assume.',
+      hinglish:
+        'Sirf tab jab dataset bada ho, per-element kaam CPU-bound aur kaafi ho, source barabar batta ho (ek array ya ArrayList, LinkedList nahi), aur operations bina state aur bina side-effect ke hon. Warna baantne aur milaane ka cost faayde se zyada hai aur ye SLOW hai. Ye default se saanjha common ForkJoinPool bhi use karta hai, isliye uske andar ek blocking operation poore application ko bhookha maar sakta hai. Maano nahi, maapo.',
+    },
+  },
+  {
+    question: 'What is Optional and how should you use it?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`Optional<T>` makes the possible absence of a value explicit in the type, encouraging the caller to handle it. Use it as a RETURN type for methods that may find nothing. Do NOT use it for fields, parameters, or collections — a collection should be empty rather than optional. And never call `.get()` without checking, which just reintroduces the NPE with extra steps; prefer `orElse`, `orElseThrow`, `map`, and `ifPresent`.',
+      hinglish:
+        '`Optional<T>` ek value ke gayab hone ki sambhavna ko type mein saaf karta hai, caller ko use sambhaalne ko kehta hua. Ise un methods ke RETURN type ki tarah use karo jo kuch na paayein. Ise fields, parameters, ya collections ke liye use MAT karo — ek collection optional ke bajaye khaali honi chahiye. Aur bina check kiye kabhi `.get()` mat call karo, jo bas extra kadmon ke saath NPE wapas le aata hai; `orElse`, `orElseThrow`, `map`, aur `ifPresent` prefer karo.',
+    },
+  },
+  {
+    question: 'What is a lambda expression and a functional interface?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A functional interface has exactly ONE abstract method, so a lambda can implement it concisely — `Runnable`, `Comparator`, `Function`, `Predicate`, `Supplier`, `Consumer`. `@FunctionalInterface` makes the compiler enforce that. A lambda is not simply syntactic sugar for an anonymous class: it has no separate `this` (it refers to the enclosing instance), generates no extra class file, and is implemented via `invokedynamic`.',
+      hinglish:
+        'Ek functional interface mein theek EK abstract method hoti hai, isliye ek lambda use chhote roop mein bana sakta hai — `Runnable`, `Comparator`, `Function`, `Predicate`, `Supplier`, `Consumer`. `@FunctionalInterface` compiler se wo enforce karwaata hai. Ek lambda ek anonymous class ka bas syntactic sugar nahi hai: uska apna `this` nahi hota (wo baahar wale instance ko batata hai), koi extra class file nahi banti, aur ye `invokedynamic` se banta hai.',
+    },
+  },
+  {
+    question: 'How does garbage collection work in Java?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The GC reclaims objects no longer REACHABLE from GC roots such as stack frames and static fields. Most collectors are generational, based on the observation that most objects die young: new objects go in the young generation and are collected cheaply, while survivors are promoted to the old generation, collected less often but more expensively. G1 is the modern default, with ZGC and Shenandoah offering very low pause times for large heaps.',
+      hinglish:
+        'GC un objects ko wapas leta hai jo ab stack frames aur static fields jaise GC roots se PAHUNCH ke bahar hain. Zyadatar collectors generational hain, is baat pe ki zyadatar objects jaldi marte hain: naye objects young generation mein jaate hain aur saste mein hataye jaate hain, jabki bache hue old generation mein bhej diye jaate hain, kam baar par zyada mehnge dhang se hataye jaate hue. G1 modern default hai, ZGC aur Shenandoah bade heaps ke liye bahut kam ruknay ka samay dete hain.',
+    },
+  },
+  {
+    question: 'Can you have a memory leak in Java?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Yes. Garbage collection reclaims unreachable objects, but an object you still REFERENCE is never collected even if you no longer need it. Common causes: a static collection that only ever grows, listeners registered but never removed, unclosed resources, a `ThreadLocal` not cleared in a pooled thread, and a mutable key whose hash changed. Diagnose with a heap dump and a tool such as VisualVM or MAT, looking for the growing retained set.',
+      hinglish:
+        'Haan. Garbage collection pahunch se bahar objects wapas leta hai, par ek object jise tum abhi bhi REFERENCE karte ho kabhi nahi hataya jaata chahe tumhe uski zaroorat na ho. Common karan: ek static collection jo sirf badhti hai, register kiye par kabhi hataye na gaye listeners, band na kiye resources, ek pooled thread mein saaf na kiya `ThreadLocal`, aur ek badalne layak key jiska hash badal gaya. Ek heap dump aur VisualVM ya MAT jaise ek tool se jaancho, badhta retained set dhoondhte hue.',
+    },
+  },
+  {
+    question: 'What is the difference between a process and a thread in Java?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A process has its own memory space; a THREAD shares the heap with other threads in the same process while having its own stack. Sharing makes communication cheap but introduces race conditions, so shared mutable state needs synchronisation. Java threads are OS threads, which are relatively expensive — hence thread pools. Project Loom\'s virtual threads change this: they are managed by the JVM and cheap enough to create millions.',
+      hinglish:
+        'Ek process ki apni memory jagah hoti hai; ek THREAD usi process ke doosre threads ke saath heap share karta hai jabki uska apna stack hota hai. Share karna baat karna sasta banata hai par race conditions laata hai, isliye saanjhi badalne layak state ko synchronisation chahiye. Java threads OS threads hain, jo relatively mehnge hain — isiliye thread pools. Project Loom ke virtual threads ise badalte hain: unhe JVM sambhalta hai aur wo itne saste hain ki lakhon banaye ja sakte hain.',
+    },
+  },
+  {
+    question: 'What does the synchronized keyword do?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`synchronized` acquires a monitor lock so only one thread executes the block at a time, which provides MUTUAL EXCLUSION. Just as importantly it establishes a happens-before relationship, so changes made by one thread become VISIBLE to the next — without that, another thread might read a stale cached value indefinitely. Synchronise on a private final object rather than `this` or a class literal, so external code cannot interfere with your lock.',
+      hinglish:
+        '`synchronized` ek monitor lock leta hai taaki ek waqt mein sirf ek thread block chalaye, jo AAPSI ROK deta hai. Utna hi zaroori, ye ek happens-before rishta banata hai, isliye ek thread ke kiye badlaav agle ko DIKHTE hain — uske bina, ek doosra thread hamesha ke liye ek purani cached value padh sakta hai. `this` ya ek class literal ke bajaye ek private final object pe synchronise karo, taaki bahar ka code tumhare lock mein dakhal na de.',
+    },
+  },
+  {
+    question: 'What does volatile do and when is it enough?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`volatile` guarantees VISIBILITY — a write is immediately visible to other threads and reads are never cached — and prevents certain instruction reorderings. It does NOT provide atomicity, so `count++` on a volatile field is still a race because it is a read-modify-write. It is enough for a simple flag such as a shutdown signal, or for the double-checked locking singleton. For counters use `AtomicInteger`, and for compound state use a lock.',
+      hinglish:
+        '`volatile` DIKHNE ki guarantee deta hai — ek write turant doosre threads ko dikhta hai aur reads kabhi cache nahi hote — aur kuch instruction reorderings rokta hai. Ye atomicity NAHI deta, isliye ek volatile field pe `count++` abhi bhi ek race hai kyunki ye ek read-modify-write hai. Ye ek shutdown signal jaise simple flag ke liye kaafi hai, ya double-checked locking singleton ke liye. Counters ke liye `AtomicInteger` use karo, aur judi hui state ke liye ek lock.',
+    },
+  },
+  {
+    question: 'What is the difference between HashMap and ConcurrentHashMap?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`HashMap` is not thread-safe — concurrent modification can corrupt it, and in older Java could even cause an infinite loop during resize. `Collections.synchronizedMap` locks the WHOLE map per operation, which serialises everything. `ConcurrentHashMap` locks only individual bins, allowing genuine concurrent reads and mostly concurrent writes, and provides atomic operations such as `computeIfAbsent` and `merge`. Its iterators are weakly consistent rather than fail-fast.',
+      hinglish:
+        '`HashMap` thread-safe nahi hai — ek saath badalna use bigaad sakta hai, aur purane Java mein resize ke dauraan ek anant loop bhi bana sakta tha. `Collections.synchronizedMap` per operation POORE map ko lock karta hai, jo sab ek-ek karke chalata hai. `ConcurrentHashMap` sirf alag bins lock karta hai, genuine ek saath reads aur zyadatar ek saath writes dete hue, aur `computeIfAbsent` aur `merge` jaise atomic operations deta hai. Iske iterators fail-fast ke bajaye kamzor consistent hain.',
+    },
+  },
+  {
+    question: 'What is a deadlock and how do you avoid it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A deadlock occurs when two threads each hold a lock the other needs, so neither proceeds — and unlike a database, the JVM does not detect or resolve it, so the application simply hangs. Avoid it by acquiring locks in a CONSISTENT GLOBAL ORDER everywhere, holding locks for as short a time as possible, using `tryLock` with a timeout, or avoiding shared mutable state entirely with immutable objects and message passing.',
+      hinglish:
+        'Ek deadlock tab hota hai jab do threads mein har ek wo lock rakhta ho jo doosre ko chahiye, isliye koi aage nahi badhta — aur ek database ke ulat, JVM ise pakadta ya sulhaata nahi, isliye application bas latak jaata hai. Ise har jagah locks ek EK JAISE VAISHVIK KRAM mein lekar, locks jitna kam ho sake utni der rakh kar, ek timeout ke saath `tryLock` use karke, ya immutable objects aur message passing se saanjhi badalne layak state poori tarah bacha kar avoid karo.',
+    },
+  },
+  {
+    question: 'What is the ExecutorService and why use it over raw threads?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'An ExecutorService manages a POOL of reusable threads, so you submit tasks rather than creating threads. Thread creation is expensive and unbounded creation exhausts memory, whereas a pool bounds concurrency and queues excess work. It also returns a `Future` for the result, handles exceptions properly, and supports orderly shutdown. Choose the pool type deliberately: a fixed pool for CPU-bound work sized to cores, and a cached or virtual-thread executor for I/O-bound work.',
+      hinglish:
+        'Ek ExecutorService dobara istemaal hone wale threads ka ek POOL sambhalta hai, isliye tum threads banane ke bajaye tasks bhejte ho. Thread banana mehnga hai aur bina seema banana memory khatam kar deta hai, jabki ek pool concurrency seemit karta hai aur zyada kaam queue karta hai. Ye nateeje ke liye ek `Future` bhi deta hai, exceptions theek sambhalta hai, aur kramwaar shutdown deta hai. Pool type soch kar chuno: CPU-bound kaam ke liye cores ke hisaab se ek fixed pool, aur I/O-bound kaam ke liye ek cached ya virtual-thread executor.',
+    },
+  },
+  {
+    question: 'What are virtual threads in Java 21?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Virtual threads are lightweight threads managed by the JVM rather than the OS, so you can create millions instead of thousands. When one blocks on I/O it UNMOUNTS from its carrier thread, freeing it for other work. The practical effect is that simple blocking code achieves the scalability that previously required reactive programming, without the complexity. The main caveat is that `synchronized` blocks can pin a virtual thread, so prefer `ReentrantLock`.',
+      hinglish:
+        'Virtual threads halke threads hain jinhe OS ke bajaye JVM sambhalta hai, isliye tum hazaaron ke bajaye lakhon bana sakte ho. Jab ek I/O pe rukta hai to wo apne carrier thread se UTAR jaata hai, use doosre kaam ke liye khaali karte hue. Vyavaharik asar ye hai ki simple blocking code wo scalability paata hai jiske liye pehle reactive programming chahiye thi, bina uski uljhan ke. Mukhya caveat ye hai ki `synchronized` blocks ek virtual thread ko baandh sakte hain, isliye `ReentrantLock` prefer karo.',
+    },
+  },
+  {
+    question: 'What is a record in Java?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A record is a concise, immutable data carrier: `record Point(int x, int y) {}` generates the constructor, accessors, `equals`, `hashCode`, and `toString` correctly. It removes an enormous amount of boilerplate and, more importantly, removes the chance of getting `equals` and `hashCode` subtly wrong. Records are final, cannot extend a class, and their fields are final — so they suit DTOs and value objects, not entities with mutable state.',
+      hinglish:
+        'Ek record ek chhota, immutable data le jaane wala hai: `record Point(int x, int y) {}` constructor, accessors, `equals`, `hashCode`, aur `toString` sahi bana deta hai. Ye bahut saara boilerplate hataata hai aur, zyada zaroori, `equals` aur `hashCode` ko sookshm roop se galat karne ka mauka hataata hai. Records final hain, ek class extend nahi kar sakte, aur unke fields final hain — isliye wo DTOs aur value objects ko suit karte hain, badalne layak state wali entities ko nahi.',
+    },
+  },
+  {
+    question: 'What are sealed classes?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A sealed class or interface restricts which types may extend or implement it, listed explicitly with `permits`. That makes the hierarchy CLOSED and known to the compiler, which enables exhaustive pattern matching in a `switch` — if you add a new permitted subtype, every switch that does not handle it fails to compile. Combined with records it gives Java algebraic data types, which model a fixed set of alternatives far more safely than an open hierarchy.',
+      hinglish:
+        'Ek sealed class ya interface seemit karta hai ki kaunse types use extend ya implement kar sakte hain, `permits` se explicitly list karke. Isse hierarchy BAND aur compiler ko pata ho jaati hai, jo ek `switch` mein poora pattern matching deta hai — agar tum ek naya allowed subtype jodo, har wo switch jo use nahi sambhalta compile hone se mana kar deta hai. Records ke saath ye Java ko algebraic data types deta hai, jo ek khuli hierarchy se bahut zyada surakshit roop se vikalpon ka ek tay set batate hain.',
+    },
+  },
+  {
+    question: 'What is the difference between Comparable and Comparator?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`Comparable` defines a class\'s NATURAL ordering by implementing `compareTo` inside the class itself — there can be only one. `Comparator` is an external strategy, so you can define many different orderings without touching the class, which is essential for types you do not own. Modern code uses `Comparator.comparing(Foo::getName).thenComparing(...)` and `reversed()`, which is far more readable than a hand-written comparison.',
+      hinglish:
+        '`Comparable` ek class ka SWABHAVIK kram class ke andar hi `compareTo` bana kar batata hai — sirf ek ho sakta hai. `Comparator` ek bahar ki ranneeti hai, isliye tum class ko chhue bina bahut alag krams bana sakte ho, jo un types ke liye zaroori hai jo tumhare nahi hain. Modern code `Comparator.comparing(Foo::getName).thenComparing(...)` aur `reversed()` use karta hai, jo ek haath se likhi tulna se bahut zyada padhne layak hai.',
+    },
+  },
+  {
+    question: 'What is the difference between static and instance members?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A STATIC member belongs to the class and exists once regardless of how many instances there are, accessed via the class name and unable to reference `this`. An INSTANCE member belongs to each object. Static suits genuine utilities and constants. The pitfalls are that static mutable state is shared across the whole application and is a common source of thread-safety bugs, and that static methods are hard to mock, which hurts testability.',
+      hinglish:
+        'Ek STATIC member class ka hai aur kitne bhi instances hon ek hi baar hota hai, class ke naam se access hota hai aur `this` reference nahi kar sakta. Ek INSTANCE member har object ka hai. Static genuine utilities aur constants ko suit karta hai. Khatre ye hain ki static badalne layak state poore application mein saanjhi hai aur thread-safety bugs ka ek common karan, aur static methods ko mock karna mushkil hai, jo testability bigaadta hai.',
+    },
+  },
+  {
+    question: 'What is dependency injection in Spring?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Spring\'s container creates objects (beans) and INJECTS their dependencies rather than each class constructing its own. That means a class depends on an INTERFACE it receives, so tests can pass a fake and production can pass the real thing without editing the class. Prefer CONSTRUCTOR injection over field injection: it makes dependencies explicit, allows final fields, fails fast if one is missing, and works without a Spring container in unit tests.',
+      hinglish:
+        'Spring ka container objects (beans) banata hai aur unki dependencies INJECT karta hai, har class ke apni banane ke bajaye. Iska matlab hai ek class ek INTERFACE pe depend karti hai jo use milta hai, isliye tests ek nakli de sakte hain aur production asli, bina class edit kiye. Field injection ke bajaye CONSTRUCTOR injection prefer karo: ye dependencies saaf karta hai, final fields deta hai, ek gayab hone pe jaldi fail hota hai, aur unit tests mein bina Spring container ke chalta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between Spring and Spring Boot?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'SPRING is the underlying framework providing dependency injection, AOP, transactions, and MVC, but historically required extensive XML or Java configuration. SPRING BOOT adds AUTO-CONFIGURATION that configures beans based on what is on the classpath, opinionated starter dependencies, an embedded server so the app is a runnable jar, and production features such as Actuator. Boot does not replace Spring — it is Spring with the configuration burden removed.',
+      hinglish:
+        'SPRING neeche wala framework hai jo dependency injection, AOP, transactions, aur MVC deta hai, par historically bahut XML ya Java configuration maangta tha. SPRING BOOT AUTO-CONFIGURATION jodta hai jo classpath pe jo hai uske hisaab se beans configure karta hai, opinionated starter dependencies, ek andar ka server taaki app ek chalne layak jar ho, aur Actuator jaisi production features. Boot Spring ko badalta nahi — ye configuration ke bojh ke bina Spring hai.',
+    },
+  },
+  {
+    question: 'What is the N+1 query problem in JPA and Hibernate?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Fetching N entities and then accessing a lazy association per entity issues one query plus N more — 101 queries for 100 orders and their customers. It is invisible in development with ten rows and crippling in production. Fixes: a `JOIN FETCH` in JPQL, an `@EntityGraph`, or batch fetching with `@BatchSize`. Detect it by enabling SQL logging and counting statements per request; do not rely on noticing it later.',
+      hinglish:
+        'N entities laakar phir per entity ek sust association access karna ek query plus N aur chalata hai — 100 orders aur unke customers ke liye 101 queries. Ye das rows ke saath development mein invisible hai aur production mein apahij karne wala. Fixes: JPQL mein ek `JOIN FETCH`, ek `@EntityGraph`, ya `@BatchSize` se batch fetching. Ise SQL logging chalu karke aur per request statements gin kar pakado; ise baad mein dikhne pe bharosa mat karo.',
+    },
+  },
+  {
+    question: 'What is the difference between FetchType LAZY and EAGER?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'EAGER loads the association immediately with the parent, which is convenient but means every query drags in data you may not need, and eager collections multiply badly. LAZY loads it on first access, which is the correct default — but accessing it after the persistence context closes throws `LazyInitializationException`, the most famous Hibernate error. The fix is fetching what you need explicitly in the query, not switching everything to EAGER.',
+      hinglish:
+        'EAGER association ko parent ke saath turant laata hai, jo suvidhajanak hai par matlab har query wo data kheench laati hai jo shayad tumhe na chahiye, aur eager collections buri tarah guna hote hain. LAZY use pehli baar access pe laata hai, jo sahi default hai — par persistence context band hone ke baad use access karna `LazyInitializationException` throw karta hai, sabse mashhoor Hibernate error. Fix query mein jo chahiye wo explicitly laana hai, sab kuch EAGER karna nahi.',
+    },
+  },
+  {
+    question: 'What is the difference between JPA and Hibernate?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'JPA is a SPECIFICATION — a set of interfaces and annotations defining how object-relational mapping should work in Java. Hibernate is an IMPLEMENTATION of it, and the most widely used, with additional features beyond the spec. Coding against JPA keeps you portable between implementations; using Hibernate-specific features ties you to it, which is usually an acceptable trade since almost nobody actually switches implementations.',
+      hinglish:
+        'JPA ek SPECIFICATION hai — interfaces aur annotations ka ek set jo batata hai ki Java mein object-relational mapping kaise chalni chahiye. Hibernate uska ek IMPLEMENTATION hai, aur sabse zyada istemaal hone wala, spec se aage ke features ke saath. JPA ke against likhna tumhe implementations ke beech portable rakhta hai; Hibernate-khaas features use karna tumhe usse baandhta hai, jo usually ek sweekar trade hai kyunki almost koi actually implementation badalta nahi.',
+    },
+  },
+  {
+    question: 'How do you write good unit tests in Java?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use JUnit 5 with AssertJ for readable assertions and Mockito for test doubles. Follow arrange-act-assert, test ONE behaviour per test, and name tests after the behaviour rather than the method. Mock external dependencies but not value objects. Crucially, the biggest determinant of testability is DESIGN: constructor injection, small classes, and logic separated from I/O make tests trivial, while static calls and hidden dependencies make them painful.',
+      hinglish:
+        'JUnit 5 ko padhne layak assertions ke liye AssertJ aur test doubles ke liye Mockito ke saath use karo. Arrange-act-assert follow karo, per test EK behaviour test karo, aur tests ko method ke bajaye behaviour ke naam pe naam do. Bahar ki dependencies mock karo par value objects nahi. Critically, testability ka sabse bada nirdhaarak DESIGN hai: constructor injection, chhoti classes, aur I/O se alag logic tests ko aasaan banate hain, jabki static calls aur chhupi dependencies unhe takleefdeh.',
+    },
+  },
+  {
+    question: 'What are the SOLID principles in practice?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'SINGLE RESPONSIBILITY — a class should have one reason to change. OPEN-CLOSED — extend behaviour without modifying existing code, usually via an interface. LISKOV SUBSTITUTION — a subtype must be usable wherever its supertype is, without surprising the caller. INTERFACE SEGREGATION — many small interfaces beat one large one, so implementers do not stub methods they do not need. DEPENDENCY INVERSION — depend on abstractions, which is exactly what dependency injection enables.',
+      hinglish:
+        'SINGLE RESPONSIBILITY — ek class ke badalne ki ek wajah honi chahiye. OPEN-CLOSED — maujood code badle bina behaviour badhao, usually ek interface se. LISKOV SUBSTITUTION — ek subtype wahan use hona chahiye jahan uska supertype ho, caller ko chaunkaye bina. INTERFACE SEGREGATION — bahut chhote interfaces ek bade se behtar hain, taaki banane wale wo methods na bharein jo unhe nahi chahiye. DEPENDENCY INVERSION — abstractions pe depend karo, jo theek wahi hai jo dependency injection deta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between an inner class and a static nested class?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A non-static INNER class holds an implicit reference to its enclosing instance, so it can access the outer object\'s fields — but that reference also PREVENTS the outer object from being garbage collected while the inner one lives, which is a classic memory leak in listeners and callbacks. A STATIC nested class has no such reference and is really just a top-level class scoped inside another. Prefer static unless you genuinely need the outer instance.',
+      hinglish:
+        'Ek non-static INNER class apne baahar wale instance ka ek chhupa reference rakhti hai, isliye wo bahar ke object ke fields access kar sakti hai — par wo reference bahar ke object ko andar wale ke jeete ji garbage collect hone se ROKTA bhi hai, jo listeners aur callbacks mein ek classic memory leak hai. Ek STATIC nested class mein aisa koi reference nahi aur wo sach mein bas ek doosre ke andar rakhi top-level class hai. Static prefer karo jab tak tumhe genuinely bahar wala instance na chahiye.',
+    },
+  },
+  {
+    question: 'What is the difference between shallow and deep copy in Java?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A SHALLOW copy duplicates the object but copies REFERENCES for its fields, so both copies share the same nested objects and mutating one affects both. A DEEP copy recursively duplicates everything. `Object.clone()` is shallow by default and its contract is widely considered broken, so prefer a copy constructor, a static factory, or serialisation-based copying. The cleanest answer is usually making the class IMMUTABLE so copying is unnecessary.',
+      hinglish:
+        'Ek SHALLOW copy object duplicate karti hai par uske fields ke REFERENCES copy karti hai, isliye dono copies wahi nested objects share karti hain aur ek badalna dono ko affect karta hai. Ek DEEP copy recursively sab kuch duplicate karti hai. `Object.clone()` default se shallow hai aur uska contract widely toota maana jaata hai, isliye ek copy constructor, ek static factory, ya serialisation-based copying prefer karo. Sabse saaf jawab usually class ko IMMUTABLE banana hai taaki copy karne ki zaroorat hi na ho.',
+    },
+  },
+  {
+    question: 'What is the difference between fail-fast and fail-safe iterators?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A FAIL-FAST iterator throws `ConcurrentModificationException` if the collection is structurally modified during iteration — `ArrayList` and `HashMap` behave this way, which surfaces bugs immediately rather than producing corrupt results. A FAIL-SAFE iterator works on a snapshot or a weakly consistent view and does not throw, as with `CopyOnWriteArrayList` and `ConcurrentHashMap`, at the cost of possibly not seeing the very latest changes.',
+      hinglish:
+        'Ek FAIL-FAST iterator `ConcurrentModificationException` throw karta hai agar iteration ke dauraan collection ka dhaancha badle — `ArrayList` aur `HashMap` aise behave karte hain, jo bugs turant dikhata hai bigde nateeje banane ke bajaye. Ek FAIL-SAFE iterator ek snapshot ya ek kamzor consistent view pe chalta hai aur throw nahi karta, jaise `CopyOnWriteArrayList` aur `ConcurrentHashMap` mein, shayad bilkul taaza badlaav na dekhne ke cost pe.',
+    },
+  },
+  {
+    question: 'What are the notable features added in recent Java versions?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Java 8 brought lambdas, streams, `Optional`, and the new date-time API. 11 added `var` for locals and HTTP Client. 17 added sealed classes, records, and pattern matching for `instanceof`. 21 — the current LTS — added virtual threads, pattern matching for `switch`, and record patterns. The practical point is that Java has moved substantially towards conciseness and functional style, and a codebase still written in Java 8 idioms is leaving a lot on the table.',
+      hinglish:
+        'Java 8 lambdas, streams, `Optional`, aur naya date-time API laaya. 11 ne locals ke liye `var` aur HTTP Client jode. 17 ne sealed classes, records, aur `instanceof` ke liye pattern matching jode. 21 — abhi ka LTS — ne virtual threads, `switch` ke liye pattern matching, aur record patterns jode. Vyavaharik baat ye hai ki Java kaafi chhote aur functional roop ki taraf badha hai, aur abhi bhi Java 8 ke tareekon mein likha ek codebase bahut kuch chhod raha hai.',
     },
   },
 ];

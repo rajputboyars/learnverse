@@ -953,6 +953,448 @@ export const generalInterviewQuestions = [
         'Common breakpoints (mobile-first, min-width use karke): 640px (sm — large mobile), 768px (md — tablets), 1024px (lg — laptops/small desktops), 1280px (xl — large desktops), 1536px (2xl — wide screens). Ye Tailwind CSS defaults se match karte hain. Hamesha real devices pe test karo sirf specific pixel values ke bajaye — content-based breakpoints (jahan layout toot ta hai) device-based ones se zyada robust hote hain.',
     },
   },
+
+  // ─── Cascade, Layout & Modern CSS ───────────────────────────
+  {
+    question: 'How does CSS specificity actually work?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Specificity is a three-part score: ID selectors, then class/attribute/pseudo-class selectors, then element/pseudo-element selectors. A higher category always beats a lower one regardless of count — a single ID outranks any number of classes. Inline styles rank above all selectors, and `!important` overrides everything except another `!important` later in the cascade. When specificity ties, SOURCE ORDER decides, which is why the last matching rule wins.',
+      hinglish:
+        'Specificity ek teen-hisse ka score hai: ID selectors, phir class/attribute/pseudo-class selectors, phir element/pseudo-element selectors. Ek upar ki shreni hamesha neeche wali ko haraati hai chahe ginti kuch bhi ho — ek akela ID kitne bhi classes se upar hai. Inline styles saare selectors se upar hain, aur `!important` sab kuch overrides karta hai siwaay cascade mein baad ke ek doosre `!important` ke. Specificity barabar hone pe, SOURCE KRAM tay karta hai, isiliye aakhri match karta rule jeetta hai.',
+    },
+  },
+  {
+    question: 'Why should you avoid !important?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'It breaks the cascade by winning regardless of specificity, so the only way to override it later is another `!important` — which escalates until the whole stylesheet is a fight. It makes debugging hard because the rule you would expect to apply silently loses, and it makes components unreusable since a consumer cannot restyle them. Legitimate uses are narrow: overriding third-party CSS you cannot edit, or utility classes deliberately designed to win.',
+      hinglish:
+        'Ye specificity chahe kuch bhi ho jeet kar cascade todta hai, isliye ise baad mein override karne ka ek hi tareeka ek aur `!important` hai — jo badhta jaata hai jab tak poora stylesheet ek ladaai na ban jaaye. Ye debugging mushkil banata hai kyunki jo rule lagna chahiye tha wo chupke se haar jaata hai, aur ye components ko dobara istemaal ke layak nahi rakhta kyunki ek consumer unhe dobara style nahi kar sakta. Sahi istemaal kam hain: aisi third-party CSS override karna jo tum edit nahi kar sakte, ya jaan boojh kar jeetne ke liye bane utility classes.',
+    },
+  },
+  {
+    question: 'What is the CSS box model and what does box-sizing change?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Every element is a box of content, padding, border, and margin. Under the default `content-box`, `width` sets only the CONTENT width, so padding and border are added on top — a 200px box with 20px padding actually occupies 240px, which is why layouts overflow unexpectedly. `border-box` makes `width` include padding and border, so the declared size is the real size. Setting `box-sizing: border-box` globally is near-universal practice for exactly this reason.',
+      hinglish:
+        'Har element content, padding, border, aur margin ka ek box hai. Default `content-box` mein, `width` sirf CONTENT ki chaudai set karta hai, isliye padding aur border upar se jud jaate hain — 20px padding wala ek 200px box actually 240px ghera leta hai, isiliye layouts anaapekshit roop se bahar nikal jaate hain. `border-box` `width` mein padding aur border shaamil kar deta hai, isliye batayi gayi size hi asli size hai. Theek isi wajah se `box-sizing: border-box` globally set karna lagbhag sarvbhaumik practice hai.',
+    },
+  },
+  {
+    question: 'What is margin collapsing?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Adjacent VERTICAL margins merge into one equal to the larger, rather than adding — two stacked elements with 20px and 30px margins end up 30px apart, not 50px. It also happens between a parent and its first or last child, so a child\'s margin can push the PARENT down, which is a genuinely confusing symptom. It only affects block layout in the normal flow: flex and grid containers do not collapse margins, which is one reason modern layout feels more predictable.',
+      hinglish:
+        'Saath lage KHADE margins jodne ke bajaye bade wale ke barabar ek mein mil jaate hain — 20px aur 30px margins wale do upar-neeche elements 30px door hote hain, 50px nahi. Ye ek parent aur uske pehle ya aakhri child ke beech bhi hota hai, isliye ek child ka margin PARENT ko neeche dhakel sakta hai, jo ek genuinely uljhaane wala lakshan hai. Ye sirf normal flow mein block layout ko affect karta hai: flex aur grid containers margins collapse nahi karte, jo ek wajah hai ki modern layout zyada anumaan lagane layak lagta hai.',
+    },
+  },
+  {
+    question: 'When should you use Flexbox versus Grid?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'FLEXBOX is one-dimensional — it lays items along a single row or column and is content-driven, so items size themselves and wrap naturally. Use it for navigation bars, toolbars, centring, and distributing space along one axis. GRID is two-dimensional, controlling rows and columns simultaneously with a layout defined by the container. Use it for page layouts, card galleries, and any design where alignment must hold in both directions. They compose freely — grid outside, flex inside.',
+      hinglish:
+        'FLEXBOX ek-aayaami hai — ye items ko ek row ya column mein lagata hai aur content-chaalit hai, isliye items khud size lete hain aur swabhavik roop se wrap hote hain. Ise navigation bars, toolbars, centring, aur ek axis pe jagah baantne ke liye use karo. GRID do-aayaami hai, rows aur columns ek saath control karta hai ek aise layout se jo container batata hai. Ise page layouts, card galleries, aur kisi bhi aise design ke liye use karo jahan dono dishaon mein alignment chahiye. Wo aasaani se judte hain — bahar grid, andar flex.',
+    },
+  },
+  {
+    question: 'What is the difference between position relative, absolute, fixed, and sticky?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'RELATIVE offsets an element from its normal position while KEEPING its space in the flow. ABSOLUTE removes it from flow and positions it against the nearest positioned ancestor — which is why you set `position: relative` on a parent to anchor it. FIXED positions against the viewport and does not scroll, though a transformed ancestor breaks that. STICKY behaves as relative until a scroll threshold, then acts fixed — and silently fails if any ancestor has `overflow: hidden`.',
+      hinglish:
+        'RELATIVE ek element ko uski normal jagah se khiskata hai jabki flow mein uski jagah BACHI rehti hai. ABSOLUTE use flow se hata deta hai aur sabse paas ke positioned poorvaj ke against rakhta hai — isiliye tum use tikaane ke liye ek parent pe `position: relative` set karte ho. FIXED viewport ke against rakhta hai aur scroll nahi karta, halaanki ek transformed poorvaj use todta hai. STICKY ek scroll seema tak relative ki tarah behave karta hai, phir fixed — aur kisi bhi poorvaj pe `overflow: hidden` hone pe chupke se fail ho jaata hai.',
+    },
+  },
+  {
+    question: 'How does z-index actually work?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`z-index` only applies to POSITIONED elements (or flex and grid children), and it operates within a STACKING CONTEXT. That is the part people miss: a new stacking context is created by `position` with a z-index, and also by `opacity` below 1, `transform`, `filter`, `will-change`, and others. Once inside a context, a child can never escape it — so a `z-index: 9999` element still sits behind a sibling whose parent has a higher context. Check ancestors, not the element.',
+      hinglish:
+        '`z-index` sirf POSITIONED elements (ya flex aur grid children) pe lagta hai, aur ye ek STACKING CONTEXT ke andar kaam karta hai. Yahi wo hissa hai jo log chhod dete hain: ek naya stacking context ek z-index wale `position` se banta hai, aur 1 se kam `opacity`, `transform`, `filter`, `will-change`, aur doosron se bhi. Ek context ke andar aane ke baad, ek child kabhi bahar nahi nikal sakta — isliye ek `z-index: 9999` element abhi bhi ek aise sibling ke peeche baithta hai jiske parent ka context ooncha hai. Element nahi, poorvaj dekho.',
+    },
+  },
+  {
+    question: 'What are CSS custom properties and how do they differ from preprocessor variables?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Custom properties (`--color: blue`) are RUNTIME values that live in the cascade: they inherit, can be changed by a media query or a class, and are readable and writable from JavaScript. Sass variables are compile-time and vanish from the output, so they cannot respond to anything at runtime. That difference is why theming — light and dark mode, or per-component overrides — is straightforward with custom properties and awkward with preprocessor variables.',
+      hinglish:
+        'Custom properties (`--color: blue`) RUNTIME values hain jo cascade mein rehti hain: wo inherit hoti hain, ek media query ya ek class se badal sakti hain, aur JavaScript se padhi aur likhi ja sakti hain. Sass variables compile-time hain aur output se gayab ho jaate hain, isliye wo runtime pe kisi cheez pe react nahi kar sakte. Wahi farak wajah hai ki theming — light aur dark mode, ya per-component override — custom properties se seedha hai aur preprocessor variables se ajeeb.',
+    },
+  },
+  {
+    question: 'What is the difference between em, rem, px, and viewport units?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`px` is absolute. `em` is relative to the PARENT font size, so nesting compounds it — three levels of `1.5em` gives 3.375x, which is the classic em trap. `rem` is relative to the ROOT font size, so it stays predictable and respects the user\'s browser font-size setting, which is why it is preferred for typography and spacing. `vw` and `vh` are relative to the viewport, useful for full-screen sections but risky for text, which can become unreadably small.',
+      hinglish:
+        '`px` absolute hai. `em` PARENT ke font size ke sapeksh hai, isliye nesting use guna karta hai — `1.5em` ke teen level 3.375x dete hain, jo classic em jaal hai. `rem` ROOT font size ke sapeksh hai, isliye ye anumaan lagane layak rehta hai aur user ki browser font-size setting maanta hai, isiliye typography aur spacing ke liye ise prefer kiya jaata hai. `vw` aur `vh` viewport ke sapeksh hain, full-screen sections ke liye useful par text ke liye khatarnak, jo padhne layak na rehne jitna chhota ho sakta hai.',
+    },
+  },
+  {
+    question: 'What are pseudo-classes and pseudo-elements?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A PSEUDO-CLASS (single colon) selects an element in a particular STATE — `:hover`, `:focus`, `:nth-child`, `:not`, `:checked`. A PSEUDO-ELEMENT (double colon) creates or styles a part of an element that is not in the DOM — `::before`, `::after`, `::placeholder`, `::selection`. Note `::before` and `::after` need a `content` property to appear at all, and they are inaccessible to screen readers for meaningful content, so never put real information there.',
+      hinglish:
+        'Ek PSEUDO-CLASS (ek colon) ek element ko ek khaas HAALAT mein chunta hai — `:hover`, `:focus`, `:nth-child`, `:not`, `:checked`. Ek PSEUDO-ELEMENT (do colon) ek element ka wo hissa banata ya style karta hai jo DOM mein nahi hai — `::before`, `::after`, `::placeholder`, `::selection`. Note karo `::before` aur `::after` ko dikhne ke liye ek `content` property chahiye, aur wo matlab wale content ke liye screen readers tak nahi pahunchte, isliye wahan kabhi asli jaankaari mat daalo.',
+    },
+  },
+  {
+    question: 'What are the newer CSS selectors like :has, :is, and :where?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`:has()` is the long-awaited PARENT selector — `.card:has(img)` styles a card that contains an image, something previously impossible without JavaScript. `:is()` groups selectors compactly and takes the specificity of its most specific argument. `:where()` does the same but has ZERO specificity, which makes it ideal for base styles a component should be able to override easily. All three are now broadly supported.',
+      hinglish:
+        '`:has()` bahut intezaar kiya gaya PARENT selector hai — `.card:has(img)` ek aise card ko style karta hai jisme ek image hai, jo pehle bina JavaScript ke asambhav tha. `:is()` selectors ko chhote roop mein jodta hai aur apne sabse khaas argument ki specificity leta hai. `:where()` wahi karta hai par uski specificity ZERO hai, jo ise un base styles ke liye ideal banata hai jinhe ek component aasaani se override kar sake. Teeno ab widely supported hain.',
+    },
+  },
+  {
+    question: 'What is a container query and how does it differ from a media query?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A MEDIA query responds to the VIEWPORT, so a component cannot know how much space it actually has — the same card looks wrong in a sidebar and in a full-width row. A CONTAINER query responds to the size of an ancestor container, so a component adapts to its own available space regardless of where it is placed. That makes components genuinely reusable, and it is the single biggest improvement to component-based CSS in years.',
+      hinglish:
+        'Ek MEDIA query VIEWPORT pe react karti hai, isliye ek component ko pata hi nahi hota ki uske paas actually kitni jagah hai — wahi card ek sidebar mein aur ek poori-chaudai row mein galat dikhta hai. Ek CONTAINER query ek poorvaj container ki size pe react karti hai, isliye ek component apni available jagah ke hisaab se dhalta hai chahe use kahin bhi rakha ho. Isse components genuinely dobara istemaal layak bante hain, aur ye saalon mein component-based CSS ka sabse bada sudhaar hai.',
+    },
+  },
+  {
+    question: 'How do you centre an element both horizontally and vertically?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'The modern answer is flexbox — `display: flex; align-items: center; justify-content: center` — or grid, where `display: grid; place-items: center` does it in one line. For an absolutely positioned element, `top: 50%; left: 50%; transform: translate(-50%, -50%)` works because the transform percentage refers to the element\'s own size. The old techniques with negative margins or table-cell display are obsolete and should not appear in new code.',
+      hinglish:
+        'Modern jawab flexbox hai — `display: flex; align-items: center; justify-content: center` — ya grid, jahan `display: grid; place-items: center` ise ek line mein kar deta hai. Ek absolutely positioned element ke liye, `top: 50%; left: 50%; transform: translate(-50%, -50%)` chalta hai kyunki transform ka pratishat element ke apne size ko batata hai. Negative margins ya table-cell display wali purani techniques bekaar hain aur naye code mein nahi aani chahiye.',
+    },
+  },
+  {
+    question: 'What is the difference between display none, visibility hidden, and opacity 0?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`display: none` removes the element from the layout entirely — it takes no space and is invisible to screen readers. `visibility: hidden` hides it but KEEPS its space, and it is also removed from the accessibility tree. `opacity: 0` makes it invisible while keeping its space AND remaining interactive — it can still be clicked and focused, which is a real accessibility bug when used to hide something. Only opacity and visibility can be transitioned.',
+      hinglish:
+        '`display: none` element ko layout se poori tarah hata deta hai — ye koi jagah nahi leta aur screen readers ko nahi dikhta. `visibility: hidden` use chhupata hai par uski jagah BACHATA hai, aur ye bhi accessibility tree se hata diya jaata hai. `opacity: 0` use andekha banata hai jabki uski jagah bhi rehti hai AUR wo interactive bhi — us pe abhi bhi click aur focus ho sakta hai, jo kuch chhupane ke liye use karne pe ek asli accessibility bug hai. Sirf opacity aur visibility transition ho sakte hain.',
+    },
+  },
+  {
+    question: 'Which CSS properties are cheap to animate and why?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Only `transform` and `opacity` can be handled entirely by the COMPOSITOR, skipping layout and paint, so they run on the GPU at 60fps. Animating `width`, `height`, `top`, `left`, `margin`, or `padding` triggers LAYOUT, which forces the browser to recalculate positions for the whole page every frame and produces visible jank. So animate `transform: translateX()` rather than `left`, and `transform: scale()` rather than `width`. `will-change` can promote a layer, but overusing it costs memory.',
+      hinglish:
+        'Sirf `transform` aur `opacity` poori tarah COMPOSITOR sambhal sakta hai, layout aur paint chhod kar, isliye wo GPU pe 60fps pe chalte hain. `width`, `height`, `top`, `left`, `margin`, ya `padding` animate karna LAYOUT trigger karta hai, jo browser ko har frame poore page ki jagahein dobara nikaalne pe majboor karta hai aur dikhne wali atkan banata hai. Isliye `left` ke bajaye `transform: translateX()` animate karo, aur `width` ke bajaye `transform: scale()`. `will-change` ek layer bana sakta hai, par uska zyada istemaal memory cost karta hai.',
+    },
+  },
+  {
+    question: 'What is reflow and repaint?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'REFLOW (layout) recalculates the geometry of elements and is expensive because changing one element can affect its ancestors, siblings, and descendants. REPAINT redraws pixels without changing geometry — a colour change — and is cheaper. Composite is cheapest of all. Reading a layout property such as `offsetHeight` immediately after a write forces a SYNCHRONOUS reflow, and doing that inside a loop is layout thrashing, a classic cause of a frozen page.',
+      hinglish:
+        'REFLOW (layout) elements ki geometry dobara nikaalta hai aur mehnga hai kyunki ek element badalna uske poorvajon, bhaiyon, aur santaanon ko affect kar sakta hai. REPAINT geometry badle bina pixels dobara banata hai — ek rang ka badlaav — aur sasta hai. Composite sabse sasta hai. Ek write ke turant baad `offsetHeight` jaisi ek layout property padhna ek SYNCHRONOUS reflow majboor karta hai, aur ek loop ke andar aisa karna layout thrashing hai, ek jame hue page ka classic karan.',
+    },
+  },
+  {
+    question: 'What is the difference between CSS Grid template areas and line-based placement?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'TEMPLATE AREAS name regions and let you draw the layout visually in the CSS — `grid-template-areas: "header header" "sidebar main"` — which is extremely readable and makes rearranging at a breakpoint trivial. LINE-BASED placement positions items by grid line numbers or names, which is more precise and necessary for overlapping items or spans computed dynamically. Areas suit page-level layouts; line placement suits fine control within a component.',
+      hinglish:
+        'TEMPLATE AREAS ilaakon ko naam dete hain aur tumhe CSS mein layout drawing ki tarah likhne dete hain — `grid-template-areas: "header header" "sidebar main"` — jo bahut padhne layak hai aur ek breakpoint pe dobara jamana aasaan banata hai. LINE-BASED placement items ko grid line numbers ya naamon se rakhta hai, jo zyada sateek hai aur overlapping items ya dynamically compute hue spans ke liye zaroori. Areas page-level layouts ko suit karte hain; line placement ek component ke andar baareek control ko.',
+    },
+  },
+  {
+    question: 'What does minmax and auto-fit do in Grid?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`minmax(200px, 1fr)` sets a minimum and maximum track size, so a column never shrinks below 200px but grows to fill available space. Combined with `repeat(auto-fit, ...)` it produces a responsive grid with NO media queries at all — the browser fits as many columns as will fit and wraps automatically. `auto-fill` behaves the same but keeps empty tracks, so with few items `auto-fit` stretches them while `auto-fill` leaves gaps.',
+      hinglish:
+        '`minmax(200px, 1fr)` ek kam se kam aur zyada se zyada track size set karta hai, isliye ek column kabhi 200px se chhota nahi hota par available jagah bharne ko badhta hai. `repeat(auto-fit, ...)` ke saath ye BINA kisi media query ke ek responsive grid banata hai — browser jitne columns fit hon utne rakhta hai aur apne aap wrap karta hai. `auto-fill` waise hi behave karta hai par khaali tracks rakhta hai, isliye kam items pe `auto-fit` unhe khinchta hai jabki `auto-fill` khaali jagah chhodta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between flex-grow, flex-shrink, and flex-basis?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`flex-basis` is the starting size before free space is distributed. `flex-grow` decides what proportion of EXTRA space an item takes. `flex-shrink` decides how much it gives up when space is short. The shorthand `flex: 1` means `1 1 0%`, which makes all items equal width regardless of content, whereas `flex: auto` is `1 1 auto` and sizes by content — that distinction explains most "why are my flex items uneven" confusion.',
+      hinglish:
+        '`flex-basis` khaali jagah bantne se pehle ki shuruaati size hai. `flex-grow` tay karta hai ki ek item EXTRA jagah ka kitna hissa le. `flex-shrink` tay karta hai ki jagah kam hone pe wo kitna chhodta hai. Shorthand `flex: 1` ka matlab `1 1 0%` hai, jo saare items ko content chahe kuch bhi ho barabar chaudai deta hai, jabki `flex: auto` `1 1 auto` hai aur content se size leta hai — wahi farak zyadatar "mere flex items barabar kyun nahi" wali uljhan samjhaata hai.',
+    },
+  },
+  {
+    question: 'How do you implement dark mode in CSS?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Define colours as custom properties on `:root`, then override them inside `@media (prefers-color-scheme: dark)` so the site follows the operating system. For a manual toggle, also override under a `[data-theme="dark"]` attribute on the root and let that win, storing the choice in localStorage. Apply the theme before first paint to avoid a flash of the wrong theme, and remember to check CONTRAST in both modes — dark mode often fails accessibility checks.',
+      hinglish:
+        'Colours ko `:root` pe custom properties ki tarah define karo, phir `@media (prefers-color-scheme: dark)` ke andar unhe override karo taaki site operating system follow kare. Ek manual toggle ke liye, root pe ek `[data-theme="dark"]` attribute ke neeche bhi override karo aur use jeetne do, choice localStorage mein rakhte hue. Theme ko pehle paint se pehle lagao taaki galat theme ki jhalak na dikhe, aur dono modes mein CONTRAST jaanchna yaad rakho — dark mode aksar accessibility checks mein fail hota hai.',
+    },
+  },
+  {
+    question: 'What is the difference between inline, block, and inline-block?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A BLOCK element starts on a new line, takes the full available width, and honours width, height, and vertical margins. An INLINE element flows within text, sizes to its content, and IGNORES width, height, and vertical margins — a frequent source of "why is my padding not working". `inline-block` combines them: it flows inline but accepts box dimensions. In modern layout flex and grid handle most of these cases more predictably.',
+      hinglish:
+        'Ek BLOCK element nayi line pe shuru hota hai, poori available chaudai leta hai, aur width, height, aur khade margins maanta hai. Ek INLINE element text ke andar behta hai, apne content ke hisaab se size leta hai, aur width, height, aur khade margins ANDEKHA karta hai — "mera padding kaam kyun nahi kar raha" ka ek aksar karan. `inline-block` dono jodta hai: ye inline behta hai par box dimensions leta hai. Modern layout mein flex aur grid inme se zyadatar cases zyada anumaan layak sambhalte hain.',
+    },
+  },
+  {
+    question: 'What is a stacking context and what creates one?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A stacking context is a self-contained group whose children are stacked entirely within it, so no descendant can be placed above or below an element outside the group regardless of z-index. It is created by the root element, by `position` with a z-index other than auto, and — the surprising ones — by `opacity` below 1, `transform`, `filter`, `will-change`, `isolation: isolate`, and `mix-blend-mode`. That is why adding a subtle transform can suddenly break a dropdown\'s layering.',
+      hinglish:
+        'Ek stacking context ek khud-poora group hai jiske children poori tarah usi ke andar upar-neeche lagte hain, isliye koi santaan z-index chahe kuch bhi ho group ke bahar ke ek element ke upar ya neeche nahi ja sakta. Ye root element se banta hai, auto ke alawa z-index wale `position` se, aur — chaunkane wale — 1 se kam `opacity`, `transform`, `filter`, `will-change`, `isolation: isolate`, aur `mix-blend-mode` se. Isiliye ek halka transform jodna achanak ek dropdown ki parat tod deta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between CSS Modules, styled-components, and Tailwind?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'CSS MODULES scope plain CSS by generating unique class names at build time — zero runtime cost, familiar syntax. STYLED-COMPONENTS writes CSS in JavaScript with props-driven styling, which is expressive but adds runtime overhead and complicates server rendering. TAILWIND uses utility classes in the markup, giving very small output after purging and no naming decisions, at the cost of verbose HTML. All three solve the same core problem: CSS has no native scoping.',
+      hinglish:
+        'CSS MODULES plain CSS ko build time pe unique class naam banakar seemit karte hain — zero runtime cost, jaana-pehchana syntax. STYLED-COMPONENTS JavaScript mein CSS likhta hai props-chaalit styling ke saath, jo expressive hai par runtime bojh jodta hai aur server rendering uljhaata hai. TAILWIND markup mein utility classes use karta hai, purge ke baad bahut chhota output aur koi naam ke faisle nahi deta, verbose HTML ke cost pe. Teeno wahi mool samasya solve karte hain: CSS mein native scoping nahi hai.',
+    },
+  },
+  {
+    question: 'What is BEM and why do naming conventions matter in CSS?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'BEM names classes as `block__element--modifier`, making the relationship between markup and styles explicit. It matters because CSS is GLOBAL by default: without a convention, class names collide, specificity wars begin, and nobody can safely delete a rule because they cannot tell what uses it. BEM keeps specificity flat and predictable. Scoped solutions such as CSS Modules or Tailwind solve the same problem differently, which is why BEM is less common in component frameworks.',
+      hinglish:
+        'BEM classes ko `block__element--modifier` ki tarah naam deta hai, markup aur styles ka rishta saaf karte hue. Ye isliye matter karta hai kyunki CSS default se GLOBAL hai: ek convention ke bina, class naam takraate hain, specificity ki ladaai shuru hoti hai, aur koi surakshit roop se ek rule delete nahi kar sakta kyunki use pata hi nahi ki use kaun use karta hai. BEM specificity ko chapta aur anumaan layak rakhta hai. CSS Modules ya Tailwind jaise scoped solutions wahi samasya alag tarah solve karte hain, isiliye BEM component frameworks mein kam common hai.',
+    },
+  },
+  {
+    question: 'What is the cascade layer feature?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`@layer` lets you define explicit priority ORDER between groups of styles, and layer order beats specificity entirely — a low-specificity rule in a later layer wins over a high-specificity rule in an earlier one. That solves the classic problem of a third-party library\'s specific selectors overriding your own, without resorting to `!important`. Declare the layer order once at the top and the whole cascade becomes intentional rather than accidental.',
+      hinglish:
+        '`@layer` tumhe styles ke groups ke beech explicit priority KRAM define karne deta hai, aur layer kram specificity ko poori tarah haraata hai — ek baad ki layer ka kam-specificity rule ek pehle ki layer ke ooncha-specificity rule se jeetta hai. Ye ek third-party library ke khaas selectors ke tumhare apne ko override karne wali classic samasya solve karta hai, bina `!important` pe jaaye. Layer kram upar ek baar declare karo aur poora cascade galti ke bajaye iraade se ban jaata hai.',
+    },
+  },
+  {
+    question: 'How do you make a layout responsive without media queries?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Several intrinsic techniques. `grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))` wraps automatically as space allows. `clamp(1rem, 2vw + 1rem, 2rem)` scales typography smoothly between bounds. `flex-wrap` with a `flex-basis` lets items reflow naturally. `min()`, `max()`, and `aspect-ratio` cover most remaining cases. These adapt to the actual available space rather than guessing at device widths, which is more robust across unusual screen sizes.',
+      hinglish:
+        'Kai swabhavik techniques. `grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))` jagah ke hisaab se apne aap wrap karta hai. `clamp(1rem, 2vw + 1rem, 2rem)` typography ko seemaon ke beech smoothly badalta hai. `flex-basis` ke saath `flex-wrap` items ko swabhavik roop se behne deta hai. `min()`, `max()`, aur `aspect-ratio` baaki zyadatar cases cover karte hain. Ye device chaudaai ka andaaza lagane ke bajaye asli available jagah ke hisaab se dhalte hain, jo ajeeb screen sizes ke across zyada majboot hai.',
+    },
+  },
+  {
+    question: 'What does clamp() do?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`clamp(min, preferred, max)` returns the preferred value but never outside the bounds. Its main use is fluid typography — `font-size: clamp(1rem, 2.5vw, 2rem)` scales with the viewport but stays readable on a phone and does not become enormous on a wide monitor, replacing several media queries with one line. Always include a `rem` term in the preferred value, because a pure `vw` value ignores the user\'s browser zoom and font-size setting.',
+      hinglish:
+        '`clamp(min, preferred, max)` pasandeeda value lautaata hai par kabhi seemaon ke bahar nahi. Iska main use fluid typography hai — `font-size: clamp(1rem, 2.5vw, 2rem)` viewport ke saath badalta hai par ek phone pe padhne layak rehta hai aur ek chaude monitor pe bahut bada nahi hota, kai media queries ko ek line se badalte hue. Pasandeeda value mein hamesha ek `rem` hissa daalo, kyunki ek sheer `vw` value user ke browser zoom aur font-size setting ko andekha karti hai.',
+    },
+  },
+  {
+    question: 'How do you optimise CSS for performance?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'CSS is render-blocking, so the goal is shipping less of it sooner. INLINE the critical above-the-fold CSS and load the rest asynchronously. Remove unused rules with a purge step — most frameworks ship far more than any page uses. Avoid deeply nested selectors and `@import`, which serialises requests. Animate only `transform` and `opacity`. Use `content-visibility: auto` for long pages so off-screen sections are not laid out until needed.',
+      hinglish:
+        'CSS render-blocking hai, isliye lakshya kam CSS jaldi bhejna hai. Zaroori above-the-fold CSS INLINE karo aur baaki asynchronously load karo. Ek purge step se bina use ke rules hatao — zyadatar frameworks kisi bhi page ke istemaal se bahut zyada bhejte hain. Gehre nested selectors aur `@import` se bacho, jo requests ko ek-ek karke chalata hai. Sirf `transform` aur `opacity` animate karo. Lambe pages ke liye `content-visibility: auto` use karo taaki screen ke bahar ke sections zaroorat tak layout na hon.',
+    },
+  },
+  {
+    question: 'What is critical CSS?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Critical CSS is the minimum needed to render what the user sees FIRST — the above-the-fold content. Inlining it in a `<style>` tag means the browser can paint immediately instead of waiting for a stylesheet round trip, which directly improves First Contentful Paint. The rest is loaded asynchronously. The costs are that inline CSS is not cached across pages and the extraction must be automated, or it silently drifts out of date as the design changes.',
+      hinglish:
+        'Critical CSS wo kam se kam CSS hai jo user ko PEHLE dikhne wali cheez render karne ko chahiye — above-the-fold content. Ise ek `<style>` tag mein inline karne ka matlab hai browser ek stylesheet round trip ka intezaar karne ke bajaye turant paint kar sakta hai, jo seedha First Contentful Paint behtar karta hai. Baaki asynchronously load hota hai. Costs ye hain ki inline CSS pages ke across cache nahi hoti aur nikaalna automate hona chahiye, warna design badalne pe wo chupke se purani ho jaati hai.',
+    },
+  },
+  {
+    question: 'What is the difference between transition and animation?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A TRANSITION interpolates between two states and requires a TRIGGER — a hover, a class change — so it is simple and ideal for interactive feedback. An ANIMATION uses `@keyframes` to define multiple steps, can run automatically on load, loop indefinitely, and be paused or reversed. Use transitions for state changes and animations for anything with several stages or that must run without user action. Both should respect `prefers-reduced-motion`.',
+      hinglish:
+        'Ek TRANSITION do haalaton ke beech badalti hai aur use ek TRIGGER chahiye — ek hover, ek class badlaav — isliye ye simple hai aur interactive feedback ke liye ideal. Ek ANIMATION `@keyframes` se kai kadam batati hai, load pe apne aap chal sakti hai, hamesha ghoom sakti hai, aur rok ya ulti ki ja sakti hai. State badlaav ke liye transitions aur kai charno wali ya bina user ke chalne wali kisi bhi cheez ke liye animations use karo. Dono ko `prefers-reduced-motion` maanna chahiye.',
+    },
+  },
+  {
+    question: 'What is prefers-reduced-motion and why does it matter?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'It is a media query reflecting an operating-system setting where the user has asked for less motion. It matters because animation is not merely a preference for some people — parallax, large movements, and autoplaying motion can trigger genuine nausea, dizziness, and migraine in users with vestibular disorders. Respect it by disabling or drastically shortening non-essential motion, keeping opacity fades which are generally safe. It is two lines of CSS and a real accessibility requirement.',
+      hinglish:
+        'Ye ek media query hai jo ek operating-system setting batati hai jahan user ne kam hilna-dulna maanga hai. Ye isliye matter karta hai kyunki kuch logon ke liye animation sirf pasand nahi hai — parallax, badi harkatein, aur apne aap chalti motion vestibular vikaar wale users mein sach mein ubkaai, chakkar, aur migraine la sakti hai. Ise gair-zaroori motion band ya bahut chhota karke maano, opacity fades rakhte hue jo aam taur pe surakshit hain. Ye do line ki CSS aur ek asli accessibility zaroorat hai.',
+    },
+  },
+  {
+    question: 'How do you handle CSS specificity conflicts in a large codebase?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Keep specificity FLAT — prefer single class selectors and avoid IDs and deep descendant chains, so overriding never requires escalation. Adopt a convention such as BEM or a scoped solution such as CSS Modules so names cannot collide. Use `@layer` to make priority explicit between third-party, base, component, and utility styles. Use `:where()` for zero-specificity defaults. The underlying discipline is that specificity should be a deliberate decision, not an accident of nesting.',
+      hinglish:
+        'Specificity CHAPTI rakho — single class selectors prefer karo aur IDs aur gehre descendant chains se bacho, taaki override karne ke liye kabhi badhaana na pade. BEM jaisa ek convention ya CSS Modules jaisa ek scoped solution apnaao taaki naam na takraayein. Third-party, base, component, aur utility styles ke beech priority saaf karne ke liye `@layer` use karo. Zero-specificity defaults ke liye `:where()` use karo. Mool anushasan ye hai ki specificity ek soch-samajh ka faisla hona chahiye, nesting ki ek durghatna nahi.',
+    },
+  },
+  {
+    question: 'What is the difference between relative and absolute units for accessibility?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Setting font sizes in `px` overrides the user\'s browser font-size preference, so someone who enlarged their default text still gets your small type — a genuine barrier for low-vision users. `rem` scales with that root preference, which is why it is the accessible choice for typography and spacing. Browser ZOOM scales both, so px is not entirely broken, but font-size preference is the setting people actually change. WCAG also requires text to remain usable at 200% zoom.',
+      hinglish:
+        'Font sizes `px` mein set karna user ki browser font-size pasand ko override karta hai, isliye jisne apna default text bada kiya use abhi bhi tumhara chhota type milta hai — kam-drishti users ke liye ek asli rukaawat. `rem` us root pasand ke saath badalta hai, isiliye ye typography aur spacing ke liye sulabh choice hai. Browser ZOOM dono badalta hai, isliye px poori tarah toota nahi, par font-size pasand hi wo setting hai jo log actually badalte hain. WCAG ye bhi chahta hai ki text 200% zoom pe kaam ka rahe.',
+    },
+  },
+  {
+    question: 'What is the difference between :focus and :focus-visible?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`:focus` matches whenever an element has focus, including after a mouse click, which is why designers historically removed focus rings and broke keyboard navigation. `:focus-visible` matches only when the browser judges a focus indicator to be USEFUL — typically keyboard navigation, not a click. That lets you show a clear ring for keyboard users and nothing for mouse users, which resolves the old tension between visual design and accessibility. Never remove focus styles without a replacement.',
+      hinglish:
+        '`:focus` tab match karta hai jab bhi ek element pe focus ho, ek mouse click ke baad bhi, isiliye designers historically focus rings hataate the aur keyboard navigation todte the. `:focus-visible` sirf tab match karta hai jab browser samjhe ki ek focus nishaan KAAM KA hai — typically keyboard navigation, ek click nahi. Isse tum keyboard users ke liye ek saaf ring aur mouse users ke liye kuch nahi dikha sakte ho, jo visual design aur accessibility ke beech purani khinchtaan sulhaa deta hai. Bina replacement ke focus styles kabhi mat hatao.',
+    },
+  },
+  {
+    question: 'What is the difference between overflow hidden, auto, and scroll?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`hidden` clips content with no scrollbar, so the overflow is unreachable — fine for decoration, an accessibility failure for real content. `auto` shows a scrollbar only when needed, which is the usual right choice. `scroll` always reserves scrollbar space, which prevents a layout shift when content grows but shows an empty track otherwise. Note `overflow: hidden` on an ancestor silently breaks `position: sticky` on a descendant, which is a very common confusing bug.',
+      hinglish:
+        '`hidden` content ko bina scrollbar ke kaat deta hai, isliye bahar ka hissa pahunch se bahar hai — sajaawat ke liye theek, asli content ke liye ek accessibility failure. `auto` ek scrollbar sirf zaroorat pe dikhata hai, jo usual sahi choice hai. `scroll` hamesha scrollbar ki jagah rakhta hai, jo content badhne pe ek layout shift rokta hai par warna ek khaali patti dikhata hai. Note karo ek poorvaj pe `overflow: hidden` ek santaan pe `position: sticky` ko chupke se todta hai, jo ek bahut common uljhaane wala bug hai.',
+    },
+  },
+  {
+    question: 'How does CSS inheritance work?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Some properties inherit from parent to child automatically — mostly text-related ones such as `color`, `font-family`, `font-size`, `line-height`, and `visibility`. Box-model properties such as `margin`, `padding`, `border`, and `background` do NOT. You can force it with the `inherit` keyword, reset with `initial`, or use `unset`, which means inherit for inheritable properties and initial otherwise. `all: revert` resets an element to the browser default, which is useful when isolating a component.',
+      hinglish:
+        'Kuch properties parent se child mein apne aap inherit hoti hain — zyadatar text se judi jaise `color`, `font-family`, `font-size`, `line-height`, aur `visibility`. Box-model properties jaise `margin`, `padding`, `border`, aur `background` NAHI hoti. Tum `inherit` keyword se majboor kar sakte ho, `initial` se reset, ya `unset` use kar sakte ho, jiska matlab inherit hone wali properties ke liye inherit aur baaki ke liye initial hai. `all: revert` ek element ko browser default pe reset karta hai, jo ek component alag karte waqt useful hai.',
+    },
+  },
+  {
+    question: 'What is the difference between a CSS reset and normalize?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'A RESET strips all default browser styling to zero, giving a blank slate but meaning you must restyle everything, including sensible defaults such as heading sizes and list markers. NORMALIZE instead makes defaults CONSISTENT across browsers while preserving useful ones. Modern practice is usually a small custom reset — `box-sizing: border-box`, removing default margins, `img { max-width: 100% }` — rather than a large library, since browser differences are far smaller than they once were.',
+      hinglish:
+        'Ek RESET saari default browser styling zero kar deta hai, ek khaali slate dete hue par matlab tumhe sab kuch dobara style karna padega, including heading sizes aur list markers jaise samajhdaar defaults. NORMALIZE uske bajaye defaults ko browsers ke across EK JAISA banata hai jabki kaam ke defaults bachata hai. Modern practice usually ek chhota custom reset hai — `box-sizing: border-box`, default margins hataana, `img { max-width: 100% }` — ek badi library ke bajaye, kyunki browser ke farak pehle se bahut kam hain.',
+    },
+  },
+  {
+    question: 'What is the aspect-ratio property?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`aspect-ratio: 16 / 9` makes an element size one dimension from the other, replacing the old padding-top percentage hack entirely. Its practical importance is preventing LAYOUT SHIFT: reserving the correct space for an image or video before it loads stops content jumping, which directly improves Cumulative Layout Shift. Combine it with `object-fit: cover` so an image fills the box without distortion when its natural ratio differs.',
+      hinglish:
+        '`aspect-ratio: 16 / 9` ek element ko ek aayaam se doosra size lene deta hai, purane padding-top pratishat jugaad ko poori tarah badalte hue. Iska vyavaharik mahatva LAYOUT SHIFT rokna hai: ek image ya video ke liye load hone se pehle sahi jagah rakhna content ko koodne se rokta hai, jo seedha Cumulative Layout Shift behtar karta hai. Ise `object-fit: cover` ke saath jodo taaki ek image apna asli anupaat alag hone pe bhi bina bigde box bhar de.',
+    },
+  },
+  {
+    question: 'What are logical properties in CSS?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Logical properties describe position relative to the WRITING DIRECTION rather than physical screen edges — `margin-inline-start` instead of `margin-left`, `padding-block` instead of top and bottom. In a right-to-left language such as Arabic or Urdu, `margin-left` stays on the physical left and breaks the layout, whereas `margin-inline-start` flips automatically. For any internationalised site they remove an entire category of RTL bugs, and they are well supported now.',
+      hinglish:
+        'Logical properties bhautik screen kinaaron ke bajaye LIKHNE KI DISHA ke sapeksh jagah batati hain — `margin-left` ke bajaye `margin-inline-start`, upar-neeche ke bajaye `padding-block`. Arabic ya Urdu jaisi daaye-se-baaye language mein, `margin-left` bhautik baaye pe rehta hai aur layout todta hai, jabki `margin-inline-start` apne aap palat jaata hai. Kisi bhi antarrashtriya site ke liye ye RTL bugs ki ek poori shreni hata dete hain, aur ab ye achhe se supported hain.',
+    },
+  },
+  {
+    question: 'How do you debug a CSS layout problem?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Open DevTools and inspect the COMPUTED styles rather than the ones you wrote — that shows what actually applied and, crucially, which rule overrode yours. Use the layout overlays for flex and grid to see the actual tracks and gaps. Temporarily add an outline to every element to reveal unexpected boxes. For a stubborn stacking or sticky bug, walk up the ANCESTOR chain checking for `overflow`, `transform`, and `opacity`, since those are usually the cause rather than the element itself.',
+      hinglish:
+        'DevTools kholo aur jo tumne likha uske bajaye COMPUTED styles dekho — wo dikhata hai ki actually kya laga aur, critically, kaunse rule ne tumhara override kiya. Asli tracks aur gaps dekhne ke liye flex aur grid ke layout overlays use karo. Anaapekshit boxes dikhane ke liye kuch der har element pe ek outline lagao. Ek zid ki stacking ya sticky bug ke liye, POORVAJ chain upar chalo aur `overflow`, `transform`, aur `opacity` dekho, kyunki karan usually element khud ke bajaye wo hi hote hain.',
+    },
+  },
 ];
 
 export const curriculum = [...beginner, ...intermediate, ...advanced];

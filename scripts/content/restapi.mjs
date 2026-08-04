@@ -75,7 +75,7 @@ const beginner = [
           {
             question: 'What does "stateless" mean in REST?',
             difficulty: 'easy',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Stateless means the server does not store any client session state between requests. Every request must contain all the information needed to process it (credentials, params, body). This makes REST APIs scalable — any server instance can handle any request because no shared session is needed. Authentication state is conveyed via tokens (JWT) in each request.',
@@ -136,7 +136,7 @@ const beginner = [
           {
             question: 'What is middleware in Express and how does it work?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Middleware are functions with access to req, res, and next. They execute in sequence for every matching request. Each middleware can modify req/res, end the request, or call next() to pass control to the next middleware. Examples: express.json() (parse body), cors() (allow cross-origin), auth middleware (verify token), error handler. Order matters — define error handlers last.',
@@ -212,7 +212,7 @@ const intermediate = [
           {
             question: 'What are the three parts of a JWT and what does each do?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Header: JSON object specifying the token type ("JWT") and signing algorithm (HS256, RS256) — Base64URL encoded. Payload: JSON object with claims — registered (iss, sub, exp, iat), public, and private (your custom data like userId, role) — Base64URL encoded. Signature: HMAC or RSA hash of header + payload using the secret — proves the token wasn\'t tampered with. Only the signature is secure; payload is readable by anyone.',
@@ -278,7 +278,7 @@ const intermediate = [
           {
             question: 'What is the difference between authentication and authorisation?',
             difficulty: 'easy',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Authentication answers "who are you?" — verifying identity (login, JWT check). Authorisation answers "what are you allowed to do?" — checking permissions (is this user an admin? can they delete courses?). Authentication comes first; you must know who the user is before deciding what they can do. JWT handles authentication; role/permission checks handle authorisation.',
@@ -599,7 +599,7 @@ export const generalInterviewQuestions = [
   {
     question: 'What is CORS and how do you handle it in Express?',
     difficulty: 'medium',
-    frequency: 'very-common',
+    frequency: 'common',
     answer: {
       english:
         'CORS (Cross-Origin Resource Sharing) is a browser security policy that blocks requests from a different origin (domain/port/protocol) than the server. In Express, use the `cors` npm package — `app.use(cors({ origin: "https://yourfrontend.com" }))`. In development, you can allow all origins, but in production always specify an allowlist. CORS errors only occur in browsers — server-to-server calls are unaffected.',
@@ -759,6 +759,437 @@ export const generalInterviewQuestions = [
         'A production security checklist: use `helmet()` for security headers; validate ALL input with a schema library before using it; use parameterised queries/an ORM to prevent injection; hash passwords with bcrypt; use HTTPS everywhere and set `secure`/`httpOnly`/`sameSite` on cookies; add rate limiting on sensitive endpoints (login, password reset); keep short-lived JWTs with refresh token rotation; configure CORS with an explicit allowlist, not `*`; keep dependencies updated (`npm audit`); never expose stack traces/internal error details to clients in production; and store all secrets in environment variables, never in source code.',
       hinglish:
         'Ek production security checklist: security headers ke liye `helmet()` use karo; use karne se pehle SAARA input ek schema library se validate karo; injection rokne ke liye parameterised queries/ek ORM use karo; passwords bcrypt se hash karo; sab jagah HTTPS use karo aur cookies pe `secure`/`httpOnly`/`sameSite` set karo; sensitive endpoints (login, password reset) pe rate limiting add karo; refresh token rotation ke saath short-lived JWTs rakho; explicit allowlist ke saath CORS configure karo, `*` nahi; dependencies update rakho (`npm audit`); production mein clients ko kabhi stack traces/internal error details expose mat karo; aur saare secrets environment variables mein store karo, source code mein kabhi nahi.',
+    },
+  },
+
+  // ─── REST Design ────────────────────────────────────────────
+  {
+    question: 'What actually makes an API RESTful?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'REST is a set of architectural CONSTRAINTS, not just "JSON over HTTP". They are: a client-server split, STATELESSNESS (every request carries everything needed, so no server-side session), cacheability, a uniform interface built around resources and their representations, layered systems, and optionally code-on-demand. Most APIs called REST satisfy only some of these — particularly they skip HATEOAS — which is why the term is used loosely in practice.',
+      hinglish:
+        'REST architectural BANDHANON ka ek set hai, sirf "HTTP pe JSON" nahi. Wo hain: ek client-server bantwaara, STATELESSNESS (har request sab zaroori le jaati hai, isliye koi server-side session nahi), cacheability, resources aur unke representations ke around bana ek ek jaisa interface, layered systems, aur optionally code-on-demand. REST kehe jaate zyadatar APIs inme se kuch hi poore karte hain — khaas kar HATEOAS chhod dete hain — isiliye ye shabd practically dheele istemaal hota hai.',
+    },
+  },
+  {
+    question: 'What does statelessness mean and why does it matter?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Stateless means the server keeps NO client context between requests — each request carries its own authentication and everything else needed to process it. It matters because it enables horizontal scaling: any instance can serve any request, so you can add servers freely and a crashed instance loses nothing. Storing session state in server memory breaks this, which is why sessions belong in Redis or in a self-contained token instead.',
+      hinglish:
+        'Stateless ka matlab hai server requests ke beech client ka KOI context nahi rakhta — har request apna authentication aur baaki sab zaroori le jaati hai. Ye isliye matter karta hai kyunki isse horizontal scaling hoti hai: koi bhi instance koi bhi request serve kar sakta hai, isliye tum azaadi se servers jod sakte ho aur ek crash hua instance kuch nahi khota. Session state ko server memory mein rakhna ise todta hai, isiliye sessions Redis ya ek khud-poore token mein rehne chahiye.',
+    },
+  },
+  {
+    question: 'What are the HTTP methods and which are idempotent?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'GET reads, POST creates, PUT replaces, PATCH partially updates, DELETE removes. SAFE methods (GET, HEAD, OPTIONS) do not modify anything. IDEMPOTENT methods produce the same result whether called once or many times: GET, PUT, DELETE, HEAD, OPTIONS. POST and PATCH are NOT idempotent — calling POST twice creates two resources, which is exactly why a client that times out and retries can double-charge someone unless you add an idempotency key.',
+      hinglish:
+        'GET padhta hai, POST banata hai, PUT badalta hai, PATCH aadha update karta hai, DELETE hataata hai. SURAKSHIT methods (GET, HEAD, OPTIONS) kuch nahi badalte. IDEMPOTENT methods ek baar ya bahut baar call hone pe wahi nateeja dete hain: GET, PUT, DELETE, HEAD, OPTIONS. POST aur PATCH idempotent NAHI hain — POST do baar call karna do resources banata hai, jo theek wahi wajah hai ki ek timeout hokar retry karta client kisi ko dugna charge kar sakta hai jab tak tum ek idempotency key na jodo.',
+    },
+  },
+  {
+    question: 'What is the difference between PUT and PATCH?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'PUT REPLACES the entire resource with the body you send, so any field you omit is effectively cleared — which is why PUT is idempotent. PATCH applies a PARTIAL update, changing only the fields provided. The practical bug is treating PUT like PATCH: sending only the changed field to a PUT endpoint that implements replacement silently wipes everything else. Document clearly which semantics your endpoint actually implements, since many APIs get this wrong.',
+      hinglish:
+        'PUT poore resource ko tumhari bheji body se BADAL deta hai, isliye jo bhi field tum chhodte ho wo effectively mit jaata hai — isiliye PUT idempotent hai. PATCH ek AADHA update lagata hai, sirf di gayi fields badalte hue. Vyavaharik bug PUT ko PATCH ki tarah maanna hai: replacement karta ek PUT endpoint pe sirf badla field bhejna chupke se baaki sab mita deta hai. Saaf likho ki tumhara endpoint actually kaunse semantics karta hai, kyunki bahut APIs ise galat karte hain.',
+    },
+  },
+  {
+    question: 'How should you name REST endpoints?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use plural NOUNS for resources and let the HTTP method express the action — `GET /users`, `POST /users`, `GET /users/5`, `DELETE /users/5`. Avoid verbs in the path, since `/getUsers` and `/deleteUser` duplicate what the method already says. Nest to show ownership — `/users/5/orders` — but stop at about two levels, because deeper nesting becomes unwieldy. Use lowercase with hyphens, and keep naming consistent across the whole API.',
+      hinglish:
+        'Resources ke liye bahuvachan NOUNS use karo aur HTTP method ko kaam batane do — `GET /users`, `POST /users`, `GET /users/5`, `DELETE /users/5`. Path mein verbs se bacho, kyunki `/getUsers` aur `/deleteUser` wahi dohraate hain jo method pehle hi kehta hai. Maalikana dikhane ke liye nest karo — `/users/5/orders` — par lagbhag do levels pe ruk jao, kyunki gehri nesting sambhaalna mushkil ho jaati hai. Hyphens ke saath lowercase use karo, aur poore API mein naam ek jaise rakho.',
+    },
+  },
+  {
+    question: 'What do the main HTTP status codes mean?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '2xx succeeded: 200 OK, 201 Created (return a Location header), 204 No Content for a successful delete. 3xx redirects: 301 permanent, 304 Not Modified for a valid cache. 4xx is the CLIENT\'s fault: 400 malformed, 401 not authenticated, 403 authenticated but not permitted, 404 not found, 409 conflict, 422 validation failed, 429 rate limited. 5xx is the SERVER\'s fault: 500 internal, 502 bad gateway, 503 unavailable. Returning 200 with an error body defeats every HTTP-aware tool.',
+      hinglish:
+        '2xx safal: 200 OK, 201 Created (ek Location header do), ek safal delete ke liye 204 No Content. 3xx redirects: 301 permanent, ek valid cache ke liye 304 Not Modified. 4xx CLIENT ki galti hai: 400 kharab, 401 authenticate nahi, 403 authenticate par ijaazat nahi, 404 nahi mila, 409 takkar, 422 validation fail, 429 rate limited. 5xx SERVER ki galti hai: 500 internal, 502 bad gateway, 503 unavailable. Ek error body ke saath 200 lautana har HTTP-samajhne wale tool ko hara deta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between 401 and 403?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '401 UNAUTHORIZED actually means unauthenticated — the request has no valid credentials, so the client should log in or refresh its token. 403 FORBIDDEN means the server knows who you are and you are not allowed — logging in again will not help. Confusing them breaks client logic, since a client typically retries after a 401 and should not after a 403. Some APIs deliberately return 404 instead of 403 to avoid revealing that a resource exists.',
+      hinglish:
+        '401 UNAUTHORIZED ka matlab actually authenticate nahi hai — request ke paas valid credentials nahi hain, isliye client ko login ya token refresh karna chahiye. 403 FORBIDDEN ka matlab hai server jaanta hai tum kaun ho aur tumhe ijaazat nahi — dobara login karna madad nahi karega. Inhe uljhaana client logic todta hai, kyunki ek client typically 401 ke baad retry karta hai aur 403 ke baad nahi karna chahiye. Kuch APIs jaan boojh kar 403 ke bajaye 404 lautaate hain taaki ye pata na chale ki ek resource maujood hai.',
+    },
+  },
+  {
+    question: 'What is a JWT and what are its three parts?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A JSON Web Token has a HEADER (algorithm and type), a PAYLOAD of claims such as user id and expiry, and a SIGNATURE over the first two using a secret or private key. It is base64url ENCODED, not encrypted — anyone can read the payload, so never put sensitive data in it. The signature guarantees the token was not tampered with, which is what lets a server trust it without a database lookup.',
+      hinglish:
+        'Ek JSON Web Token mein ek HEADER (algorithm aur type), user id aur expiry jaise claims ka ek PAYLOAD, aur ek secret ya private key se pehle do pe ek SIGNATURE hota hai. Ye base64url ENCODED hai, encrypted nahi — koi bhi payload padh sakta hai, isliye usme kabhi sensitive data mat daalo. Signature pakka karta hai ki token se chhedchhaad nahi hui, jisse ek server bina database lookup ke us pe bharosa karta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between an access token and a refresh token?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The ACCESS token is short-lived (minutes) and sent with every request; because it is stateless it cannot be revoked before expiry, so a short life limits the damage if it leaks. The REFRESH token is long-lived, sent only to the token endpoint, and stored in an httpOnly cookie. It is checked against the database, so it CAN be revoked. Rotate refresh tokens on each use and detect reuse of an old one, which indicates theft.',
+      hinglish:
+        'ACCESS token kam samay ka hai (minute) aur har request ke saath jaata hai; kyunki ye stateless hai ise expiry se pehle radd nahi kiya ja sakta, isliye ek chhoti umar leak hone pe nuksaan seemit karti hai. REFRESH token lambe samay ka hai, sirf token endpoint pe jaata hai, aur ek httpOnly cookie mein rakha jaata hai. Ye database ke against check hota hai, isliye ise radd KIYA ja sakta hai. Har istemaal pe refresh tokens ghumao aur ek purane ka dobara istemaal pakado, jo chori batata hai.',
+    },
+  },
+  {
+    question: 'Where should you store a JWT on the client?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'localStorage is convenient but readable by ANY script, so a single XSS steals the token. An httpOnly COOKIE cannot be read by JavaScript, which defeats XSS theft, but is sent automatically and therefore needs `sameSite` and CSRF protection. The common recommendation is an httpOnly, secure, sameSite cookie for the refresh token and the access token held in memory only — memory disappears on refresh, but the refresh token silently obtains a new one.',
+      hinglish:
+        'localStorage suvidhajanak hai par KISI BHI script se padha ja sakta hai, isliye ek XSS token chura leta hai. Ek httpOnly COOKIE JavaScript se padhi nahi ja sakti, jo XSS chori haraati hai, par ye apne aap jaati hai aur isliye use `sameSite` aur CSRF bachaav chahiye. Common salah ye hai ki refresh token ke liye ek httpOnly, secure, sameSite cookie aur access token sirf memory mein — memory refresh pe gayab hoti hai, par refresh token chupke se ek naya le aata hai.',
+    },
+  },
+  {
+    question: 'How do you revoke a JWT?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'You cannot, directly — that is the fundamental trade of stateless tokens: the server does not track them, so a valid signature is accepted until expiry. Workarounds: keep access tokens SHORT-lived so the window is small; maintain a denylist of revoked token ids in Redis, which reintroduces a lookup; or store a `tokenVersion` on the user and reject tokens whose version is stale, which revokes everything on password change or logout-everywhere.',
+      hinglish:
+        'Tum seedha nahi kar sakte — yahi stateless tokens ka mool trade hai: server unhe track nahi karta, isliye ek valid signature expiry tak maana jaata hai. Upaay: access tokens ko CHHOTI umar ka rakho taaki window chhoti ho; Redis mein radd kiye token ids ki ek denylist rakho, jo ek lookup wapas le aati hai; ya user pe ek `tokenVersion` rakho aur purane version wale tokens reject karo, jo password badalne ya sab jagah logout pe sab radd kar deta hai.',
+    },
+  },
+  {
+    question: 'What is CORS and why does it block your request?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'CORS relaxes the browser\'s same-origin policy, which by default stops JavaScript reading a cross-origin response. Your request is blocked because the server did not return an `Access-Control-Allow-Origin` header matching your origin. Crucially, CORS is enforced by the BROWSER — the same request works from curl or another server — and it protects the user, not the API. Use an explicit origin allowlist in production; a wildcard cannot be combined with credentials.',
+      hinglish:
+        'CORS browser ki same-origin policy dheeli karta hai, jo default se JavaScript ko ek cross-origin response padhne se rokti hai. Tumhari request isliye ruki kyunki server ne tumhare origin se milta ek `Access-Control-Allow-Origin` header nahi lautaya. Critically, CORS BROWSER enforce karta hai — wahi request curl ya doosre server se chalti hai — aur ye user ko bachata hai, API ko nahi. Production mein ek explicit origin allowlist use karo; ek wildcard credentials ke saath nahi jud sakta.',
+    },
+  },
+  {
+    question: 'What is a CORS preflight request?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'For anything beyond a simple request — a method other than GET, POST, or HEAD, or a custom header such as `Authorization` — the browser first sends an OPTIONS request asking whether the real request is permitted. The server must answer with the allowed methods, headers, and origin. Two practical consequences: your server must handle OPTIONS, and every such call costs an extra round trip unless you set `Access-Control-Max-Age` so the browser caches the answer.',
+      hinglish:
+        'Ek simple request se aage kisi bhi cheez ke liye — GET, POST, ya HEAD ke alawa ek method, ya `Authorization` jaisa ek custom header — browser pehle ek OPTIONS request bhejta hai ye poochhte hue ki asli request ki ijaazat hai ya nahi. Server ko allowed methods, headers, aur origin ke saath jawab dena padta hai. Do vyavaharik nateeje: tumhare server ko OPTIONS sambhalna chahiye, aur har aisi call ek extra round trip cost karti hai jab tak tum `Access-Control-Max-Age` set na karo taaki browser jawab cache kar le.',
+    },
+  },
+  {
+    question: 'How do you version a REST API?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'URL versioning — `/api/v1` and `/api/v2` — is the most common because it is explicit and easy to route, cache, and debug. Alternatives are a custom header or content negotiation via `Accept`, which keep URLs clean but are harder to test and cache. Whichever you choose, version only on BREAKING changes; adding a field should not force a new version. Keep the old version running with a documented deprecation window and a sunset date.',
+      hinglish:
+        'URL versioning — `/api/v1` aur `/api/v2` — sabse common hai kyunki ye explicit hai aur route, cache, aur debug karna aasaan. Alternatives ek custom header ya `Accept` se content negotiation hain, jo URLs saaf rakhte hain par test aur cache karna mushkil. Jo bhi chuno, sirf TODNE WALE changes pe version karo; ek field jodna ek naya version majboor nahi karna chahiye. Purane version ko ek likhi deprecation window aur ek sunset taareekh ke saath chalta rakho.',
+    },
+  },
+  {
+    question: 'How do you implement pagination in a REST API?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Accept `page` and `limit`, or a `cursor`, as query parameters, and always CAP the limit so a client cannot request a million rows. Return metadata alongside the data — total, current page, and whether more exists — or a `next` link. Offset pagination is simple but degrades on deep pages and can duplicate or skip rows when data shifts. Cursor pagination stays fast at any depth and is stable under change, at the cost of no arbitrary page jumps.',
+      hinglish:
+        '`page` aur `limit`, ya ek `cursor`, ko query parameters ki tarah lo, aur limit hamesha CAP karo taaki ek client das lakh rows na maange. Data ke saath metadata lautao — total, current page, aur zyada hai ya nahi — ya ek `next` link. Offset pagination simple hai par gehre pages pe girta hai aur data khisakne pe rows duplicate ya skip kar sakta hai. Cursor pagination kisi bhi gehraai pe tez rehta hai aur badlaav mein sthir, kisi bhi page pe koodne ke cost pe.',
+    },
+  },
+  {
+    question: 'How should an API return errors?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use the correct STATUS CODE plus a consistent JSON body containing a machine-readable error code, a human-readable message, and field-level details for validation failures. Keep the shape identical across every endpoint so clients can handle errors generically. RFC 7807 "problem details" is a reasonable standard to adopt. Never leak stack traces, SQL, or internal paths in production — log those server-side and return a correlation id the user can quote to support.',
+      hinglish:
+        'Sahi STATUS CODE plus ek ek jaisa JSON body use karo jisme ek machine-padhne layak error code, ek insaan-padhne layak message, aur validation failures ke liye field-level details hon. Aakaar har endpoint pe ek jaisa rakho taaki clients errors aam tareeke se sambhal sakein. RFC 7807 "problem details" apnaane layak ek theek standard hai. Production mein kabhi stack traces, SQL, ya andar ke paths leak mat karo — unhe server-side log karo aur ek correlation id lautao jise user support ko bata sake.',
+    },
+  },
+  {
+    question: 'What is idempotency and how do you implement an idempotency key?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'An idempotent operation gives the same result whether applied once or many times. It matters because networks are unreliable: a client that times out will retry, and without protection a payment is charged twice. Implement it by having the client send a unique `Idempotency-Key` header; the server records the key with its response, and a repeat with the same key returns the STORED response instead of re-executing. Stripe and every serious payments API work this way.',
+      hinglish:
+        'Ek idempotent operation ek baar ya bahut baar lagne pe wahi nateeja deta hai. Ye isliye matter karta hai kyunki networks bharosemand nahi: ek timeout hua client retry karega, aur bachaav ke bina ek payment do baar charge hoti hai. Ise aise karo ki client ek unique `Idempotency-Key` header bheje; server key ko uske response ke saath record karta hai, aur wahi key ke saath ek dohraav dobara chalane ke bajaye RAKHA response lautaata hai. Stripe aur har serious payments API aise hi kaam karte hain.',
+    },
+  },
+  {
+    question: 'What is rate limiting and how do you implement it?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Rate limiting caps how many requests a client may make in a window, protecting against abuse, brute force, and accidental overload. TOKEN BUCKET allows controlled bursts and is the usual choice for APIs; sliding window is more precise; fixed window is simplest but allows a double burst at the boundary. Store counters in Redis so limits are shared across instances, return 429 with `Retry-After`, and apply a much stricter limit to login endpoints.',
+      hinglish:
+        'Rate limiting seemit karta hai ki ek client ek window mein kitni requests kar sakta hai, durupyog, brute force, aur galti se overload se bachate hue. TOKEN BUCKET control mein bursts deta hai aur APIs ke liye usual choice hai; sliding window zyada sateek hai; fixed window sabse simple hai par seema pe ek dugna burst deta hai. Counters Redis mein rakho taaki limits instances ke across share hon, `Retry-After` ke saath 429 lautao, aur login endpoints pe ek bahut sakht limit lagao.',
+    },
+  },
+  {
+    question: 'What is HATEOAS and why is it rarely implemented?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Hypermedia as the Engine of Application State means responses include LINKS describing what actions are available next, so a client can navigate the API without hardcoding URLs. It is a formal REST constraint. It is rarely implemented because it adds significant payload and complexity, most clients hardcode endpoints anyway, and generated clients from an OpenAPI spec solve the discoverability problem more practically. Its ideas survive in pagination `next` links.',
+      hinglish:
+        'Hypermedia as the Engine of Application State ka matlab hai responses mein LINKS hote hain jo batate hain ki aage kaunse kaam ho sakte hain, taaki ek client bina URLs hardcode kiye API pe chal sake. Ye ek formal REST bandhan hai. Ise rarely lagaya jaata hai kyunki ye kaafi payload aur uljhan jodta hai, zyadatar clients waise bhi endpoints hardcode karte hain, aur ek OpenAPI spec se bane clients discoverability ki samasya zyada vyavaharik dhang se solve karte hain. Iske ideas pagination `next` links mein bache hain.',
+    },
+  },
+  {
+    question: 'What is the difference between REST and GraphQL?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'REST exposes fixed endpoints each returning a fixed shape, so clients often OVER-FETCH data they do not need or UNDER-FETCH and make several calls. GraphQL exposes one endpoint where the client specifies exactly the fields it wants, which suits varied clients and nested data. The costs are real: HTTP caching is harder because everything is one POST, query complexity must be limited to prevent abuse, and the N+1 problem requires DataLoader batching.',
+      hinglish:
+        'REST tay endpoints deta hai jo har ek ek tay aakaar lautaata hai, isliye clients aksar zaroorat se ZYADA data lete hain ya KAM lekar kai calls karte hain. GraphQL ek endpoint deta hai jahan client theek wo fields batata hai jo use chahiye, jo alag-alag clients aur nested data ko suit karta hai. Costs asli hain: HTTP caching mushkil hai kyunki sab ek POST hai, durupyog rokne ke liye query complexity seemit karni padti hai, aur N+1 samasya ke liye DataLoader batching chahiye.',
+    },
+  },
+  {
+    question: 'When would you use gRPC instead of REST?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'gRPC uses HTTP/2 and Protocol Buffers, giving a compact binary format, a strict schema with generated clients, bidirectional streaming, and considerably lower latency. It suits internal SERVICE-TO-SERVICE communication where both ends are yours. REST remains better for public APIs and browsers: it is human-readable, debuggable with curl, cacheable by standard infrastructure, and needs no proxy layer, whereas gRPC requires grpc-web to reach a browser at all.',
+      hinglish:
+        'gRPC HTTP/2 aur Protocol Buffers use karta hai, ek compact binary format, generated clients ke saath ek sakht schema, dono taraf streaming, aur kaafi kam latency deta hua. Ye andar ki SERVICE-SE-SERVICE baat ko suit karta hai jahan dono sire tumhare hon. REST public APIs aur browsers ke liye behtar rehta hai: ye insaan padh sakta hai, curl se debug ho sakta hai, standard infrastructure se cache ho sakta hai, aur ise koi proxy layer nahi chahiye, jabki gRPC ko ek browser tak pahunchne ke liye grpc-web chahiye.',
+    },
+  },
+  {
+    question: 'How do you cache REST API responses?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use HTTP caching headers: `Cache-Control` sets max-age and public or private, `ETag` gives a content fingerprint so the client can send `If-None-Match` and receive a cheap 304, and `Last-Modified` works similarly with dates. Only GET should be cached. Beyond HTTP, add a server-side cache such as Redis for expensive computations, and a CDN in front for public data. The hard part is INVALIDATION — decide up front how a cached entry becomes stale.',
+      hinglish:
+        'HTTP caching headers use karo: `Cache-Control` max-age aur public ya private set karta hai, `ETag` ek content fingerprint deta hai taaki client `If-None-Match` bhej kar ek sasta 304 paaye, aur `Last-Modified` dates ke saath waise hi kaam karta hai. Sirf GET cache hona chahiye. HTTP se aage, mehnge computations ke liye Redis jaisa ek server-side cache jodo, aur public data ke liye aage ek CDN. Mushkil hissa INVALIDATION hai — pehle hi tay karo ki ek cached entry purani kaise hoti hai.',
+    },
+  },
+  {
+    question: 'What is an ETag and how does conditional requesting work?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'An ETag is a fingerprint of a resource\'s current content. The client stores it and sends `If-None-Match` on the next request; if nothing changed the server returns 304 Not Modified with an empty body, saving bandwidth. The same mechanism enables OPTIMISTIC CONCURRENCY on writes: the client sends `If-Match`, and if someone else modified the resource in between, the server returns 412 Precondition Failed instead of silently overwriting their change.',
+      hinglish:
+        'Ek ETag ek resource ke abhi ke content ka fingerprint hai. Client ise rakhta hai aur agli request pe `If-None-Match` bhejta hai; agar kuch nahi badla to server ek khaali body ke saath 304 Not Modified lautaata hai, bandwidth bachate hue. Wahi mechanism writes pe OPTIMISTIC CONCURRENCY deta hai: client `If-Match` bhejta hai, aur agar beech mein kisi aur ne resource badla, server chupke se unka change mitaane ke bajaye 412 Precondition Failed lautaata hai.',
+    },
+  },
+  {
+    question: 'How do you handle file uploads in a REST API?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use `multipart/form-data` with a library such as multer, and always set LIMITS on size and count or an attacker can exhaust disk and memory. Validate the real MIME type rather than trusting the client-supplied filename or content-type, and generate a new random filename so a path traversal or overwrite is impossible. For production, prefer a PRESIGNED URL so the client uploads straight to object storage, which keeps large bodies off your application servers entirely.',
+      hinglish:
+        'multer jaisi ek library ke saath `multipart/form-data` use karo, aur size aur count pe hamesha SEEMAYEIN rakho warna ek attacker disk aur memory khatam kar sakta hai. Client ke diye filename ya content-type pe bharosa karne ke bajaye asli MIME type jaancho, aur ek naya random filename banao taaki path traversal ya overwrite asambhav ho. Production ke liye, ek PRESIGNED URL prefer karo taaki client seedha object storage pe upload kare, jo badi bodies tumhare application servers se poori tarah door rakhta hai.',
+    },
+  },
+  {
+    question: 'What is OpenAPI and why does it matter?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'OpenAPI (formerly Swagger) is a machine-readable specification describing your endpoints, parameters, request and response schemas, and auth. Its value is everything generated FROM it: interactive documentation, typed client SDKs in many languages, server stubs, mock servers, and contract tests. Handwritten documentation drifts from reality almost immediately; a spec that also drives validation or is generated from code stays honest because a mismatch breaks the build.',
+      hinglish:
+        'OpenAPI (pehle Swagger) ek machine-padhne layak specification hai jo tumhare endpoints, parameters, request aur response schemas, aur auth batata hai. Iski value wo sab hai jo USSE banta hai: interactive documentation, bahut languages mein typed client SDKs, server stubs, mock servers, aur contract tests. Haath se likhi documentation lagbhag turant haqeeqat se hat jaati hai; ek spec jo validation bhi chalata ho ya code se bane wo imaandaar rehta hai kyunki ek mismatch build todta hai.',
+    },
+  },
+  {
+    question: 'How do you validate request data in an API?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Validate at the BOUNDARY with a schema library — Zod, Joi, or express-validator — implemented as middleware so the handler only ever sees clean data. Validate body, params, AND query, since all three are attacker-controlled. Return 400 or 422 with structured field-level errors. Crucially, use the PARSED output rather than the raw request, which strips unexpected fields and stops operator objects reaching a database query. Client-side validation is UX only, never security.',
+      hinglish:
+        'Zod, Joi, ya express-validator jaisi ek schema library se BOUNDARY pe validate karo, middleware ki tarah lagaakar taaki handler kabhi sirf saaf data hi dekhe. Body, params, AUR query validate karo, kyunki teeno attacker-controlled hain. Structured field-level errors ke saath 400 ya 422 lautao. Critically, raw request ke bajaye PARSED output use karo, jo anaapekshit fields hataata hai aur operator objects ko ek database query tak pahunchne se rokta hai. Client-side validation sirf UX hai, kabhi security nahi.',
+    },
+  },
+  {
+    question: 'What is the difference between authentication and authorisation in an API?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'AUTHENTICATION establishes WHO the caller is — verifying a token, key, or credentials. AUTHORISATION determines WHAT they may do — whether this user can read this specific record or call this endpoint. They are separate middleware: authenticate once, then authorise per resource. The classic vulnerability is checking only authentication and forgetting object-level authorisation, so any logged-in user can fetch `/orders/999` belonging to someone else.',
+      hinglish:
+        'AUTHENTICATION batata hai ki caller KAUN hai — ek token, key, ya credentials jaanch kar. AUTHORISATION batata hai ki wo KYA kar sakta hai — kya ye user ye khaas record padh sakta hai ya ye endpoint call kar sakta hai. Wo alag middleware hain: ek baar authenticate karo, phir per resource authorise. Classic vulnerability sirf authentication check karna aur object-level authorisation bhoolna hai, isliye koi bhi logged-in user kisi aur ka `/orders/999` le sakta hai.',
+    },
+  },
+  {
+    question: 'What is broken object level authorisation?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'BOLA — the top item on the OWASP API Security list — is when an endpoint checks that you are logged in but not that the requested object belongs to you, so changing `/orders/123` to `/orders/124` returns someone else\'s data. The fix is checking OWNERSHIP on every single request, ideally by scoping the query itself — `WHERE id = :id AND user_id = :currentUser` — rather than fetching then comparing, which is easy to forget on a new endpoint.',
+      hinglish:
+        'BOLA — OWASP API Security list ka sabse upar wala — tab hai jab ek endpoint jaanchta hai ki tum logged in ho par ye nahi ki maanga gaya object tumhara hai, isliye `/orders/123` ko `/orders/124` karna kisi aur ka data lautaata hai. Fix har ek request pe MAALIKANA jaanchna hai, ideally query ko hi seemit karke — `WHERE id = :id AND user_id = :currentUser` — laakar phir compare karne ke bajaye, jise ek naye endpoint pe bhoolna aasaan hai.',
+    },
+  },
+  {
+    question: 'What is OAuth 2.0 and how does it differ from simple login?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'OAuth 2.0 is a DELEGATED AUTHORISATION framework: it lets a user grant a third-party app limited access to their data on another service WITHOUT sharing their password. The app receives a scoped, revocable access token instead. It is not an authentication protocol — OpenID Connect adds that layer on top. The current recommended flow for both web and mobile apps is authorisation code with PKCE; the implicit flow is deprecated.',
+      hinglish:
+        'OAuth 2.0 ek SAUNPI GAYI AUTHORISATION framework hai: ye ek user ko ek third-party app ko doosri service pe apne data tak seemit pahunch dene deta hai BINA apna password share kiye. App ke bajaye ek seemit, radd hone layak access token paata hai. Ye ek authentication protocol nahi hai — OpenID Connect wo layer upar jodta hai. Web aur mobile apps dono ke liye abhi salah diya flow PKCE ke saath authorisation code hai; implicit flow deprecated hai.',
+    },
+  },
+  {
+    question: 'What is the difference between an API key and a JWT?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An API KEY is an opaque random string identifying an APPLICATION, requiring a database lookup on every request but revocable instantly. A JWT is a signed token carrying CLAIMS about a user, verifiable without a lookup but not revocable before expiry. Keys suit server-to-server and third-party integrations where you want easy rotation; JWTs suit user sessions where per-request database calls would be costly. Both must travel over HTTPS only.',
+      hinglish:
+        'Ek API KEY ek opaque random string hai jo ek APPLICATION batati hai, har request pe ek database lookup chahti hai par turant radd ho sakti hai. Ek JWT ek signed token hai jo ek user ke baare mein CLAIMS le jaata hai, bina lookup ke jaancha ja sakta hai par expiry se pehle radd nahi ho sakta. Keys server-se-server aur third-party integrations ko suit karti hain jahan aasaan badalna chahiye; JWTs user sessions ko jahan per-request database calls mehngi hoti. Dono ko sirf HTTPS pe chalna chahiye.',
+    },
+  },
+  {
+    question: 'How do you design an API for filtering, sorting, and searching?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use query parameters: `?status=active&sort=-createdAt&q=laptop`, with a leading minus for descending. WHITELIST the allowed filter and sort fields rather than passing them into a query, or you have created both an injection vector and a way to sort on an unindexed column and take down the database. Document the operators you support, keep them consistent across resources, and always combine with pagination and a capped limit.',
+      hinglish:
+        'Query parameters use karo: `?status=active&sort=-createdAt&q=laptop`, ghatte kram ke liye ek shuruaati minus ke saath. Allowed filter aur sort fields ko WHITELIST karo, unhe ek query mein daalne ke bajaye, warna tumne ek injection raasta bhi bana diya aur ek bina index wale column pe sort karke database giraane ka tareeka bhi. Jo operators tum dete ho unhe likho, unhe resources ke across ek jaisa rakho, aur hamesha pagination aur ek capped limit ke saath jodo.',
+    },
+  },
+  {
+    question: 'What is the difference between synchronous and asynchronous API design?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A synchronous endpoint does the work and returns the result, which is right when the work is fast. For slow work — video processing, report generation, bulk import — return 202 Accepted immediately with a job id, process it on a queue, and let the client poll a status endpoint or receive a webhook. This matters because HTTP requests time out and long work holds a connection open, and it also lets you retry a failure without the client resubmitting.',
+      hinglish:
+        'Ek synchronous endpoint kaam karke nateeja lautaata hai, jo tab sahi hai jab kaam tez ho. Slow kaam ke liye — video processing, report banana, bulk import — turant ek job id ke saath 202 Accepted lautao, use ek queue pe process karo, aur client ko ek status endpoint poll karne do ya ek webhook paane do. Ye isliye matter karta hai kyunki HTTP requests timeout hoti hain aur lamba kaam ek connection khula rakhta hai, aur ye tumhe ek failure retry karne bhi deta hai bina client ke dobara bheje.',
+    },
+  },
+  {
+    question: 'What is a webhook and how do you secure one?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A webhook is a reverse API call: instead of you polling a service, it POSTs to your URL when an event happens. Secure it by verifying an HMAC SIGNATURE over the payload using a shared secret, with a constant-time comparison, and reject requests whose timestamp is old to prevent replay. Also make the handler IDEMPOTENT, since providers retry on failure and at-least-once delivery means you will receive duplicates. Return 200 fast and process asynchronously.',
+      hinglish:
+        'Ek webhook ek ulti API call hai: tumhare ek service ko poll karne ke bajaye, wo ek event hone pe tumhare URL pe POST karti hai. Ise ek saanjhe secret se payload pe ek HMAC SIGNATURE jaanch kar surakshit karo, ek constant-time comparison ke saath, aur un requests ko reject karo jinka timestamp purana hai taaki replay ruke. Handler ko IDEMPOTENT bhi banao, kyunki providers failure pe retry karte hain aur at-least-once delivery ka matlab hai tumhe duplicates milenge. 200 jaldi lautao aur asynchronously process karo.',
+    },
+  },
+  {
+    question: 'How do you test a REST API?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use supertest or similar to exercise the app object WITHOUT starting a server, which keeps tests fast and port-free. Test status codes, response shape, validation rejection, and authorisation — including the negative case where another user\'s resource must return 403 or 404. Test business logic in services directly as plain unit tests. Use a separate database reset between runs, mock genuinely external services, and add contract tests if the API has independent consumers.',
+      hinglish:
+        'supertest ya similar se app object ko BINA server shuru kiye chalao, jo tests tez aur port-free rakhta hai. Status codes, response aakaar, validation reject, aur authorisation test karo — including wo negative case jahan ek doosre user ka resource 403 ya 404 lautana chahiye. Services mein business logic ko seedha plain unit tests ki tarah test karo. Runs ke beech reset hota ek alag database use karo, genuinely bahar ki services mock karo, aur agar API ke swatantra consumers hain to contract tests jodo.',
+    },
+  },
+  {
+    question: 'What is API gateway and why would you use one?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An API gateway sits in front of many services and handles cross-cutting concerns centrally: routing, authentication, rate limiting, TLS termination, request aggregation, and logging. Its value is that each service no longer reimplements auth and clients see one address instead of a dozen. The risks are becoming a single point of failure and accumulating business logic that belongs in a service — keep it to routing and policy, not domain rules.',
+      hinglish:
+        'Ek API gateway bahut services ke aage baithta hai aur cross-cutting concerns ek jagah sambhalta hai: routing, authentication, rate limiting, TLS termination, request aggregation, aur logging. Iski value ye hai ki har service ab auth dobara nahi banati aur clients ek darjan ke bajaye ek address dekhte hain. Risks ek single point of failure ban jaana aur aisi business logic ikattha karna hai jo ek service ki hai — ise routing aur policy tak rakho, domain rules tak nahi.',
+    },
+  },
+  {
+    question: 'What is the difference between REST and RPC style APIs?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'REST is RESOURCE-oriented: nouns in the URL and the HTTP method expresses the action. RPC is ACTION-oriented: you call a named procedure such as `/calculateShipping` or `/sendEmail`, usually all over POST. RPC fits operations that are genuinely not CRUD on a resource, and forcing them into REST produces awkward endpoints. Most real APIs are a pragmatic mix — resource endpoints for data plus a few action endpoints where REST semantics do not fit.',
+      hinglish:
+        'REST RESOURCE-kendrit hai: URL mein nouns aur HTTP method kaam batata hai. RPC KAAM-kendrit hai: tum ek naam wali procedure call karte ho jaise `/calculateShipping` ya `/sendEmail`, usually sab POST pe. RPC un operations ko fit karta hai jo genuinely ek resource pe CRUD nahi hain, aur unhe REST mein thoosna ajeeb endpoints banata hai. Zyadatar asli APIs ek vyavaharik mishran hain — data ke liye resource endpoints plus kuch action endpoints jahan REST semantics fit nahi baithte.',
+    },
+  },
+  {
+    question: 'How do you monitor and observe an API in production?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Track the four golden signals: latency (as PERCENTILES, since an average hides the tail), traffic, error rate, and saturation. Use structured JSON logs with a correlation id so one request can be followed across services, and distributed tracing to see where time is actually spent. Alert on symptoms users feel — error rate and p99 latency — not on CPU. And add a health endpoint that checks real dependencies, not one that always returns 200.',
+      hinglish:
+        'Chaar sunehre signals track karo: latency (PERCENTILES mein, kyunki ek average poonchh chhupa deta hai), traffic, error rate, aur saturation. Ek correlation id wale structured JSON logs use karo taaki ek request services ke across follow ho sake, aur ye dekhne ke liye distributed tracing ki samay actually kahan jaata hai. Un lakshanon pe alert karo jo users mehsoos karte hain — error rate aur p99 latency — CPU pe nahi. Aur ek health endpoint jodo jo asli dependencies jaanche, ek aisa nahi jo hamesha 200 lautaye.',
+    },
+  },
+  {
+    question: 'What is the difference between soft delete and hard delete?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A HARD delete removes the row permanently. A SOFT delete sets a `deletedAt` flag and filters those rows out of normal queries, which preserves history, allows undo, and keeps foreign keys intact. The costs are real: every single query must remember to filter, or deleted data reappears; unique constraints conflict with soft-deleted rows; and data retention regulations may actually require genuine deletion, so "we soft delete everything" can be a compliance problem.',
+      hinglish:
+        'Ek HARD delete row ko hamesha ke liye hata deta hai. Ek SOFT delete ek `deletedAt` flag set karta hai aur un rows ko normal queries se chhaan deta hai, jo itihaas bachata hai, undo deta hai, aur foreign keys saabut rakhta hai. Costs asli hain: har ek query ko chhaanna yaad rakhna padta hai, warna delete kiya data wapas dikhta hai; unique constraints soft-deleted rows se takraate hain; aur data rakhne ke kanoon actually asli deletion maang sakte hain, isliye "hum sab kuch soft delete karte hain" ek compliance samasya ho sakti hai.',
+    },
+  },
+  {
+    question: 'What is the difference between 200, 201, and 204?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '200 OK means success with a body, used for GET and usually for a successful update returning the new state. 201 Created means a resource was created, and should include a `Location` header pointing at it — the correct response to a POST that creates something. 204 No Content means success with an EMPTY body, typical for DELETE or an update where the client needs nothing back. Using 200 for everything works but discards information clients could use.',
+      hinglish:
+        '200 OK matlab ek body ke saath safalta, GET ke liye aur usually ek safal update ke liye jo nayi state lautaaye. 201 Created matlab ek resource bana, aur usme ek `Location` header hona chahiye jo us pe point kare — ek kuch banate POST ka sahi jawab. 204 No Content matlab ek KHAALI body ke saath safalta, DELETE ya ek aise update ke liye typical jahan client ko kuch wapas nahi chahiye. Sab ke liye 200 use karna chalta hai par wo jaankaari phenk deta hai jo clients use kar sakte the.',
     },
   },
 ];
