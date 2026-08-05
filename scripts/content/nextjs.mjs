@@ -80,7 +80,7 @@ const beginner = [
           {
             question: 'What problems does Next.js solve that plain React does not?',
             difficulty: 'easy',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Next.js solves: (1) Routing — React has no built-in router; Next.js uses the filesystem. (2) Rendering strategies — SSR and SSG for SEO and performance; plain React is CSR only. (3) API routes — backend endpoints in the same project. (4) Image/font optimisation. (5) Code splitting and bundling config. (6) A clear convention for layouts, loading, and error states.',
@@ -147,7 +147,7 @@ const beginner = [
           {
             question: 'What is the difference between layout.jsx and template.jsx?',
             difficulty: 'medium',
-            frequency: 'occasional',
+            frequency: 'rare',
             answer: {
               english:
                 'layout.jsx persists across navigations within the same segment — state is preserved, and it does not remount. template.jsx looks similar but creates a new instance on every navigation, remounting and resetting state — useful when you want enter/exit animations or to reset state (e.g. a form) on every visit to a route.',
@@ -205,7 +205,7 @@ const beginner = [
           {
             question: 'When should you use a Server Component vs a Client Component?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Server Component: fetching data (DB, APIs), rendering static or data-driven HTML, no interactivity needed, keeping secrets/API keys off the client. Client Component: useState/useEffect, browser events (onClick, onChange), browser APIs (localStorage, geolocation), third-party client-only libraries. Rule: push interactivity as far down the tree as possible — keep parents as server components to minimise JS sent to the browser.',
@@ -287,7 +287,7 @@ const intermediate = [
           {
             question: 'What is the difference between SSR, SSG, and ISR in Next.js?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'SSR (Server-Side Rendering): HTML generated on every request — always fresh, slower TTFB. SSG (Static Site Generation): HTML generated at build time — fastest TTFB, stale until redeploy. ISR (Incremental Static Regeneration): HTML generated at build, background-revalidated at a set interval — best of both. Use SSR for personalised/real-time data, SSG for content that rarely changes, ISR for content that changes occasionally.',
@@ -887,7 +887,7 @@ export const generalInterviewQuestions = [
   {
     question: 'What is the Next.js App Router and how does it differ from the Pages Router?',
     difficulty: 'medium',
-    frequency: 'very-common',
+    frequency: 'common',
     answer: {
       english:
         'The App Router (Next.js 13+) uses the app/ directory and introduces React Server Components, nested layouts, streaming, and the new data-fetching model (fetch with cache options). The Pages Router (pages/) is the older model — getServerSideProps/getStaticProps functions for data fetching, no server components. App Router is the future direction; use it for new projects.',
@@ -898,7 +898,7 @@ export const generalInterviewQuestions = [
   {
     question: 'What are React Server Components and what problem do they solve?',
     difficulty: 'medium',
-    frequency: 'very-common',
+    frequency: 'common',
     answer: {
       english:
         'RSCs are components that render entirely on the server and send their result as part of the HTML/RSC payload — they ship zero JavaScript to the client by default. They solve the problem of large client bundles in traditional SPAs by letting you fetch data and render markup on the server, only shipping JS for the interactive parts (Client Components).',
@@ -909,7 +909,7 @@ export const generalInterviewQuestions = [
   {
     question: 'Explain the four caching layers in Next.js (Request Memoization, Data Cache, Full Route Cache, Router Cache).',
     difficulty: 'hard',
-    frequency: 'occasional',
+    frequency: 'rare',
     answer: {
       english:
         'Request Memoization dedupes identical fetch() calls during a single render pass. Data Cache persists fetch results across requests and deploys (controlled by cache/revalidate options). Full Route Cache stores the rendered HTML+RSC payload for static routes at build time. Router Cache is a client-side, in-memory cache of visited route segments that makes back/forward navigation instant. Understanding which layer is stale helps you debug "why isn\'t my data updating" issues.',
@@ -942,7 +942,7 @@ export const generalInterviewQuestions = [
   {
     question: 'What is streaming SSR and how does Suspense enable it in Next.js?',
     difficulty: 'hard',
-    frequency: 'occasional',
+    frequency: 'rare',
     answer: {
       english:
         'Streaming SSR sends HTML to the browser in chunks as each part becomes ready, instead of blocking the entire response on the slowest data fetch. Wrapping a slow async Server Component in <Suspense fallback={...}> lets Next.js render and send the fast parts of the page immediately, then stream in the slow part (with its fallback shown meanwhile) once its data resolves — improving perceived load time.',
@@ -964,12 +964,388 @@ export const generalInterviewQuestions = [
   {
     question: 'What is layout.jsx persistence and why does it matter for performance?',
     difficulty: 'medium',
-    frequency: 'occasional',
+    frequency: 'rare',
     answer: {
       english:
         'A layout.jsx does not remount when navigating between sibling routes that share it — only the page.jsx content below it re-renders. This means shared UI (navbar, sidebar) and its state (e.g. an open mobile menu, scroll position) is preserved, and any data fetching in the layout runs once instead of on every navigation, improving perceived performance.',
       hinglish:
         'Ek layout.jsx remount nahi hota jab sibling routes ke beech navigate karte ho jo use share karte hain — sirf uske neeche ka page.jsx content re-render hota hai. Matlab shared UI (navbar, sidebar) aur uska state (jaise khula mobile menu, scroll position) preserve hota hai, aur layout mein koi data fetching har navigation pe na chal ke ek baar chalti hai, jisse perceived performance improve hota hai.',
+    },
+  },
+
+  // ─── App Router & Rendering ─────────────────────────────────
+  {
+    question: 'What is the difference between Server Components and Client Components?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Server Components render on the server and ship NO JavaScript to the browser, so they can read a database or use a secret directly and cost nothing in bundle size. Client Components, marked with `"use client"`, ship JavaScript and are required for anything interactive — state, effects, event handlers, browser APIs. In the App Router components are Server by default, which inverts the old assumption, so you opt into the client only at the leaves that genuinely need it.',
+      hinglish:
+        'Server Components server pe render hote hain aur browser ko KOI JavaScript nahi bhejte, isliye wo seedha ek database padh sakte hain ya ek secret use kar sakte hain aur bundle size mein kuch cost nahi karte. Client Components, `"use client"` se mark kiye, JavaScript bhejte hain aur har interactive cheez ke liye zaroori hain — state, effects, event handlers, browser APIs. App Router mein components default se Server hain, jo purani soch ulti kar deta hai, isliye tum client sirf un patton pe chunte ho jinhe genuinely chahiye.',
+    },
+  },
+  {
+    question: 'Where should you place the "use client" boundary?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'As DEEP in the tree as possible — on the smallest interactive leaf, not the page. The directive is inherited: every component imported by a Client Component also becomes client, so putting it at the top silently pulls your whole tree into the bundle and destroys the benefit. A useful pattern is keeping the page a Server Component that fetches data and passing that data as props, or as `children`, into a small client wrapper.',
+      hinglish:
+        'Ped mein jitna GEHRA ho sake — sabse chhote interactive patte pe, page pe nahi. Ye nirdesh viraasat mein milta hai: ek Client Component se import hua har component bhi client ban jaata hai, isliye ise upar rakhna chupke se tumhara poora ped bundle mein kheench leta hai aur faayda khatam kar deta hai. Ek kaam ka tareeka page ko ek Server Component rakhna hai jo data laaye aur us data ko props ki tarah, ya `children` ki tarah, ek chhote client wrapper mein bheje.',
+    },
+  },
+  {
+    question: 'What are the rendering strategies in Next.js and when do you use each?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'STATIC rendering builds the page at build time and serves it from a CDN — fastest and cheapest, right for marketing pages and docs. DYNAMIC rendering builds per request, needed when the output depends on cookies, headers, or search params. ISR statically renders but revalidates on a schedule or on demand, giving static speed with fresh data — the right default for content that changes occasionally. Streaming sends the shell first and fills slow parts in as they resolve.',
+      hinglish:
+        'STATIC rendering page ko build ke waqt banata hai aur ek CDN se deta hai — sabse tez aur sasta, marketing pages aur docs ke liye sahi. DYNAMIC rendering har request pe banata hai, tab chahiye jab nateeja cookies, headers, ya search params pe depend kare. ISR static banata hai par ek samay pe ya maange pe dobara jaanchta hai, static ki tezi taaza data ke saath deta hua — kabhi-kabhi badalte content ke liye sahi default. Streaming pehle dhaancha bhejta hai aur dheeme hisse sulajhte hi bhar deta hai.',
+    },
+  },
+  {
+    question: 'What makes a route dynamic rather than static in the App Router?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Using a dynamic function opts the whole route into dynamic rendering: `cookies()`, `headers()`, `searchParams`, `connection()`, or an uncached fetch. That is why a page you expected to be static shows as dynamic in the build output — one call deep in a component is enough. To keep the rest static, isolate the dynamic part in a component wrapped in `<Suspense>` so only that segment is deferred while the shell is prerendered.',
+      hinglish:
+        'Ek dynamic function use karna poore route ko dynamic rendering mein daal deta hai: `cookies()`, `headers()`, `searchParams`, `connection()`, ya ek bina cache ka fetch. Isiliye ek page jise tum static samajhte the build ke nateeje mein dynamic dikhta hai — ek component mein gehre ek call kaafi hai. Baaki ko static rakhne ke liye, dynamic hisse ko `<Suspense>` mein lapete ek component mein alag karo taaki sirf wo hissa der se aaye jabki dhaancha pehle ban jaaye.',
+    },
+  },
+  {
+    question: 'What is ISR and how does revalidation work?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Incremental Static Regeneration serves a cached static page and regenerates it in the background after a set period, so users always get a fast response and never wait for a rebuild. Time-based revalidation uses `revalidate`, while ON-DEMAND revalidation with `revalidatePath` or `revalidateTag` lets a CMS webhook update a page the moment content changes — which is far better than guessing an interval. The trade is that a user may briefly see stale content.',
+      hinglish:
+        'Incremental Static Regeneration ek cached static page deta hai aur use ek tay samay ke baad peeche se dobara banata hai, isliye users ko hamesha ek tez jawab milta hai aur wo kabhi ek rebuild ka intezaar nahi karte. Samay-based dobara jaanch `revalidate` use karti hai, jabki `revalidatePath` ya `revalidateTag` se MAANGE PE jaanch ek CMS webhook ko content badalte hi ek page update karne deti hai — jo ek antaraal andaazne se bahut behtar hai. Trade ye hai ki ek user thodi der purana content dekh sakta hai.',
+    },
+  },
+  {
+    question: 'What are Server Actions and what are the security considerations?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A Server Action is a function marked `"use server"` that runs on the server but can be called directly from a component or a form, removing the need to hand-write an API route. The critical point is that each action becomes a PUBLIC HTTP ENDPOINT — so you must authenticate and authorise inside every action and validate its input with a schema. Treat the arguments as untrusted, exactly as you would a request body.',
+      hinglish:
+        'Ek Server Action ek `"use server"` se mark kiya function hai jo server pe chalta hai par ek component ya ek form se seedha bulaaya ja sakta hai, ek API route haath se likhne ki zaroorat hataate hue. Zaroori baat ye hai ki har action ek SAARVAJANIK HTTP ENDPOINT ban jaata hai — isliye tumhe har action ke andar pehchaan aur ijaazat jaanchni chahiye aur uske input ko ek schema se jaanchna chahiye. Arguments ko bharose ke bahar maano, bilkul jaise ek request body ko.',
+    },
+  },
+  {
+    question: 'How does caching work in the Next.js App Router?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'There are several layers: the Request Memoisation cache deduplicates identical fetches within one render pass, the Data Cache persists fetch results across requests and deployments, the Full Route Cache stores rendered static routes, and the Router Cache holds client-side navigation results. Caching defaults have shifted between versions — Next 15 made fetch uncached by default — so always check the version\'s documentation rather than relying on remembered behaviour.',
+      hinglish:
+        'Kai parten hain: Request Memoisation cache ek render pass ke andar ek jaise fetches ko ek karta hai, Data Cache fetch ke nateeje requests aur deployments ke aar-paar rakhta hai, Full Route Cache bane hue static routes rakhta hai, aur Router Cache client-side navigation ke nateeje. Caching ke defaults versions ke beech badle hain — Next 15 ne fetch ko default se bina cache kar diya — isliye yaad kiye behaviour pe bharosa karne ke bajaye hamesha us version ki documentation dekho.',
+    },
+  },
+  {
+    question: 'What is streaming and how does Suspense enable it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Streaming sends the page shell immediately and pushes slower sections down the same response as they finish, so the user sees meaningful content without waiting for the slowest query. `<Suspense>` marks a boundary with a fallback, and everything outside it renders straight away. That turns one slow database call from a blocker on the whole page into a spinner in one card, which measurably improves perceived performance and Time To First Byte.',
+      hinglish:
+        'Streaming page ka dhaancha turant bhejta hai aur dheeme hisson ko usi jawab mein khatam hote hi aage bhejta hai, isliye user ko matlab wala content dikhta hai bina sabse dheemi query ka intezaar kiye. `<Suspense>` ek fallback ke saath ek seema batata hai, aur uske bahar sab kuch turant render hota hai. Isse ek dheema database call poore page ko rokne ke bajaye ek card mein ek spinner ban jaata hai, jo mehsoos hone wali performance aur Time To First Byte ko naapne layak behtar karta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between loading.tsx and a Suspense boundary?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`loading.tsx` is a convention that automatically wraps the whole page segment in a Suspense boundary, giving a route-level loading state with no extra code. An explicit `<Suspense>` gives you FINER control: you can stream several independent sections separately, so a fast list appears immediately while a slow chart still loads. Use `loading.tsx` for the simple case and explicit boundaries when parts of the page have very different latencies.',
+      hinglish:
+        '`loading.tsx` ek tareeka hai jo apne aap poore page hisse ko ek Suspense seema mein lapet deta hai, bina extra code ke ek route-star ka loading roop deta hua. Ek explicit `<Suspense>` tumhe BAAREEK control deta hai: tum kai swatantra hisse alag-alag stream kar sakte ho, isliye ek tez list turant dikhti hai jabki ek dheema chart abhi load ho raha hai. Simple case ke liye `loading.tsx` aur tab explicit seemaayein use karo jab page ke hisson ki latency bahut alag ho.',
+    },
+  },
+  {
+    question: 'How do error boundaries work in the App Router?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An `error.tsx` file catches errors thrown in that segment and below, receiving the error and a `reset` function to retry. It must be a Client Component, since it uses state. It does NOT catch errors in the layout at the same level — for that you need `global-error.tsx`. Use `not-found.tsx` with the `notFound()` function for the missing-resource case, and never render the raw error message in production, since it can leak internals.',
+      hinglish:
+        'Ek `error.tsx` file us hisse aur uske neeche ki errors pakadti hai, error aur dobara koshish ke liye ek `reset` function paate hue. Ise ek Client Component hona chahiye, kyunki ye state use karta hai. Ye USI star ke layout ki errors NAHI pakadta — uske liye tumhe `global-error.tsx` chahiye. Gayab resource ke liye `notFound()` function ke saath `not-found.tsx` use karo, aur production mein kabhi kaccha error message mat dikhao, kyunki wo andar ki baatein leak kar sakta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between the App Router and the Pages Router?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The Pages Router uses file-based routes with `getServerSideProps` and `getStaticProps` for data, and every component is a client component. The App Router uses nested folders with `layout`, `page`, `loading`, and `error` conventions, defaults to Server Components, fetches data directly inside components with `await`, and supports streaming and Server Actions. Both can coexist during migration, which is the recommended path for a large existing application.',
+      hinglish:
+        'Pages Router file-based routes use karta hai data ke liye `getServerSideProps` aur `getStaticProps` ke saath, aur har component ek client component hai. App Router nested folders use karta hai `layout`, `page`, `loading`, aur `error` tareekon ke saath, default se Server Components, components ke andar seedha `await` se data laata hai, aur streaming aur Server Actions deta hai. Dono migration ke dauraan saath reh sakte hain, jo ek bade maujood application ke liye salah diya raasta hai.',
+    },
+  },
+  {
+    question: 'How do you fetch data in a Server Component?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Just make the component `async` and `await` directly — no hooks, no `useEffect`, no loading state in the component itself. You can call a database or an internal service straight from it, since the code never reaches the browser. Fetch in PARALLEL with `Promise.all` where requests are independent, because sequential awaits create a waterfall. Wrap slow sections in `<Suspense>` so they stream rather than blocking the page.',
+      hinglish:
+        'Bas component ko `async` banao aur seedha `await` karo — na hooks, na `useEffect`, na component mein hi koi loading roop. Tum us se seedha ek database ya ek andar ki service bula sakte ho, kyunki code kabhi browser tak nahi pahunchta. Jahan requests swatantra hon wahan `Promise.all` se SAATH-SAATH laao, kyunki ek ke baad ek awaits ek jharna banate hain. Dheeme hisson ko `<Suspense>` mein lapeto taaki wo page rokne ke bajaye stream hon.',
+    },
+  },
+  {
+    question: 'What is a route handler and when do you still need one?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A `route.ts` file exports HTTP method functions and gives you a real API endpoint. With Server Components and Server Actions you no longer need one just to feed your own pages. You still need it for a webhook receiver, a public API consumed by third parties or a mobile app, an OAuth callback, file streaming, or anything that must respond with a specific status and headers — cases where you genuinely need HTTP semantics.',
+      hinglish:
+        'Ek `route.ts` file HTTP method functions export karti hai aur tumhe ek asli API endpoint deti hai. Server Components aur Server Actions ke saath tumhe sirf apne pages ko khilaane ke liye ek nahi chahiye. Tumhe abhi bhi ek webhook lene wale ke liye, teesre logon ya ek mobile app se istemaal hone wale ek saarvajanik API ke liye, ek OAuth callback, file streaming, ya kisi bhi aisi cheez ke liye chahiye jise khaas status aur headers ke saath jawab dena ho — wo cases jahan tumhe genuinely HTTP semantics chahiye.',
+    },
+  },
+  {
+    question: 'What is middleware in Next.js and what are its limits?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Middleware runs BEFORE a request completes, at the edge, and is used for redirects, rewrites, setting headers, and lightweight auth checks. Its limits matter: it runs in the Edge runtime so many Node APIs and heavy libraries are unavailable, it must be fast because it runs on EVERY matched request, and it should not do database work. Use a `matcher` to scope it, and do real authorisation in the page or action rather than relying on middleware alone.',
+      hinglish:
+        'Middleware ek request poori hone se PEHLE chalta hai, kinaare pe, aur redirects, rewrites, headers set karne, aur halke auth jaanch ke liye use hota hai. Iski seemayein matter karti hain: ye Edge runtime mein chalta hai isliye bahut Node APIs aur bhaari libraries nahi milti, ise tez hona chahiye kyunki ye HAR milti request pe chalta hai, aur ise database ka kaam nahi karna chahiye. Ise seemit karne ke liye ek `matcher` use karo, aur asli ijaazat page ya action mein jaancho, akele middleware pe bharosa karne ke bajaye.',
+    },
+  },
+  {
+    question: 'What is the difference between the Edge and Node.js runtimes?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The EDGE runtime is a lightweight V8 environment deployed close to users, giving very low latency and fast cold starts, but it supports only Web APIs — no `fs`, no native Node modules, and many npm packages will not run. The NODE runtime is the full environment with everything available. Use edge for middleware and simple geographically-sensitive responses, and Node for anything touching a database, the filesystem, or a heavy dependency.',
+      hinglish:
+        'EDGE runtime ek halka V8 vaataavaran hai jo users ke paas rakha jaata hai, bahut kam latency aur tez shuruaat deta hua, par ye sirf Web APIs deta hai — na `fs`, na native Node modules, aur bahut npm packages nahi chalenge. NODE runtime poora vaataavaran hai jisme sab kuch milta hai. Edge ko middleware aur simple jagah-sambandhi jawabon ke liye use karo, aur Node ko kisi bhi database, filesystem, ya bhaari dependency chhoone wali cheez ke liye.',
+    },
+  },
+  {
+    question: 'How does the next/image component help performance?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'It automatically serves modern formats such as WebP and AVIF, generates responsive `srcset` sizes, lazy-loads below-the-fold images, and reserves space to prevent layout shift — which directly improves CLS. Set `priority` on your LCP hero image so it is preloaded rather than lazy-loaded, since lazy-loading it delays the very metric you are optimising. Remote images require configuring allowed hostnames, which also acts as a safeguard.',
+      hinglish:
+        'Ye apne aap WebP aur AVIF jaise modern formats deta hai, responsive `srcset` sizes banata hai, fold ke neeche ki images ko sust load karta hai, aur layout shift rokne ke liye jagah rakhta hai — jo seedha CLS behtar karta hai. Apni LCP hero image pe `priority` set karo taaki wo sust load ke bajaye pehle aaye, kyunki use sust load karna theek us maap ko der karta hai jise tum behtar kar rahe ho. Bahar ki images ke liye allowed hostnames set karne padte hain, jo ek bachaav bhi hai.',
+    },
+  },
+  {
+    question: 'How does next/font improve loading?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'It self-hosts fonts at BUILD time, so there is no request to Google Fonts at runtime — removing a third-party round trip and a privacy concern. It automatically adds `font-display: swap` and generates a size-adjusted fallback so the layout does not shift when the real font arrives, which improves CLS. It also subsets the font to the characters you use, cutting the download substantially compared with loading a full family.',
+      hinglish:
+        'Ye fonts ko BUILD ke waqt khud host karta hai, isliye chalte waqt Google Fonts ko koi request nahi jaati — ek teesre pakshkaar ka chakkar aur ek privacy ki chinta hatate hue. Ye apne aap `font-display: swap` jodta hai aur ek size-adjusted fallback banata hai taaki asli font aane pe layout na hile, jo CLS behtar karta hai. Ye font ko un characters tak chhota bhi karta hai jo tum use karte ho, ek poora parivaar laane ke muqable download kaafi kam karte hue.',
+    },
+  },
+  {
+    question: 'How do you handle metadata and SEO in the App Router?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Export a static `metadata` object for fixed pages, or `generateMetadata` for dynamic routes where the title depends on fetched data. Next merges metadata down the layout tree, so shared values live in the root layout and pages override only what differs. It handles Open Graph and Twitter cards, and `opengraph-image` generates a social preview at build time. Add `sitemap.ts` and `robots.ts` for crawlers, and set a `canonical` where content is reachable from several URLs.',
+      hinglish:
+        'Tay pages ke liye ek static `metadata` object export karo, ya un dynamic routes ke liye `generateMetadata` jahan title laaye gaye data pe depend kare. Next metadata ko layout ke ped mein neeche milaata hai, isliye saanjhi values root layout mein rehti hain aur pages sirf farak wali badalte hain. Ye Open Graph aur Twitter cards sambhalta hai, aur `opengraph-image` build ke waqt ek social preview banata hai. Crawlers ke liye `sitemap.ts` aur `robots.ts` jodo, aur jahan content kai URLs se mile wahan ek `canonical` set karo.',
+    },
+  },
+  {
+    question: 'What are parallel routes and intercepting routes?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'PARALLEL routes, written with an `@folder`, render several independent page slots in one layout simultaneously, each with its own loading and error state — useful for a dashboard with panels that load at different speeds. INTERCEPTING routes, written with `(.)`, catch a navigation and render it in the current layout instead — which is how you show a photo in a modal when clicked from a feed while a direct visit to the same URL renders the full page.',
+      hinglish:
+        'SAMANANTAR routes, ek `@folder` se likhe, ek layout mein kai swatantra page khaanay ek saath render karte hain, har ek apne loading aur error roop ke saath — un panels wale dashboard ke liye kaam ka jo alag raftaar se load hote hain. ROKNE WALE routes, `(.)` se likhe, ek navigation pakad kar use abhi ke layout mein render karte hain — jisse tum ek feed se click hone pe ek photo ko ek modal mein dikhate ho jabki usi URL pe seedha jaana poora page render karta hai.',
+    },
+  },
+  {
+    question: 'What is a route group and when is it useful?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A folder in parentheses such as `(marketing)` organises routes WITHOUT affecting the URL. Its main use is applying a different layout to a set of pages — a marketing layout and an app layout that share no chrome — while keeping both at the root of the URL. It also lets you group files by feature for readability. Since it does not change the URL, it is purely an organisational tool with no routing side effects.',
+      hinglish:
+        'Brackets mein ek folder jaise `(marketing)` routes ko URL ko CHHUE BINA jamata hai. Iska mukhya istemaal pages ke ek samooh pe ek alag layout lagana hai — ek marketing layout aur ek app layout jinme kuch saanjha nahi — jabki dono URL ki jad pe rehte hain. Ye tumhe padhne ke liye files ko feature se group karne bhi deta hai. Kyunki ye URL nahi badalta, ye sirf ek jamane ka tool hai bina kisi routing asar ke.',
+    },
+  },
+  {
+    question: 'How do you handle authentication in Next.js?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Store the session in an httpOnly, secure, sameSite cookie so JavaScript cannot read it. Read it in Server Components with `cookies()` and redirect when absent. The critical point is that middleware is an OPTIMISATION, not a security boundary — it can be bypassed, so you must check authorisation again in every page, Server Action, and route handler that touches protected data. Libraries such as Auth.js or Clerk handle the protocol details correctly.',
+      hinglish:
+        'Session ko ek httpOnly, secure, sameSite cookie mein rakho taaki JavaScript use padh na sake. Use Server Components mein `cookies()` se padho aur na hone pe bhej do. Zaroori baat ye hai ki middleware ek SUVIDHA hai, ek suraksha seema nahi — use bypass kiya ja sakta hai, isliye tumhe har page, Server Action, aur route handler mein ijaazat dobara jaanchni hogi jo surakshit data chhoota hai. Auth.js ya Clerk jaisi libraries protocol ki baareekiyaan sahi sambhalti hain.',
+    },
+  },
+  {
+    question: 'What is hydration and what causes a hydration error?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Hydration is React attaching event handlers to server-rendered HTML to make it interactive. An error occurs when the client renders something DIFFERENT from the server. Common causes: using `Date.now()` or `Math.random()` in render, reading `window` or `localStorage` during the first render, invalid HTML nesting such as a `<div>` inside a `<p>`, and browser extensions modifying the DOM. Fix by moving browser-only logic into `useEffect` or gating it behind a mounted flag.',
+      hinglish:
+        'Hydration React ka server-rendered HTML pe event handlers lagana hai taaki wo interactive ho. Ek error tab hoti hai jab client server se ALAG kuch render kare. Aam karan: render mein `Date.now()` ya `Math.random()` use karna, pehle render mein `window` ya `localStorage` padhna, galat HTML nesting jaise ek `<p>` ke andar ek `<div>`, aur DOM badalte browser extensions. Sirf browser wale logic ko `useEffect` mein le jaakar ya ek mounted flag ke peeche rakh kar theek karo.',
+    },
+  },
+  {
+    question: 'What is the difference between the Link component and a plain anchor?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`<Link>` performs a client-side navigation without a full page reload, PREFETCHES the destination when it enters the viewport, and preserves React state in shared layouts — so navigation feels instant. A plain `<a>` triggers a full document request, discarding all client state and re-downloading everything. Use `<a>` only for external links or when you genuinely want a full reload, such as after a logout that must clear all state.',
+      hinglish:
+        '`<Link>` ek client-side navigation karta hai bina poore page ke dobara load ke, jagah ko viewport mein aate hi PEHLE LE AATA hai, aur saanjhe layouts mein React state bachata hai — isliye navigation turant lagta hai. Ek saada `<a>` ek poora document request chalata hai, saari client state phenk kar aur sab dobara download karke. `<a>` sirf bahar ke links ke liye ya tab use karo jab tum genuinely poora reload chahte ho, jaise ek logout ke baad jise saari state saaf karni ho.',
+    },
+  },
+  {
+    question: 'How do you optimise the JavaScript bundle in a Next.js app?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Keep components on the SERVER wherever possible, since a Server Component contributes zero bytes. Push the `"use client"` boundary to the leaves. Use `next/dynamic` to lazy-load heavy client components such as a chart library or a rich-text editor. Import only what you need rather than a whole library. Then measure with `@next/bundle-analyzer` — the biggest wins are usually one or two large dependencies that could be deferred or replaced.',
+      hinglish:
+        'Jahan ho sake components ko SERVER pe rakho, kyunki ek Server Component zero bytes deta hai. `"use client"` seema ko patton tak dhakelo. Ek chart library ya ek rich-text editor jaise bhaari client components ko sust load karne ke liye `next/dynamic` use karo. Ek poori library ke bajaye sirf zaroori cheez import karo. Phir `@next/bundle-analyzer` se naapo — sabse badi jeetein usually ek ya do badi dependencies hoti hain jinhe taala ya badla ja sakta hai.',
+    },
+  },
+  {
+    question: 'What is next/dynamic and when should you use it?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`next/dynamic` code-splits a component so its JavaScript is fetched only when the component actually renders, with an optional loading fallback. Use it for anything heavy that is not needed immediately — a chart library, a map, a modal, a WYSIWYG editor. `ssr: false` skips server rendering entirely, which is the correct escape hatch for a component that depends on `window`. Do not apply it everywhere, since each split adds a request.',
+      hinglish:
+        '`next/dynamic` ek component ko alag kar deta hai taaki uski JavaScript sirf tab aaye jab component actually render ho, ek vaikalpik loading fallback ke saath. Ise har us bhaari cheez ke liye use karo jo turant nahi chahiye — ek chart library, ek map, ek modal, ek WYSIWYG editor. `ssr: false` server rendering poori tarah chhod deta hai, jo `window` pe depend karte component ke liye sahi raasta hai. Ise har jagah mat lagao, kyunki har alagaav ek request jodta hai.',
+    },
+  },
+  {
+    question: 'How do you handle environment variables in Next.js?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Variables are server-only by default, which is what keeps a database URL or API key safe. A variable prefixed `NEXT_PUBLIC_` is INLINED INTO THE CLIENT BUNDLE at build time and is therefore visible to anyone — never put a secret behind that prefix. Because they are inlined at build, changing one requires a rebuild rather than just a restart. Validate the whole configuration at startup so a missing variable fails immediately.',
+      hinglish:
+        'Variables default se sirf server ke liye hain, jisse ek database URL ya API key surakshit rehti hai. `NEXT_PUBLIC_` se shuru hota ek variable build ke waqt CLIENT BUNDLE MEIN DAAL diya jaata hai aur isliye sabko dikhta hai — us prefix ke peeche kabhi ek secret mat daalo. Kyunki wo build pe daale jaate hain, ek badalne ke liye sirf restart nahi, ek rebuild chahiye. Poori configuration ko shuruaat mein jaancho taaki ek gayab variable turant fail ho.',
+    },
+  },
+  {
+    question: 'What is the difference between generateStaticParams and getStaticPaths?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`getStaticPaths` is the Pages Router API and returns both the paths and a `fallback` mode. `generateStaticParams` is the App Router equivalent and returns only the params, with fallback behaviour controlled separately by `dynamicParams`. The App Router version is simpler and composes with nested dynamic segments. In both cases you are telling Next which dynamic routes to prerender at build time rather than on demand.',
+      hinglish:
+        '`getStaticPaths` Pages Router ka API hai aur paths aur ek `fallback` mode dono lautaata hai. `generateStaticParams` App Router ka barabar hai aur sirf params lautaata hai, fallback behaviour alag se `dynamicParams` se control hota hai. App Router wala simple hai aur nested dynamic hisson ke saath judta hai. Dono mein tum Next ko bata rahe ho ki kaunse dynamic routes maange pe ke bajaye build ke waqt pehle banane hain.',
+    },
+  },
+  {
+    question: 'What is the difference between revalidatePath and revalidateTag?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`revalidatePath` invalidates the cache for a specific route, which is straightforward when you know exactly which page changed. `revalidateTag` invalidates every cached fetch labelled with that tag, no matter which route used it — so updating a product can refresh the product page, the listing, and the homepage in one call. Tags are the better approach once the same data appears in several places, which it usually does.',
+      hinglish:
+        '`revalidatePath` ek khaas route ka cache radd karta hai, jo tab seedha hai jab tumhe pata ho kaunsa page badla. `revalidateTag` us tag wale har cached fetch ko radd karta hai, chahe kisi bhi route ne use kiya ho — isliye ek product update karna product page, listing, aur homepage ko ek call mein taaza kar sakta hai. Tags behtar tareeka hain jab wahi data kai jagah dikhe, jo usually dikhta hai.',
+    },
+  },
+  {
+    question: 'How do you deal with a request waterfall in Next.js?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A waterfall happens when sequential `await`s force each request to wait for the previous one, so three 200ms calls take 600ms instead of 200ms. Fix independent requests with `Promise.all`. For a parent-child dependency, either move the fetch up so both can start together, or wrap the child in `<Suspense>` so it streams and does not block the shell. Preloading a child\'s data in the parent is the standard pattern when the dependency is unavoidable.',
+      hinglish:
+        'Ek jharna tab hota hai jab ek ke baad ek `await` har request ko pichhli ka intezaar karwaate hain, isliye 200ms ki teen calls 200ms ke bajaye 600ms leti hain. Swatantra requests ko `Promise.all` se theek karo. Ek parent-child nirbharta ke liye, ya to fetch upar le jao taaki dono saath shuru hon, ya child ko `<Suspense>` mein lapeto taaki wo stream ho aur dhaancha na roke. Jab nirbharta na bache to parent mein child ka data pehle laana standard tareeka hai.',
+    },
+  },
+  {
+    question: 'How do you deploy a Next.js app outside Vercel?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use `output: "standalone"` to produce a minimal self-contained server and run it in a Docker container on any host. Fully static sites can use `output: "export"`, though that disables Server Components with dynamic data, ISR, middleware, and image optimisation. The features that genuinely need care off-Vercel are ISR cache persistence across instances and image optimisation, which needs either a custom loader or a supported adapter such as OpenNext.',
+      hinglish:
+        '`output: "standalone"` use karke ek chhota khud-poora server banao aur use kisi bhi host pe ek Docker container mein chalao. Poori tarah static sites `output: "export"` use kar sakti hain, halaanki wo dynamic data wale Server Components, ISR, middleware, aur image optimisation band kar deta hai. Vercel ke bahar jin features pe genuinely dhyaan chahiye wo hain instances ke aar-paar ISR cache bachana aur image optimisation, jise ya ek custom loader ya OpenNext jaisa ek supported adapter chahiye.',
+    },
+  },
+  {
+    question: 'What is Partial Prerendering?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'PPR combines static and dynamic rendering in ONE page: the static shell is prerendered and served instantly from the edge, while dynamic parts wrapped in `<Suspense>` stream in per request. It removes the old all-or-nothing choice where a single `cookies()` call made the entire page dynamic. It is an experimental feature and the API has changed between releases, so check the documentation for your version before relying on it.',
+      hinglish:
+        'PPR EK page mein static aur dynamic rendering ko jodta hai: static dhaancha pehle ban kar kinaare se turant milta hai, jabki `<Suspense>` mein lapete dynamic hisse per request stream hote hain. Ye wo purani sab-ya-kuch nahi wali choice hataata hai jahan ek `cookies()` call poore page ko dynamic bana deta tha. Ye ek prayog wala feature hai aur API releases ke beech badla hai, isliye us pe bharosa karne se pehle apne version ki documentation dekho.',
+    },
+  },
+  {
+    question: 'How do you handle forms in the App Router?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Pass a Server Action to the form\'s `action` prop, so it works even before JavaScript loads — a genuine progressive-enhancement win. Use `useActionState` for the result and validation errors, and `useFormStatus` for a pending state on the submit button. Validate on the server with a schema regardless of any client validation, since the action is a public endpoint. Call `revalidatePath` afterwards so the updated data appears.',
+      hinglish:
+        'Form ke `action` prop mein ek Server Action do, taaki wo JavaScript load hone se pehle bhi chale — ek asli progressive-enhancement jeet. Nateeje aur validation errors ke liye `useActionState` use karo, aur submit button pe pending roop ke liye `useFormStatus`. Kisi bhi client validation ke bawajood server pe ek schema se jaancho, kyunki action ek saarvajanik endpoint hai. Baad mein `revalidatePath` bulao taaki update hua data dikhe.',
+    },
+  },
+  {
+    question: 'What is the difference between useRouter in the App Router and the Pages Router?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'They come from different modules and have different APIs — `next/navigation` in the App Router versus `next/router` in the Pages Router — so importing the wrong one produces a confusing runtime error during migration. The App Router version has no `query` or `pathname` on the router object; you use the separate `usePathname` and `useSearchParams` hooks instead. It also adds `refresh()` to re-fetch server data without a full reload.',
+      hinglish:
+        'Wo alag modules se aate hain aur unke API alag hain — App Router mein `next/navigation` versus Pages Router mein `next/router` — isliye galat wala import karna migration ke dauraan ek uljhaane wali runtime error deta hai. App Router wale mein router object pe `query` ya `pathname` nahi hai; tum uske bajaye alag `usePathname` aur `useSearchParams` hooks use karte ho. Ye `refresh()` bhi jodta hai jo bina poore reload ke server data dobara laata hai.',
+    },
+  },
+  {
+    question: 'When should you use Next.js instead of plain React?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use Next.js when you need server rendering for SEO or first-load performance, file-based routing, a backend in the same project, image and font optimisation, or incremental static generation. Plain React with Vite is a better fit for an internal dashboard behind a login where SEO is irrelevant, a widget embedded in another site, or a highly interactive single-page app. The honest framing is that Next adds a server and its complexity — take it when you benefit from that.',
+      hinglish:
+        'Next.js tab use karo jab tumhe SEO ya pehle load ki performance ke liye server rendering chahiye, file-based routing, usi project mein ek backend, image aur font optimisation, ya dheere-dheere static banana. Vite ke saath saada React ek login ke peeche ke andar ke dashboard ke liye behtar hai jahan SEO matter nahi karta, ek doosri site mein daala gaya widget, ya ek bahut interactive single-page app. Imaandaar baat ye hai ki Next ek server aur uski uljhan jodta hai — use tab lo jab us se faayda ho.',
     },
   },
 ];

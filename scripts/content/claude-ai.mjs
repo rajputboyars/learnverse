@@ -1635,7 +1635,7 @@ if (toolResponse.stop_reason === 'tool_use') {
                 '<output_format> tag mein exact JSON schema define karo, explicitly kaho "no prose, no markdown fences". Response ko Ajv se validate karo. Agar fail ho to retry loop: validation error append karke dobara bhejo taaki Claude self-correct kare.',
             },
             difficulty: 'hard',
-            frequency: 'very-common',
+            frequency: 'common',
           },
         ],
       },
@@ -1873,7 +1873,7 @@ export const generalInterviewQuestions = [
         'Haiku: high-volume, simple tasks jaise classification. Cost aur speed priority ho. Sonnet: everyday coding, writing, reasoning ke liye best all-rounder. Opus: tab jab genuinely maximum intelligence chahiye — complex code review, hard math, research synthesis.',
     },
     difficulty: 'medium',
-    frequency: 'very-common',
+    frequency: 'common',
   },
   {
     question: 'How do you structure a Claude prompt effectively?',
@@ -1884,7 +1884,7 @@ export const generalInterviewQuestions = [
         'XML tags use karo: <context> background ke liye, <instructions> task ke liye, <document> content ke liye, <output_format> format ke liye. Fixed instructions pehle, user input baad mein. Output format explicitly specify karo ("only JSON, no prose"). Positive framing use karo.',
     },
     difficulty: 'medium',
-    frequency: 'very-common',
+    frequency: 'common',
   },
   {
     question: 'What is Extended Thinking and when should you enable it?',

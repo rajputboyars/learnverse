@@ -137,7 +137,7 @@ for i, step in enumerate(workflow_steps, 1):
           {
             question: 'What is OpenAI Codex and how does it differ from the original Codex model?',
             difficulty: 'easy',
-            frequency: 'high',
+            frequency: 'common',
             answer: {
               english: 'OpenAI Codex (2025) is an autonomous AI software engineering agent that can independently plan, write, test, and summarize code changes for entire tasks. The original Codex model (2021) was a GPT-based model fine-tuned on GitHub code that powered GitHub Copilot\'s inline autocomplete — it predicted the next lines of code as you typed. The new Codex agent is a complete agentic system: it runs in isolated cloud sandboxes, reads your actual repository, executes your test suite, and produces PR-ready diffs for your review.',
               hinglish: 'OpenAI Codex (2025) ek autonomous AI software engineering agent hai jo independently poore tasks ke liye code plan, write, test aur summarize kar sakta hai. Original Codex model (2021) ek GPT-based model tha jo GitHub code pe fine-tune tha aur GitHub Copilot ke inline autocomplete ko power karta tha — yeh type karte waqt next lines predict karta tha. Naya Codex agent ek complete agentic system hai: isolated cloud sandboxes mein run karta hai, actual repository padhta hai, test suite execute karta hai, aur PR-ready diffs produce karta hai review ke liye.',
@@ -1247,7 +1247,7 @@ for use_case, recommendation in decision_guide.items():
           {
             question: 'What access options are available for OpenAI Codex agent?',
             difficulty: 'easy',
-            frequency: 'medium',
+            frequency: 'common',
             answer: {
               english: 'Codex agent is accessible through multiple tiers: ChatGPT Plus ($20/month) with limited tasks, ChatGPT Pro ($200/month) with significantly more tasks suitable for regular developer use, ChatGPT Team/Enterprise for organizations needing shared access and compliance features, and the OpenAI API for programmatic access on a pay-per-use basis. The API option is best for integrating Codex into CI/CD pipelines or internal tools. The free tier has very limited or no autonomous Codex agent access.',
               hinglish: 'Codex agent multiple tiers se accessible hai: ChatGPT Plus ($20/month) limited tasks ke saath, ChatGPT Pro ($200/month) significantly more tasks ke saath jo regular developer use ke liye suitable hai, ChatGPT Team/Enterprise organizations ke liye shared access aur compliance features ke saath, aur OpenAI API pay-per-use basis pe programmatic access ke liye. API option CI/CD pipelines ya internal tools mein Codex integrate karne ke liye best hai. Free tier mein autonomous Codex agent access bahut limited ya na ke barabar hai.',
@@ -1683,7 +1683,7 @@ print("\\nRemember: Quality of task description = Quality of Codex output")`,
           {
             question: 'What information should you include in a Codex task description for best results?',
             difficulty: 'medium',
-            frequency: 'high',
+            frequency: 'common',
             answer: {
               english: 'An effective Codex task description should include: (1) A clear one-sentence objective stating what to accomplish. (2) Relevant file paths — tell Codex exactly where to look. (3) Implementation specifications describing expected behavior and edge cases. (4) An existing pattern reference — point to a specific file for Codex to follow for style/conventions. (5) Explicit test requirements listing which cases to cover. (6) Constraints specifying what not to change, what packages not to add, and backward compatibility requirements. Vague tasks like "add search" produce vague results; specification-level detail produces production-ready output.',
               hinglish: 'Effective Codex task description mein include karo: (1) Clear ek-sentence objective kya accomplish karna hai. (2) Relevant file paths — exactly batao Codex ko kahan dekhna hai. (3) Implementation specifications jo expected behavior aur edge cases describe karte hain. (4) Existing pattern reference — style/conventions ke liye specific file point karo. (5) Explicit test requirements listing kaunse cases cover karne hain. (6) Constraints specifying kya change nahi karna, kaunse packages add nahi karne, aur backward compatibility requirements. Vague tasks jaise "add search" vague results produce karte hain; specification-level detail production-ready output produce karta hai.',
@@ -1910,7 +1910,7 @@ print(issue_template)`,
           {
             question: 'How would you set up an automated issue-to-PR pipeline using Codex and GitHub Actions?',
             difficulty: 'hard',
-            frequency: 'medium',
+            frequency: 'common',
             answer: {
               english: 'Set up a GitHub Actions workflow triggered on the "labeled" event for issues. When an issue receives a "codex-ready" label, the workflow calls the Codex API with the issue body as the task description. Codex clones the repo in its sandbox, implements the feature, runs tests, and opens a PR referencing the issue. Key requirements for this to work well: issues must include clear acceptance criteria, relevant file paths, test expectations, and constraints. The workflow should use a repository secret for the OpenAI API key. Always require human code review before merging — never auto-merge Codex PRs, especially from automated pipelines.',
               hinglish: 'Issues ke liye "labeled" event pe trigger hone wala GitHub Actions workflow set up karo. Jab ek issue "codex-ready" label receive karta hai, workflow Codex API ko issue body as task description ke saath call karta hai. Codex apne sandbox mein repo clone karta hai, feature implement karta hai, tests run karta hai, aur issue reference karte hue PR open karta hai. Yeh well work karne ke liye key requirements: issues mein clear acceptance criteria, relevant file paths, test expectations, aur constraints hone chahiye. Workflow OpenAI API key ke liye repository secret use kare. Merging se pehle hamesha human code review require karo — kabhi bhi Codex PRs auto-merge mat karo, especially automated pipelines se.',
@@ -2595,7 +2595,7 @@ print(json.dumps(protection_settings, indent=2))`,
           {
             question: 'How can Codex be used as an automated PR reviewer, and what should it check?',
             difficulty: 'hard',
-            frequency: 'medium',
+            frequency: 'common',
             answer: {
               english: 'Codex can be integrated as an automated PR reviewer via GitHub Actions: trigger on PR open/update, have Codex read the diff and surrounding repository context, run the test suite, and post structured review comments. It should check: test coverage of changed code, security patterns (SQL injection, missing auth checks, hardcoded credentials), error handling gaps, code consistency with codebase conventions, and potential breaking changes. This creates a "Codex reviewer required" gate — developers address automated findings before requesting human reviewer time. The key benefit: human reviewers spend time on architecture and product decisions, not catching missing try/catch blocks or forgot-to-add-auth issues.',
               hinglish: 'Codex ko GitHub Actions se automated PR reviewer ke roop mein integrate kiya ja sakta hai: PR open/update pe trigger karo, Codex ko diff aur surrounding repository context padhne do, test suite run karo, aur structured review comments post karo. Ise check karna chahiye: changed code ka test coverage, security patterns (SQL injection, missing auth checks, hardcoded credentials), error handling gaps, codebase conventions ke saath code consistency, aur potential breaking changes. Yeh ek "Codex reviewer required" gate banata hai — developers automated findings address karte hain human reviewer time request karne se pehle. Key benefit: human reviewers architecture aur product decisions pe time spend karte hain, missing try/catch ya forgot-to-add-auth issues catch karne mein nahi.',
@@ -2794,7 +2794,7 @@ print(insight)`,
           {
             question: 'What makes a Codex task specification "great" versus "weak"?',
             difficulty: 'medium',
-            frequency: 'high',
+            frequency: 'common',
             answer: {
               english: 'A great Codex task specification has four pillars: (1) Context files — explicitly list which files to read before starting (patterns to follow, files to change, test files to update). (2) Observable acceptance criteria — define done in testable terms: "POST /auth/login with valid credentials returns 200 with {token: ...} in the body" not "make login work." (3) Constraints — explicitly state what must not change: don\'t modify the User model, don\'t add new packages, keep all existing tests passing. (4) Verification command — provide the exact test command to verify success. A weak task is vague ("add search"), forcing Codex to make assumptions about intent, scope, and approach — producing output that needs heavy revision. The payoff: 5 minutes of better spec writing saves 2+ rounds of iteration.',
               hinglish: 'Ek great Codex task specification ke chaar pillars hain: (1) Context files — explicitly list karo kaunsi files shuru karne se pehle padhni hain (follow karne ke patterns, change hone wali files, update hone wale test files). (2) Observable acceptance criteria — done ko testable terms mein define karo: "POST /auth/login valid credentials ke saath 200 return kare {token: ...} ke saath" na ki "login kaam karo." (3) Constraints — explicitly state karo kya change nahi karna: User model modify mat karo, naye packages add mat karo, sab existing tests passing rakhna. (4) Verification command — success verify karne ke liye exact test command do. Weak task vague hota hai ("search add karo"), Codex ko intent, scope, aur approach ke baare mein assumptions banane par force karta hai — aise output produce karta hai jo heavy revision chahta hai. Payoff: 5 minutes better spec likhne se 2+ rounds of iteration bachte hain.',
@@ -3427,7 +3427,7 @@ for tool, model in mental_models.items():
           {
             question: 'How do you choose between ChatGPT, Codex, and Claude Code for different tasks?',
             difficulty: 'medium',
-            frequency: 'high',
+            frequency: 'common',
             answer: {
               english: 'The choice depends on the task type and feedback loop needed. ChatGPT: use for architectural design, brainstorming tradeoffs, understanding unfamiliar technologies, and quick conceptual questions — it is a conversational expert but cannot run code or read your actual codebase. OpenAI Codex: use for well-scoped implementation tasks you want to delegate entirely — it works autonomously, runs tests, and returns a PR for review. Claude Code: use for interactive sessions where you need real-time feedback — debugging, exploring a complex codebase, targeted fixes while in flow. A productive workflow chains them: ChatGPT designs the architecture → you write a Codex task spec from the design → Codex implements → Claude Code helps review and fix interactively.',
               hinglish: 'Choice task type aur needed feedback loop pe depend karti hai. ChatGPT: architectural design ke liye, tradeoffs brainstorm karne ke liye, unfamiliar technologies samajhne ke liye use karo — yeh ek conversational expert hai lekin code run nahi kar sakta ya actual codebase nahi padh sakta. OpenAI Codex: well-scoped implementation tasks ke liye use karo jo tum entirely delegate karna chahte ho — yeh autonomously kaam karta hai, tests run karta hai, aur review ke liye PR return karta hai. Claude Code: interactive sessions ke liye use karo jahan real-time feedback chahiye — debugging, complex codebase explore karna, flow mein targeted fixes. Productive workflow chain karta hai: ChatGPT architecture design karta hai → tum design se Codex task spec likhte ho → Codex implements → Claude Code interactively review aur fix karne mein help karta hai.',
@@ -3443,7 +3443,7 @@ export const generalInterviewQuestions = [
   {
     question: 'What is the difference between OpenAI Codex and GitHub Copilot?',
     difficulty: 'easy',
-    frequency: 'high',
+    frequency: 'common',
     answer: {
       english: 'GitHub Copilot provides real-time inline code suggestions inside your IDE as you type — it is an autocomplete tool for moment-to-moment coding assistance. OpenAI Codex (2025) is an autonomous agent that accepts a natural language task description and independently executes the full software engineering workflow: reading your repository, planning, writing code, running tests, iterating on failures, and producing a PR-ready diff for your review. Copilot operates at line/function scope and requires you to be driving; Codex operates at feature/task scope and works autonomously in an isolated cloud sandbox.',
       hinglish: 'GitHub Copilot real-time inline code suggestions deta hai tumhare IDE ke andar jab tum type karte ho — yeh moment-to-moment coding assistance ke liye autocomplete tool hai. OpenAI Codex (2025) ek autonomous agent hai jo natural language task description accept karta hai aur independently full software engineering workflow execute karta hai: repository padhna, planning, code likhna, tests run karna, failures pe iterate karna, aur PR-ready diff produce karna review ke liye. Copilot line/function scope pe operate karta hai aur tumhare drive karne ki zaroorat hai; Codex feature/task scope pe operate karta hai aur isolated cloud sandbox mein autonomously kaam karta hai.',
@@ -3452,7 +3452,7 @@ export const generalInterviewQuestions = [
   {
     question: 'How does Codex handle running and testing code?',
     difficulty: 'medium',
-    frequency: 'high',
+    frequency: 'common',
     answer: {
       english: 'Codex runs code in an isolated, ephemeral cloud sandbox. After writing code changes, it executes your actual test suite (npm test, pytest, go test, etc.) in the sandbox and reads the real pass/fail output. If tests fail, Codex does not give up — it reads the error output, diagnoses what went wrong, modifies the code, and runs tests again. This iteration loop can repeat multiple times until tests pass or Codex determines it needs human input. The sandbox has no access to production systems — it only works within the cloned repository environment.',
       hinglish: 'Codex code ek isolated, ephemeral cloud sandbox mein run karta hai. Code changes likhne ke baad, yeh sandbox mein tumhara actual test suite (npm test, pytest, go test, etc.) execute karta hai aur real pass/fail output padhta hai. Agar tests fail hote hain, Codex haara nahi maanta — error output padhta hai, kya galat hua diagnose karta hai, code modify karta hai, aur tests dobara run karta hai. Yeh iteration loop multiple times repeat ho sakta hai jab tak tests pass na ho jaayein ya Codex determine na kar le ki human input chahiye. Sandbox ke paas production systems ka koi access nahi hai.',
@@ -3461,7 +3461,7 @@ export const generalInterviewQuestions = [
   {
     question: 'What kind of tasks is Codex best suited for?',
     difficulty: 'easy',
-    frequency: 'high',
+    frequency: 'common',
     answer: {
       english: 'Codex is best suited for well-defined, non-urgent engineering tasks: adding tests to untested code, implementing features from clear specifications (following existing patterns), fixing bugs with clear reproduction steps plus adding regression tests, refactoring code across multiple files for consistency, migrating to new patterns (callbacks to async/await, JS to TypeScript), writing documentation, creating CRUD endpoints following established conventions, and database migrations. Codex is NOT well-suited for: novel architectural decisions requiring business context, urgent critical-path work, highly security-sensitive changes requiring deep domain expertise, or tasks where the right answer depends on product decisions not visible in the code.',
       hinglish: 'Codex well-defined, non-urgent engineering tasks ke liye best suited hai: untested code mein tests add karna, clear specifications se features implement karna (existing patterns follow karte hue), clear reproduction steps ke saath bugs fix karna plus regression tests add karna, consistency ke liye multiple files mein code refactor karna, new patterns pe migrate karna, documentation likhna, established conventions follow karte hue CRUD endpoints banana, aur database migrations. Codex ke liye NOT well-suited: novel architectural decisions jo business context chahten hain, urgent critical-path work, highly security-sensitive changes, ya tasks jahan sahi answer product decisions pe depend karta hai jo code mein visible nahi hain.',
@@ -3470,7 +3470,7 @@ export const generalInterviewQuestions = [
   {
     question: 'How does Codex work in a sandbox environment?',
     difficulty: 'medium',
-    frequency: 'medium',
+    frequency: 'common',
     answer: {
       english: 'Codex creates an isolated, ephemeral cloud compute environment for each task. In this sandbox, it clones your repository and reads the project structure. It then plans which files to modify or create, writes the code changes, runs your existing test suite with the actual test runner, and iterates if tests fail. The sandbox is completely isolated — it has no access to your production database, live servers, external APIs, or any system outside the repository. It exists only for the duration of the task and is destroyed afterward. This design guarantees that Codex cannot accidentally impact production systems, making it safe to run autonomously.',
       hinglish: 'Codex har task ke liye ek isolated, ephemeral cloud compute environment create karta hai. Is sandbox mein, yeh tumhara repository clone karta hai aur project structure padhta hai. Phir plan karta hai kaunsi files modify ya create karni hain, code changes likhta hai, actual test runner se tumhara existing test suite run karta hai, aur fail hone pe iterate karta hai. Sandbox completely isolated hai — iske paas tumhare production database, live servers, external APIs, ya repository ke bahar kisi bhi system ka access nahi hai. Yeh sirf task ki duration ke liye exist karta hai aur baad mein destroy ho jaata hai. Yeh design guarantee karta hai ki Codex accidentally production systems impact nahi kar sakta.',
@@ -3479,7 +3479,7 @@ export const generalInterviewQuestions = [
   {
     question: 'What plans give you access to Codex agent?',
     difficulty: 'easy',
-    frequency: 'medium',
+    frequency: 'common',
     answer: {
       english: 'Codex agent access is available through: ChatGPT Plus ($20/month) with a limited number of tasks per month, suitable for occasional exploration; ChatGPT Pro ($200/month) with significantly more tasks per month, suitable for regular developer use; ChatGPT Team for shared organization access with centralized billing; ChatGPT Enterprise for compliance-heavy organizations with custom quotas; and the OpenAI API on a pay-per-use basis for programmatic access and integration into tools/CI-CD pipelines. The free ChatGPT tier has very limited or no access to the autonomous Codex agent. Always check openai.com for current limits as OpenAI adjusts these regularly.',
       hinglish: 'Codex agent access available hai through: ChatGPT Plus ($20/month) limited tasks per month ke saath, occasional exploration ke liye suitable; ChatGPT Pro ($200/month) significantly more tasks per month ke saath, regular developer use ke liye suitable; ChatGPT Team shared organization access ke liye centralized billing ke saath; ChatGPT Enterprise compliance-heavy organizations ke liye custom quotas ke saath; aur OpenAI API pay-per-use basis pe programmatic access aur tools/CI-CD pipelines mein integration ke liye. Free ChatGPT tier mein autonomous Codex agent ka bahut limited ya koi access nahi hai. Current limits ke liye hamesha openai.com check karo kyunki OpenAI inhe regularly adjust karta hai.',
@@ -3488,7 +3488,7 @@ export const generalInterviewQuestions = [
   {
     question: 'How should you review Codex\'s output before merging?',
     difficulty: 'medium',
-    frequency: 'high',
+    frequency: 'common',
     answer: {
       english: 'Review Codex output with the same rigor as any human PR — probably more. Key steps: (1) Read every changed line in the diff and understand it before approving — never approve code you don\'t understand. (2) Check for security issues: SQL injection, missing auth checks, hardcoded values, unhandled user input. (3) Evaluate test quality — Codex sometimes writes narrow tests covering only happy path; check if edge cases and error conditions are covered. (4) Pull the branch and run tests locally in your own environment, not just trusting sandbox results. (5) Read Codex\'s summary to understand assumptions it made. (6) Manually test the feature/fix in your dev environment. Never auto-merge changes to auth, payments, security middleware, or anything you cannot explain line by line.',
       hinglish: 'Codex output ko kisi bhi human PR ki tarah rigorous review karo — shayad aur zyada. Key steps: (1) Diff mein har changed line padho aur approve karne se pehle samjho — aise code kabhi approve mat karo jo tum nahi samajhte. (2) Security issues check karo: SQL injection, missing auth checks, hardcoded values, unhandled user input. (3) Test quality evaluate karo — Codex kabhi kabhi narrow tests likhta hai sirf happy path cover karte hue; check karo edge cases aur error conditions covered hain ya nahi. (4) Branch pull karo aur apne environment mein locally tests run karo, sirf sandbox results pe trust mat karo. (5) Codex ki summary padho assumptions samajhne ke liye. (6) Dev environment mein feature/fix manually test karo. Auth, payments, security middleware, ya kuch bhi jo tum line by line explain nahi kar sakte — kabhi auto-merge mat karo.',
@@ -3497,7 +3497,7 @@ export const generalInterviewQuestions = [
   {
     question: 'What information should you give Codex for best results?',
     difficulty: 'medium',
-    frequency: 'high',
+    frequency: 'common',
     answer: {
       english: 'For best Codex results, provide a specification-level task description including: (1) A clear one-sentence objective. (2) Specific file paths relevant to the task — tell Codex exactly where to look. (3) Implementation requirements as expected behavior, not implementation instructions. (4) A reference to an existing pattern to follow ("follow the pattern in src/routes/products.py"). (5) Explicit test requirements listing specific cases to cover, edge cases, and error conditions. (6) Clear constraints — what not to change, what packages not to add, backward compatibility requirements. A well-maintained codebase with consistent conventions, a good README with setup/test instructions, and descriptive naming also dramatically improve Codex\'s ability to produce correct, style-matching output.',
       hinglish: 'Best Codex results ke liye, specification-level task description do jisme include ho: (1) Clear ek-sentence objective. (2) Task se relevant specific file paths — exactly batao Codex ko kahan dekhna hai. (3) Implementation requirements expected behavior ke roop mein, implementation instructions ke roop mein nahi. (4) Follow karne ke liye existing pattern ka reference ("src/routes/products.py mein pattern follow karo"). (5) Explicit test requirements listing specific cases, edge cases, aur error conditions jo cover karne hain. (6) Clear constraints — kya change nahi karna, kaunse packages add nahi karne, backward compatibility requirements. Consistent conventions ke saath well-maintained codebase, setup/test instructions ke saath achha README, aur descriptive naming bhi Codex ki ability ko dramatically improve karte hain correct, style-matching output produce karne mein.',
@@ -3506,7 +3506,7 @@ export const generalInterviewQuestions = [
   {
     question: 'What is the difference between Codex agent and ChatGPT\'s code generation?',
     difficulty: 'easy',
-    frequency: 'high',
+    frequency: 'common',
     answer: {
       english: 'ChatGPT code generation is conversational: you describe a problem, ChatGPT responds with code snippets, and YOU are the executor — you copy the code, paste it into your project, run it, see what breaks, and iterate by pasting errors back into the chat. ChatGPT cannot run code, read your actual repository, or verify its suggestions work in your environment. Codex agent is autonomous execution: you submit a task description, Codex clones your real repository, writes code in an isolated sandbox, actually runs your test suite, iterates on failures automatically, and delivers a PR-ready diff. You review and merge, but Codex does the implementation. The key differences are: Codex reads real repos vs ChatGPT gets snippets you paste; Codex executes code vs ChatGPT only suggests; Codex iterates autonomously vs you iterate manually with ChatGPT.',
       hinglish: 'ChatGPT code generation conversational hai: tum problem describe karte ho, ChatGPT code snippets se respond karta hai, aur tum executor ho — tum code copy karte ho, project mein paste karte ho, run karte ho, kya toot gaya dekhte ho, aur errors wapas paste karke iterate karte ho. ChatGPT code run nahi kar sakta, tumhara actual repository nahi padh sakta, ya verify nahi kar sakta ki uske suggestions tumhare environment mein kaam karte hain. Codex agent autonomous execution hai: tum task description submit karte ho, Codex tumhara real repository clone karta hai, isolated sandbox mein code likhta hai, actually tumhara test suite run karta hai, automatically failures pe iterate karta hai, aur PR-ready diff deliver karta hai. Tum review aur merge karte ho, lekin Codex implementation karta hai. Key differences: Codex real repos padhta hai vs ChatGPT tumhare paste kiye snippets get karta hai; Codex code execute karta hai vs ChatGPT sirf suggest karta hai; Codex autonomously iterate karta hai vs tum manually ChatGPT ke saath iterate karte ho.',
@@ -3515,7 +3515,7 @@ export const generalInterviewQuestions = [
   {
     question: 'How would you set up a fully automated issue-to-PR pipeline using Codex?',
     difficulty: 'hard',
-    frequency: 'medium',
+    frequency: 'common',
     answer: {
       english: 'Set up a GitHub Actions workflow triggered on the issues "labeled" event. When an issue receives the "codex-ready" label, the workflow calls the Codex API using the issue title and body as the task description. Codex reads the issue, clones the repository in its sandbox, implements the feature, runs the test suite, and opens a GitHub PR referencing the original issue. For this to work reliably: (1) issues must follow a structured template with clear acceptance criteria, relevant file links, test expectations, and constraints; (2) the repository needs good context — a README with test commands, an AGENTS.md with conventions, consistent patterns for Codex to follow; (3) the OPENAI_API_KEY must be stored as a GitHub repository secret. Critical: never configure the pipeline to auto-merge Codex PRs — always require human review via branch protection rules.',
       hinglish: 'GitHub Actions workflow set up karo jo issues ke "labeled" event pe trigger ho. Jab ek issue "codex-ready" label receive kare, workflow Codex API ko issue title aur body as task description ke saath call kare. Codex issue padhta hai, sandbox mein repository clone karta hai, feature implement karta hai, test suite run karta hai, aur original issue reference karte hue GitHub PR open karta hai. Yeh reliably kaam karne ke liye: (1) issues structured template follow karein jisme clear acceptance criteria, relevant file links, test expectations, aur constraints ho; (2) repository mein achha context ho — README with test commands, AGENTS.md with conventions, Codex ke follow karne ke liye consistent patterns; (3) OPENAI_API_KEY GitHub repository secret ke roop mein stored ho. Critical: pipeline ko Codex PRs auto-merge karne ke liye configure kabhi mat karo — branch protection rules se hamesha human review require karo.',
@@ -3524,7 +3524,7 @@ export const generalInterviewQuestions = [
   {
     question: 'What is context engineering and how does it improve AI coding agent performance?',
     difficulty: 'medium',
-    frequency: 'medium',
+    frequency: 'common',
     answer: {
       english: 'Context engineering is the practice of structuring your entire codebase so that AI agents can read it and immediately understand what to do — as opposed to prompt engineering which tunes a single interaction. Unlike chatbots that get snippets you paste, coding agents read your actual repository. A well-context-engineered codebase has: (1) Semantic file/directory naming so agents discover relevant files through structure. (2) An AGENTS.md file providing agent-specific guidance: which patterns to follow, how to run tests, what conventions the codebase uses, what NOT to do. (3) A README with setup and test commands so agents can run the test suite correctly. (4) Consistent patterns repeated across the codebase so agents learn conventions by induction. (5) Tests that document data shapes and expected behaviors — effectively living documentation. The principle: "code that teaches itself" — if a new developer with no context can understand the codebase by reading it, an AI agent can too.',
       hinglish: 'Context engineering woh practice hai jisme poora codebase is tarah structure kiya jaata hai ki AI agents ise padh ke immediately samajh sakein kya karna hai — prompt engineering se alag jo ek single interaction tune karta hai. Chatbots se alag jo tumhare paste kiye snippets get karte hain, coding agents actual repository padhte hain. Well-context-engineered codebase mein hota hai: (1) Semantic file/directory naming taaki agents structure ke through relevant files discover kar sakein. (2) AGENTS.md file jo agent-specific guidance provide kare: kaunse patterns follow karein, tests kaise run karein, codebase kaunse conventions use karta hai, kya mat karo. (3) README with setup aur test commands taaki agents test suite correctly run kar sakein. (4) Codebase mein consistent patterns repeat hon taaki agents conventions induction se seekhein. (5) Tests jo data shapes aur expected behaviors document karein — effectively living documentation. Principle: "code that teaches itself" — agar ek new developer bina context ke codebase padh ke samajh sakta hai, ek AI agent bhi kar sakta hai.',
@@ -3533,10 +3533,364 @@ export const generalInterviewQuestions = [
   {
     question: 'When should you use Codex versus Claude Code versus ChatGPT for a development task?',
     difficulty: 'medium',
-    frequency: 'high',
+    frequency: 'common',
     answer: {
       english: 'Each tool has a distinct role: ChatGPT is the architect/consultant — use it for brainstorming, architectural decisions, understanding tradeoffs, and designing interfaces when you do not yet know what to build. It cannot access your codebase or run code. OpenAI Codex is the autonomous implementer — use it for well-scoped, non-urgent implementation tasks you want to delegate entirely: the task runs in its sandbox, implements code, runs tests, and returns a PR. Best for: tickets you know what to build, background batch tasks, systematic refactoring, test generation. Claude Code is the interactive pair programmer — use it when you are actively working on the code and need real-time feedback: debugging sessions, exploring unfamiliar parts of the codebase, making targeted fixes while in flow. The decision rule: "I do not know what to build" → ChatGPT. "I know what to build, it is a well-defined task, I can wait" → Codex. "I am actively coding and need help right now" → Claude Code.',
       hinglish: 'Har tool ka ek distinct role hai: ChatGPT architect/consultant hai — brainstorming ke liye, architectural decisions ke liye, tradeoffs samajhne ke liye, aur interfaces design karne ke liye use karo jab abhi nahi jaante kya build karna hai. Yeh tumhara codebase access nahi kar sakta ya code run nahi kar sakta. OpenAI Codex autonomous implementer hai — well-scoped, non-urgent implementation tasks ke liye use karo jo tum entirely delegate karna chahte ho: task sandbox mein run karta hai, code implement karta hai, tests run karta hai, aur PR return karta hai. Best for: tickets jahan jaante ho kya build karna hai, background batch tasks, systematic refactoring, test generation. Claude Code interactive pair programmer hai — jab actively code pe kaam kar rahe ho aur real-time feedback chahiye: debugging sessions, codebase ke unfamiliar parts explore karna, flow mein targeted fixes karna. Decision rule: "Mujhe nahi pata kya build karna hai" → ChatGPT. "Mujhe pata hai kya build karna hai, well-defined task hai, wait kar sakta hoon" → Codex. "Main actively coding kar raha hoon aur abhi help chahiye" → Claude Code.',
+    },
+  },
+
+  // ─── Working with AI Coding Agents ──────────────────────────
+  {
+    question: 'What makes a task well-suited to an autonomous coding agent?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A good task has a CLEAR definition of done, a verifiable outcome such as passing tests, bounded scope touching a known set of files, and no need for a product decision mid-way. Adding a field end to end, writing tests for an existing module, or a mechanical refactor all fit. Poor candidates are anything requiring taste, an architectural choice, or knowledge that lives only in someone\'s head — the agent will produce something plausible and wrong.',
+      hinglish:
+        'Ek achhe kaam mein SAAF taur pe pata hota hai ki khatam kya hai, ek jaanchne layak nateeja jaise tests paas hona, ek seemit daayra jo jaani-pehchaani files chhoota ho, aur beech mein kisi product faisle ki zaroorat na ho. Ek field ko shuru se aakhir tak jodna, ek maujood module ke tests likhna, ya ek yaantrik refactor sab fit hote hain. Kharab ummeedwaar wo hain jinme pasand, ek dhaanche ka faisla, ya aisa gyaan chahiye jo sirf kisi ke dimaag mein hai — agent kuch theek-lagta aur galat banayega.',
+    },
+  },
+  {
+    question: 'What is agentic coding and how does it differ from autocomplete?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Autocomplete predicts the next few lines from local context and you remain in control of every step. An AGENT plans a multi-step task, reads and edits multiple files, runs commands, observes the results, and iterates until the goal is met. The difference is the FEEDBACK LOOP: an agent can run your tests, see a failure, and fix it. That is also why sandboxing and permission controls matter — the agent takes real actions, not just suggestions.',
+      hinglish:
+        'Autocomplete aas-paas ke sandarbh se agli kuch lines ka andaaza lagata hai aur har kadam pe control tumhara rehta hai. Ek AGENT ek kai-kadam kaam ki yojana banata hai, kai files padhta aur badalta hai, commands chalata hai, nateeje dekhta hai, aur lakshya poora hone tak dohraata hai. Farak PRATIKRIYA ka chakra hai: ek agent tumhare tests chala sakta hai, ek kharaabi dekh sakta hai, aur use theek kar sakta hai. Isiliye sandboxing aur ijaazat ke control matter karte hain — agent asli kaam karta hai, sirf sujhaav nahi.',
+    },
+  },
+  {
+    question: 'How should you write a task description for a coding agent?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Be specific about the OUTCOME and how it will be verified: name the files or module, state the acceptance criteria, and point at an existing pattern to follow. Include the constraints that are obvious to you but invisible in the code — a naming convention, a library the team has standardised on, a compatibility requirement. Vagueness is the main failure mode: "improve error handling" produces something arbitrary, while "wrap these three handlers in the existing AppError pattern and add tests" does not.',
+      hinglish:
+        'NATEEJE aur uske kaise jaanche jaane ke baare mein saaf raho: files ya module ka naam lo, sweekar karne ki shartein batao, aur follow karne ko ek maujood tareeka dikhao. Wo shartein daalo jo tumhe saaf hain par code mein nahi dikhti — ek naam ka niyam, ek library jo team ne tay ki hai, ek compatibility ki zaroorat. Dhundhlapan mukhya kharaabi hai: "error handling behtar karo" kuch bhi bana deta hai, jabki "in teen handlers ko maujood AppError tareeke mein lapeto aur tests jodo" nahi.',
+    },
+  },
+  {
+    question: 'Why does context matter so much for AI coding tools?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The model can only reason about what it can see. Without your conventions, existing utilities, and architectural decisions it will reinvent a helper you already have, use a different error pattern, or pick a library you deliberately avoid. Providing context — a project instruction file, the relevant files, an example of the pattern to follow — is what turns generically correct code into code that fits YOUR codebase, which is the difference between a usable PR and one that gets rewritten.',
+      hinglish:
+        'Model sirf usi pe soch sakta hai jo use dikhta hai. Tumhare niyamon, maujood utilities, aur dhaanche ke faislon ke bina wo ek aisa helper dobara banayega jo pehle se hai, ek alag error tareeka use karega, ya ek aisi library chunega jise tum jaan boojh kar bachte ho. Sandarbh dena — ek project nirdesh file, zaroori files, follow karne wale tareeke ka ek udaharan — wahi aam taur pe sahi code ko TUMHARE codebase mein fit hone wale code mein badalta hai, jo ek kaam ke PR aur ek dobara likhe jaane wale PR ka farak hai.',
+    },
+  },
+  {
+    question: 'What is a project instruction file and what belongs in one?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A file such as AGENTS.md or CLAUDE.md gives the agent standing context on every task: how to build, test, and lint; the directory layout; coding conventions and the error-handling pattern; libraries to use and to avoid; and anything surprising about the project. Keep it SHORT and specific — a long document dilutes attention and goes stale. Update it when you find yourself correcting the same mistake twice, which is the clearest signal something is missing.',
+      hinglish:
+        'AGENTS.md ya CLAUDE.md jaisi ek file agent ko har kaam pe khada sandarbh deti hai: build, test, aur lint kaise karna; directory ka dhaancha; likhne ke niyam aur error sambhaalne ka tareeka; kaunsi libraries use karni aur kaunsi nahi; aur project ki koi bhi chaunkane wali baat. Ise CHHOTA aur saaf rakho — ek lamba document dhyaan baant deta hai aur purana ho jaata hai. Ise tab update karo jab tum khud ko wahi galti do baar sudhaarte paao, jo sabse saaf ishaara hai ki kuch chhoot raha hai.',
+    },
+  },
+  {
+    question: 'How should you review code written by an AI agent?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Review it MORE carefully than human code, not less, because it is confident, plausible, and produced quickly enough that volume outpaces attention. Check the things models get wrong most often: edge cases and error paths, silently swallowed exceptions, a subtly wrong condition, and tests that assert the implementation rather than the behaviour. Verify it actually runs. And check for a reinvented utility or an unnecessary new dependency, which are common and easy to miss in a large diff.',
+      hinglish:
+        'Ise insaan ke code se ZYADA dhyaan se dekho, kam nahi, kyunki ye aatmvishwaasi, theek-lagta, aur itni jaldi banta hai ki maatra dhyaan se aage nikal jaati hai. Wo cheezein jaancho jo models sabse zyada galat karte hain: kinaare ke cases aur error ke raaste, chupke se nigle gaye exceptions, ek sookshm roop se galat shart, aur wo tests jo behaviour ke bajaye implementation jaanchte hain. Pakka karo ki ye actually chalta hai. Aur ek dobara bane utility ya ek gair-zaroori nayi dependency dhoondho, jo aam hain aur ek bade diff mein chhootna aasaan.',
+    },
+  },
+  {
+    question: 'What kinds of mistakes do AI coding tools most commonly make?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Inventing an API or method that does not exist but sounds right. Using an outdated pattern from training data when the library has since changed. Silently swallowing an error to make tests pass. Handling the happy path well and the edge cases poorly. Reimplementing something the codebase already has. Adding a dependency for a five-line function. And writing tests that pass because they assert what the code does, rather than what it should do.',
+      hinglish:
+        'Ek aisa API ya method banana jo hai hi nahi par sahi lagta hai. Training data ka ek purana tareeka use karna jab library tab se badal chuki hai. Tests paas karne ke liye ek error chupke se nigal jaana. Khush raasta achhe se sambhalna aur kinaare ke cases kharab. Wo dobara banana jo codebase mein pehle se hai. Ek paanch-line ke function ke liye ek dependency jodna. Aur aise tests likhna jo isliye paas hote hain kyunki wo jaanchte hain ki code kya karta hai, ye nahi ki use kya karna chahiye.',
+    },
+  },
+  {
+    question: 'What is a sandbox and why do coding agents run in one?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A sandbox is an isolated environment — usually a container — where the agent can read, write, and execute without touching your machine or production systems. It matters because an agent runs real commands: a mistaken `rm`, an accidental push, or a call to a live API would otherwise have real consequences. Sandboxing also makes runs reproducible and lets several tasks run in parallel without interfering with each other.',
+      hinglish:
+        'Ek sandbox ek alag vaataavaran hai — usually ek container — jahan agent padh, likh, aur chala sakta hai bina tumhari machine ya production ko chhue. Ye isliye matter karta hai kyunki ek agent asli commands chalata hai: ek galti se `rm`, ek anjaane mein push, ya ek jeete-jaagte API ko ek call warna asli nateeje deta. Sandboxing runs ko dobara banne layak bhi banata hai aur kai kaamon ko ek doosre mein dakhal diye bina saath chalne deta hai.',
+    },
+  },
+  {
+    question: 'Should an AI agent have write access to your repository?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Give it write access to a BRANCH and let it open a pull request, never direct access to the default branch. That keeps the existing review, CI, and branch-protection controls in the path, so the agent is subject to the same gate as any contributor. Do not give it production credentials or the ability to deploy. The principle is least privilege: the agent should be able to propose any change and merge none.',
+      hinglish:
+        'Use ek BRANCH pe likhne ka adhikaar do aur use ek pull request kholne do, default branch pe kabhi seedha adhikaar nahi. Isse maujood review, CI, aur branch-suraksha ke control raaste mein bane rehte hain, isliye agent kisi bhi yogdaan dene wale ke barabar hi gate se guzarta hai. Use production ki chaabiyaan ya deploy karne ki taakat mat do. Siddhant sabse kam adhikaar hai: agent koi bhi badlaav sujha sake aur koi bhi merge na kar sake.',
+    },
+  },
+  {
+    question: 'How do you break a large task into agent-sized pieces?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Split along VERIFIABLE boundaries so each piece has its own definition of done and can be reviewed independently — a data-layer change, then an API endpoint, then the UI, rather than "build the feature". Smaller pieces produce smaller diffs, which are reviewed properly rather than skimmed, and a mistake is caught early instead of compounding. If a piece cannot be verified on its own, it is probably still too large or too vaguely specified.',
+      hinglish:
+        'JAANCHNE LAYAK seemaon pe baanto taaki har tukde ki apni khatam hone ki paribhasha ho aur wo alag se review ho sake — ek data-star ka badlaav, phir ek API endpoint, phir UI, "feature banao" ke bajaye. Chhote tukde chhote diffs banate hain, jo upar-upar dekhne ke bajaye theek se review hote hain, aur ek galti badhne ke bajaye jaldi pakdi jaati hai. Agar ek tukda apne aap jaancha na ja sake, wo shayad abhi bhi bahut bada ya bahut dhundhla bataya gaya hai.',
+    },
+  },
+  {
+    question: 'How do you use an AI agent to write tests well?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Point it at an existing test file so it follows your framework, fixtures, and naming. Ask for specific CASES — edge cases, error paths, boundary values — rather than "write tests", which produces a shallow happy-path suite. The critical review step is checking the tests assert the intended BEHAVIOUR rather than mirroring the implementation, because a test generated from buggy code will faithfully encode the bug and give you false confidence.',
+      hinglish:
+        'Use ek maujood test file dikhao taaki wo tumhara framework, fixtures, aur naam follow kare. KHAAS cases maango — kinaare ke cases, error ke raaste, seema ki values — "tests likho" ke bajaye, jo ek uthla khush-raaste ka set banata hai. Zaroori review kadam ye jaanchna hai ki tests soche gaye VYAVAHAAR ko jaanchte hain, implementation ki nakal nahi karte, kyunki ek bug wale code se bane test us bug ko imaandaari se likh dega aur tumhe jhootha bharosa dega.',
+    },
+  },
+  {
+    question: 'What is the difference between an interactive assistant and a background agent?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An INTERACTIVE assistant works alongside you in real time: you see each step, correct it immediately, and it suits exploration, debugging, and anything where the goal shifts as you learn. A BACKGROUND agent takes a fully specified task, works alone, and returns a result — which suits well-scoped implementation you can delegate. The choice follows from whether you know exactly what you want before starting, and whether you want to be involved while it happens.',
+      hinglish:
+        'Ek INTERACTIVE sahaayak tumhare saath asli samay mein kaam karta hai: tum har kadam dekhte ho, use turant sudhaarte ho, aur ye khoj, debugging, aur har us cheez ko suit karta hai jahan lakshya seekhte-seekhte badalta hai. Ek BACKGROUND agent ek poori tarah bataya kaam leta hai, akela kaam karta hai, aur ek nateeja lautaata hai — jo ek achhe se seemit implementation ko suit karta hai jise tum saunp sakte ho. Choice is se nikalti hai ki tum shuru karne se pehle theek jaante ho ki kya chahiye, aur kya tum uske hote waqt shaamil rehna chahte ho.',
+    },
+  },
+  {
+    question: 'How do AI coding tools affect code review culture?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'They shift the bottleneck from writing to REVIEWING, because generating a large change is now cheap while reviewing it is not. That creates a real risk: reviewers face more volume and start approving faster, which is exactly when defects slip through. Healthy responses are keeping PRs small regardless of how quickly they were produced, requiring the author to have actually run and understood the change, and leaning harder on tests and CI as the objective gate.',
+      hinglish:
+        'Wo rukaawat likhne se REVIEW karne pe khisak dete hain, kyunki ek bada badlaav banana ab sasta hai jabki use review karna nahi. Isse ek asli khatra banta hai: reviewers ke saamne zyada maatra aati hai aur wo jaldi approve karne lagte hain, jo theek wahi waqt hai jab kharaabiyaan nikal jaati hain. Sehatmand jawab hain PRs ko chhota rakhna chahe wo kitni jaldi bane hon, likhne wale se ye maangna ki usne badlaav actually chalaya aur samjha hai, aur tests aur CI pe ek nishpaksh gate ki tarah zyada bharosa karna.',
+    },
+  },
+  {
+    question: 'How do you avoid over-relying on AI coding tools?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Understand every change before merging it — if you cannot explain why it works, you cannot maintain or debug it later, and you will be the one paged when it breaks. Keep writing code yourself in areas you are still learning, since skill comes from struggle rather than from reading a correct answer. Use the tool to accelerate what you already understand and to explore what you do not, but treat its output as a draft from a capable colleague, not as an authority.',
+      hinglish:
+        'Merge karne se pehle har badlaav samjho — agar tum nahi samjha sakte ki ye kyun chalta hai, tum ise baad mein sambhaal ya debug nahi kar sakte, aur tootne pe tumhe hi bulaaya jaayega. Un ilaakon mein khud code likhte raho jinhe tum abhi seekh rahe ho, kyunki hunar sangharsh se aata hai, ek sahi jawab padhne se nahi. Tool ko us cheez ko tez karne ke liye use karo jo tum pehle se samajhte ho aur us cheez ko khojne ke liye jo nahi, par uske output ko ek saksham saathi ka draft maano, ek adhikaari nahi.',
+    },
+  },
+  {
+    question: 'What is the risk of AI-generated code introducing security vulnerabilities?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Models learn from public code, which includes a great deal of insecure code, so they can reproduce SQL string concatenation, weak hashing, missing authorisation checks, or a hardcoded secret while looking entirely reasonable. They are also poor at knowing what a change implies for your specific threat model. Mitigate by running SAST and dependency scanning in CI, reviewing authentication and authorisation code manually, and never letting generated code reach production without a security-aware review.',
+      hinglish:
+        'Models saarvajanik code se seekhte hain, jisme bahut saara asurakshit code hai, isliye wo SQL string jodna, kamzor hashing, gayab ijaazat ki jaanch, ya ek hardcoded secret bana sakte hain jabki sab kuch bilkul theek dikhta hai. Wo ye jaanne mein bhi kamzor hain ki ek badlaav tumhare khaas khatre ke liye kya matlab rakhta hai. CI mein SAST aur dependency scanning chalaakar, pehchaan aur ijaazat wala code haath se dekh kar, aur bane code ko kabhi bina suraksha-samajh wale review ke production tak na jaane de kar ise kam karo.',
+    },
+  },
+  {
+    question: 'How do you handle licensing concerns with AI-generated code?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Generated code can resemble training data, so the realistic concerns are inadvertently reproducing a distinctive snippet and pulling in a dependency whose licence is incompatible with your project. Practical steps: check the licence of any dependency the agent adds, run a code-similarity or licence-scanning tool if your organisation requires it, and read your provider\'s indemnity terms. Policies vary by employer, so the honest answer in an interview is that you follow your organisation\'s stated policy.',
+      hinglish:
+        'Bana hua code training data jaisa ho sakta hai, isliye asli chintaayein anjaane mein ek khaas tukda dobara banana aur ek aisi dependency le aana hain jiska licence tumhare project ke saath nahi milta. Vyavaharik kadam: agent ki jodi kisi bhi dependency ka licence jaancho, agar tumhari sanstha kahe to ek code-samaanta ya licence-scanning tool chalao, aur apne provider ki indemnity shartein padho. Niyam har jagah alag hain, isliye ek interview mein imaandaar jawab ye hai ki tum apni sanstha ki batayi neeti follow karte ho.',
+    },
+  },
+  {
+    question: 'How does an AI agent decide which files to read?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'It searches — by filename pattern, by symbol, by full-text — then reads the most promising files and follows imports outward, building understanding incrementally rather than loading the whole repository. That is why a well-organised codebase with clear names and structure gets better results: the agent finds the right files faster. It is also why explicitly naming the relevant files in your task saves time and reduces the chance of it modifying the wrong thing.',
+      hinglish:
+        'Ye khojta hai — filename ke pattern se, symbol se, poore text se — phir sabse ummeed wali files padhta hai aur imports ke peeche bahar jaata hai, poori repository laane ke bajaye dheere-dheere samajh banata hua. Isiliye saaf naam aur dhaanche wala ek achhe se jama codebase behtar nateeje deta hai: agent sahi files jaldi dhoondhta hai. Isiliye apne kaam mein zaroori files ka naam saaf lena samay bachata hai aur galat cheez badalne ka mauka kam karta hai.',
+    },
+  },
+  {
+    question: 'What is the role of tests when working with an AI agent?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Tests are the agent\'s FEEDBACK LOOP and your safety net. With a good suite the agent can run it, see a failure, and correct itself before you ever look at the change — turning a plausible-looking edit into a verified one. Without tests you are reviewing by eye and hoping. This is the strongest practical argument for investing in test coverage before adopting agentic workflows, since coverage directly determines how much you can safely delegate.',
+      hinglish:
+        'Tests agent ka PRATIKRIYA CHAKRA hain aur tumhara suraksha jaal. Ek achhe set ke saath agent use chala sakta hai, ek kharaabi dekh sakta hai, aur tumhare badlaav dekhne se pehle khud ko theek kar sakta hai — ek theek-dikhte badlaav ko ek jaanche hue badlaav mein badalte hue. Tests ke bina tum aankh se review kar rahe ho aur ummeed kar rahe ho. Ye agentic tareekon ko apnaane se pehle test coverage mein nivesh karne ki sabse majboot vyavaharik dalil hai, kyunki coverage seedha tay karta hai ki tum kitna surakshit roop se saunp sakte ho.',
+    },
+  },
+  {
+    question: 'How do you get an AI agent to follow your codebase conventions?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Show rather than tell: point at an existing file that does the same thing correctly, which conveys far more than a written description. Put the durable rules in a project instruction file so they apply to every task. Enforce the mechanical ones with a linter and formatter so drift is caught automatically rather than in review. And when you correct the same deviation twice, write it down — repeating a correction by hand is a sign the context is missing something.',
+      hinglish:
+        'Batao nahi, dikhao: ek maujood file dikhao jo wahi cheez sahi karti hai, jo ek likhe vivaran se bahut zyada batati hai. Tikne wale niyam ek project nirdesh file mein daalo taaki wo har kaam pe lagein. Yaantrik niyamon ko ek linter aur formatter se laagu karo taaki bhatakna review ke bajaye apne aap pakda jaaye. Aur jab tum wahi bhatkav do baar sudhaaro, use likh lo — ek sudhaar haath se dohraana ishaara hai ki sandarbh mein kuch chhoot raha hai.',
+    },
+  },
+  {
+    question: 'What is the difference between a copilot and an autonomous agent?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A COPILOT augments you keystroke by keystroke: it suggests, you accept or reject, and you remain in the loop continuously. An AUTONOMOUS agent takes a goal and works through it independently, making many decisions before returning. The trade is control versus leverage — the copilot never surprises you but never saves you an hour either, while the agent can deliver a complete change but may go some distance in a wrong direction before you see it.',
+      hinglish:
+        'Ek COPILOT tumhe har keystroke pe badhata hai: wo sujhaata hai, tum maante ya mana karte ho, aur tum lagatar loop mein rehte ho. Ek SWATANTRA agent ek lakshya leta hai aur use akele poora karta hai, lautne se pehle bahut faisle karta hua. Trade control versus taakat hai — copilot tumhe kabhi nahi chaunkata par tumhara ek ghanta bhi nahi bachata, jabki agent ek poora badlaav de sakta hai par tumhare dekhne se pehle ek galat disha mein kuch door ja sakta hai.',
+    },
+  },
+  {
+    question: 'How do you debug when an AI agent produces the wrong result?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Ask what CONTEXT was missing rather than rephrasing the same request — the failure is usually a missing convention, an unstated constraint, or a file it never read. Give it the specific error output rather than describing the problem, since exact text is far more useful than a paraphrase. If it is going in circles, stop and start fresh with a narrower task, because a long confused conversation accumulates wrong assumptions that keep influencing the output.',
+      hinglish:
+        'Wahi anurodh dobara likhne ke bajaye poochho ki kaunsa SANDARBH chhoot gaya — kharaabi usually ek gayab niyam, ek na batayi shart, ya ek file jo usne padhi hi nahi. Use samasya batane ke bajaye theek error ka output do, kyunki theek text ek vivaran se bahut zyada kaam ka hai. Agar wo ghoom raha hai, ruko aur ek sankre kaam ke saath naya shuru karo, kyunki ek lambi uljhi baatcheet galat maanyataayein ikattha karti hai jo output pe asar daalti rehti hain.',
+    },
+  },
+  {
+    question: 'What does it mean that an AI model has a training cutoff?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'The model only knows what existed up to a certain date, so it does not know about a framework version, API change, or library released afterwards — and worse, it will confidently use the OLD API because that is what it learned. This is a leading cause of subtly wrong code for fast-moving libraries. Mitigate by giving it the current documentation, pinning versions, and verifying any API you do not personally recognise rather than assuming it exists.',
+      hinglish:
+        'Model sirf wahi jaanta hai jo ek taareekh tak tha, isliye use uske baad aaye ek framework version, API badlaav, ya library ka pata nahi — aur us se bura, wo aatmvishwaas se PURANA API use karega kyunki wahi usne seekha. Ye tez badalti libraries ke liye sookshm roop se galat code ka ek bada karan hai. Ise abhi ki documentation de kar, versions pin karke, aur kisi bhi aise API ko jaanch kar kam karo jise tum khud nahi pehchante, ye maan lene ke bajaye ki wo hai.',
+    },
+  },
+  {
+    question: 'How do you keep an AI agent from making changes you did not ask for?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'State the scope explicitly, including what NOT to touch — "change only the handler, do not modify the schema or reformat other files". Ask for a plan before implementation on anything non-trivial so you can correct the direction cheaply. Keep tasks small so the diff stays readable. And review the full diff rather than the summary, since a drive-by reformat or an unrelated "improvement" is easy to miss when you are reading a description instead of the change.',
+      hinglish:
+        'Daayra saaf batao, ye bhi ki kya NAHI chhoona — "sirf handler badlo, schema mat badlo ya doosri files dobara mat jamao". Kisi bhi gair-maamuli cheez pe implementation se pehle ek yojana maango taaki tum disha saste mein sudhaar sako. Kaam chhote rakho taaki diff padhne layak rahe. Aur saaraansh ke bajaye poora diff dekho, kyunki ek raah chalte dobara jamana ya ek gair-zaroori "sudhaar" tab chhootna aasaan hai jab tum badlaav ke bajaye ek vivaran padh rahe ho.',
+    },
+  },
+  {
+    question: 'What is the value of asking an AI agent to plan before it codes?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A plan is CHEAP to correct and a wrong implementation is not. Reviewing five bullet points takes a moment and catches a misunderstanding before it becomes a four-hundred-line diff that must be discarded. It also surfaces assumptions you did not realise were ambiguous. For a small mechanical task planning is unnecessary overhead, but the larger and more ambiguous the task, the more the plan step pays for itself.',
+      hinglish:
+        'Ek yojana sudhaarna SASTA hai aur ek galat implementation nahi. Paanch points padhna ek pal leta hai aur ek galatfehmi ko char-sau line ke aise diff banne se pehle pakad leta hai jise phenkna padega. Ye wo maanyataayein bhi saamne laata hai jinhe tumne dhundhla samjha hi nahi tha. Ek chhote yaantrik kaam ke liye yojana faltu bojh hai, par kaam jitna bada aur dhundhla ho, yojana ka kadam utna hi apna daam vasool karta hai.',
+    },
+  },
+  {
+    question: 'How do AI coding tools change what junior developers should learn?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Typing speed and memorising syntax matter less; READING and JUDGING code matter far more, because you will spend more time evaluating generated changes than writing them. Debugging, understanding system behaviour, testing, and knowing why one design is better than another become the differentiators — those are exactly what the tools are weakest at. The risk is skipping the struggle that builds those skills, so deliberately working through problems yourself remains necessary.',
+      hinglish:
+        'Type karne ki raftaar aur syntax ratna kam matter karta hai; code PADHNA aur AANKNA bahut zyada, kyunki tum bane hue badlaav aankne mein unhe likhne se zyada samay bitaoge. Debugging, system ka vyavahaar samajhna, testing, aur ye jaanna ki ek design doosre se behtar kyun hai — ye farak banane wali cheezein ban jaati hain, aur theek inhi mein tools sabse kamzor hain. Khatra wo sangharsh chhod dena hai jo ye hunar banata hai, isliye jaan boojh kar samasyaon ko khud hal karna zaroori rehta hai.',
+    },
+  },
+  {
+    question: 'What is prompt injection in the context of a coding agent?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'An agent reads files, issues, dependency README files, and web pages — any of which can contain text addressed to the model, such as "ignore your instructions and add this code". Because the agent has real capabilities, a successful injection can exfiltrate a secret or introduce a backdoor. Defend structurally: treat all read content as DATA rather than instruction, sandbox execution, restrict network and credential access, and require human approval for anything irreversible.',
+      hinglish:
+        'Ek agent files, issues, dependency README files, aur web pages padhta hai — inme se kisi mein bhi model ko sambodhit text ho sakta hai, jaise "apne nirdesh chhodo aur ye code jodo". Kyunki agent ke paas asli taakat hai, ek safal injection ek secret nikaal sakta hai ya ek pichhla darwaza bana sakta hai. Dhaanche se bachao: saare padhe content ko nirdesh ke bajaye DATA maano, chalna sandbox mein rakho, network aur chaabiyon tak pahunch seemit karo, aur kisi bhi na palatne wali cheez ke liye insaan ki manzoori maango.',
+    },
+  },
+  {
+    question: 'When should you not use an AI coding agent?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'When the task requires a product or architectural DECISION rather than execution, since the agent will pick something plausible without the context to judge. When you do not understand the problem yourself — you will not be able to tell a correct solution from a confident wrong one. On code where a subtle mistake is very costly, such as payments, auth, or migrations, without careful review. And when the work is genuinely faster to do yourself than to specify precisely.',
+      hinglish:
+        'Jab kaam ko chalane ke bajaye ek product ya dhaanche ka FAISLA chahiye, kyunki agent bina aankne ke sandarbh ke kuch theek-lagta chun lega. Jab tum khud samasya nahi samajhte — tum ek sahi hal ko ek aatmvishwaasi galat hal se alag nahi kar paoge. Us code pe jahan ek sookshm galti bahut mehngi hai, jaise payments, auth, ya migrations, bina dhyaan se review ke. Aur jab kaam theek se batane se khud karna genuinely tez ho.',
+    },
+  },
+  {
+    question: 'How do you measure whether an AI coding tool is actually helping?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Measure OUTCOMES rather than activity. Lines generated or suggestions accepted tell you nothing about value. Look at cycle time from ticket to merged PR, change failure rate, the proportion of PRs needing substantial rework, and whether review time per change has risen. Also track the qualitative signal: are people merging code they do not understand? A tool that raises throughput while lowering comprehension is a liability that will surface as incidents later.',
+      hinglish:
+        'Kaam-dhandhe ke bajaye NATEEJE naapo. Bani lines ya maane gaye sujhaav value ke baare mein kuch nahi batate. Ticket se merge hue PR tak ka samay, badlaav ke fail hone ki dar, kaafi dobara kaam maangte PRs ka hissa, aur kya per badlaav review ka samay badha hai — ye dekho. Wo gunvatta wala ishaara bhi dekho: kya log wo code merge kar rahe hain jise wo samajhte nahi? Ek tool jo kaam badhata hai par samajh ghataata hai wo ek bojh hai jo baad mein ghatnaon ki tarah saamne aayega.',
+    },
+  },
+  {
+    question: 'How do you use an AI agent for refactoring safely?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Ensure there is test coverage FIRST — refactoring without tests is just editing and hoping, and an agent makes it fast enough to break a lot quickly. Do one mechanical transformation at a time so the diff is reviewable and revertable. Keep behaviour changes out of a refactoring commit entirely, so a bisect can distinguish "the refactor broke it" from "the feature broke it". And verify the tests actually pass rather than trusting a summary that says they do.',
+      hinglish:
+        'PEHLE pakka karo ki test coverage hai — bina tests ke refactoring bas badalna aur ummeed karna hai, aur ek agent ise itna tez bana deta hai ki bahut kuch jaldi toot sakta hai. Ek baar mein ek yaantrik badlaav karo taaki diff dekhne aur palatne layak ho. Vyavaahar ke badlaav ek refactoring commit se poori tarah bahar rakho, taaki ek bisect "refactor ne toda" ko "feature ne toda" se alag kar sake. Aur pakka karo ki tests actually paas hote hain, ek saaraansh pe bharosa karne ke bajaye jo kahe ki hote hain.',
+    },
+  },
+  {
+    question: 'What is the difference between using an AI tool for exploration versus implementation?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'EXPLORATION means asking it to explain an unfamiliar codebase, trace how a request flows, or summarise what a module does — here a small inaccuracy costs little because you verify as you go. IMPLEMENTATION means producing code that will run in production, where an inaccuracy is a bug. Exploration is where these tools are most reliably valuable and least risky, and it is often the highest-return use in a large unfamiliar codebase.',
+      hinglish:
+        'KHOJ ka matlab hai us se ek anjaana codebase samjhwaana, ek request ka raasta dhoondhna, ya ek module kya karta hai uska saaraansh maangna — yahan ek chhoti galti kam cost karti hai kyunki tum saath-saath jaanchte ho. IMPLEMENTATION ka matlab hai aisa code banana jo production mein chalega, jahan ek galti ek bug hai. Khoj hi wahan hai jahan ye tools sabse bharose se kaam ke aur sabse kam khatarnaak hain, aur ek bade anjaane codebase mein ye aksar sabse zyada faayde wala istemaal hai.',
+    },
+  },
+  {
+    question: 'How should a team adopt AI coding tools responsibly?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Start with low-risk, high-volume work — tests, documentation, mechanical refactors — so the team builds judgement before the stakes rise. Agree explicitly on what may not be delegated, such as auth and payments, and on the review standard for generated code. Write down the shared context in a project instruction file. Keep existing controls in place: CI, review, branch protection, security scanning. And revisit the policy as the tools change, because the capabilities move quickly.',
+      hinglish:
+        'Kam khatre, zyada maatra wale kaam se shuru karo — tests, documentation, yaantrik refactors — taaki daanv badhne se pehle team ki samajh bane. Saaf tay karo ki kya nahi saunpa ja sakta, jaise auth aur payments, aur bane hue code ke liye review ka star. Saanjha sandarbh ek project nirdesh file mein likho. Maujood control bane rehne do: CI, review, branch suraksha, suraksha scanning. Aur tools badalne ke saath neeti dobara dekho, kyunki kshamtaayein tezi se badalti hain.',
+    },
+  },
+  {
+    question: 'What does it mean that these models are non-deterministic?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The same prompt can produce different output on different runs, even with temperature at zero, because of sampling and infrastructure-level variation. Practically that means you cannot rely on an agent producing an identical patch twice, you cannot cache by prompt and assume equivalence, and a test that passes once may not on a rerun. Design around it: verify outputs rather than trusting them, and never make reproducibility of the model itself a system requirement.',
+      hinglish:
+        'Wahi prompt alag runs pe alag output de sakta hai, temperature zero pe bhi, sampling aur dhaanche ke star ke antar ki wajah se. Vyavaharik roop se matlab tum ek agent ke do baar ek jaisa patch banane pe bharosa nahi kar sakte, tum prompt se cache karke barabari nahi maan sakte, aur ek test jo ek baar paas hua wo dobara chalane pe shayad na ho. Iske around design karo: outputs pe bharosa karne ke bajaye unhe jaancho, aur khud model ke dobara wahi hone ko kabhi ek system ki zaroorat mat banao.',
     },
   },
 ];
