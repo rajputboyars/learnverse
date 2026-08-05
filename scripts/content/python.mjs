@@ -76,7 +76,7 @@ const beginner = [
           {
             question: 'Is Python compiled or interpreted? Explain.',
             difficulty: 'easy',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Python is primarily an interpreted language. When you run a .py file, the CPython interpreter first compiles your source to intermediate bytecode (.pyc) and then a virtual machine executes that bytecode line by line — there is no separate manual build step like in C/C++. This gives Python its fast write-run-debug loop and platform independence, at the cost of slower raw execution speed compared to fully compiled languages.',
@@ -330,7 +330,7 @@ const beginner = [
           {
             question: 'What is the difference between break and continue?',
             difficulty: 'easy',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 '`break` terminates the entire loop immediately — execution jumps to the first statement after the loop, and no further iterations happen. `continue` only ends the current iteration — it skips the rest of the loop body and jumps back to the loop\'s next iteration (re-checking the condition for while, or advancing for for). Use break when you have found what you need; use continue to skip items that do not qualify while still processing the rest.',
@@ -537,7 +537,7 @@ const intermediate = [
           {
             question: 'What is the difference between *args and **kwargs?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 '`*args` collects any number of extra POSITIONAL arguments into a tuple, so you can call a function with however many unnamed values you want. `**kwargs` collects any number of extra KEYWORD (named) arguments into a dictionary, where each key is the argument name and the value is what was passed. They are often used together as `def f(*args, **kwargs)` to accept and forward arbitrary arguments — common in decorators and wrapper functions. The names args/kwargs are convention; only the * and ** matter.',
@@ -749,7 +749,7 @@ const intermediate = [
           {
             question: 'Explain the try / except / else / finally structure.',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'The `try` block holds code that might raise an exception. If an exception occurs, Python jumps to the matching `except` block to handle it (you can have several, most specific first). The optional `else` block runs only if the try block completed WITHOUT raising — useful for code that should run on success and that you do not want accidentally caught by except. The `finally` block ALWAYS runs, whether or not there was an exception or even a return — it is for cleanup like closing files or releasing connections. This structure lets you fail gracefully and guarantee cleanup.',
@@ -850,7 +850,7 @@ const advanced = [
           {
             question: 'What is the difference between a class and an object?',
             difficulty: 'easy',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'A class is a blueprint or template that defines what attributes (data) and methods (behaviour) something will have. An object is a concrete instance created from that class, with its own copy of the attribute values. For example, "Student" is a class describing that every student has a name and marks; "Riya with 85 marks" and "Aman with 28 marks" are two distinct objects of that class. You define a class once and can create as many objects from it as you need.',
@@ -1009,6 +1009,459 @@ export const generalInterviewQuestions = [
         'The GIL is a mutex in CPython (the standard Python) that allows only one thread to execute Python bytecode at a time, even on a multi-core CPU. It simplifies memory management and makes single-threaded code fast and safe, but it means pure-Python CPU-bound work does not speed up with threads. The practical takeaway: use threads for I/O-bound tasks (network, disk, where threads wait anyway), and use the multiprocessing module (separate processes, each with its own GIL) or C-extension libraries like NumPy for CPU-bound parallelism.',
       hinglish:
         'GIL CPython (standard Python) mein ek mutex hai jo ek samay par sirf ek thread ko Python bytecode execute karne deta hai, multi-core CPU par bhi. Ye memory management simple banata hai aur single-threaded code ko fast aur safe rakhta hai, par iska matlab pure-Python CPU-bound kaam threads se tez nahi hota. Practical baat: I/O-bound tasks ke liye threads use karo (network, disk, jahan threads waise bhi wait karte hain), aur CPU-bound parallelism ke liye multiprocessing module (alag processes, har ek ka apna GIL) ya NumPy jaisi C-extension libraries use karo.',
+    },
+  },
+
+  // ─── Core Python ────────────────────────────────────────────
+  {
+    question: 'What is the difference between a list, tuple, and set?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A LIST is ordered and mutable, with O(1) append and O(n) membership testing. A TUPLE is ordered and IMMUTABLE, which makes it hashable so it can be a dict key or set member, and slightly faster and smaller. A SET is unordered, holds unique elements, and gives O(1) membership testing — which is why replacing `x in some_list` inside a loop with a set turns an O(n²) algorithm into O(n).',
+      hinglish:
+        'Ek LIST kramik aur badalne layak hai, O(1) append aur O(n) sadasyata jaanch ke saath. Ek TUPLE kramik aur ACHAL hai, jo ise hashable banata hai taaki wo ek dict key ya set ka sadasya ban sake, aur thoda tez aur chhota. Ek SET bina kram ka hai, anokhe elements rakhta hai, aur O(1) sadasyata jaanch deta hai — isiliye ek loop ke andar `x in some_list` ko ek set se badalna ek O(n²) algorithm ko O(n) bana deta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between mutable and immutable types?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Immutable types — int, float, str, tuple, frozenset — cannot be changed after creation, so any "modification" creates a new object. Mutable types — list, dict, set — are changed in place, which means two names bound to the same list see each other\'s changes. That aliasing is the root of most Python surprises, and it is why immutable types are hashable and safe as dict keys while mutable ones are not.',
+      hinglish:
+        'Achal types — int, float, str, tuple, frozenset — banne ke baad badle nahi ja sakte, isliye koi bhi "badlaav" ek naya object banata hai. Badalne layak types — list, dict, set — jagah pe badalte hain, matlab ek hi list se jude do naam ek doosre ke badlaav dekhte hain. Wahi ek jaisa naam hona zyadatar Python hairaaniyon ki jad hai, aur isiliye achal types hashable aur dict keys ke roop mein surakshit hain jabki badalne layak nahi.',
+    },
+  },
+  {
+    question: 'Why is a mutable default argument dangerous?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The default value is evaluated ONCE when the function is defined, not on each call, so `def f(items=[])` shares one list across every call — appending in one call is visible in the next, producing a bug that looks like the function has memory. The fix is `def f(items=None)` and creating the list inside. It is one of the most frequently asked Python gotchas because it demonstrates that defaults are bound at definition time.',
+      hinglish:
+        'Default value function define hote waqt EK BAAR nikaali jaati hai, har call pe nahi, isliye `def f(items=[])` har call mein ek hi list share karta hai — ek call mein jodna agli mein dikhta hai, ek aisa bug banate hue jo lagta hai function ki yaaddasht hai. Fix `def f(items=None)` aur list andar banana hai. Ye sabse zyada poochhe jaane wale Python jaalon mein se ek hai kyunki ye dikhata hai ki defaults define hote waqt bandhte hain.',
+    },
+  },
+  {
+    question: 'What is the difference between is and ==?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`==` compares VALUES by calling `__eq__`; `is` compares IDENTITY, meaning whether both names point to the same object. Use `is` only for singletons: `x is None`, `is True`, `is False`. Comparing small integers or short strings with `is` may appear to work because CPython interns them, but that is an implementation detail — the same code fails for larger values, which makes it a bug that only shows up with real data.',
+      hinglish:
+        '`==` VALUES ko `__eq__` bula kar compare karta hai; `is` PEHCHAAN compare karta hai, matlab dono naam ek hi object pe point karte hain ya nahi. `is` sirf singletons ke liye use karo: `x is None`, `is True`, `is False`. Chhote integers ya chhoti strings ko `is` se compare karna chalta dikh sakta hai kyunki CPython unhe intern karta hai, par wo ek implementation ki baat hai — wahi code bade values ke liye fail hota hai, jo ise ek aisa bug banata hai jo sirf asli data ke saath dikhta hai.',
+    },
+  },
+  {
+    question: 'What is a decorator and how does it work?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A decorator is a function that takes a function and returns a replacement, so `@log` is simply `f = log(f)`. It lets you add behaviour — logging, timing, caching, authentication — without editing the function body, which keeps cross-cutting concerns separate. Always apply `functools.wraps` to the inner function, or the decorated function loses its name, docstring, and signature, which breaks introspection and documentation tools.',
+      hinglish:
+        'Ek decorator ek function hai jo ek function leta hai aur ek badal lautaata hai, isliye `@log` bas `f = log(f)` hai. Ye tumhe function ki body edit kiye bina behaviour jodne deta hai — logging, timing, caching, authentication — jo alag-alag chintaayein alag rakhta hai. Andar wale function pe hamesha `functools.wraps` lagao, warna decorate kiya function apna naam, docstring, aur signature kho deta hai, jo introspection aur documentation tools todta hai.',
+    },
+  },
+  {
+    question: 'What is a generator and when should you use one?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A generator uses `yield` to produce values one at a time, computing each only when requested, so memory stays constant regardless of how many values there are. It is ideal for reading a huge file line by line, streaming database rows, or an infinite sequence. The limitations are that you can only iterate FORWARD and ONCE, and you cannot take its length or index into it — a generator that has been consumed is empty.',
+      hinglish:
+        'Ek generator `yield` se ek-ek karke values banata hai, har ek ko sirf maange jaane pe nikaalte hue, isliye kitni bhi values hon memory sthir rehti hai. Ye ek badi file line dar line padhne, database rows stream karne, ya ek anant shrinkhala ke liye ideal hai. Seemayein ye hain ki tum sirf AAGE aur EK BAAR chal sakte ho, aur uski lambaai ya index nahi le sakte — ek khatam ho chuka generator khaali hai.',
+    },
+  },
+  {
+    question: 'What is the difference between a list comprehension and a generator expression?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A list comprehension `[x*2 for x in data]` builds the ENTIRE list in memory immediately. A generator expression `(x*2 for x in data)` produces values lazily one at a time. Use the generator when feeding a `sum`, `any`, `max`, or a loop — it uses constant memory and can short-circuit. Use the list when you need to index, take the length, or iterate more than once, since a generator is exhausted after one pass.',
+      hinglish:
+        'Ek list comprehension `[x*2 for x in data]` POORI list turant memory mein banata hai. Ek generator expression `(x*2 for x in data)` values ko sust roop se ek-ek karke banata hai. Ek `sum`, `any`, `max`, ya ek loop ko dete waqt generator use karo — ye sthir memory leta hai aur jaldi ruk sakta hai. List tab use karo jab tumhe index karna ho, lambaai leni ho, ya ek se zyada baar chalna ho, kyunki ek generator ek pass ke baad khatam ho jaata hai.',
+    },
+  },
+  {
+    question: 'What are *args and **kwargs?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`*args` collects extra POSITIONAL arguments into a tuple; `**kwargs` collects extra KEYWORD arguments into a dict. They also work in reverse at a call site, unpacking a sequence or dict into arguments. They are essential for writing decorators and wrappers that must forward arbitrary arguments unchanged. Overusing them in ordinary functions hurts readability and defeats type checking, since the signature no longer documents what is accepted.',
+      hinglish:
+        '`*args` extra JAGAH wale arguments ko ek tuple mein ikattha karta hai; `**kwargs` extra KEYWORD arguments ko ek dict mein. Wo ek call ki jagah pe ulta bhi chalte hain, ek anukram ya dict ko arguments mein kholte hue. Wo aise decorators aur wrappers likhne ke liye zaroori hain jinhe koi bhi arguments waise ke waise aage bhejne hain. Aam functions mein inka zyada istemaal padhna bigaadta hai aur type checking haraata hai, kyunki signature ab nahi batata ki kya sweekar hai.',
+    },
+  },
+  {
+    question: 'What is the difference between deep copy and shallow copy?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A SHALLOW copy — `list(x)`, `x[:]`, `copy.copy` — duplicates the outer container but copies REFERENCES to the nested objects, so mutating a nested list affects both copies. `copy.deepcopy` recursively duplicates everything, giving full independence, and it handles circular references. Deepcopy is slow on large structures, so the usual advice is to avoid needing it by preferring immutable data or by constructing new objects rather than mutating shared ones.',
+      hinglish:
+        'Ek SHALLOW copy — `list(x)`, `x[:]`, `copy.copy` — bahar wala container duplicate karti hai par andar ke objects ke REFERENCES copy karti hai, isliye ek andar ki list badalna dono copies ko affect karta hai. `copy.deepcopy` recursively sab kuch duplicate karta hai, poori swatantrata dete hue, aur ye ghoomte references sambhalta hai. Deepcopy bade dhaanchon pe dheema hai, isliye aam salah ye hai ki achal data prefer karke ya saanjhi cheezein badalne ke bajaye naye objects banaakar iski zaroorat hi na padne do.',
+    },
+  },
+  {
+    question: 'How does Python manage memory and garbage collection?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'CPython uses REFERENCE COUNTING: every object tracks how many names point to it and is freed immediately when that reaches zero. That is predictable and prompt, but it cannot free CYCLES — two objects referring to each other keep each other alive — so a generational cycle collector runs periodically to catch those. You can still leak memory by holding references in a global cache, an unclosed resource, or a lingering closure.',
+      hinglish:
+        'CPython REFERENCE COUNTING use karta hai: har object ginta hai ki kitne naam us pe point karte hain aur wo zero hone pe turant khaali ho jaata hai. Ye anumaan layak aur turant hai, par ye CHAKRA khaali nahi kar sakta — ek doosre ko batate do objects ek doosre ko jinda rakhte hain — isliye ek generational cycle collector samay-samay pe unhe pakadne chalta hai. Tum abhi bhi ek global cache, ek band na kiya resource, ya ek ruke hue closure mein references rakh kar memory leak kar sakte ho.',
+    },
+  },
+  {
+    question: 'What is a context manager and how do you write one?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A context manager guarantees setup and cleanup around a block via `with`, and the cleanup runs even if an exception is raised — which is why `with open(...)` is correct and calling `close()` manually is not. Implement it with `__enter__` and `__exit__`, or more simply with the `@contextmanager` decorator and a generator that yields once. Use it for files, locks, database transactions, and temporary state changes.',
+      hinglish:
+        'Ek context manager `with` se ek block ke around taiyari aur safai pakki karta hai, aur safai tab bhi chalti hai jab ek exception uthe — isiliye `with open(...)` sahi hai aur `close()` khud bulana nahi. Ise `__enter__` aur `__exit__` se banao, ya zyada simple `@contextmanager` decorator aur ek generator se jo ek baar yield kare. Ise files, locks, database transactions, aur asthayi state badlaav ke liye use karo.',
+    },
+  },
+  {
+    question: 'What is the difference between staticmethod, classmethod, and instance method?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An INSTANCE method receives `self` and operates on a specific object. A CLASSMETHOD receives `cls` and operates on the class, which makes it the right way to write alternative constructors — and crucially `cls` respects inheritance, so a subclass gets an instance of itself. A STATICMETHOD receives neither and is really just a function grouped inside the class for namespacing, with no access to class or instance state.',
+      hinglish:
+        'Ek INSTANCE method `self` paati hai aur ek khaas object pe chalti hai. Ek CLASSMETHOD `cls` paati hai aur class pe chalti hai, jo ise alag constructors likhne ka sahi tareeka banata hai — aur critically `cls` inheritance maanta hai, isliye ek subclass ko apna hi instance milta hai. Ek STATICMETHOD kuch nahi paati aur sach mein bas ek function hai jo naam ke liye class ke andar rakha gaya, bina class ya instance state tak pahunch ke.',
+    },
+  },
+  {
+    question: 'What is the MRO and how does multiple inheritance work?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'The Method Resolution Order is the linear sequence Python searches when looking up an attribute, computed by the C3 linearisation algorithm and visible via `Class.__mro__`. It guarantees a consistent order in a diamond hierarchy, so a shared base class is visited only once. `super()` follows the MRO rather than simply calling the parent, which is why every class in a cooperative hierarchy must call `super().__init__()` for initialisation to work correctly.',
+      hinglish:
+        'Method Resolution Order wo seedha kram hai jisme Python ek attribute dhoondhta hai, jo C3 linearisation algorithm se nikalta hai aur `Class.__mro__` se dikhta hai. Ye ek heere jaisi hierarchy mein ek jaisa kram pakka karta hai, isliye ek saanjhi base class sirf ek baar dekhi jaati hai. `super()` sirf parent bulaane ke bajaye MRO follow karta hai, isiliye ek milkar kaam karti hierarchy mein har class ko `super().__init__()` bulana chahiye taaki shuruaat sahi chale.',
+    },
+  },
+  {
+    question: 'What are dunder methods?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Dunder ("double underscore") methods let your class integrate with Python\'s syntax and built-ins: `__init__` for construction, `__repr__` and `__str__` for display, `__eq__` and `__hash__` for equality and dict keys, `__len__`, `__iter__`, `__getitem__` for container behaviour, and `__enter__`/`__exit__` for context managers. Implementing them makes a custom class feel native. Always define `__repr__` — it is what you see when debugging.',
+      hinglish:
+        'Dunder ("do underscore") methods tumhari class ko Python ke syntax aur built-ins se jodte hain: banane ke liye `__init__`, dikhaane ke liye `__repr__` aur `__str__`, barabari aur dict keys ke liye `__eq__` aur `__hash__`, container behaviour ke liye `__len__`, `__iter__`, `__getitem__`, aur context managers ke liye `__enter__`/`__exit__`. Inhe banana ek custom class ko native feel karata hai. `__repr__` hamesha banao — debugging mein wahi dikhta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between __str__ and __repr__?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`__str__` is for END USERS and should be readable; `__repr__` is for DEVELOPERS and should be unambiguous, ideally valid Python that would recreate the object. `print()` uses `__str__`, while the REPL, the debugger, and containers use `__repr__` — which is why a list of your objects shows repr, not str. If you implement only one, implement `__repr__`, since Python falls back to it for `str` but not the other way round.',
+      hinglish:
+        '`__str__` AAKHRI USERS ke liye hai aur padhne layak hona chahiye; `__repr__` DEVELOPERS ke liye hai aur saaf hona chahiye, ideally valid Python jo object dobara banaye. `print()` `__str__` use karta hai, jabki REPL, debugger, aur containers `__repr__` — isiliye tumhare objects ki ek list repr dikhati hai, str nahi. Agar sirf ek banao, `__repr__` banao, kyunki Python `str` ke liye us pe girta hai par ulta nahi.',
+    },
+  },
+  {
+    question: 'What is a dataclass and when should you use one?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`@dataclass` generates `__init__`, `__repr__`, and `__eq__` from annotated fields, removing a large amount of boilerplate for classes that mainly hold data. `frozen=True` makes instances immutable and hashable. `field(default_factory=list)` avoids the mutable-default trap. Use it for value objects and configuration. For runtime VALIDATION of external data, Pydantic is the better choice — a dataclass annotation is a hint, not a check.',
+      hinglish:
+        '`@dataclass` annotated fields se `__init__`, `__repr__`, aur `__eq__` banata hai, un classes ke liye bahut saara boilerplate hataate hue jo mukhya roop se data rakhti hain. `frozen=True` instances ko achal aur hashable banata hai. `field(default_factory=list)` badalne layak default ka jaal bachata hai. Ise value objects aur configuration ke liye use karo. Bahar ke data ki runtime JAANCH ke liye, Pydantic behtar choice hai — ek dataclass annotation ek ishaara hai, ek jaanch nahi.',
+    },
+  },
+  {
+    question: 'What are Python type hints and are they enforced?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Type hints annotate expected types but Python does NOT enforce them at runtime — passing a string where an int is annotated runs happily. They exist for static checkers such as mypy and pyright, for IDE autocompletion, and as documentation that cannot drift as easily as a comment. To enforce types on real input, you need explicit validation or a library such as Pydantic, which reads the same annotations and checks them at runtime.',
+      hinglish:
+        'Type hints ummeed ke types batate hain par Python unhe runtime pe LAAGU nahi karta — jahan int likha hai wahan ek string dena khushi se chalta hai. Wo mypy aur pyright jaise static checkers ke liye, IDE autocompletion ke liye, aur ek aisi documentation ke liye hain jo ek comment jitni aasaani se purani nahi hoti. Asli input pe types laagu karne ke liye, tumhe explicit jaanch ya Pydantic jaisi ek library chahiye, jo wahi annotations padh kar runtime pe jaanchti hai.',
+    },
+  },
+  {
+    question: 'What is the difference between threading, multiprocessing, and asyncio?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'THREADING gives concurrency but the GIL prevents true CPU parallelism, so it helps only for I/O-bound work where threads spend time waiting. MULTIPROCESSING spawns separate processes each with its own GIL, giving real parallelism for CPU-bound work at the cost of process startup and expensive inter-process communication. ASYNCIO is single-threaded cooperative concurrency, the most efficient option for large numbers of I/O operations, but a blocking call inside it stalls everything.',
+      hinglish:
+        'THREADING ek saath chalna deta hai par GIL asli CPU samanantar rokta hai, isliye ye sirf I/O-bound kaam mein madad karta hai jahan threads intezaar mein samay bitaate hain. MULTIPROCESSING alag processes banata hai har ek apne GIL ke saath, CPU-bound kaam ke liye asli samanantar deta hua, process shuru hone aur mehngi aapsi baat ke cost pe. ASYNCIO ek-thread wala milkar chalna hai, bahut saare I/O operations ke liye sabse efficient, par uske andar ek rokne wala call sab kuch rok deta hai.',
+    },
+  },
+  {
+    question: 'What is asyncio and when does it help?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Asyncio runs an event loop on one thread; `await` yields control while waiting for I/O so other coroutines proceed. It excels at thousands of concurrent network calls, where threads would be too expensive. It does NOT speed up CPU-bound work — a heavy computation blocks the loop entirely — and calling a synchronous blocking library inside async code silently destroys the benefit. Use `run_in_executor` or an async-native library for those cases.',
+      hinglish:
+        'Asyncio ek thread pe ek event loop chalata hai; `await` I/O ka intezaar karte waqt control chhod deta hai taaki doosre coroutines aage badhein. Ye hazaaron ek saath network calls mein excel karta hai, jahan threads bahut mehnge hote. Ye CPU-bound kaam tez NAHI karta — ek bhaari hisaab poora loop rok deta hai — aur async code ke andar ek rokne wali synchronous library bulaana chupke se faayda mita deta hai. Un cases ke liye `run_in_executor` ya ek async-native library use karo.',
+    },
+  },
+  {
+    question: 'What is the difference between an iterator and an iterable?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An ITERABLE implements `__iter__` and can produce an iterator — a list, a string, a dict. An ITERATOR implements `__next__` and holds the position, raising `StopIteration` when exhausted. A list is iterable but not an iterator, which is why you can loop over it repeatedly. A generator is BOTH, which is why it can only be consumed once — a fact that causes real bugs when a generator is passed to two functions.',
+      hinglish:
+        'Ek ITERABLE `__iter__` banata hai aur ek iterator bana sakta hai — ek list, ek string, ek dict. Ek ITERATOR `__next__` banata hai aur jagah rakhta hai, khatam hone pe `StopIteration` uthate hue. Ek list iterable hai par iterator nahi, isiliye tum us pe baar-baar loop kar sakte ho. Ek generator DONO hai, isiliye wo sirf ek baar istemaal ho sakta hai — ek baat jo asli bugs banati hai jab ek generator do functions ko diya jaaye.',
+    },
+  },
+  {
+    question: 'What is a closure in Python?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A closure is an inner function that remembers variables from its enclosing scope even after that scope has returned. It underpins decorators and factory functions. The classic trap is a closure created in a loop capturing the loop VARIABLE rather than its value, so every closure sees the final value — fixed with a default argument `lambda x=x: ...`. Use `nonlocal` to rebind an enclosing variable rather than shadowing it.',
+      hinglish:
+        'Ek closure ek andar ka function hai jo apne bahar ke daayre ke variables yaad rakhta hai us daayre ke lautne ke baad bhi. Ye decorators aur factory functions ke neeche hai. Classic jaal ek loop mein bana closure hai jo loop ka VARIABLE pakadta hai uski value ke bajaye, isliye har closure aakhri value dekhta hai — ek default argument `lambda x=x: ...` se theek hota hai. Bahar ke ek variable ko dobara bandhne ke liye `nonlocal` use karo, use dhakne ke bajaye.',
+    },
+  },
+  {
+    question: 'What is the LEGB rule?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Python resolves a name by searching LOCAL, then ENCLOSING (any outer function), then GLOBAL (module level), then BUILT-IN. Assigning to a name anywhere in a function makes it local for the whole function, which is why reading a global then assigning to it raises `UnboundLocalError` — a confusing error since the read looks valid. Use `global` or `nonlocal` to rebind, though needing either usually signals a design that would be clearer with a parameter and a return.',
+      hinglish:
+        'Python ek naam ko LOCAL, phir ENCLOSING (koi bahar ka function), phir GLOBAL (module star), phir BUILT-IN dhoondh kar sulhaata hai. Ek function mein kahin bhi ek naam ko assign karna use poore function ke liye local bana deta hai, isiliye ek global padhna phir use assign karna `UnboundLocalError` deta hai — ek uljhaane wali error kyunki padhna valid dikhta hai. Dobara bandhne ke liye `global` ya `nonlocal` use karo, halaanki inme se koi chahiye hona usually ek aise design ka ishaara hai jo ek parameter aur ek return se saaf hota.',
+    },
+  },
+  {
+    question: 'How do you handle exceptions well in Python?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Catch the NARROWEST exception you can handle, not bare `except:` which also swallows `KeyboardInterrupt` and `SystemExit`. Use `else` for code that should run only if no exception occurred, and `finally` for cleanup. Preserve context with `raise ... from err` so the original traceback is not lost. Define domain-specific exception classes so callers can distinguish causes. And never leave a silent `pass` in a handler — that is how failures disappear.',
+      hinglish:
+        'Jo tum sambhaal sako us SABSE SANKRE exception ko pakado, khaali `except:` nahi jo `KeyboardInterrupt` aur `SystemExit` bhi nigal leta hai. Us code ke liye `else` use karo jo sirf tab chale jab koi exception na ho, aur safai ke liye `finally`. `raise ... from err` se sandarbh bachao taaki asli traceback na khoye. Apne kshetra ke exception classes banao taaki bulaane wale karan alag kar sakein. Aur ek handler mein kabhi ek chupka `pass` mat chhodo — isse hi kharaabiyaan gayab hoti hain.',
+    },
+  },
+  {
+    question: 'What is the difference between EAFP and LBYL?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'LBYL — "look before you leap" — checks a condition first, as in `if key in d`. EAFP — "easier to ask forgiveness than permission" — just tries it and catches the exception. Python prefers EAFP because it avoids a RACE between the check and the use, which matters for files and shared state, and because the happy path costs nothing while exceptions are only expensive when actually raised.',
+      hinglish:
+        'LBYL — "koodne se pehle dekho" — pehle ek shart jaanchta hai, jaise `if key in d`. EAFP — "ijaazat se aasaan maafi" — bas koshish karta hai aur exception pakadta hai. Python EAFP prefer karta hai kyunki ye jaanch aur istemaal ke beech ek DAUD bachata hai, jo files aur saanjhi state ke liye matter karta hai, aur kyunki khush raasta kuch cost nahi karta jabki exceptions sirf actually uthne pe mehnge hain.',
+    },
+  },
+  {
+    question: 'What is the walrus operator?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`:=` assigns within an expression, so you can bind and test in one step: `if (n := len(data)) > 10:` avoids computing the length twice or writing an extra line. It is genuinely useful in while loops reading chunks and in comprehensions that reuse an expensive computed value. Overusing it hurts readability, and it cannot be used as a plain statement, which prevents the classic `if x = 5` typo from C.',
+      hinglish:
+        '`:=` ek expression ke andar assign karta hai, isliye tum ek kadam mein bandh aur jaanch sakte ho: `if (n := len(data)) > 10:` lambaai do baar nikaalna ya ek extra line likhna bachata hai. Ye tukde padhte while loops aur ek mehngi nikaali value dobara istemaal karte comprehensions mein genuinely kaam ka hai. Iska zyada istemaal padhna bigaadta hai, aur ise ek saada statement ki tarah use nahi kiya ja sakta, jo C wala classic `if x = 5` jaal rokta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between range and xrange, and how do slices work?',
+    difficulty: 'easy',
+    frequency: 'rare',
+    answer: {
+      english:
+        'In Python 3 `range` is already lazy, producing values on demand — `xrange` was the Python 2 name and no longer exists. Slicing uses `[start:stop:step]` with stop EXCLUSIVE, negative indices counting from the end, and a negative step reversing — `x[::-1]` is the idiomatic reverse. Slicing a list returns a shallow COPY, while slicing a NumPy array returns a view, which is a difference that catches people moving between the two.',
+      hinglish:
+        'Python 3 mein `range` pehle se sust hai, zaroorat pe values banata hua — `xrange` Python 2 ka naam tha aur ab nahi hai. Slicing `[start:stop:step]` use karti hai jisme stop CHHODA jaata hai, negative indices aakhir se ginte hain, aur ek negative step ulta karta hai — `x[::-1]` idiomatic ulta hai. Ek list slice karna ek shallow COPY lautaata hai, jabki ek NumPy array slice karna ek view — ek farak jo dono ke beech aate-jaate logon ko pakadta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between a module and a package?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A MODULE is a single `.py` file. A PACKAGE is a directory containing modules, historically marked by `__init__.py` — which is still how you control what the package exports and run initialisation, though namespace packages no longer require it. Prefer ABSOLUTE imports over relative ones for clarity. And avoid circular imports: if two modules import each other, extract the shared piece into a third module rather than deferring the import.',
+      hinglish:
+        'Ek MODULE ek `.py` file hai. Ek PACKAGE modules wali ek directory hai, historically `__init__.py` se batayi jaati — jisse tum abhi bhi control karte ho ki package kya deta hai aur shuruaat chalate ho, halaanki namespace packages ko wo ab nahi chahiye. Saafi ke liye relative ke bajaye ABSOLUTE imports prefer karo. Aur ghoomte imports se bacho: agar do modules ek doosre ko import karein, import taalne ke bajaye saanjha hissa ek teesre module mein nikaalo.',
+    },
+  },
+  {
+    question: 'What is a virtual environment and why does it matter?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A virtual environment gives a project its own isolated set of installed packages, so two projects can depend on different versions of the same library without conflict, and nothing pollutes the system Python. Create one with `python -m venv`, or use a modern tool such as uv or Poetry which also manages a lock file. Installing packages globally is the single most common cause of "it works on my machine" dependency problems.',
+      hinglish:
+        'Ek virtual environment ek project ko apne alag install kiye packages deta hai, isliye do projects ek hi library ke alag versions pe bina takraav ke depend kar sakte hain, aur system Python gandi nahi hoti. Ek `python -m venv` se banao, ya uv ya Poetry jaisa ek modern tool use karo jo ek lock file bhi sambhalta hai. Packages globally install karna "mere computer pe to chalta hai" wali dependency samasyaon ka sabse aam karan hai.',
+    },
+  },
+  {
+    question: 'What is the difference between requirements.txt and a lock file?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A `requirements.txt` typically lists direct dependencies with loose version ranges, so two installs weeks apart can produce different environments. A LOCK FILE pins exact versions of the entire dependency TREE, including transitive dependencies, plus hashes — so every install is byte-identical and reproducible. Commit the lock file. Without one, a patch release of a dependency you never named can break your build with no change on your side.',
+      hinglish:
+        'Ek `requirements.txt` typically seedhi dependencies ko dheeli version ranges ke saath likhta hai, isliye hafton ke faasle pe do installs alag environments bana sakte hain. Ek LOCK FILE poore dependency PED ke theek versions pin karta hai, aage ki dependencies sameta, plus hashes — isliye har install byte-barabar aur dobara banne layak hai. Lock file commit karo. Uske bina, ek aisi dependency ka ek chhota release jiska tumne naam bhi nahi liya tumhara build tod sakta hai bina tumhari taraf kisi badlaav ke.',
+    },
+  },
+  {
+    question: 'How do you write good unit tests in Python?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use pytest: plain `assert`, fixtures for setup, and `parametrize` to run one test across many inputs. Test ONE behaviour per test and name the test after the behaviour. Mock external dependencies at the boundary, not deep inside. Crucially, the biggest determinant of testability is DESIGN — pure functions separated from I/O need no mocks at all, while code that reads globals and calls the network directly is painful to test.',
+      hinglish:
+        'pytest use karo: saada `assert`, taiyari ke liye fixtures, aur ek test ko bahut inputs pe chalane ke liye `parametrize`. Per test EK behaviour test karo aur test ka naam behaviour pe rakho. Bahar ki dependencies ko seemarekha pe mock karo, gehre andar nahi. Critically, testability ka sabse bada nirdhaarak DESIGN hai — I/O se alag pure functions ko koi mocks chahiye hi nahi, jabki globals padhta aur seedha network bulaata code test karna takleefdeh hai.',
+    },
+  },
+  {
+    question: 'What is the difference between a shallow and deep import cost?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Importing a module executes its top-level code once and caches it in `sys.modules`, so subsequent imports are cheap. But a module that does heavy work at import time — reading a file, connecting to a database, loading a model — makes every program that imports it slow to start, including your test suite. Keep top-level code to definitions, and put expensive initialisation behind a function or a lazy accessor.',
+      hinglish:
+        'Ek module import karna uska upar ka code ek baar chalata hai aur use `sys.modules` mein rakh leta hai, isliye baad ke imports saste hain. Par ek module jo import ke waqt bhaari kaam karta hai — ek file padhna, ek database se judna, ek model laana — har us program ko dheema shuru karata hai jo use import karta hai, tumhare test suite sameta. Upar ka code sirf definitions tak rakho, aur mehngi shuruaat ek function ya ek sust accessor ke peeche daalo.',
+    },
+  },
+  {
+    question: 'What are f-strings and why are they preferred?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'F-strings embed expressions directly — `f"Total: {price * qty:.2f}"` — and are both the most readable and the FASTEST formatting option, since they are compiled rather than interpreted at runtime. They support format specifiers, and `f"{x=}"` prints both the expression and its value, which is excellent for debugging. The one place to avoid them is logging calls, where `%s` style defers formatting until the message is actually emitted.',
+      hinglish:
+        'F-strings expressions ko seedha daalti hain — `f"Total: {price * qty:.2f}"` — aur sabse padhne layak aur sabse TEZ formatting vikalp hain, kyunki wo runtime pe samjhi jaane ke bajaye compile hoti hain. Wo format specifiers deti hain, aur `f"{x=}"` expression aur uski value dono chhaapta hai, jo debugging ke liye behtareen hai. Ek jagah inse bachna chahiye wo logging calls hain, jahan `%s` roop formatting ko message actually nikalne tak taal deta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between sort and sorted?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`list.sort()` sorts IN PLACE and returns None — so `x = y.sort()` silently sets x to None, a very common mistake. `sorted()` returns a NEW list and works on any iterable, including a generator or dict. Both accept `key` and `reverse`, and both are STABLE, so equal elements keep their relative order, which is what makes sorting by multiple keys in sequence work correctly.',
+      hinglish:
+        '`list.sort()` JAGAH PE sort karta hai aur None lautaata hai — isliye `x = y.sort()` chupke se x ko None kar deta hai, ek bahut aam galti. `sorted()` ek NAYI list lautaata hai aur kisi bhi iterable pe chalta hai, ek generator ya dict sameta. Dono `key` aur `reverse` lete hain, aur dono STABLE hain, isliye barabar elements apna aapsi kram rakhte hain, jisse kai keys pe kram se sort karna sahi chalta hai.',
+    },
+  },
+  {
+    question: 'How do dictionaries work in Python and are they ordered?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A dict is a hash table giving O(1) average lookup, insert, and delete. Since Python 3.7 insertion ORDER is guaranteed by the language, not merely an implementation detail — a change that also made dicts more memory-efficient. Keys must be HASHABLE, which is why a list cannot be a key but a tuple can. Useful idioms: `dict.get` with a default, `setdefault`, `collections.defaultdict`, and `|` to merge two dicts.',
+      hinglish:
+        'Ek dict ek hash table hai jo O(1) average lookup, insert, aur delete deta hai. Python 3.7 se daalne ka KRAM language se pakka hai, sirf ek implementation ki baat nahi — ek badlaav jisne dicts ko zyada memory-efficient bhi banaya. Keys HASHABLE honi chahiye, isiliye ek list key nahi ban sakti par ek tuple ban sakta hai. Kaam ke tareeke: ek default ke saath `dict.get`, `setdefault`, `collections.defaultdict`, aur do dicts jodne ke liye `|`.',
+    },
+  },
+  {
+    question: 'What is the collections module and what does it offer?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`defaultdict` supplies a default for a missing key, removing a great deal of `if key not in d` boilerplate. `Counter` counts occurrences and gives `most_common`. `deque` provides O(1) append and pop at BOTH ends, which is the correct queue — using `list.pop(0)` is O(n). `namedtuple` gives a lightweight immutable record. Knowing these turns several lines of manual bookkeeping into one clear line.',
+      hinglish:
+        '`defaultdict` ek gayab key ke liye ek default deta hai, bahut saara `if key not in d` boilerplate hataate hue. `Counter` ginti karta hai aur `most_common` deta hai. `deque` DONO siron pe O(1) append aur pop deta hai, jo sahi queue hai — `list.pop(0)` use karna O(n) hai. `namedtuple` ek halka achal record deta hai. Inhe jaanna kai lines ka manual hisaab ek saaf line mein badal deta hai.',
+    },
+  },
+  {
+    question: 'What does functools offer that is worth knowing?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`lru_cache` and `cache` memoise a pure function, which can turn an exponential recursion into a linear one for a single decorator line. `wraps` preserves metadata when writing a decorator. `partial` pre-fills arguments to produce a simpler callable. `reduce` folds a sequence. `cached_property` computes an attribute once per instance. The caveat with caching is memory — an unbounded cache on high-cardinality inputs is a leak.',
+      hinglish:
+        '`lru_cache` aur `cache` ek pure function ko yaad rakhte hain, jo ek decorator line se ek exponential recursion ko linear bana sakte hain. `wraps` ek decorator likhte waqt jaankaari bachata hai. `partial` arguments pehle bhar kar ek simple callable deta hai. `reduce` ek anukram ko samet-ta hai. `cached_property` ek attribute per instance ek baar nikaalta hai. Caching ka caveat memory hai — bahut alag values wale inputs pe ek bina seema cache ek leak hai.',
+    },
+  },
+  {
+    question: 'What is the difference between == and hash for custom objects?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'If you define `__eq__` without `__hash__`, Python sets `__hash__` to None and your object becomes UNHASHABLE, so it cannot go in a set or be a dict key. If you define both inconsistently — equal objects with different hashes — a set or dict silently fails to find an item you just inserted. Base both on the same immutable fields. A frozen dataclass generates both correctly, which is the easiest way to get it right.',
+      hinglish:
+        'Agar tum `__eq__` banao aur `__hash__` nahi, Python `__hash__` ko None kar deta hai aur tumhara object HASH NAHI HO SAKTA, isliye wo ek set mein nahi ja sakta ya dict key nahi ban sakta. Agar tum dono ko alag-alag banao — barabar objects ke alag hashes — ek set ya dict chupke se wo cheez nahi dhoondh paata jo tumne abhi daali. Dono ko wahi achal fields pe rakho. Ek frozen dataclass dono sahi banata hai, jo ise theek karne ka sabse aasaan tareeka hai.',
+    },
+  },
+  {
+    question: 'How do you profile and optimise slow Python code?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Measure first — `cProfile` for function-level hotspots, `line_profiler` for line-level, `memory_profiler` for allocation. Then optimise in order of leverage: fix the ALGORITHM first, since O(n²) to O(n) beats any micro-optimisation; replace a list membership test with a set; move numeric loops into NumPy; use built-ins, which are implemented in C. Only after that consider Numba, Cython, or Rust. Never optimise without a measurement, because intuition is usually wrong.',
+      hinglish:
+        'Pehle naapo — function-star ke hotspots ke liye `cProfile`, line-star ke liye `line_profiler`, allocation ke liye `memory_profiler`. Phir asar ke kram mein behtar karo: pehle ALGORITHM theek karo, kyunki O(n²) se O(n) kisi bhi chhoti optimisation ko haraata hai; ek list ki sadasyata jaanch ko ek set se badlo; numeric loops ko NumPy mein le jao; built-ins use karo, jo C mein bane hain. Uske baad hi Numba, Cython, ya Rust socho. Bina naape kabhi behtar mat karo, kyunki andaaza usually galat hota hai.',
+    },
+  },
+  {
+    question: 'What is the difference between Python 2 and Python 3 that still matters?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Python 2 is long dead, but two of its changes still show up in old code and interviews. `print` became a FUNCTION, so `print x` is a syntax error. Division `/` became TRUE division, so `3/2` is 1.5 rather than 1, with `//` for floor division — a change that silently alters numeric results in ported code. Strings became Unicode by default with a separate `bytes` type, which is why encoding errors surface at I/O boundaries.',
+      hinglish:
+        'Python 2 kab ka mar chuka hai, par uske do badlaav abhi bhi purane code aur interviews mein dikhte hain. `print` ek FUNCTION ban gaya, isliye `print x` ek syntax error hai. Division `/` ASLI division ban gaya, isliye `3/2` 1 ke bajaye 1.5 hai, `//` floor division ke liye — ek badlaav jo laaye gaye code mein chupke se numeric nateeje badal deta hai. Strings default se Unicode ban gayi ek alag `bytes` type ke saath, isiliye encoding errors I/O ki seemaon pe dikhti hain.',
+    },
+  },
+  {
+    question: 'What is the difference between a shallow function and a lambda?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A `lambda` is an anonymous single-EXPRESSION function; it cannot contain statements, assignments, or multiple lines. Use it for a short throwaway callable such as a `key` function. Prefer a named `def` for anything else, because a named function has a docstring, a meaningful name in tracebacks, and can be tested directly. Assigning a lambda to a name — `f = lambda x: x` — defeats the purpose and style guides advise against it.',
+      hinglish:
+        'Ek `lambda` ek bina naam wala ek-EXPRESSION function hai; usme statements, assignments, ya kai lines nahi ho sakti. Ise ek chhote phenkne wale callable ke liye use karo jaise ek `key` function. Baaki har cheez ke liye ek naam wala `def` prefer karo, kyunki ek naam wale function ka ek docstring hota hai, tracebacks mein ek matlab wala naam, aur use seedha test kiya ja sakta hai. Ek lambda ko ek naam dena — `f = lambda x: x` — maksad hi khatam kar deta hai aur style guides iske khilaaf hain.',
+    },
+  },
+  {
+    question: 'What are the most common Python mistakes you see?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Mutable default arguments. Modifying a list while iterating over it, which silently skips elements. Using `is` for value comparison. A bare `except` that swallows everything including Ctrl-C. Membership testing against a list inside a loop where a set would be O(1). Forgetting that a generator is consumed after one pass. And relying on type hints for validation of external data, which Python does not enforce at runtime.',
+      hinglish:
+        'Badalne layak default arguments. Ek list ko us par chalte hue badalna, jo chupke se elements chhod deta hai. Value tulna ke liye `is` use karna. Ek khaali `except` jo Ctrl-C sameta sab nigal leta hai. Ek loop ke andar ek list pe sadasyata jaanchna jahan ek set O(1) hota. Ye bhoolna ki ek generator ek pass ke baad khatam ho jaata hai. Aur bahar ke data ki jaanch ke liye type hints pe bharosa karna, jo Python runtime pe laagu nahi karta.',
     },
   },
 ];

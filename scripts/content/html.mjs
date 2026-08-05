@@ -987,6 +987,448 @@ export const generalInterviewQuestions = [
         'Block-level elements new line pe shuru hote hain aur container ki poori width fill karte hain. Ye dusre block aur inline elements contain kar sakte hain. Examples: <div>, <p>, <h1>–<h6>, <ul>, <ol>, <table>, <form>, <section>. Inline elements text ke andar flow karte hain bina new line force kiye — sirf apne content ki width lete hain. Examples: <span>, <a>, <img>, <strong>, <em>, <input>. CSS mein display:block aur display:inline default override karte hain.',
     },
   },
+
+  // ─── Semantics, Forms & The Platform ────────────────────────
+  {
+    question: 'Why does semantic HTML matter beyond looking tidy?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Semantic elements describe MEANING, not appearance, and three consumers depend on that. Screen readers use landmarks to let users jump between regions and understand structure. Search engines use it to interpret content. And browsers give semantic elements built-in behaviour: a `<button>` is focusable, activates on Enter and Space, and announces its role, whereas a `<div onclick>` looks identical and is completely unusable without a mouse.',
+      hinglish:
+        'Semantic elements MATLAB batate hain, dikhaawa nahi, aur teen log us pe depend karte hain. Screen readers landmarks se users ko ilaakon ke beech koodne aur dhaancha samajhne dete hain. Search engines isse content samajhte hain. Aur browsers semantic elements ko built-in behaviour dete hain: ek `<button>` focus le sakta hai, Enter aur Space pe chalta hai, aur apni bhoomika batata hai, jabki ek `<div onclick>` bilkul waisa dikhta hai aur bina mouse ke poori tarah bekaar hai.',
+    },
+  },
+  {
+    question: 'What is the difference between article, section, div, and main?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`<article>` is self-contained content that would still make sense if extracted — a post, a comment, a product card. `<section>` is a thematic grouping and should have a heading; if it has no natural heading it probably should not be one. `<main>` marks the primary content and there must be exactly ONE per page, which lets screen readers skip navigation. `<div>` carries no meaning and exists purely as a styling hook.',
+      hinglish:
+        '`<article>` khud-poora content hai jo nikaal lene par bhi matlab rakhta — ek post, ek comment, ek product card. `<section>` ek vishay ka group hai aur uska ek heading hona chahiye; agar koi swabhavik heading nahi to wo shayad section nahi honi chahiye. `<main>` mukhya content batata hai aur per page theek EK hona chahiye, jisse screen readers navigation skip kar sakein. `<div>` koi matlab nahi rakhta aur sirf ek styling hook hai.',
+    },
+  },
+  {
+    question: 'How should headings be structured and why?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Headings form an OUTLINE and should descend without skipping — `<h1>` then `<h2>`, and an `<h3>` only under an `<h2>`. Screen-reader users navigate by pulling up a list of headings, so a skipped level or a heading chosen for its font size breaks that navigation entirely. Use one `<h1>` describing the page. Never pick a level for its appearance; pick the correct level and change the size with CSS.',
+      hinglish:
+        'Headings ek KHAAKA banati hain aur bina skip kiye utarni chahiye — `<h1>` phir `<h2>`, aur ek `<h3>` sirf ek `<h2>` ke neeche. Screen-reader users headings ki ek list nikaal kar navigate karte hain, isliye ek skip kiya level ya font size ke liye chuna gaya heading us navigation ko poori tarah tod deta hai. Page batata ek `<h1>` use karo. Ek level kabhi uske dikhaawe ke liye mat chuno; sahi level chuno aur size CSS se badlo.',
+    },
+  },
+  {
+    question: 'What is the difference between alt="" and a missing alt attribute?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'An EMPTY `alt=""` explicitly marks the image as decorative, so screen readers skip it — correct for a background flourish or spacer. A MISSING `alt` leaves the screen reader no choice but to announce something, usually the filename, so the user hears "I M G underscore 4 7 2 dot p n g". They are completely different signals. When the image conveys information, describe that INFORMATION, not the picture literally.',
+      hinglish:
+        'Ek KHAALI `alt=""` image ko explicitly sajaawati batata hai, isliye screen readers use skip karte hain — ek background sajaawat ya spacer ke liye sahi. Ek GAYAB `alt` screen reader ko kuch bolne ke alawa koi choice nahi deta, usually filename, isliye user sunta hai "I M G underscore 4 7 2 dot p n g". Ye bilkul alag ishaare hain. Jab image jaankaari deti hai, us JAANKAARI ko batao, tasveer ko literally nahi.',
+    },
+  },
+  {
+    question: 'How do you make a form accessible?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Every input needs a real `<label>` linked by `for`/`id` — a placeholder is not a label, since it disappears when typing and usually fails contrast. Group related radios or checkboxes in a `<fieldset>` with a `<legend>`. Mark errors with `aria-invalid`, link the message with `aria-describedby`, and announce it in a live region. Use the correct `type` and `autocomplete` so mobile keyboards and password managers work properly.',
+      hinglish:
+        'Har input ko `for`/`id` se juda ek asli `<label>` chahiye — ek placeholder label nahi hai, kyunki wo type karte hi gayab ho jaata hai aur usually contrast mein fail hota hai. Related radios ya checkboxes ko ek `<legend>` wale `<fieldset>` mein group karo. Errors ko `aria-invalid` se mark karo, message ko `aria-describedby` se jodo, aur use ek live region mein bolo. Sahi `type` aur `autocomplete` use karo taaki mobile keyboards aur password managers theek chalein.',
+    },
+  },
+  {
+    question: 'What are the HTML5 input types and why do they matter?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'HTML5 added `email`, `url`, `tel`, `number`, `date`, `time`, `range`, `color`, and `search`. They matter for real user experience: mobile devices show the appropriate KEYBOARD — an `@` key for email, a numeric pad for tel — and browsers provide free native validation and pickers. The important caveat is that client-side validation is a convenience only; it is trivially bypassed, so the server must validate everything again.',
+      hinglish:
+        'HTML5 ne `email`, `url`, `tel`, `number`, `date`, `time`, `range`, `color`, aur `search` jode. Ye asli user anubhav ke liye matter karte hain: mobile devices sahi KEYBOARD dikhate hain — email ke liye ek `@` key, tel ke liye ek numeric pad — aur browsers muft native validation aur pickers dete hain. Zaroori caveat ye hai ki client-side validation sirf ek suvidha hai; ise bypass karna aasaan hai, isliye server ko sab kuch dobara jaanchna hi padega.',
+    },
+  },
+  {
+    question: 'What is the difference between GET and POST for a form?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'GET puts the data in the URL query string, so it is bookmarkable, shareable, cached, logged by servers and proxies, and length-limited — right for searches and filters, wrong for anything sensitive. POST puts the data in the request body, is not logged in URLs, and has no practical size limit — right for anything that changes state. The rule is that GET must be SAFE and idempotent: it should never create, modify, or delete.',
+      hinglish:
+        'GET data ko URL query string mein daalta hai, isliye ye bookmarkable, shareable, cached, servers aur proxies se logged, aur length-seemit hai — searches aur filters ke liye sahi, kisi sensitive cheez ke liye galat. POST data ko request body mein daalta hai, URLs mein log nahi hota, aur uski koi practical size seema nahi — kisi bhi state badalne wali cheez ke liye sahi. Niyam ye hai ki GET SURAKSHIT aur idempotent hona chahiye: use kabhi banana, badalna, ya mitana nahi chahiye.',
+    },
+  },
+  {
+    question: 'What are ARIA attributes and when should you use them?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'ARIA adds accessibility semantics HTML alone cannot express — `aria-expanded` on a custom dropdown, `aria-live` on a dynamically updating region, `aria-label` for an icon button with no visible text. The first rule of ARIA is: do not use ARIA if a native element will do, because native elements come with correct behaviour built in. Incorrect ARIA is actively WORSE than none, since it lies to assistive technology about what an element is.',
+      hinglish:
+        'ARIA aisi accessibility semantics jodta hai jo akela HTML nahi bata sakta — ek custom dropdown pe `aria-expanded`, ek badalte ilaake pe `aria-live`, bina dikhte text wale ek icon button ke liye `aria-label`. ARIA ka pehla niyam hai: ARIA mat use karo agar ek native element kaam kar dega, kyunki native elements ke saath sahi behaviour built-in aata hai. Galat ARIA na hone se actively BURA hai, kyunki wo assistive technology se jhooth bolta hai ki ek element kya hai.',
+    },
+  },
+  {
+    question: 'What is the difference between defer and async on a script tag?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Both download the script in parallel with HTML parsing. `async` executes it the MOMENT the download finishes, pausing the parser and running scripts in unpredictable order — right for independent scripts such as analytics. `defer` waits until parsing completes and runs deferred scripts in DOCUMENT ORDER — right for application code with dependencies. A plain `<script>` with neither blocks parsing entirely, which is why scripts were traditionally placed at the end of `<body>`.',
+      hinglish:
+        'Dono script ko HTML parsing ke saath parallel mein download karte hain. `async` use us PAL chalata hai jab download khatam ho, parser rok kar aur scripts ko anaapekshit kram mein chala kar — analytics jaise swatantra scripts ke liye sahi. `defer` parsing khatam hone tak rukta hai aur deferred scripts ko DOCUMENT KRAM mein chalata hai — dependencies wale application code ke liye sahi. Dono ke bina ek plain `<script>` parsing poori tarah rokta hai, isiliye scripts historically `<body>` ke end mein rakhi jaati thi.',
+    },
+  },
+  {
+    question: 'What is the DOM and how does it differ from the HTML you wrote?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'HTML is the text the server sends; the DOM is the live tree of objects the browser BUILDS from it and JavaScript manipulates. They diverge immediately: the browser repairs invalid markup, inserts implied elements such as `<tbody>`, and any script that adds or removes nodes changes the DOM without changing the HTML. That is why "view source" shows the original HTML while DevTools shows the current DOM, and why they often do not match.',
+      hinglish:
+        'HTML wo text hai jo server bhejta hai; DOM objects ka wo jeeta-jaagta ped hai jo browser usse BANATA hai aur JavaScript badalta hai. Wo turant alag ho jaate hain: browser kharab markup theek karta hai, `<tbody>` jaise chhupe elements daalta hai, aur koi bhi script jo nodes jodti ya hataati hai wo HTML badle bina DOM badalti hai. Isiliye "view source" asli HTML dikhata hai jabki DevTools abhi ka DOM, aur isiliye wo aksar match nahi karte.',
+    },
+  },
+  {
+    question: 'What is the critical rendering path?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'It is the sequence a browser follows to turn bytes into pixels: parse HTML into the DOM, parse CSS into the CSSOM, combine them into the render tree, compute layout, then paint. CSS is RENDER-BLOCKING because nothing can be painted correctly without it, and synchronous scripts are PARSER-BLOCKING. Optimising it means inlining critical CSS, deferring the rest and all scripts, and reducing how much must download before the first meaningful paint.',
+      hinglish:
+        'Ye wo kram hai jo browser bytes ko pixels banane ke liye follow karta hai: HTML ko DOM mein parse karo, CSS ko CSSOM mein, unhe render tree mein jodo, layout nikaalo, phir paint karo. CSS RENDER-BLOCKING hai kyunki uske bina kuch sahi paint nahi ho sakta, aur synchronous scripts PARSER-BLOCKING hain. Ise behtar karne ka matlab hai zaroori CSS inline karna, baaki aur saari scripts defer karna, aur pehle matlab wale paint se pehle jitna download hona hai wo kam karna.',
+    },
+  },
+  {
+    question: 'What causes Cumulative Layout Shift and how do you prevent it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'CLS happens when content moves after it has already rendered, which is why people misclick. The usual causes: images and videos without dimensions, ads or embeds injected into the flow, web fonts swapping and changing text metrics, and content inserted above what the user is reading. Fixes: always set `width` and `height` or an `aspect-ratio`, reserve space for dynamic content, use `font-display: optional` or a well-matched fallback, and never insert content above the viewport.',
+      hinglish:
+        'CLS tab hota hai jab content render hone ke baad hilta hai, isiliye log galat jagah click karte hain. Aam wajahein: bina dimensions ke images aur videos, flow mein daale gaye ads ya embeds, web fonts ka badalna aur text ke naap badalna, aur user jo padh raha hai uske upar content daalna. Fixes: hamesha `width` aur `height` ya ek `aspect-ratio` set karo, badalte content ke liye jagah rakho, `font-display: optional` ya ek achhe se milta fallback use karo, aur viewport ke upar kabhi content mat daalo.',
+    },
+  },
+  {
+    question: 'How do you make images responsive and performant?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use `srcset` with `sizes` so the browser picks an appropriate resolution rather than downloading a 4000px image for a phone. Use `<picture>` when you need ART DIRECTION — a different crop on mobile — or modern formats such as AVIF and WebP with a fallback. Add `loading="lazy"` for below-the-fold images, and always set `width` and `height` so the browser reserves space and avoids layout shift.',
+      hinglish:
+        '`srcset` ko `sizes` ke saath use karo taaki browser ek phone ke liye 4000px image download karne ke bajaye ek sahi resolution chune. `<picture>` tab use karo jab tumhe ART DIRECTION chahiye — mobile pe ek alag crop — ya ek fallback ke saath AVIF aur WebP jaise modern formats. Fold ke neeche ki images ke liye `loading="lazy"` jodo, aur hamesha `width` aur `height` set karo taaki browser jagah rakhe aur layout shift se bache.',
+    },
+  },
+  {
+    question: 'What is lazy loading and when should you not use it?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`loading="lazy"` defers loading an image or iframe until it approaches the viewport, saving bandwidth and speeding up initial load on long pages. The important exception is ABOVE-THE-FOLD content, especially your LCP hero image: lazy-loading it delays the very metric you are trying to improve, because the browser will not start the request until layout is known. Lazy-load what is below the fold, and eagerly load — or preload — what is above it.',
+      hinglish:
+        '`loading="lazy"` ek image ya iframe ko viewport ke paas aane tak laane se rokta hai, bandwidth bachate hue aur lambe pages pe pehla load tez karte hue. Zaroori exception FOLD KE UPAR ka content hai, khaas kar tumhari LCP hero image: use lazy-load karna theek us maap ko der karta hai jise tum behtar karna chahte ho, kyunki browser layout pata chalne tak request shuru nahi karega. Jo fold ke neeche hai use lazy-load karo, aur jo upar hai use jaldi load — ya preload — karo.',
+    },
+  },
+  {
+    question: 'What is the viewport meta tag and why is it required?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`<meta name="viewport" content="width=device-width, initial-scale=1">` tells mobile browsers to use the device width as the layout width. Without it, phones assume a desktop-sized viewport around 980px and shrink the whole page, so your media queries never trigger and text is unreadable. Responsive design does not function at all without it. Never add `user-scalable=no`, which blocks zoom and is a genuine accessibility failure.',
+      hinglish:
+        '`<meta name="viewport" content="width=device-width, initial-scale=1">` mobile browsers ko batata hai ki device ki chaudai ko layout chaudai maanein. Iske bina, phones lagbhag 980px ka ek desktop-jaisa viewport maan lete hain aur poora page sikod dete hain, isliye tumhari media queries kabhi chalti hi nahi aur text padha nahi jaata. Iske bina responsive design chalta hi nahi. `user-scalable=no` kabhi mat jodo, jo zoom rokta hai aur ek asli accessibility failure hai.',
+    },
+  },
+  {
+    question: 'What is the difference between localStorage, sessionStorage, and cookies?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'LOCALSTORAGE persists until explicitly cleared, holds around 5-10MB, and is never sent to the server. SESSIONSTORAGE is identical but cleared when the tab closes and is not shared between tabs. COOKIES are small — about 4KB — and sent with EVERY request to the domain, which is why they are used for sessions but also why they add overhead. For auth tokens an `httpOnly` cookie is safer than localStorage, which any XSS can read.',
+      hinglish:
+        'LOCALSTORAGE explicitly saaf hone tak rehta hai, lagbhag 5-10MB rakhta hai, aur kabhi server ko nahi bheja jaata. SESSIONSTORAGE waisa hi hai par tab band hone pe saaf ho jaata hai aur tabs ke beech share nahi hota. COOKIES chhote hain — lagbhag 4KB — aur domain ki HAR request ke saath jaate hain, isiliye wo sessions ke liye use hote hain par isiliye bojh bhi jodte hain. Auth tokens ke liye ek `httpOnly` cookie localStorage se surakshit hai, jise koi bhi XSS padh sakta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between the dialog element and a custom modal?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The native `<dialog>` with `showModal()` gives you for free the things custom modals usually get wrong: a top-layer render above everything regardless of z-index, a `::backdrop` pseudo-element, focus TRAPPED inside, Escape to close, and focus returned to the trigger on close. A div-based modal must implement all of that by hand, and most implementations miss the focus trap, which makes the modal unusable by keyboard.',
+      hinglish:
+        '`showModal()` wala native `<dialog>` tumhe muft mein wo cheezein deta hai jo custom modals usually galat karte hain: z-index chahe kuch bhi ho sab ke upar ek top-layer render, ek `::backdrop` pseudo-element, andar FASA hua focus, band karne ke liye Escape, aur band hone pe trigger pe wapas focus. Ek div-based modal ko wo sab haath se banana padta hai, aur zyadatar focus trap chhod dete hain, jo modal ko keyboard se bekaar bana deta hai.',
+    },
+  },
+  {
+    question: 'What are data attributes and when should you use them?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Custom `data-*` attributes store arbitrary data on an element, readable via `element.dataset.userId`. They are valid HTML and the correct place for small pieces of state a script needs — a row\'s id, a component\'s configuration. Use them for data rather than styling hooks, where a class is clearer, and never store large objects or anything sensitive, since everything in the DOM is visible to the user and to any script on the page.',
+      hinglish:
+        'Custom `data-*` attributes ek element pe koi bhi data rakhte hain, jo `element.dataset.userId` se padha ja sakta hai. Ye valid HTML hain aur un chhoti state ke tukdon ke liye sahi jagah jo ek script ko chahiye — ek row ki id, ek component ki configuration. Inhe styling hooks ke bajaye data ke liye use karo, jahan ek class saaf hai, aur kabhi bade objects ya kuch sensitive mat rakho, kyunki DOM mein sab kuch user aur page ki har script ko dikhta hai.',
+    },
+  },
+  {
+    question: 'What does rel="noopener noreferrer" do?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`noopener` prevents the newly opened page from accessing `window.opener`, which it could otherwise use to redirect your original tab to a phishing page — the "tabnabbing" attack. `noreferrer` additionally withholds the Referer header. Modern browsers apply `noopener` automatically for `target="_blank"`, but stating it explicitly remains good practice for older browsers, and `noreferrer` stays a deliberate privacy choice you must opt into.',
+      hinglish:
+        '`noopener` naye khule page ko `window.opener` access karne se rokta hai, jise wo warna tumhara asli tab ek phishing page pe bhejne ke liye use kar sakta tha — "tabnabbing" hamla. `noreferrer` upar se Referer header bhi rok leta hai. Modern browsers `target="_blank"` ke liye `noopener` apne aap lagate hain, par ise explicitly likhna purane browsers ke liye achhi practice rehti hai, aur `noreferrer` ek soch-samajh ki privacy choice rehta hai jise tumhe khud chunna padta hai.',
+    },
+  },
+  {
+    question: 'What is Content Security Policy?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'CSP is a response header telling the browser which sources of script, style, image, and connection are allowed, so injected code simply does not execute. It is the strongest defence-in-depth against XSS. A strict policy forbids inline scripts and `eval`, using nonces or hashes for the inline code you genuinely need. It is a second layer, not a substitute for escaping output — and a policy full of `unsafe-inline` provides essentially no protection.',
+      hinglish:
+        'CSP ek response header hai jo browser ko batata hai ki script, style, image, aur connection ke kaunse source allowed hain, isliye daala gaya code chalta hi nahi. Ye XSS ke khilaaf sabse majboot doosri parat hai. Ek sakht policy inline scripts aur `eval` mana karti hai, jo inline code genuinely chahiye uske liye nonces ya hashes use karte hue. Ye ek doosri parat hai, output escape karne ka badal nahi — aur `unsafe-inline` se bhari ek policy asal mein koi bachaav nahi deti.',
+    },
+  },
+  {
+    question: 'How do you prevent XSS in HTML?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Escape all user-supplied content on output, and prefer `textContent` over `innerHTML` so markup is never interpreted. If you must render HTML, sanitise it with a maintained library such as DOMPurify rather than a hand-written regex, which always misses cases. Add a Content Security Policy as a second layer, set `httpOnly` on session cookies so a successful XSS cannot steal them, and validate on the server — client-side sanitisation alone protects nothing.',
+      hinglish:
+        'Output pe saara user ka diya content escape karo, aur `innerHTML` ke bajaye `textContent` prefer karo taaki markup kabhi samjha na jaaye. Agar HTML render karna hi hai, use DOMPurify jaisi ek maintained library se saaf karo, ek haath se likhe regex ke bajaye, jo hamesha cases chhod deta hai. Ek doosri parat ke roop mein ek Content Security Policy jodo, session cookies pe `httpOnly` set karo taaki ek safal XSS unhe chura na sake, aur server pe jaancho — akeli client-side safai kuch nahi bachati.',
+    },
+  },
+  {
+    question: 'What is the iframe sandbox attribute?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        'Adding `sandbox` removes almost every capability from the embedded document: no scripts, no forms, no popups, no top-level navigation, and a unique opaque origin. You then re-grant only what is needed via tokens such as `allow-scripts` and `allow-forms`. The critical caveat is that combining `allow-scripts` with `allow-same-origin` for a page from your own origin lets it REMOVE its own sandbox, which defeats the point entirely.',
+      hinglish:
+        '`sandbox` jodna andar ke document se lagbhag har kshamta hata deta hai: na scripts, na forms, na popups, na top-level navigation, aur ek anokha opaque origin. Phir tum `allow-scripts` aur `allow-forms` jaise tokens se sirf zaroori cheezein wapas dete ho. Zaroori caveat ye hai ki apne hi origin ke ek page ke liye `allow-scripts` ko `allow-same-origin` ke saath jodna use apna hi sandbox HATAANE deta hai, jo maksad hi poori tarah khatam kar deta hai.',
+    },
+  },
+  {
+    question: 'What is the purpose of the doctype declaration?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`<!DOCTYPE html>` tells the browser to use STANDARDS MODE rather than quirks mode, a legacy compatibility mode emulating 1990s browser bugs. Without it, box-sizing behaves differently, layout breaks in subtle ways, and CSS you tested carefully stops working. It is not an HTML tag and has no attributes — in HTML5 it is deliberately reduced to this one short line, versus the long DTD strings HTML4 required.',
+      hinglish:
+        '`<!DOCTYPE html>` browser ko batata hai ki quirks mode ke bajaye STANDARDS MODE use kare, quirks ek purana compatibility mode hai jo 1990s ke browser bugs ki nakal karta hai. Iske bina, box-sizing alag chalta hai, layout sookshm tareekon se tootta hai, aur jo CSS tumne dhyaan se jaanchi wo kaam karna band kar deti hai. Ye ek HTML tag nahi hai aur iske koi attributes nahi — HTML5 mein ise jaan boojh kar is ek chhoti line tak laaya gaya hai, HTML4 ki lambi DTD strings ke muqable.',
+    },
+  },
+  {
+    question: 'How does the browser handle invalid HTML?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'It never fails — the HTML5 spec defines exact recovery rules, so every browser produces the SAME DOM from the same broken markup. Unclosed tags are closed implicitly, misnested tags are reordered, elements in the wrong place are moved (stray content is hoisted out of a `<table>`), and required elements such as `<tbody>` are inserted. That consistency is a strength, but the resulting DOM may differ from what you intended, which is why validation still matters.',
+      hinglish:
+        'Ye kabhi fail nahi hota — HTML5 spec theek sudhaarne ke niyam batata hai, isliye har browser usi toote markup se WAHI DOM banata hai. Band na kiye tags chupke se band ho jaate hain, galat nested tags dobara jamte hain, galat jagah ke elements hilte hain (bhatka content ek `<table>` se bahar utha diya jaata hai), aur `<tbody>` jaise zaroori elements daale jaate hain. Wo ek jaisapan ek taakat hai, par banne wala DOM tumhare iraade se alag ho sakta hai, isiliye validation abhi bhi matter karta hai.',
+    },
+  },
+  {
+    question: 'What are meta tags used for in SEO and social sharing?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The `<title>` and `<meta name="description">` are what appear in search results, so they matter most. `<link rel="canonical">` tells search engines which URL is authoritative when the same content is reachable from several. OPEN GRAPH tags — `og:title`, `og:description`, `og:image` — control how a link renders when shared on social platforms, and Twitter cards do the same for X. Note `meta keywords` has been ignored by search engines for many years.',
+      hinglish:
+        '`<title>` aur `<meta name="description">` wahi hain jo search results mein dikhte hain, isliye wo sabse zyada matter karte hain. `<link rel="canonical">` search engines ko batata hai ki jab wahi content kai jagah se mile to kaunsa URL asli hai. OPEN GRAPH tags — `og:title`, `og:description`, `og:image` — batate hain ki social platforms pe share hone pe ek link kaisa dikhe, aur Twitter cards X ke liye wahi karte hain. Note karo `meta keywords` ko search engines kai saal se andekha karte hain.',
+    },
+  },
+  {
+    question: 'What is the difference between the load and DOMContentLoaded events?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`DOMContentLoaded` fires when the HTML is parsed and the DOM is built, without waiting for images, stylesheets, or iframes. `load` fires only after EVERY resource has finished. Most initialisation should use `DOMContentLoaded`, because waiting for a large image before attaching a click handler makes the page feel broken for seconds. Use `load` only when you genuinely need final image dimensions or all resources present.',
+      hinglish:
+        '`DOMContentLoaded` tab chalta hai jab HTML parse ho jaaye aur DOM ban jaaye, images, stylesheets, ya iframes ka intezaar kiye bina. `load` sirf tab chalta hai jab HAR resource khatam ho jaaye. Zyadatar shuruaat ko `DOMContentLoaded` use karna chahiye, kyunki ek click handler lagane se pehle ek badi image ka intezaar page ko kai second tak toota hua feel karata hai. `load` sirf tab use karo jab tumhe genuinely aakhri image dimensions ya saare resources chahiye.',
+    },
+  },
+  {
+    question: 'What is event delegation and why does it help?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Instead of attaching a listener to every child, attach ONE to a common ancestor and use `event.target` to identify which child was clicked, relying on bubbling. It uses far less memory with many items, and — crucially — it works for elements added to the DOM LATER, which individually attached listeners do not. Use `closest()` to handle clicks landing on a nested element such as an icon inside a button.',
+      hinglish:
+        'Har child pe ek listener lagane ke bajaye, ek saanjhe poorvaj pe EK lagao aur `event.target` se pehchano ki kaunsa child click hua, bubbling pe bharosa karte hue. Ye bahut items ke saath bahut kam memory leta hai aur — critically — un elements ke liye bhi chalta hai jo DOM mein BAAD mein jude, jo alag-alag lage listeners nahi karte. Ek button ke andar ek icon jaise nested element pe pade clicks sambhalne ke liye `closest()` use karo.',
+    },
+  },
+  {
+    question: 'What is the difference between event bubbling and capturing?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'An event travels down from the root to the target (CAPTURING), reaches the target, then travels back up (BUBBLING). Listeners default to the bubbling phase; passing `true` or `{capture: true}` puts you in the capturing phase, which fires first and is how you intercept an event before a child handles it. `stopPropagation` halts the journey, and using it liberally breaks event delegation elsewhere on the page, which is a common source of mysterious bugs.',
+      hinglish:
+        'Ek event root se target tak neeche jaata hai (CAPTURING), target pe pahunchta hai, phir wapas upar jaata hai (BUBBLING). Listeners default se bubbling charan mein hote hain; `true` ya `{capture: true}` dena tumhe capturing charan mein daalta hai, jo pehle chalta hai aur isse tum ek event ko ek child ke sambhaalne se pehle pakadte ho. `stopPropagation` safar rok deta hai, aur ise khoob use karna page mein kahin aur event delegation todta hai, jo rahasyamayi bugs ka ek aam karan hai.',
+    },
+  },
+  {
+    question: 'What is the difference between preload, prefetch, and preconnect?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'PRELOAD fetches a resource needed for the CURRENT page at high priority — a font or hero image the parser would otherwise discover late. PREFETCH fetches at low priority something likely needed on the NEXT navigation. PRECONNECT performs the DNS, TCP, and TLS handshake to another origin early so the eventual request starts sooner. Overusing preload actively hurts, because it competes for bandwidth with what the page needs right now.',
+      hinglish:
+        'PRELOAD ABHI ke page ke liye zaroori ek resource ooonchi priority pe laata hai — ek font ya hero image jise parser warna der se dhoondhta. PREFETCH kam priority pe wo laata hai jo AGLE navigation pe shayad chahiye. PRECONNECT ek doosre origin se DNS, TCP, aur TLS handshake pehle kar leta hai taaki asli request jaldi shuru ho. Preload ka zyada istemaal actively nuksaan karta hai, kyunki wo us cheez se bandwidth ke liye ladta hai jo page ko abhi chahiye.',
+    },
+  },
+  {
+    question: 'What is the Shadow DOM?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Shadow DOM attaches a separate, encapsulated DOM tree to an element, so its markup and styles are ISOLATED — outside CSS does not leak in and inside styles do not leak out. It is the mechanism behind Web Components and behind native controls such as `<video>`, whose internal buttons you cannot select. That isolation is the point, but it also means theming requires deliberate hooks such as CSS custom properties or `::part`.',
+      hinglish:
+        'Shadow DOM ek element se ek alag, ghera hua DOM ped jodta hai, isliye uska markup aur styles ALAG hain — bahar ki CSS andar nahi risti aur andar ki styles bahar nahi. Yahi Web Components ke peeche mechanism hai aur `<video>` jaise native controls ke peeche, jinke andar ke buttons tum chun nahi sakte. Wo alagaav hi maksad hai, par iska matlab ye bhi hai ki theming ke liye soch-samajh ke hooks chahiye jaise CSS custom properties ya `::part`.',
+    },
+  },
+  {
+    question: 'What are Web Components?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Web Components are three native browser features used together: CUSTOM ELEMENTS to define your own tags with lifecycle callbacks, SHADOW DOM for style and markup encapsulation, and TEMPLATES for reusable markup. Their advantage is being framework-agnostic — the same component works in React, Vue, or plain HTML, which is why design systems use them. Their drawbacks are more verbose authoring, awkward form integration, and weaker server-side rendering support.',
+      hinglish:
+        'Web Components teen native browser features hain jo saath use hote hain: apne tags lifecycle callbacks ke saath banane ke liye CUSTOM ELEMENTS, style aur markup gherne ke liye SHADOW DOM, aur dobara istemaal layak markup ke liye TEMPLATES. Inka faayda framework-agnostic hona hai — wahi component React, Vue, ya plain HTML mein chalta hai, isiliye design systems inhe use karte hain. Inke nuksaan zyada lamba likhna, ajeeb form judaav, aur kamzor server-side rendering support hain.',
+    },
+  },
+  {
+    question: 'What is the difference between the template and slot elements?',
+    difficulty: 'hard',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`<template>` holds markup that is PARSED but not rendered and whose scripts do not run, giving you a reusable fragment to clone in JavaScript. `<slot>` is a placeholder inside a Web Component\'s shadow DOM where the consumer\'s own content is projected. Together they are the native equivalent of a component with children: the template defines the structure, and slots define where caller-supplied content goes.',
+      hinglish:
+        '`<template>` aisa markup rakhta hai jo PARSE hota hai par render nahi hota aur jiski scripts nahi chalti, tumhe JavaScript mein clone karne ko ek dobara istemaal layak tukda dete hue. `<slot>` ek Web Component ke shadow DOM ke andar ek jagah hai jahan istemaal karne wale ka apna content dikhta hai. Saath mein wo children wale ek component ka native barabar hain: template dhaancha batata hai, aur slots batate hain ki bulaane wale ka diya content kahan jaaye.',
+    },
+  },
+  {
+    question: 'What is the Intersection Observer API?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'It asynchronously notifies you when an element enters or leaves the viewport, or intersects another element. It replaces the old pattern of listening to scroll and calling `getBoundingClientRect()`, which fired constantly and forced synchronous layout — a classic cause of janky scrolling. Because the browser computes intersections off the main thread, it is far cheaper. Use it for lazy loading, infinite scroll, scroll-triggered animation, and impression tracking.',
+      hinglish:
+        'Ye asynchronously batata hai jab ek element viewport mein aaye ya nikle, ya doosre element se kate. Ye scroll sunne aur `getBoundingClientRect()` bulaane ke purane tareeke ko badalta hai, jo lagatar chalta tha aur synchronous layout majboor karta tha — atakte scrolling ka ek classic karan. Kyunki browser ye hisaab mukhya thread se bahar karta hai, ye bahut sasta hai. Ise lazy loading, anant scroll, scroll pe chalti animation, aur dikhne ki ginti ke liye use karo.',
+    },
+  },
+  {
+    question: 'What is a Service Worker?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A Service Worker is a script acting as a programmable PROXY between the page and the network, able to intercept every request and answer from a cache. It is what makes offline support, background sync, and push notifications possible, and it is the foundation of a PWA. It runs even when no page is open, requires HTTPS, and has its own lifecycle of install, activate, and update — which is also the source of most "why am I seeing the old version" bugs.',
+      hinglish:
+        'Ek Service Worker ek script hai jo page aur network ke beech ek programmable PROXY ki tarah kaam karti hai, har request pakadne aur ek cache se jawab dene mein saksham. Isi se offline support, background sync, aur push notifications sambhav hote hain, aur yahi ek PWA ki neev hai. Ye tab bhi chalta hai jab koi page khula na ho, HTTPS maangta hai, aur uska apna install, activate, aur update ka jeevan chakra hai — jo "main purana version kyun dekh raha hoon" wale zyadatar bugs ka source bhi hai.',
+    },
+  },
+  {
+    question: 'What makes a Progressive Web App?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Three requirements: HTTPS, a web app MANIFEST declaring the name, icons, and display mode, and a Service Worker providing offline capability. That combination lets a site be installed to the home screen, launched without browser chrome, and function without a network. Beyond the checklist, a good PWA is fast on a slow connection and degrades gracefully — the point is a web app that behaves like a native one without an app store.',
+      hinglish:
+        'Teen zarooratein: HTTPS, naam, icons, aur display mode batata ek web app MANIFEST, aur offline kshamta deta ek Service Worker. Wo mel ek site ko home screen pe install hone, bina browser chrome ke chalne, aur bina network ke kaam karne deta hai. Checklist se aage, ek achha PWA ek dheeme connection pe tez hota hai aur theek se dhalta hai — baat ye hai ki ek web app jo bina app store ke ek native jaisa chale.',
+    },
+  },
+  {
+    question: 'What is the difference between HTML and XHTML?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        'XHTML is HTML reformulated as strict XML: every tag must be closed, attributes must be quoted, tags are case-sensitive, and a single syntax error means the browser refuses to render the page at all. HTML5 instead defines exact, forgiving PARSING RULES for malformed markup, so browsers recover consistently rather than failing. XHTML\'s strictness proved impractical on the real web, and HTML5 is what everyone uses today.',
+      hinglish:
+        'XHTML sakht XML ke roop mein dobara likha HTML hai: har tag band hona chahiye, attributes quoted, tags case-sensitive, aur ek syntax galti ka matlab browser page render karne se bilkul mana kar deta hai. HTML5 uske bajaye kharab markup ke liye theek, kshamashil PARSING NIYAM batata hai, isliye browsers fail hone ke bajaye ek jaise sambhal jaate hain. XHTML ki sakhti asli web pe vyavaharik nahi nikli, aur aaj sab HTML5 hi use karte hain.',
+    },
+  },
+  {
+    question: 'What is the contenteditable attribute?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`contenteditable="true"` makes any element directly editable by the user, which is the foundation of rich-text editors. In practice it is notoriously inconsistent: each browser generates different markup for the same keystroke, paste brings in arbitrary HTML from elsewhere, and undo behaviour varies. That is why serious editors such as ProseMirror, Slate, and TipTap maintain their own document model and treat contenteditable purely as an input surface.',
+      hinglish:
+        '`contenteditable="true"` kisi bhi element ko user ke liye seedha badalne layak bana deta hai, jo rich-text editors ki neev hai. Practically ye badnaam roop se alag-alag chalta hai: har browser wahi keystroke ke liye alag markup banata hai, paste kahin aur se koi bhi HTML le aata hai, aur undo alag-alag chalta hai. Isiliye ProseMirror, Slate, aur TipTap jaise serious editors apna document model rakhte hain aur contenteditable ko sirf ek input satah maante hain.',
+    },
+  },
+  {
+    question: 'How do you test HTML for accessibility?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Automated tools such as axe, Lighthouse, and WAVE catch roughly 30-40% of issues — missing labels, contrast failures, invalid ARIA — so they are a starting point, not a pass. Manual checks catch the rest: navigate the entire page with only the KEYBOARD, confirm focus is always visible and never trapped, test with a screen reader, zoom to 200%, and check the heading outline makes sense. Accessibility is behavioural, and most of it cannot be measured statically.',
+      hinglish:
+        'axe, Lighthouse, aur WAVE jaise apne aap chalte tools lagbhag 30-40% samasyaein pakadte hain — gayab labels, contrast ki kami, galat ARIA — isliye wo ek shuruaat hain, ek pass nahi. Haath ki jaanch baaki pakadti hai: poore page ko sirf KEYBOARD se chalao, pakka karo ki focus hamesha dikhta hai aur kabhi fasta nahi, ek screen reader se jaancho, 200% zoom karo, aur dekho ki heading ka khaaka samajh aata hai. Accessibility vyavahaar hai, aur uska zyadatar hissa bina chalaye naapa nahi ja sakta.',
+    },
+  },
+  {
+    question: 'What is the difference between the tabindex values 0, -1, and positive?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`tabindex="0"` puts an element in the natural tab order at its DOM position, which is how you make a custom interactive element keyboard-reachable. `tabindex="-1"` makes it programmatically focusable via `.focus()` but skipped by tabbing — used for moving focus to a modal or an error message. POSITIVE values force an element ahead of everything else and are almost always a mistake, since they create an order that no longer matches the visual layout.',
+      hinglish:
+        '`tabindex="0"` ek element ko uski DOM jagah pe swabhavik tab kram mein daalta hai, jisse tum ek custom interactive element ko keyboard se pahunchne layak banate ho. `tabindex="-1"` use `.focus()` se focus layak banata hai par tab se skip karta hai — ek modal ya ek error message pe focus le jaane ke liye. DHANATMAK values ek element ko baaki sab se aage kar deti hain aur lagbhag hamesha galti hain, kyunki wo ek aisa kram banati hain jo dikhne wale layout se match nahi karta.',
+    },
+  },
+  {
+    question: 'What are the main HTML5 APIs beyond markup?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'HTML5 brought a large set of browser APIs: Web Storage, Canvas and WebGL for graphics, Geolocation, Web Workers for threading, WebSockets for bidirectional communication, the History API for client-side routing, Drag and Drop, the File API, IndexedDB for structured client storage, Notifications, and the Media APIs. Collectively they are what turned the browser from a document viewer into an application platform.',
+      hinglish:
+        'HTML5 browser APIs ka ek bada set laaya: Web Storage, graphics ke liye Canvas aur WebGL, Geolocation, threading ke liye Web Workers, dono taraf baat ke liye WebSockets, client-side routing ke liye History API, Drag and Drop, File API, dhaanche wale client storage ke liye IndexedDB, Notifications, aur Media APIs. Milkar inhone hi browser ko ek document dekhne wale se ek application platform bana diya.',
+    },
+  },
 ];
 
 export const curriculum = [...beginner, ...intermediate];

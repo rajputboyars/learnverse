@@ -71,7 +71,7 @@ const beginner = [
           {
             question: 'What is Pandas and why is it used in data analysis?',
             difficulty: 'easy',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Pandas is an open-source Python library for data manipulation and analysis. Its core structures are the Series (1D labeled array) and the DataFrame (2D labeled table). Built on NumPy, it makes loading data (CSV, Excel, SQL), cleaning missing values, filtering, grouping, merging, and reshaping fast and readable. It is widely used because it brings Excel-like power into reproducible code that scales to large datasets.',
@@ -122,7 +122,7 @@ const beginner = [
           {
             question: 'What is the difference between a Series and a DataFrame?',
             difficulty: 'easy',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'A Series is a one-dimensional labeled array holding a single column of data with an index. A DataFrame is a two-dimensional labeled structure — a table of rows and columns where each column is itself a Series sharing a common row index. In short, a DataFrame is a collection of Series aligned by the same index.',
@@ -343,7 +343,7 @@ const intermediate = [
           {
             question: 'Explain the difference between loc and iloc in Pandas.',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'loc is label-based indexing: you pass row index labels and column names, and slice ranges include the end label. iloc is integer-position based: you pass zero-based positions like a Python list, and slice ranges exclude the end position. If your DataFrame has a default RangeIndex they often look similar, but with a custom index (e.g. dates or IDs) the distinction is crucial — loc finds by the actual label, iloc by ordinal position.',
@@ -457,7 +457,7 @@ const intermediate = [
           {
             question: 'What strategies do you use to handle missing data in Pandas?',
             difficulty: 'medium',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'First I detect and quantify it with df.isna().sum() to see how much is missing per column. Then I choose a strategy based on context. If only a few rows are affected and the data is plentiful, dropna() removes them. If the column is important, I impute with fillna — using the mean or median for numeric data, the mode for categories, or forward/backward fill for time series. For structurally missing values a placeholder like "Unknown" can be meaningful. The key is to understand why data is missing before deciding, because dropping can bias results and imputing adds assumptions.',
@@ -727,7 +727,7 @@ const advanced = [
           {
             question: 'Explain the split-apply-combine pattern with groupby in Pandas.',
             difficulty: 'hard',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'Split-apply-combine is the model behind groupby. Split: Pandas partitions the DataFrame into groups based on the values of one or more keys (e.g. by city). Apply: it runs a function on each group independently — an aggregation like sum or mean (one value per group), a transformation (same shape, e.g. group-wise normalization), or a filter (keep/drop whole groups). Combine: the results are stitched back into a single Series or DataFrame indexed by the group keys. agg lets you apply multiple or per-column functions at once, making complex summaries concise.',
@@ -841,7 +841,7 @@ const advanced = [
           {
             question: 'What is the difference between merge and concat in Pandas?',
             difficulty: 'hard',
-            frequency: 'very-common',
+            frequency: 'common',
             answer: {
               english:
                 'merge combines DataFrames based on the values of one or more key columns (or indexes), performing database-style joins — inner, left, right, or outer — to align related rows from different tables. concat simply glues DataFrames together along an axis: vertically (axis=0) to add more rows of the same columns, or horizontally (axis=1) to add more columns by aligning on the index. Use merge when you need to combine information about the same entities spread across tables; use concat when you are appending or stacking pieces that already share a structure, like combining monthly CSVs.',
@@ -917,7 +917,7 @@ export const generalInterviewQuestions = [
   {
     question: 'What are the advantages of using Pandas over plain Python lists or dictionaries for data analysis?',
     difficulty: 'medium',
-    frequency: 'very-common',
+    frequency: 'common',
     answer: {
       english:
         'Pandas provides labeled, table-like DataFrames built on NumPy, so operations are vectorized and far faster than Python loops over lists. It gives a huge toolkit out of the box: reading/writing CSV, Excel, SQL and JSON; handling missing data; filtering, grouping, merging, and reshaping; and time-series support — each in a line or two. It aligns data by index automatically, handles mixed types per column, and scales to large datasets that would be painful with raw lists or dicts. In short, Pandas turns verbose, error-prone manual code into concise, reproducible, and fast analysis.',
@@ -934,6 +934,437 @@ export const generalInterviewQuestions = [
         'Some Pandas operations return a view (a window onto the original data that shares memory) while others return a copy (independent data). When you slice a DataFrame and then assign into the result, Pandas may not know whether you intended to modify the original or a copy, and it raises the SettingWithCopyWarning to flag that your change might not stick or might affect unexpected data. The safe practice is to use .loc for combined selection-and-assignment in one step (df.loc[mask, \'col\'] = value) and to call .copy() explicitly when you want an independent subset to modify. This avoids ambiguous chained assignments like df[mask][\'col\'] = value, which is the usual trigger of the warning.',
       hinglish:
         'Kuch Pandas operations view return karte hain (original data pe ek khidki jo memory share karti hai) jabki kuch copy return karte hain (independent data). Jab tum DataFrame slice karke result mein assign karte ho, Pandas ko shayad pata na ho ki tum original badalna chahte ho ya copy, isliye ye SettingWithCopyWarning deta hai batane ko ki tumhara change shayad na tike ya unexpected data ko affect kare. Safe practice ye hai ki ek hi step mein selection-and-assignment ke liye .loc use karo (df.loc[mask, \'col\'] = value) aur jab independent subset badalna ho toh .copy() explicitly call karo. Isse df[mask][\'col\'] = value jaisi ambiguous chained assignments se bacha jaata hai, jo aam taur pe is warning ki wajah hoti hai.',
+    },
+  },
+
+  // ─── Core Pandas ────────────────────────────────────────────
+  {
+    question: 'What is the difference between loc and iloc?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`loc` selects by LABEL — the index value and column name — and is INCLUSIVE of the end of a slice, which surprises people coming from Python. `iloc` selects by integer POSITION and is exclusive of the end, like normal Python slicing. When the index happens to be integers the two look identical but behave differently, which is a classic source of subtle bugs. Use `loc` for meaningful labels and `iloc` for positional access.',
+      hinglish:
+        '`loc` LABEL se chunta hai — index ki value aur column ka naam — aur ek slice ke aakhir ko SHAAMIL karta hai, jo Python se aane walon ko chaunkata hai. `iloc` integer JAGAH se chunta hai aur aakhir ko chhodta hai, normal Python slicing ki tarah. Jab index sanyog se integers ho to dono ek jaise dikhte hain par alag chalte hain, jo sookshm bugs ka ek classic source hai. Matlab wale labels ke liye `loc` aur jagah se access ke liye `iloc` use karo.',
+    },
+  },
+  {
+    question: 'What is a Series versus a DataFrame?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'A SERIES is a one-dimensional labelled array — essentially one column with an index. A DATAFRAME is two-dimensional: a collection of Series sharing one index, so each column can have a different dtype. Selecting one column with `df["col"]` returns a Series, while `df[["col"]]` returns a one-column DataFrame — a distinction that matters constantly, because many methods behave differently on the two.',
+      hinglish:
+        'Ek SERIES ek-aayaami labelled array hai — asal mein ek index wala ek column. Ek DATAFRAME do-aayaami hai: ek index share karti Series ka ek samooh, isliye har column ka alag dtype ho sakta hai. `df["col"]` se ek column chunna ek Series lautaata hai, jabki `df[["col"]]` ek-column wala DataFrame — ek farak jo lagatar matter karta hai, kyunki bahut methods dono pe alag chalti hain.',
+    },
+  },
+  {
+    question: 'How does groupby work in pandas?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Groupby follows SPLIT-APPLY-COMBINE: split rows into groups by key, apply a function to each group, and combine the results. `agg` reduces each group to one row, `transform` returns a result the SAME SHAPE as the input so you can broadcast a group statistic back onto every row, and `filter` keeps or drops whole groups. `apply` is the flexible but slow fallback — prefer `agg` and `transform`, which are vectorised internally.',
+      hinglish:
+        'Groupby SPLIT-APPLY-COMBINE follow karta hai: rows ko key se groups mein baanto, har group pe ek function lagao, aur nateeje jodo. `agg` har group ko ek row mein kam karta hai, `transform` input ke BARABAR AAKAAR ka nateeja lautaata hai taaki tum ek group ka aankda har row pe wapas laga sako, aur `filter` poore groups rakhta ya hataata hai. `apply` lachila par dheema fallback hai — `agg` aur `transform` prefer karo, jo andar se vectorised hain.',
+    },
+  },
+  {
+    question: 'What is the difference between agg, transform, and apply?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`agg` REDUCES each group to a single value, so a hundred groups give a hundred rows. `transform` returns a value per ORIGINAL ROW, which is how you add a column such as "each row\'s value minus its group mean". `apply` accepts an arbitrary function and can return anything, which makes it flexible but forces pandas to fall back to a Python-level loop — typically several times slower. Reach for apply only when the other two genuinely cannot express it.',
+      hinglish:
+        '`agg` har group ko ek value mein KAM karta hai, isliye sau groups sau rows dete hain. `transform` per ASLI ROW ek value lautaata hai, jisse tum "har row ki value minus uske group ka mean" jaisa column jodte ho. `apply` koi bhi function leta hai aur kuch bhi lauta sakta hai, jo ise lachila banata hai par pandas ko ek Python-level loop pe girne pe majboor karta hai — typically kai guna dheema. Apply tabhi uthao jab baaki do genuinely ise na bata sakein.',
+    },
+  },
+  {
+    question: 'What is the difference between merge, join, and concat?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`merge` is the SQL-style join on columns or indexes, supporting inner, left, right, and outer — the general tool. `join` is a convenience wrapper that merges on the INDEX by default. `concat` stacks DataFrames along an axis without matching keys, so it appends rows or glues columns side by side. Use merge when relating data by a key, concat when combining data of the same shape, and always check the row count afterwards.',
+      hinglish:
+        '`merge` columns ya indexes pe SQL-jaisa join hai, inner, left, right, aur outer deta hua — aam tool. `join` ek suvidha wrapper hai jo default se INDEX pe merge karta hai. `concat` DataFrames ko ek axis ke saath jodta hai bina keys milaaye, isliye ye rows jodta hai ya columns saath-saath chipkata hai. Data ko ek key se jodte waqt merge use karo, ek jaise aakaar ka data milaate waqt concat, aur baad mein hamesha rows ki ginti jaancho.',
+    },
+  },
+  {
+    question: 'What are the merge how options and what should you check afterwards?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`inner` keeps only matching keys, `left` keeps all left rows, `right` the mirror, and `outer` keeps everything. Afterwards, always check the ROW COUNT: an unexpected increase means the join key was not unique on one side and rows multiplied, which silently corrupts every downstream aggregate. Use `validate="one_to_one"` or `"one_to_many"` to make pandas raise instead, and `indicator=True` to see which rows matched.',
+      hinglish:
+        '`inner` sirf milti keys rakhta hai, `left` saari left rows, `right` uska aaina, aur `outer` sab kuch. Baad mein, hamesha ROWS KI GINTI jaancho: ek anaapekshit badhotri matlab join key ek taraf anokhi nahi thi aur rows guna ho gayi, jo chupke se har aage ke aankde ko bigaad deta hai. `validate="one_to_one"` ya `"one_to_many"` use karo taaki pandas uske bajaye error de, aur `indicator=True` se dekho kaunsi rows milin.',
+    },
+  },
+  {
+    question: 'How do you handle missing data in pandas?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Detect it with `isna()` and count with `df.isna().sum()`. Then choose deliberately: `dropna` removes rows or columns, `fillna` substitutes a value, and `interpolate` estimates from neighbours in ordered data. First ask WHY it is missing — if the missingness carries information, adding an `is_missing` indicator often helps more than any imputation. And note that in machine learning the imputer must be fitted on the training data only, or you have leakage.',
+      hinglish:
+        'Ise `isna()` se pakado aur `df.isna().sum()` se gino. Phir soch kar chuno: `dropna` rows ya columns hataata hai, `fillna` ek value bharta hai, aur `interpolate` kramwaar data mein padosiyon se andaaza lagata hai. Pehle poochho ki wo KYUN gayab hai — agar gayab hona jaankaari rakhta hai, ek `is_missing` sanket jodna aksar kisi bhi bharai se zyada madad karta hai. Aur note karo ki machine learning mein imputer sirf training data pe fit hona chahiye, warna leakage hai.',
+    },
+  },
+  {
+    question: 'What is the difference between NaN, None, and NaT?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`NaN` is a float missing value, `None` is Python\'s null which pandas usually converts to NaN in numeric columns, and `NaT` is the missing value for datetimes. The critical rule is that NaN is NOT EQUAL to itself, so `df[df.col == np.nan]` always returns nothing — you must use `isna()`. Newer nullable dtypes such as `Int64` and the Arrow-backed types use `pd.NA` instead, which finally allows a genuine missing INTEGER.',
+      hinglish:
+        '`NaN` ek float gayab value hai, `None` Python ka null hai jise pandas usually numeric columns mein NaN bana deta hai, aur `NaT` datetimes ke liye gayab value hai. Zaroori niyam ye hai ki NaN khud ke BARABAR NAHI hai, isliye `df[df.col == np.nan]` hamesha kuch nahi lautaata — tumhe `isna()` use karna padega. Naye nullable dtypes jaise `Int64` aur Arrow wale types uske bajaye `pd.NA` use karte hain, jo aakhirkaar ek asli gayab INTEGER deta hai.',
+    },
+  },
+  {
+    question: 'What causes SettingWithCopyWarning and how do you avoid it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'It appears when you assign into the result of a CHAINED operation — `df[df.a > 5]["b"] = 1` — because pandas cannot tell whether the intermediate is a view or a copy, so your change may silently not persist. The fix is a single `.loc` call doing selection and assignment together: `df.loc[df.a > 5, "b"] = 1`. When you genuinely want an independent subset, call `.copy()` explicitly. Copy-on-Write, now the default direction for pandas, removes the ambiguity entirely.',
+      hinglish:
+        'Ye tab dikhta hai jab tum ek JUDI hui operation ke nateeje mein assign karte ho — `df[df.a > 5]["b"] = 1` — kyunki pandas nahi bata sakta ki beech wala ek view hai ya copy, isliye tumhara badlaav chupke se na tike. Fix ek hi `.loc` call hai jo chunna aur assign karna saath kare: `df.loc[df.a > 5, "b"] = 1`. Jab tum genuinely ek swatantra hissa chahte ho, `.copy()` explicitly bulao. Copy-on-Write, jo ab pandas ki disha hai, is dubidha ko poori tarah hata deta hai.',
+    },
+  },
+  {
+    question: 'Why should you avoid iterrows and what should you use instead?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`iterrows` creates a Series object for every row and runs a Python-level loop, so it is often hundreds of times slower than the vectorised equivalent — and it also loses dtypes, since a row spanning mixed columns becomes object. Prefer vectorised operations, then `np.where` or `np.select` for conditionals, then `.map` on a Series. If you truly must iterate, `itertuples` is considerably faster. Seeing `iterrows` in a review is almost always a sign of a missed vectorisation.',
+      hinglish:
+        '`iterrows` har row ke liye ek Series object banata hai aur ek Python-level loop chalata hai, isliye ye aksar vectorised barabar se sau guna dheema hai — aur ye dtypes bhi kho deta hai, kyunki mile-jule columns wali ek row object ban jaati hai. Vectorised operations prefer karo, phir conditionals ke liye `np.where` ya `np.select`, phir ek Series pe `.map`. Agar sach mein iterate karna hi hai, `itertuples` kaafi tez hai. Ek review mein `iterrows` dekhna lagbhag hamesha ek chhooti vectorisation ki nishaani hai.',
+    },
+  },
+  {
+    question: 'What is vectorisation in pandas?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Vectorisation means expressing an operation over a whole column at once — `df.a + df.b` — so the work happens inside compiled NumPy C code rather than the Python interpreter. A Python loop over a million rows pays interpreter overhead a million times; the vectorised form pays it once. The practical rule is that if you are writing a loop or `apply` over rows, there is almost always a vectorised expression that is both shorter and dramatically faster.',
+      hinglish:
+        'Vectorisation ka matlab hai ek poore column pe ek saath ek operation likhna — `df.a + df.b` — taaki kaam Python interpreter ke bajaye compiled NumPy C code ke andar ho. Das lakh rows pe ek Python loop das lakh baar interpreter ka bojh bharta hai; vectorised roop ek baar. Vyavaharik niyam ye hai ki agar tum rows pe ek loop ya `apply` likh rahe ho, lagbhag hamesha ek vectorised expression hoti hai jo chhoti bhi hai aur bahut tez bhi.',
+    },
+  },
+  {
+    question: 'How do you reduce the memory usage of a DataFrame?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Check with `df.info(memory_usage="deep")`. Then downcast numeric dtypes — `int64` to `int32` or `int16`, `float64` to `float32` — which can cut memory by half or more. Convert low-cardinality string columns to `category`, which often gives a dramatic reduction since it stores integer codes plus one copy of each value. Read only the columns you need with `usecols`, specify dtypes at read time, and process large files in chunks.',
+      hinglish:
+        '`df.info(memory_usage="deep")` se jaancho. Phir numeric dtypes chhote karo — `int64` se `int32` ya `int16`, `float64` se `float32` — jo memory aadhi ya usse zyada kam kar sakta hai. Kam alag values wale string columns ko `category` mein badlo, jo aksar bahut badi kami deta hai kyunki wo integer codes plus har value ki ek copy rakhta hai. `usecols` se sirf zaroori columns padho, padhte waqt dtypes batao, aur badi files ko tukdon mein process karo.',
+    },
+  },
+  {
+    question: 'What is the category dtype and when should you use it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A categorical column stores integer codes plus a lookup of unique values, so a column of a million rows with five distinct strings uses a fraction of the memory. It also makes groupby and sorting faster, and ORDERED categories let you sort logically — small, medium, large — rather than alphabetically. Use it when cardinality is low relative to row count. Avoid it for near-unique columns such as an id, where the category overhead makes things worse.',
+      hinglish:
+        'Ek categorical column integer codes plus anokhi values ka ek lookup rakhta hai, isliye paanch alag strings wali das lakh rows ka ek column memory ka ek chhota hissa leta hai. Ye groupby aur sorting bhi tez karta hai, aur KRAMIK categories tumhe logically sort karne dete hain — chhota, madhyam, bada — alphabetically ke bajaye. Ise tab use karo jab alag values rows ki ginti ke muqable kam hon. Ek id jaise lagbhag anokhe columns ke liye ise avoid karo, jahan category ka bojh cheezein bigaad deta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between pivot, pivot_table, and melt?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`pivot` reshapes long data to wide but FAILS if there are duplicate index-column pairs, since it cannot decide which value to use. `pivot_table` handles duplicates by aggregating them, defaulting to the mean, which makes it the safer general choice. `melt` does the reverse, turning wide columns into long key-value rows — which is exactly what most plotting and modelling libraries expect, so melt is the more common direction in analysis work.',
+      hinglish:
+        '`pivot` lambe data ko chaude mein badalta hai par duplicate index-column jodiyon pe FAIL hota hai, kyunki wo tay nahi kar sakta ki kaunsi value le. `pivot_table` duplicates ko jod kar sambhalta hai, default mean se, jo ise surakshit aam choice banata hai. `melt` ulta karta hai, chaude columns ko lambe key-value rows mein badalte hue — jo theek wahi hai jo zyadatar plotting aur modelling libraries chahti hain, isliye vishleshan ke kaam mein melt zyada common disha hai.',
+    },
+  },
+  {
+    question: 'What is a MultiIndex and when is it useful?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A MultiIndex has multiple levels on an axis, so you can represent hierarchical data such as (country, city) or (date, ticker) in one frame and slice by any level. It is created naturally by `groupby` on several keys or by `set_index` with a list. It is powerful for time-series panels and cross-sections, but genuinely harder to read and manipulate — many teams call `reset_index()` immediately after a multi-key groupby precisely to avoid it.',
+      hinglish:
+        'Ek MultiIndex ke ek axis pe kai star hote hain, isliye tum (desh, sheher) ya (taareekh, ticker) jaisa star wala data ek frame mein rakh sakte ho aur kisi bhi star se kaat sakte ho. Ye kai keys pe `groupby` se ya ek list ke saath `set_index` se swabhavik roop se banta hai. Ye time-series panels aur cross-sections ke liye taakatwar hai, par genuinely padhna aur badalna mushkil — bahut teams theek isi se bachne ke liye ek multi-key groupby ke turant baad `reset_index()` bulaati hain.',
+    },
+  },
+  {
+    question: 'How do you read a large CSV that does not fit in memory?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Pass `chunksize` to `read_csv` and process an iterator of pieces, aggregating as you go. Use `usecols` to read only the columns you need and `dtype` to avoid pandas inferring wasteful 64-bit types. Convert the file once to PARQUET, which is columnar, compressed, and dramatically faster to read while preserving dtypes. Beyond that, Dask or Polars handle out-of-core work with a familiar API, and DuckDB can query a file directly with SQL.',
+      hinglish:
+        '`read_csv` ko `chunksize` do aur tukdon ke ek iterator ko process karo, saath-saath jodte hue. Sirf zaroori columns padhne ke liye `usecols` aur pandas ko faltu 64-bit types andaazne se rokne ke liye `dtype` use karo. File ko ek baar PARQUET mein badlo, jo columnar, compressed, aur padhne mein bahut tez hai jabki dtypes bachata hai. Uske aage, Dask ya Polars jaana-pehchana API ke saath memory se bade kaam sambhalte hain, aur DuckDB ek file ko seedha SQL se query kar sakta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between CSV and Parquet?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'CSV is plain text, row-oriented, human-readable, and universally supported, but it stores no TYPE information — so every read re-infers dtypes and dates come back as strings — and it is large and slow. PARQUET is binary, COLUMNAR, and compressed: it preserves dtypes exactly, is often five to ten times smaller, and lets you read only the columns you need. Use CSV for interchange with humans and Parquet for anything you will read repeatedly.',
+      hinglish:
+        'CSV plain text hai, row-kendrit, insaan padh sakta hai, aur har jagah chalta hai, par ye koi TYPE ki jaankaari nahi rakhta — isliye har read dtypes dobara andaazti hai aur dates strings ban kar aati hain — aur ye bada aur dheema hai. PARQUET binary hai, COLUMNAR, aur compressed: ye dtypes theek bachata hai, aksar paanch se das guna chhota hai, aur tumhe sirf zaroori columns padhne deta hai. Insaanon ke saath aadaan-pradaan ke liye CSV aur baar-baar padhi jaane wali kisi bhi cheez ke liye Parquet use karo.',
+    },
+  },
+  {
+    question: 'How do you work with datetimes in pandas?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Parse with `pd.to_datetime`, passing an explicit `format` where possible since inference is slow and can silently misread ambiguous dates. Once parsed, the `.dt` accessor gives `.year`, `.month`, `.dayofweek`, and so on. Setting a DatetimeIndex unlocks time-based slicing, `resample` for changing frequency, and `rolling` for windows. Store everything in UTC and convert only at presentation, and always verify a date-parsing result rather than trusting it.',
+      hinglish:
+        '`pd.to_datetime` se parse karo, jahan ho sake ek explicit `format` dete hue kyunki andaaza dheema hai aur do-matlabi dates chupke se galat padh sakta hai. Parse hone ke baad, `.dt` accessor `.year`, `.month`, `.dayofweek`, waghairah deta hai. Ek DatetimeIndex set karna samay se kaatna, frequency badalne ke liye `resample`, aur windows ke liye `rolling` kholta hai. Sab kuch UTC mein rakho aur sirf dikhaate waqt badlo, aur ek date-parsing nateeje pe bharosa karne ke bajaye hamesha jaancho.',
+    },
+  },
+  {
+    question: 'What is resampling in pandas?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Resampling changes the frequency of time-series data using a DatetimeIndex. DOWNSAMPLING aggregates to a coarser frequency — daily to monthly with `resample("M").mean()`. UPSAMPLING moves to a finer frequency and creates gaps you must fill, with `ffill` or `interpolate`. Choose the aggregation deliberately: a mean, a sum, and a last value give very different monthly figures, and the right one depends on whether the metric is a rate, a total, or a level.',
+      hinglish:
+        'Resampling ek DatetimeIndex se time-series data ki frequency badalta hai. NEECHE laana ek mote star pe jodta hai — `resample("M").mean()` se roz se maheena. UPAR le jaana ek baareek star pe jaata hai aur aise khaali sthaan banata hai jinhe tumhe bharna padta hai, `ffill` ya `interpolate` se. Jodne ka tareeka soch kar chuno: ek mean, ek sum, aur ek aakhri value bahut alag maheene ke aankde dete hain, aur sahi wala is pe depend karta hai ki maap ek dar hai, ek kul, ya ek star.',
+    },
+  },
+  {
+    question: 'What is a rolling window and what is it used for?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`rolling(window=7).mean()` computes a statistic over a moving window of rows, producing a smoothed series — the standard way to show a seven-day average and remove daily noise. `expanding` grows the window from the start, giving a cumulative statistic. Note the first `window-1` values are NaN by design. In machine learning, rolling features must be computed carefully so they never include future data, which would be leakage.',
+      hinglish:
+        '`rolling(window=7).mean()` rows ki ek chalti khidki pe ek aankda nikaalta hai, ek chikni shrinkhala banate hue — saat din ka average dikhane aur rozana ka shor hataane ka standard tareeka. `expanding` khidki ko shuru se badhata hai, ek jodta hua aankda deta hua. Note karo pehli `window-1` values design se NaN hain. Machine learning mein, rolling features dhyaan se banane chahiye taaki unme kabhi bhavishya ka data na aaye, jo leakage hota.',
+    },
+  },
+  {
+    question: 'How do you find and remove duplicate rows?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`df.duplicated()` returns a boolean mask and `drop_duplicates()` removes them. Both accept `subset` to define duplication on specific columns rather than the whole row, and `keep` set to first, last, or False to drop every copy. The important step people skip is INVESTIGATING first — duplicates often reveal a broken join or a double-run pipeline, and silently dropping them hides the real bug rather than fixing it.',
+      hinglish:
+        '`df.duplicated()` ek boolean mask lautaata hai aur `drop_duplicates()` unhe hataata hai. Dono `subset` lete hain taaki poori row ke bajaye khaas columns pe dohraav tay ho, aur `keep` ko first, last, ya False set karke har copy hata sakte ho. Jo kadam log chhod dete hain wo pehle JAANCH karna hai — duplicates aksar ek toota join ya do baar chala pipeline batate hain, aur unhe chupke se giraana asli bug chhupa deta hai, theek nahi karta.',
+    },
+  },
+  {
+    question: 'What is the difference between map, apply, and applymap?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`map` works elementwise on a SERIES and also accepts a dict or another Series for lookup-style replacement, which is its most useful form. `apply` works on a Series elementwise or on a DataFrame along an axis, receiving a whole row or column. `applymap` (now `DataFrame.map`) works elementwise on every cell of a DataFrame and is the slowest. All three run Python-level code, so prefer a vectorised expression where one exists.',
+      hinglish:
+        '`map` ek SERIES pe element dar element chalta hai aur lookup-jaisi badli ke liye ek dict ya doosri Series bhi leta hai, jo iska sabse kaam ka roop hai. `apply` ek Series pe element dar element ya ek DataFrame pe ek axis ke saath chalta hai, ek poori row ya column paate hue. `applymap` (ab `DataFrame.map`) ek DataFrame ki har cell pe element dar element chalta hai aur sabse dheema hai. Teeno Python-level code chalate hain, isliye jahan ek vectorised expression ho wahan use prefer karo.',
+    },
+  },
+  {
+    question: 'How do you filter rows in pandas?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use a boolean mask — `df[df.age > 30]` — and combine conditions with `&`, `|`, and `~`, each wrapped in PARENTHESES because those operators bind more tightly than comparison. Python\'s `and` and `or` do not work elementwise and raise an error. `isin` handles membership, `between` handles ranges, `str.contains` handles text, and `query("age > 30")` offers a readable string form that also avoids the parenthesis trap.',
+      hinglish:
+        'Ek boolean mask use karo — `df[df.age > 30]` — aur conditions ko `&`, `|`, aur `~` se jodo, har ek ko BRACKETS mein lapet kar kyunki wo operators tulna se zyada kasakar bandhte hain. Python ke `and` aur `or` element dar element nahi chalte aur error dete hain. `isin` sadasyata sambhalta hai, `between` ranges, `str.contains` text, aur `query("age > 30")` ek padhne layak string roop deta hai jo bracket ka jaal bhi bachata hai.',
+    },
+  },
+  {
+    question: 'What does the query method offer over boolean indexing?',
+    difficulty: 'medium',
+    frequency: 'rare',
+    answer: {
+      english:
+        '`query` takes a string expression — `df.query("age > 30 and city == \'Delhi\'")` — which reads more naturally, avoids repeating the DataFrame name, and sidesteps the parenthesis requirement of `&` and `|`. It can reference local variables with an `@` prefix. On large frames it can also be faster because it uses numexpr. The downsides are no IDE autocompletion or type checking inside the string, and column names with spaces need backticks.',
+      hinglish:
+        '`query` ek string expression leta hai — `df.query("age > 30 and city == \'Delhi\'")` — jo zyada swabhavik padhta hai, DataFrame ka naam dohraana bachata hai, aur `&` aur `|` ki bracket zaroorat se bacha leta hai. Ye ek `@` ke saath local variables reference kar sakta hai. Bade frames pe ye tez bhi ho sakta hai kyunki ye numexpr use karta hai. Nuksaan ye hain ki string ke andar koi IDE autocompletion ya type checking nahi, aur space wale column naamon ko backticks chahiye.',
+    },
+  },
+  {
+    question: 'What is method chaining and why is it recommended?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Chaining expresses a transformation as a single readable pipeline — `df.query(...).assign(...).groupby(...).agg(...)` — instead of a sequence of reassignments to intermediate variables. It avoids `SettingWithCopyWarning`, keeps the original frame unmodified, and makes the data flow obvious top to bottom. Use `assign` to add columns and `pipe` to insert a custom function into the chain. The trade is that debugging a long chain requires breaking it apart.',
+      hinglish:
+        'Chaining ek badlav ko ek hi padhne layak pipeline mein batati hai — `df.query(...).assign(...).groupby(...).agg(...)` — beech ke variables mein baar-baar assign karne ke bajaye. Ye `SettingWithCopyWarning` bachati hai, asli frame ko badla nahi rakhti, aur data ka bahaav upar se neeche saaf karti hai. Columns jodne ke liye `assign` aur chain mein ek apna function daalne ke liye `pipe` use karo. Trade ye hai ki ek lambi chain debug karne ke liye use todna padta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between sort_values and sort_index?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`sort_values` orders rows by the values in one or more columns; `sort_index` orders by the index labels. Both accept `ascending` as a list when sorting by several keys in different directions. Two practical points: pandas sorting is STABLE, so equal rows keep their relative order, which matters when sorting by multiple keys in sequence; and NaN values go last by default, controllable with `na_position`.',
+      hinglish:
+        '`sort_values` rows ko ek ya kai columns ki values se jamata hai; `sort_index` index ke labels se. Dono kai keys pe alag dishaon mein sort karte waqt `ascending` ko ek list ki tarah lete hain. Do vyavaharik baatein: pandas ki sorting STABLE hai, isliye barabar rows apna aapsi kram rakhti hain, jo kai keys pe kram se sort karte waqt matter karta hai; aur NaN values default se aakhir mein jaati hain, jo `na_position` se control hoti hai.',
+    },
+  },
+  {
+    question: 'What does inplace=True do and should you use it?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`inplace=True` modifies the DataFrame directly and returns None instead of a new frame. It looks like it saves memory, but pandas often copies internally anyway, so the benefit is usually illusory. Its real costs are that it BREAKS method chaining, makes code harder to reason about because the object mutates under you, and returns None — so `df = df.dropna(inplace=True)` silently sets df to None. It is being deprecated across the API.',
+      hinglish:
+        '`inplace=True` DataFrame ko seedha badalta hai aur ek naye frame ke bajaye None lautaata hai. Lagta hai ye memory bachata hai, par pandas aksar andar se waise bhi copy karta hai, isliye faayda usually bhram hai. Iske asli nuksaan ye hain ki ye method chaining TODTA hai, code samajhna mushkil banata hai kyunki object tumhare neeche badal jaata hai, aur None lautaata hai — isliye `df = df.dropna(inplace=True)` chupke se df ko None kar deta hai. Ise poore API mein hataya ja raha hai.',
+    },
+  },
+  {
+    question: 'How do you detect and handle outliers in pandas?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Detect with the IQR rule — values beyond 1.5 times the interquartile range from the quartiles — or a z-score beyond about three, though z-scores assume roughly normal data. Visualise with a box plot before deciding. The handling matters more than the detection: removing outliers can discard the most important observations, since a fraud case or a system failure IS the outlier. Consider capping, transforming, or modelling them separately rather than deleting.',
+      hinglish:
+        'IQR niyam se pakado — quartiles se interquartile range ke 1.5 guna aage ki values — ya lagbhag teen se aage ek z-score, halaanki z-scores lagbhag normal data maanate hain. Tay karne se pehle ek box plot se dekho. Sambhalna pakadne se zyada matter karta hai: outliers hataana sabse zaroori observations phenk sakta hai, kyunki ek fraud ka case ya ek system ki kharaabi outlier HAI. Delete karne ke bajaye unhe seemit karna, badalna, ya alag se model karna socho.',
+    },
+  },
+  {
+    question: 'What is the difference between pandas and SQL for data work?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'SQL runs in the DATABASE, so filtering and aggregation happen where the data lives and only the result travels — essential when the table is larger than your memory. Pandas runs in Python with the whole frame in memory, but offers far richer transformation, reshaping, and direct integration with plotting and machine learning. The pragmatic pattern is to aggregate and filter in SQL, then pull a manageable result into pandas for analysis.',
+      hinglish:
+        'SQL DATABASE mein chalta hai, isliye chhaanna aur jodna wahan hota hai jahan data hai aur sirf nateeja aata hai — zaroori jab table tumhari memory se badi ho. Pandas Python mein poore frame ke saath memory mein chalta hai, par bahut zyada rich badlaav, dobara jamana, aur plotting aur machine learning se seedha judaav deta hai. Vyavaharik tareeka SQL mein jodna aur chhaanna hai, phir ek sambhaalne layak nateeja pandas mein laana vishleshan ke liye.',
+    },
+  },
+  {
+    question: 'What is Polars and how does it compare to pandas?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Polars is a DataFrame library written in Rust with an Arrow-backed columnar format. It is multi-threaded by default and offers a LAZY API that optimises the whole query plan before executing, so it is typically several times faster and uses less memory. Its API is more consistent, with no index and no `SettingWithCopyWarning`. Pandas still wins on ecosystem maturity and the sheer volume of existing code and documentation.',
+      hinglish:
+        'Polars Rust mein likhi ek DataFrame library hai ek Arrow-based columnar format ke saath. Ye default se multi-threaded hai aur ek SUST API deta hai jo chalane se pehle poora query plan behtar karta hai, isliye ye typically kai guna tez hai aur kam memory leta hai. Iska API zyada ek jaisa hai, bina index aur bina `SettingWithCopyWarning`. Pandas abhi bhi ecosystem ki pakkai aur maujood code aur documentation ki bhaari maatra pe jeetta hai.',
+    },
+  },
+  {
+    question: 'How do you compute a group-relative value such as percentage of group total?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use `transform`, which returns a result aligned to the ORIGINAL rows: `df["pct"] = df.value / df.groupby("g").value.transform("sum")`. That broadcasts each group\'s total back onto every row of that group in one vectorised step. Using `agg` instead gives one row per group and then requires a merge back, which is slower and easy to get wrong. Recognising when to reach for `transform` is one of the most useful pandas skills.',
+      hinglish:
+        '`transform` use karo, jo ASLI rows ke saath juda nateeja lautaata hai: `df["pct"] = df.value / df.groupby("g").value.transform("sum")`. Ye har group ka kul us group ki har row pe ek vectorised kadam mein wapas laga deta hai. Uske bajaye `agg` per group ek row deta hai aur phir wapas ek merge maangta hai, jo dheema hai aur galat karna aasaan. Kab `transform` uthana hai ye pehchanana sabse kaam ki pandas skills mein se ek hai.',
+    },
+  },
+  {
+    question: 'What is the difference between shape, size, count, and len?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        '`df.shape` gives a (rows, columns) tuple. `df.size` gives the total number of cells, rows times columns. `len(df)` gives the number of rows. `df.count()` gives the number of NON-NULL values per column, so it differs from `len` wherever data is missing — which is precisely why it is a quick way to spot which columns have gaps, and why confusing it with a row count produces wrong answers.',
+      hinglish:
+        '`df.shape` ek (rows, columns) tuple deta hai. `df.size` kul cells ki ginti deta hai, rows guna columns. `len(df)` rows ki ginti deta hai. `df.count()` per column NON-NULL values ki ginti deta hai, isliye jahan bhi data gayab hai wahan ye `len` se alag hai — jo theek wahi wajah hai ki ye jaldi dekhne ka tareeka hai ki kaunse columns mein khaali jagah hai, aur isliye ise row ki ginti samajhna galat jawab deta hai.',
+    },
+  },
+  {
+    question: 'How do you rename and reorder columns?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'Rename with `df.rename(columns={"old": "new"})`, which only touches the keys you list, or assign `df.columns` directly when replacing all of them — but that requires the exact same length and silently misaligns if you get it wrong. Reorder by selecting in the order you want: `df[["b", "a", "c"]]`. A common cleaning step is `df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")`, which normalises messy imported headers.',
+      hinglish:
+        '`df.rename(columns={"old": "new"})` se naam badlo, jo sirf tumhari batayi keys chhoota hai, ya sab badalte waqt `df.columns` seedha assign karo — par uske liye bilkul wahi lambaai chahiye aur galat hone pe ye chupke se galat jodta hai. Jis kram mein chahiye us kram mein chun kar dobara jamao: `df[["b", "a", "c"]]`. Ek aam safai kadam `df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")` hai, jo bikhre imported headers ko theek karta hai.',
+    },
+  },
+  {
+    question: 'What is the pandas index and why does it matter?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The index labels the rows and drives ALIGNMENT: when you combine two Series, pandas matches on index rather than position, so adding two columns from differently-ordered frames produces NaNs rather than an error. Setting a meaningful index makes `loc` lookups fast and enables time-based slicing. It is also the most common source of confusion for newcomers, which is why `reset_index(drop=True)` appears so often after filtering or grouping.',
+      hinglish:
+        'Index rows ko naam deta hai aur JODNA chalata hai: jab tum do Series milaate ho, pandas jagah ke bajaye index pe milaata hai, isliye alag kram wale frames ke do columns jodna ek error ke bajaye NaNs banata hai. Ek matlab wala index set karna `loc` lookups tez karta hai aur samay se kaatna deta hai. Ye naye logon ke liye uljhan ka sabse aam source bhi hai, isiliye chhaanne ya group karne ke baad `reset_index(drop=True)` itni baar dikhta hai.',
+    },
+  },
+  {
+    question: 'What does reset_index do and when do you need it?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        '`reset_index()` moves the current index back into a column and replaces it with a default integer range. You need it after a `groupby` that produced a grouped index, after filtering when the original integer index has gaps, and before writing to a format that does not carry an index. Pass `drop=True` when the old index is meaningless, otherwise it becomes an unwanted extra column — which is how stray `index` and `level_0` columns appear in exported files.',
+      hinglish:
+        '`reset_index()` abhi ke index ko wapas ek column mein le jaata hai aur use ek default integer range se badal deta hai. Ye tumhe ek `groupby` ke baad chahiye jisne ek grouped index banaya, chhaanne ke baad jab asli integer index mein khaali jagah ho, aur ek aise format mein likhne se pehle jo index nahi le jaata. Jab purana index bekaar ho to `drop=True` do, warna wo ek anchaha extra column ban jaata hai — isse hi export ki gayi files mein bhatke `index` aur `level_0` columns aate hain.',
+    },
+  },
+  {
+    question: 'How do you profile and speed up slow pandas code?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Measure first with `%timeit` or a line profiler rather than guessing. The usual wins in order: replace `iterrows` or row-wise `apply` with a vectorised expression, downcast dtypes and use `category` so more fits in cache, filter early so later steps process fewer rows, avoid repeated concatenation in a loop, and use `merge` on indexed columns. If it is still slow after that, the answer is usually a different tool — Polars, DuckDB, or Dask.',
+      hinglish:
+        'Andaaza lagane ke bajaye pehle `%timeit` ya ek line profiler se naapo. Kram mein aam jeetein: `iterrows` ya row-wise `apply` ko ek vectorised expression se badlo, dtypes chhote karo aur `category` use karo taaki zyada cache mein aaye, jaldi chhaano taaki baad ke kadam kam rows process karein, ek loop mein baar-baar jodna avoid karo, aur indexed columns pe `merge` use karo. Uske baad bhi dheema ho to jawab usually ek alag tool hai — Polars, DuckDB, ya Dask.',
+    },
+  },
+  {
+    question: 'How do you validate a DataFrame after a transformation?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Check the ROW COUNT before and after — an unexpected change almost always means a join multiplied rows or a filter removed more than intended. Check dtypes have not silently changed, since a NaN can turn an int column into float. Check null counts per column. Assert business invariants, such as a percentage column summing to one within each group. Tools such as Pandera or Great Expectations make these checks declarative and enforceable in a pipeline.',
+      hinglish:
+        'Pehle aur baad mein ROWS KI GINTI jaancho — ek anaapekshit badlaav lagbhag hamesha matlab ek join ne rows guna kar di ya ek filter ne soch se zyada hata diya. Jaancho ki dtypes chupke se badle to nahi, kyunki ek NaN ek int column ko float bana deta hai. Per column null ki ginti jaancho. Vyapaar ke niyam assert karo, jaise ek pratishat column har group mein ek tak jud raha ho. Pandera ya Great Expectations jaise tools in jaanchon ko declarative aur ek pipeline mein lagne layak banate hain.',
+    },
+  },
+  {
+    question: 'What is broadcasting in pandas?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Broadcasting applies an operation between objects of different shapes without writing a loop — `df["price"] * 1.1` multiplies every row, and subtracting a Series from a DataFrame aligns on the index or columns. The critical difference from NumPy is that pandas aligns on LABELS first, so if the labels do not match you get NaN rather than an error. Checking for unexpected NaNs after an arithmetic operation is the standard way to catch a misalignment.',
+      hinglish:
+        'Broadcasting alag aakaar ki cheezon ke beech ek operation lagata hai bina loop likhe — `df["price"] * 1.1` har row ko guna karta hai, aur ek DataFrame se ek Series ghataana index ya columns pe jodta hai. NumPy se zaroori farak ye hai ki pandas pehle LABELS pe jodta hai, isliye labels na milne pe tumhe ek error ke bajaye NaN milta hai. Ek arithmetic operation ke baad anaapekshit NaNs dhoondhna ek galat jodne ko pakadne ka standard tareeka hai.',
+    },
+  },
+  {
+    question: 'What are the most common pandas mistakes you see?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Looping with `iterrows` where a vectorised expression exists. Chained assignment producing `SettingWithCopyWarning` and a change that does not persist. Comparing to NaN with `==` instead of `isna`. Forgetting parentheses around boolean conditions. Not checking the row count after a merge, so a duplicated key silently inflates every aggregate. Using `inplace=True` and losing the frame. And letting pandas infer dtypes on a large CSV rather than specifying them.',
+      hinglish:
+        'Wahan `iterrows` se loop karna jahan ek vectorised expression maujood hai. Judi hui assignment jo `SettingWithCopyWarning` aur ek na tikne wala badlaav banati hai. NaN se `isna` ke bajaye `==` se tulna karna. Boolean conditions ke around brackets bhoolna. Ek merge ke baad rows ki ginti na jaanchna, isliye ek dohraayi key chupke se har aankda badha deti hai. `inplace=True` use karke frame kho dena. Aur ek badi CSV pe dtypes batane ke bajaye pandas ko andaazne dena.',
     },
   },
 ];
