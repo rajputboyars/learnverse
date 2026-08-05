@@ -1391,4 +1391,292 @@ export const generalInterviewQuestions = [
     difficulty: 'medium',
     frequency: 'common',
   },
+
+  // ─── Agentic Coding in Practice ─────────────────────────────
+  {
+    question: 'What is agentic coding and how does it differ from autocomplete?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Autocomplete predicts the next few lines from nearby context and you stay in control of every keystroke. An AGENT plans a multi-step task, reads and edits many files, runs commands, observes the results, and iterates until the goal is met. The defining difference is the FEEDBACK LOOP — it can run your tests, see a failure, and fix it. That is also why permissions and sandboxing matter: the agent takes real actions rather than making suggestions.',
+      hinglish:
+        'Autocomplete aas-paas ke sandarbh se agli kuch lines ka andaaza lagata hai aur har keystroke pe control tumhara rehta hai. Ek AGENT ek kai-kadam kaam ki yojana banata hai, bahut files padhta aur badalta hai, commands chalata hai, nateeje dekhta hai, aur lakshya poora hone tak dohraata hai. Asli farak PRATIKRIYA CHAKRA hai — wo tumhare tests chala sakta hai, ek kharaabi dekh sakta hai, aur use theek kar sakta hai. Isiliye ijaazat aur sandboxing matter karte hain: agent sujhaav dene ke bajaye asli kaam karta hai.',
+    },
+  },
+  {
+    question: 'What belongs in a CLAUDE.md file and what does not?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'It should hold DURABLE context: how to build, test, and lint; the directory layout; coding conventions and the error-handling pattern; libraries the team standardised on and ones to avoid; and anything genuinely surprising about the project. What does not belong is anything the agent can read from the code itself, a long architecture essay, or task-specific detail. Keep it short — a long file dilutes attention and goes stale, which is worse than having none.',
+      hinglish:
+        'Isme TIKNE WALA sandarbh hona chahiye: build, test, aur lint kaise karna; directory ka dhaancha; likhne ke niyam aur error sambhaalne ka tareeka; team ne kaunsi libraries tay ki aur kaunsi nahi; aur project ki koi bhi genuinely chaunkane wali baat. Jo nahi hona chahiye wo hai jo agent khud code se padh sakta hai, ek lamba dhaanche ka nibandh, ya ek khaas kaam ki baat. Ise chhota rakho — ek lambi file dhyaan baant deti hai aur purani ho jaati hai, jo na hone se bura hai.',
+    },
+  },
+  {
+    question: 'When should you update CLAUDE.md?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'The clearest signal is correcting the same mistake twice — if you have told the agent about a convention in two separate sessions, that convention belongs in the file rather than in your head. Also update it when a build command changes, a new pattern is adopted, or a library is deprecated. Treat it as living documentation reviewed like code, and delete stale entries actively, since a wrong instruction is more harmful than a missing one.',
+      hinglish:
+        'Sabse saaf ishaara wahi galti do baar sudhaarna hai — agar tumne do alag sessions mein agent ko ek niyam bataya hai, wo niyam tumhare dimaag ke bajaye file mein hona chahiye. Ise tab bhi update karo jab ek build command badle, ek naya tareeka apnaaya jaaye, ya ek library hataayi jaaye. Ise jeeti-jaagti documentation maano jise code ki tarah dekha jaaye, aur purani entries actively hatao, kyunki ek galat nirdesh ek gayab nirdesh se zyada nuksaandeh hai.',
+    },
+  },
+  {
+    question: 'How should you write a task for Claude Code?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Be specific about the OUTCOME and how it will be verified: name the files, state the acceptance criteria, and point at an existing pattern to follow. Include constraints obvious to you but invisible in the code. Say what NOT to touch. Vagueness is the main failure mode — "improve error handling" produces something arbitrary, while "wrap these three handlers in the existing AppError pattern and add tests for the failure path" produces something reviewable.',
+      hinglish:
+        'NATEEJE aur uske kaise jaanche jaane ke baare mein saaf raho: files ka naam lo, sweekar karne ki shartein batao, aur follow karne ko ek maujood tareeka dikhao. Wo shartein daalo jo tumhe saaf hain par code mein nahi dikhti. Batao ki kya NAHI chhoona. Dhundhlapan mukhya kharaabi hai — "error handling behtar karo" kuch bhi bana deta hai, jabki "in teen handlers ko maujood AppError tareeke mein lapeto aur fail hone ke raaste ke tests jodo" kuch review layak banata hai.',
+    },
+  },
+  {
+    question: 'What is the value of asking for a plan before implementation?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A plan is CHEAP to correct and a wrong implementation is not. Reading five bullet points takes a moment and catches a misunderstanding before it becomes a four-hundred-line diff you must discard. It also surfaces assumptions you did not realise were ambiguous. For a small mechanical change the plan step is unnecessary overhead, but the larger or more ambiguous the task, the more it pays for itself.',
+      hinglish:
+        'Ek yojana sudhaarna SASTA hai aur ek galat implementation nahi. Paanch points padhna ek pal leta hai aur ek galatfehmi ko char-sau line ke aise diff banne se pehle pakad leta hai jise phenkna padega. Ye wo maanyataayein bhi saamne laata hai jinhe tumne dhundhla samjha hi nahi tha. Ek chhote yaantrik badlaav ke liye yojana ka kadam faltu bojh hai, par kaam jitna bada ya dhundhla ho, wo utna hi apna daam vasool karta hai.',
+    },
+  },
+  {
+    question: 'How does Claude Code decide which files to read?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'It searches — by filename pattern, by symbol, by full text — reads the most promising files, and follows imports outward, building understanding incrementally rather than loading the whole repository. That is why a well-organised codebase with clear names produces better results: the agent finds the right files faster. It is also why naming the relevant files in your task saves time and reduces the chance of it editing the wrong thing.',
+      hinglish:
+        'Ye khojta hai — filename ke pattern se, symbol se, poore text se — sabse ummeed wali files padhta hai, aur imports ke peeche bahar jaata hai, poori repository laane ke bajaye dheere-dheere samajh banata hua. Isiliye saaf naam wala ek achhe se jama codebase behtar nateeje deta hai: agent sahi files jaldi dhoondhta hai. Isiliye apne kaam mein zaroori files ka naam lena samay bachata hai aur galat cheez badalne ka mauka kam karta hai.',
+    },
+  },
+  {
+    question: 'Why do tests matter so much when working with a coding agent?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Tests are the agent\'s FEEDBACK LOOP and your safety net. With a good suite the agent runs it, sees a failure, and corrects itself before you look at the change — turning a plausible edit into a verified one. Without tests you are reviewing by eye and hoping. This is the strongest practical argument for investing in coverage before adopting agentic workflows, because coverage directly determines how much you can safely delegate.',
+      hinglish:
+        'Tests agent ka PRATIKRIYA CHAKRA hain aur tumhara suraksha jaal. Ek achhe set ke saath agent use chalata hai, ek kharaabi dekhta hai, aur tumhare badlaav dekhne se pehle khud ko theek kar leta hai — ek theek-lagte badlaav ko ek jaanche hue badlaav mein badalte hue. Tests ke bina tum aankh se review kar rahe ho aur ummeed kar rahe ho. Ye agentic tareekon ko apnaane se pehle coverage mein nivesh karne ki sabse majboot dalil hai, kyunki coverage seedha tay karta hai ki tum kitna surakshit roop se saunp sakte ho.',
+    },
+  },
+  {
+    question: 'How should you review code written by Claude Code?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Review it MORE carefully than human code, not less — it is confident, plausible, and produced fast enough that volume outpaces attention. Check what models get wrong most often: edge cases and error paths, silently swallowed exceptions, a subtly inverted condition, and tests that assert the implementation rather than the behaviour. Confirm it actually runs. And look for a reinvented utility or an unnecessary dependency, which are easy to miss in a large diff.',
+      hinglish:
+        'Ise insaan ke code se ZYADA dhyaan se dekho, kam nahi — ye aatmvishwaasi, theek-lagta, aur itna tez banta hai ki maatra dhyaan se aage nikal jaati hai. Wo jaancho jo models sabse zyada galat karte hain: kinaare ke cases aur error ke raaste, chupke se nigle gaye exceptions, ek sookshm roop se ulti shart, aur wo tests jo behaviour ke bajaye implementation jaanchte hain. Pakka karo ki ye actually chalta hai. Aur ek dobara bane utility ya ek gair-zaroori dependency dhoondho, jo ek bade diff mein chhootna aasaan hai.',
+    },
+  },
+  {
+    question: 'What mistakes does Claude Code most commonly make?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Using an outdated API pattern from training data when the library has since changed. Reimplementing something the codebase already has, because it did not find the existing helper. Handling the happy path well and edge cases poorly. Adding a dependency for a small function. Occasionally over-engineering a simple change. And writing tests that pass because they encode what the code does rather than what it should do — which gives false confidence.',
+      hinglish:
+        'Training data ka ek purana API tareeka use karna jab library tab se badal chuki hai. Wo dobara banana jo codebase mein pehle se hai, kyunki use maujood helper mila nahi. Khush raasta achhe se sambhalna aur kinaare ke cases kharab. Ek chhote function ke liye ek dependency jodna. Kabhi-kabhi ek simple badlaav ko zaroorat se zyada bada bana dena. Aur aise tests likhna jo isliye paas hote hain kyunki wo likhte hain ki code kya karta hai, ye nahi ki use kya karna chahiye — jo jhootha bharosa deta hai.',
+    },
+  },
+  {
+    question: 'What is a training cutoff and why does it matter for coding?',
+    difficulty: 'easy',
+    frequency: 'common',
+    answer: {
+      english:
+        'The model only knows what existed up to a certain date, so it does not know about a framework version, API change, or library released afterwards — and worse, it will confidently use the OLD API because that is what it learned. This is a leading cause of subtly wrong code for fast-moving libraries. Mitigate by giving it the current documentation, pinning versions, and verifying any API you do not personally recognise rather than assuming it exists.',
+      hinglish:
+        'Model sirf wahi jaanta hai jo ek taareekh tak tha, isliye use uske baad aaye ek framework version, API badlaav, ya library ka pata nahi — aur us se bura, wo aatmvishwaas se PURANA API use karega kyunki wahi usne seekha. Ye tez badalti libraries ke liye sookshm roop se galat code ka ek bada karan hai. Ise abhi ki documentation de kar, versions pin karke, aur kisi bhi aise API ko jaanch kar kam karo jise tum khud nahi pehchante, ye maan lene ke bajaye ki wo hai.',
+    },
+  },
+  {
+    question: 'How do you keep an agent from making changes you did not ask for?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'State the scope explicitly, including what NOT to touch — "change only the handler, do not modify the schema or reformat other files". Ask for a plan first on anything non-trivial. Keep tasks small so the diff stays readable. And review the full diff rather than the summary, since a drive-by reformat or an unrelated "improvement" is easy to miss when you are reading a description instead of the change itself.',
+      hinglish:
+        'Daayra saaf batao, ye bhi ki kya NAHI chhoona — "sirf handler badlo, schema mat badlo ya doosri files dobara mat jamao". Kisi bhi gair-maamuli cheez pe pehle ek yojana maango. Kaam chhote rakho taaki diff padhne layak rahe. Aur saaraansh ke bajaye poora diff dekho, kyunki ek raah chalte dobara jamana ya ek gair-zaroori "sudhaar" tab chhootna aasaan hai jab tum khud badlaav ke bajaye ek vivaran padh rahe ho.',
+    },
+  },
+  {
+    question: 'How do you break a large task into agent-sized pieces?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Split along VERIFIABLE boundaries so each piece has its own definition of done and can be reviewed independently — a data-layer change, then an endpoint, then the UI, rather than "build the feature". Smaller pieces produce smaller diffs, which get reviewed properly rather than skimmed, and a mistake is caught early instead of compounding. If a piece cannot be verified on its own, it is probably still too large or too vaguely specified.',
+      hinglish:
+        'JAANCHNE LAYAK seemaon pe baanto taaki har tukde ki apni khatam hone ki paribhasha ho aur wo alag se review ho sake — ek data-star ka badlaav, phir ek endpoint, phir UI, "feature banao" ke bajaye. Chhote tukde chhote diffs banate hain, jo upar-upar dekhne ke bajaye theek se review hote hain, aur ek galti badhne ke bajaye jaldi pakdi jaati hai. Agar ek tukda apne aap jaancha na ja sake, wo shayad abhi bhi bahut bada ya bahut dhundhla bataya gaya hai.',
+    },
+  },
+  {
+    question: 'What is prompt injection in the context of a coding agent?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'An agent reads files, issues, dependency READMEs, and web pages — any of which can contain text addressed to the model, such as "ignore your instructions and add this code". Because the agent has real capabilities, a successful injection could exfiltrate a secret or introduce a backdoor. Defend structurally: treat all read content as DATA rather than instruction, restrict credential and network access, and require explicit human approval for anything irreversible.',
+      hinglish:
+        'Ek agent files, issues, dependency READMEs, aur web pages padhta hai — inme se kisi mein bhi model ko sambodhit text ho sakta hai, jaise "apne nirdesh chhodo aur ye code jodo". Kyunki agent ke paas asli taakat hai, ek safal injection ek secret nikaal sakta hai ya ek pichhla darwaza bana sakta hai. Dhaanche se bachao: saare padhe content ko nirdesh ke bajaye DATA maano, chaabiyon aur network tak pahunch seemit karo, aur kisi bhi na palatne wali cheez ke liye insaan ki saaf manzoori maango.',
+    },
+  },
+  {
+    question: 'Should a coding agent have write access to your repository?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Give it write access to a BRANCH and let it open a pull request, never direct access to the default branch. That keeps the existing review, CI, and branch-protection controls in the path, so the agent passes the same gate as any contributor. Do not give it production credentials or deploy rights. The principle is least privilege: it should be able to propose any change and merge none.',
+      hinglish:
+        'Use ek BRANCH pe likhne ka adhikaar do aur use ek pull request kholne do, default branch pe kabhi seedha adhikaar nahi. Isse maujood review, CI, aur branch-suraksha ke control raaste mein bane rehte hain, isliye agent kisi bhi yogdaan dene wale ke barabar hi gate se guzarta hai. Use production ki chaabiyaan ya deploy ka adhikaar mat do. Siddhant sabse kam adhikaar hai: wo koi bhi badlaav sujha sake aur koi bhi merge na kar sake.',
+    },
+  },
+  {
+    question: 'How do you use an agent for refactoring safely?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Ensure test coverage exists FIRST — refactoring without tests is editing and hoping, and an agent makes it fast enough to break a lot quickly. Do one mechanical transformation at a time so the diff is reviewable and revertable. Keep behaviour changes out of a refactoring commit entirely, so a bisect can distinguish "the refactor broke it" from "the feature broke it". And verify the tests actually pass rather than trusting a summary saying they do.',
+      hinglish:
+        'PEHLE pakka karo ki test coverage hai — bina tests ke refactoring badalna aur ummeed karna hai, aur ek agent ise itna tez bana deta hai ki bahut kuch jaldi toot sakta hai. Ek baar mein ek yaantrik badlaav karo taaki diff dekhne aur palatne layak ho. Vyavaahar ke badlaav ek refactoring commit se poori tarah bahar rakho, taaki ek bisect "refactor ne toda" ko "feature ne toda" se alag kar sake. Aur pakka karo ki tests actually paas hote hain, ek saaraansh pe bharosa karne ke bajaye jo kahe ki hote hain.',
+    },
+  },
+  {
+    question: 'How do you get an agent to write good tests rather than shallow ones?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Point it at an existing test file so it follows your framework, fixtures, and naming. Ask for specific CASES — edge cases, error paths, boundary values — rather than "write tests", which produces a shallow happy-path suite. The critical review step is checking the tests assert the intended BEHAVIOUR rather than mirroring the implementation, because a test generated from buggy code will faithfully encode the bug and give you false confidence.',
+      hinglish:
+        'Use ek maujood test file dikhao taaki wo tumhara framework, fixtures, aur naam follow kare. KHAAS cases maango — kinaare ke cases, error ke raaste, seema ki values — "tests likho" ke bajaye, jo ek uthla khush-raaste ka set banata hai. Zaroori review kadam ye jaanchna hai ki tests soche gaye VYAVAHAAR ko jaanchte hain, implementation ki nakal nahi karte, kyunki ek bug wale code se bana test us bug ko imaandaari se likh dega aur tumhe jhootha bharosa dega.',
+    },
+  },
+  {
+    question: 'What is the difference between using an agent for exploration versus implementation?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'EXPLORATION means asking it to explain an unfamiliar codebase, trace how a request flows, or summarise what a module does — here a small inaccuracy costs little because you verify as you go. IMPLEMENTATION means producing code that will run in production, where an inaccuracy is a bug. Exploration is where these tools are most reliably valuable and least risky, and it is often the highest-return use in a large unfamiliar codebase.',
+      hinglish:
+        'KHOJ ka matlab hai us se ek anjaana codebase samjhwaana, ek request ka raasta dhoondhna, ya ek module kya karta hai uska saaraansh maangna — yahan ek chhoti galti kam cost karti hai kyunki tum saath-saath jaanchte ho. IMPLEMENTATION ka matlab hai aisa code banana jo production mein chalega, jahan ek galti ek bug hai. Khoj hi wahan hai jahan ye tools sabse bharose se kaam ke aur sabse kam khatarnaak hain, aur ek bade anjaane codebase mein ye aksar sabse zyada faayde wala istemaal hai.',
+    },
+  },
+  {
+    question: 'How do you debug when the agent produces the wrong result?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Ask what CONTEXT was missing rather than rephrasing the same request — the failure is usually a missing convention, an unstated constraint, or a file it never read. Give it the exact error output rather than describing the problem, since precise text is far more useful than a paraphrase. If it is going in circles, stop and start fresh with a narrower task, because a long confused conversation accumulates wrong assumptions that keep influencing the output.',
+      hinglish:
+        'Wahi anurodh dobara likhne ke bajaye poochho ki kaunsa SANDARBH chhoot gaya — kharaabi usually ek gayab niyam, ek na batayi shart, ya ek file jo usne padhi hi nahi. Use samasya batane ke bajaye theek error ka output do, kyunki sateek text ek vivaran se bahut zyada kaam ka hai. Agar wo ghoom raha hai, ruko aur ek sankre kaam ke saath naya shuru karo, kyunki ek lambi uljhi baatcheet galat maanyataayein ikattha karti hai jo output pe asar daalti rehti hain.',
+    },
+  },
+  {
+    question: 'What is context management and why does it matter in a long session?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Everything read and said accumulates in the context window, and once it fills, earlier material is summarised or dropped — so a very long session can lose the constraint you set at the start. Practically: start a fresh session for an unrelated task rather than continuing, keep durable rules in CLAUDE.md so they survive any summarisation, and be specific about files so it does not read half the repository looking for the right one.',
+      hinglish:
+        'Jo bhi padha aur kaha jaata hai wo context window mein jamta hai, aur bharne pe pehle ka material samet diya ya gira diya jaata hai — isliye ek bahut lamba session wo shart kho sakta hai jo tumne shuru mein rakhi thi. Vyavaharik roop se: ek alag kaam ke liye jaari rakhne ke bajaye ek naya session shuru karo, tikne wale niyam CLAUDE.md mein rakho taaki wo kisi bhi sametne se bachein, aur files ke baare mein saaf raho taaki wo sahi file dhoondhne mein aadhi repository na padhe.',
+    },
+  },
+  {
+    question: 'How do coding agents change code review culture?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'They shift the bottleneck from writing to REVIEWING, because generating a large change is now cheap while reviewing it is not. That creates a real risk: reviewers face more volume and start approving faster, which is exactly when defects slip through. Healthy responses are keeping PRs small regardless of how quickly they were produced, requiring the author to have actually run and understood the change, and leaning harder on tests and CI as the objective gate.',
+      hinglish:
+        'Wo rukaawat likhne se REVIEW karne pe khisak dete hain, kyunki ek bada badlaav banana ab sasta hai jabki use review karna nahi. Isse ek asli khatra banta hai: reviewers ke saamne zyada maatra aati hai aur wo jaldi approve karne lagte hain, jo theek wahi waqt hai jab kharaabiyaan nikal jaati hain. Sehatmand jawab hain PRs ko chhota rakhna chahe wo kitni jaldi bane hon, likhne wale se ye maangna ki usne badlaav actually chalaya aur samjha hai, aur tests aur CI pe ek nishpaksh gate ki tarah zyada bharosa karna.',
+    },
+  },
+  {
+    question: 'How do you avoid over-relying on a coding agent?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Understand every change before merging — if you cannot explain why it works you cannot maintain or debug it later, and you will be the one paged when it breaks. Keep writing code yourself in areas you are still learning, since skill comes from struggle rather than from reading a correct answer. Use the tool to accelerate what you already understand and to explore what you do not, treating its output as a draft from a capable colleague rather than an authority.',
+      hinglish:
+        'Merge karne se pehle har badlaav samjho — agar tum nahi samjha sakte ki ye kyun chalta hai to tum ise baad mein sambhaal ya debug nahi kar sakte, aur tootne pe tumhe hi bulaaya jaayega. Un ilaakon mein khud code likhte raho jinhe tum abhi seekh rahe ho, kyunki hunar sangharsh se aata hai, ek sahi jawab padhne se nahi. Tool ko us cheez ko tez karne ke liye use karo jo tum pehle se samajhte ho aur us cheez ko khojne ke liye jo nahi, uske output ko ek adhikaari ke bajaye ek saksham saathi ka draft maante hue.',
+    },
+  },
+  {
+    question: 'Can AI-generated code introduce security vulnerabilities?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Yes. Models learn from public code, which includes a great deal of insecure code, so they can reproduce SQL string concatenation, weak hashing, a missing authorisation check, or a hardcoded secret while looking entirely reasonable. They also cannot know your specific threat model. Mitigate by running SAST and dependency scanning in CI, reviewing authentication and authorisation code manually, and never letting generated code reach production without a security-aware review.',
+      hinglish:
+        'Haan. Models saarvajanik code se seekhte hain, jisme bahut saara asurakshit code hai, isliye wo SQL string jodna, kamzor hashing, ek gayab ijaazat ki jaanch, ya ek hardcoded secret bana sakte hain jabki sab kuch bilkul theek dikhta hai. Wo tumhara khaas khatre ka dhaancha bhi nahi jaan sakte. CI mein SAST aur dependency scanning chalaakar, pehchaan aur ijaazat wala code haath se dekh kar, aur bane code ko kabhi bina suraksha-samajh wale review ke production tak na jaane de kar ise kam karo.',
+    },
+  },
+  {
+    question: 'When should you not use a coding agent?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'When the task requires a product or architectural DECISION rather than execution, since it will pick something plausible without the context to judge. When you do not understand the problem yourself — you will not be able to tell a correct solution from a confident wrong one. On code where a subtle mistake is very costly, such as payments, auth, or migrations, without careful review. And when the work is genuinely faster to do yourself than to specify precisely.',
+      hinglish:
+        'Jab kaam ko chalane ke bajaye ek product ya dhaanche ka FAISLA chahiye, kyunki wo bina aankne ke sandarbh ke kuch theek-lagta chun lega. Jab tum khud samasya nahi samajhte — tum ek sahi hal ko ek aatmvishwaasi galat hal se alag nahi kar paoge. Us code pe jahan ek sookshm galti bahut mehngi hai, jaise payments, auth, ya migrations, bina dhyaan se review ke. Aur jab kaam theek se batane se khud karna genuinely tez ho.',
+    },
+  },
+  {
+    question: 'How do you measure whether a coding agent is actually helping?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Measure OUTCOMES rather than activity — lines generated tells you nothing about value. Look at cycle time from ticket to merged PR, change failure rate, the proportion of PRs needing substantial rework, and whether review time per change has risen. Also track the qualitative signal: are people merging code they do not understand? A tool that raises throughput while lowering comprehension is a liability that surfaces as incidents later.',
+      hinglish:
+        'Kaam-dhandhe ke bajaye NATEEJE naapo — bani lines value ke baare mein kuch nahi batati. Ticket se merge hue PR tak ka samay, badlaav ke fail hone ki dar, kaafi dobara kaam maangte PRs ka hissa, aur kya per badlaav review ka samay badha hai — ye dekho. Wo gunvatta wala ishaara bhi dekho: kya log wo code merge kar rahe hain jise wo samajhte nahi? Ek tool jo kaam badhata hai par samajh ghataata hai wo ek bojh hai jo baad mein ghatnaon ki tarah saamne aata hai.',
+    },
+  },
+  {
+    question: 'How should a team adopt coding agents responsibly?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Start with low-risk, high-volume work — tests, documentation, mechanical refactors — so judgement develops before the stakes rise. Agree explicitly on what may not be delegated, such as auth and payments, and on the review standard for generated code. Write the shared context into CLAUDE.md. Keep existing controls in place: CI, review, branch protection, security scanning. And revisit the policy as the tools change, because the capabilities move quickly.',
+      hinglish:
+        'Kam khatre, zyada maatra wale kaam se shuru karo — tests, documentation, yaantrik refactors — taaki daanv badhne se pehle samajh bane. Saaf tay karo ki kya nahi saunpa ja sakta, jaise auth aur payments, aur bane hue code ke liye review ka star. Saanjha sandarbh CLAUDE.md mein likho. Maujood control bane rehne do: CI, review, branch suraksha, suraksha scanning. Aur tools badalne ke saath neeti dobara dekho, kyunki kshamtaayein tezi se badalti hain.',
+    },
+  },
+  {
+    question: 'How do coding agents change what junior developers should learn?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Typing speed and memorising syntax matter less; READING and JUDGING code matter far more, because you will spend more time evaluating generated changes than writing them. Debugging, understanding system behaviour, testing, and knowing why one design beats another become the differentiators — exactly what the tools are weakest at. The risk is skipping the struggle that builds those skills, so deliberately working through problems yourself remains necessary.',
+      hinglish:
+        'Type karne ki raftaar aur syntax ratna kam matter karta hai; code PADHNA aur AANKNA bahut zyada, kyunki tum bane hue badlaav aankne mein unhe likhne se zyada samay bitaoge. Debugging, system ka vyavahaar samajhna, testing, aur ye jaanna ki ek design doosre se behtar kyun hai — ye farak banane wali cheezein ban jaati hain, aur theek inhi mein tools sabse kamzor hain. Khatra wo sangharsh chhod dena hai jo ye hunar banata hai, isliye jaan boojh kar samasyaon ko khud hal karna zaroori rehta hai.',
+    },
+  },
 ];

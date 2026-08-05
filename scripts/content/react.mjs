@@ -1535,6 +1535,195 @@ export const generalInterviewQuestions = [
         'Context API values (theme, auth, language) ko component tree mein share karne deta hai bina har level pe props pass kiye. createContext(defaultValue) se context banao, tree ko <Context.Provider value={...}> se wrap karo, aur useContext(Context) ya <Context.Consumer> se consume karo. Ye low-frequency global state ke liye ideal hai; high-frequency updates ke liye ye saare consumers mein unnecessary re-renders cause kar sakta hai.',
     },
   },
+
+  // ─── Modern React ───────────────────────────────────────────
+  {
+    question: 'What is the difference between Server Components and Client Components?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Server Components render on the server and ship NO JavaScript to the browser, so they can read a database or use a secret directly and cost nothing in bundle size. Client Components, marked with `"use client"`, ship JavaScript and are required for anything interactive — state, effects, event handlers, browser APIs. Place the boundary as DEEP in the tree as possible, since the directive is inherited and everything a Client Component imports becomes client too.',
+      hinglish:
+        'Server Components server pe render hote hain aur browser ko KOI JavaScript nahi bhejte, isliye wo seedha ek database padh sakte hain ya ek secret use kar sakte hain aur bundle size mein kuch cost nahi karte. Client Components, `"use client"` se mark kiye, JavaScript bhejte hain aur har interactive cheez ke liye zaroori hain — state, effects, event handlers, browser APIs. Seema ko ped mein jitna GEHRA ho sake rakho, kyunki ye nirdesh viraasat mein milta hai aur ek Client Component jo bhi import kare wo bhi client ban jaata hai.',
+    },
+  },
+  {
+    question: 'What problem does useTransition solve?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'It marks a state update as NON-URGENT so React can interrupt it to keep the interface responsive. The classic case is a search input filtering a large list: without it, typing feels frozen because each keystroke triggers an expensive re-render that blocks input. Wrapping the filter update in `startTransition` lets the input update immediately while the list catches up, and `isPending` gives you a loading indicator for the deferred work.',
+      hinglish:
+        'Ye ek state update ko GAIR-ZAROORI mark karta hai taaki React use rok kar interface ko jawab dene layak rakh sake. Classic case ek badi list chhaanta search input hai: iske bina, type karna jama hua lagta hai kyunki har keystroke ek mehnga re-render chalata hai jo input rok deta hai. Filter update ko `startTransition` mein lapetna input ko turant update karne deta hai jabki list peeche se aati hai, aur `isPending` tumhe us taale gaye kaam ke liye ek loading nishaan deta hai.',
+    },
+  },
+  {
+    question: 'What is the difference between useTransition and useDeferredValue?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Both keep the interface responsive but from different ends. `useTransition` wraps the UPDATE, so you use it when you control the state setter. `useDeferredValue` wraps the VALUE, so you use it when the value arrives as a prop and you cannot reach the setter — it returns a lagging copy that updates at lower priority. In practice: transition when you own the update, deferred value when you only receive the result.',
+      hinglish:
+        'Dono interface ko jawab dene layak rakhte hain par alag siron se. `useTransition` UPDATE ko lapetta hai, isliye ise tab use karo jab state setter tumhare paas ho. `useDeferredValue` VALUE ko lapetta hai, isliye ise tab use karo jab value ek prop ki tarah aaye aur tum setter tak na pahunch sako — ye ek peeche chalti copy lautaata hai jo kam priority pe update hoti hai. Practically: jab update tumhara ho tab transition, jab tum sirf nateeja paate ho tab deferred value.',
+    },
+  },
+  {
+    question: 'What does the use hook do?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`use` reads a Promise or a Context and, unlike every other hook, can be called CONDITIONALLY and inside loops. When given a Promise it suspends the component until it resolves, which is how a Client Component consumes a promise passed down from a Server Component without an effect. The promise must be created outside render or cached, since creating a new one each render would suspend forever.',
+      hinglish:
+        '`use` ek Promise ya ek Context padhta hai aur, har doosre hook ke ulat, SHART ke saath aur loops ke andar bulaaya ja sakta hai. Ek Promise dene pe ye component ko us ke sulajhne tak rok deta hai, jisse ek Client Component ek Server Component se aaye promise ko bina effect ke use karta hai. Promise ko render ke bahar banana ya cache karna chahiye, kyunki har render pe ek naya banana hamesha ke liye rok dega.',
+    },
+  },
+  {
+    question: 'What is the React Compiler and what does it change?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'The React Compiler automatically memoises components and values at build time, so most manual `useMemo`, `useCallback`, and `React.memo` become unnecessary. That removes a large source of noise and of bugs from an incorrect dependency array. It relies on your code following the Rules of React — no mutation during render, no side effects in the render body — so the linter matters more, and code that breaks those rules simply will not be optimised.',
+      hinglish:
+        'React Compiler build ke waqt apne aap components aur values ko memoise karta hai, isliye zyadatar manual `useMemo`, `useCallback`, aur `React.memo` gair-zaroori ho jaate hain. Ye shor ka aur ek galat dependency array se aane wale bugs ka ek bada source hataata hai. Ye is pe tikta hai ki tumhara code React ke Niyam maane — render ke dauraan koi badlaav nahi, render body mein koi side effect nahi — isliye linter zyada matter karta hai, aur un niyamon ko todta code bas optimise nahi hoga.',
+    },
+  },
+  {
+    question: 'What are the Rules of React and why do they matter more now?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Components and hooks must be PURE during render: no mutating props, state, or anything outside; no side effects in the render body; hooks called unconditionally at the top level in the same order every render. They have always been rules, but React 18\'s concurrent features and the React Compiler both DEPEND on them — a component that mutates during render can now produce genuinely wrong output rather than merely being untidy.',
+      hinglish:
+        'Components aur hooks ko render ke dauraan SHUDDH hona chahiye: props, state, ya kisi bahar ki cheez ko na badlo; render body mein koi side effect nahi; hooks har render mein bina shart top level pe usi kram mein bulaao. Ye hamesha niyam the, par React 18 ke concurrent features aur React Compiler dono in PE TIKTE hain — ek component jo render ke dauraan badlaav karta hai ab bekaar dikhne ke bajaye genuinely galat output de sakta hai.',
+    },
+  },
+  {
+    question: 'What is Suspense and what can it do now?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`<Suspense>` declares a fallback for a subtree that is not ready yet, so loading state moves out of every component and into the tree structure. It handles lazily-loaded components, data fetching through a supported library or the `use` hook, and streaming server rendering — where the shell is sent immediately and slower sections fill in as they resolve. Placing boundaries thoughtfully turns one slow query from a page-wide blocker into a spinner in one card.',
+      hinglish:
+        '`<Suspense>` ek aise hisse ke liye ek fallback batata hai jo abhi taiyaar nahi, isliye loading ka roop har component se nikal kar ped ke dhaanche mein aa jaata hai. Ye sust load hote components, ek supported library ya `use` hook se data laana, aur streaming server rendering sambhalta hai — jahan dhaancha turant bhej diya jaata hai aur dheeme hisse sulajhte hi bhar jaate hain. Seemayein soch kar rakhna ek dheemi query ko poore page ki rukaawat se ek card ke spinner mein badal deta hai.',
+    },
+  },
+  {
+    question: 'What is an error boundary and what does it not catch?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'An error boundary is a component with `componentDidCatch` or `getDerivedStateFromError` that catches errors thrown during rendering in its subtree and shows a fallback instead of unmounting the whole tree. It does NOT catch errors in event handlers, in asynchronous code such as a `setTimeout` or a promise rejection, in server-side rendering, or in the boundary itself. Those need ordinary try/catch, which surprises people who expect it to catch everything.',
+      hinglish:
+        'Ek error boundary `componentDidCatch` ya `getDerivedStateFromError` wala ek component hai jo apne hisse mein render ke dauraan uthi errors pakadta hai aur poore ped ko hataane ke bajaye ek fallback dikhata hai. Ye event handlers ki errors, `setTimeout` ya ek promise ke mana karne jaise asynchronous code ki, server-side rendering ki, ya khud boundary ki errors NAHI pakadta. Unhe aam try/catch chahiye, jo un logon ko chaunkata hai jo sochte hain ye sab kuch pakadta hai.',
+    },
+  },
+  {
+    question: 'How do you decide between local state, Context, and a state library?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Start with LOCAL state and lift only when a second consumer genuinely exists — putting everything high in the tree causes needless re-renders and makes components unreusable. Use CONTEXT for values that rarely change and are needed widely, such as theme or the current user, since every consumer re-renders on any change. Reach for a state library when you have frequently-updating shared state, and use a data library such as React Query for server state rather than storing it yourself.',
+      hinglish:
+        'LOCAL state se shuru karo aur tabhi upar le jao jab ek doosra istemaal karne wala genuinely ho — sab kuch ped mein upar rakhna bekaar re-renders karta hai aur components ko dobara istemaal ke layak nahi rakhta. CONTEXT un values ke liye use karo jo kam badalti hain aur widely chahiye, jaise theme ya abhi ka user, kyunki har badlaav pe har consumer re-render hota hai. Ek state library tab uthao jab tumhare paas aksar badalti saanjhi state ho, aur server state ke liye use khud rakhne ke bajaye React Query jaisi ek data library use karo.',
+    },
+  },
+  {
+    question: 'Why should server data not live in your own state?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Server data is a CACHE with its own concerns — staleness, refetching, deduplication of in-flight requests, invalidation, retries, and background updates — and reimplementing all of that in `useEffect` and `useState` is a large amount of code that a dedicated library already solves correctly. Use React Query, SWR, or RTK Query for it, and keep your own state for genuine client concerns: UI mode, selections, wizards, and anything the server has no opinion about.',
+      hinglish:
+        'Server data ek CACHE hai apne concerns ke saath — puranapan, dobara laana, chalti requests ka dohraav hataana, radd karna, retries, aur peeche ke updates — aur wo sab `useEffect` aur `useState` mein dobara likhna bahut saara code hai jise ek dedicated library pehle se sahi solve karti hai. Uske liye React Query, SWR, ya RTK Query use karo, aur apni state ko asli client ke concerns ke liye rakho: UI mode, chunaav, wizards, aur jo bhi server ke liye matlab nahi rakhta.',
+    },
+  },
+  {
+    question: 'When do you actually need useEffect?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Only to SYNCHRONISE with something outside React: a subscription, a browser API, a timer, a non-React widget, or manual DOM measurement. You do not need it to transform data for rendering, which should be computed during render; to reset state when a prop changes, which a `key` handles better; to handle a user event, which belongs in the handler; or to fetch data, which a data library or a Server Component does properly. Most `useEffect` bugs come from using it where it was never needed.',
+      hinglish:
+        'Sirf React ke bahar kisi cheez se MILAAN ke liye: ek subscription, ek browser API, ek timer, ek non-React widget, ya haath se DOM naapna. Tumhe ise render ke liye data badalne ko nahi chahiye, jo render ke dauraan nikalna chahiye; ek prop badalne pe state reset karne ko nahi, jise ek `key` behtar sambhalta hai; ek user event sambhaalne ko nahi, jo handler mein hai; ya data laane ko nahi, jise ek data library ya ek Server Component theek karta hai. Zyadatar `useEffect` bugs use wahan use karne se aate hain jahan wo kabhi zaroori tha hi nahi.',
+    },
+  },
+  {
+    question: 'What is the difference between useLayoutEffect and useEffect?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        '`useEffect` runs asynchronously AFTER the browser paints, so it does not block rendering — the correct default. `useLayoutEffect` runs synchronously after DOM mutation but BEFORE paint, so it blocks painting. Use it only when you must measure the DOM and change it before the user sees an intermediate state, such as positioning a tooltip. It does not run during server rendering, which produces a warning, and overusing it causes visible jank.',
+      hinglish:
+        '`useEffect` browser ke paint karne ke BAAD asynchronously chalta hai, isliye ye rendering nahi rokta — sahi default. `useLayoutEffect` DOM badalne ke baad par paint se PEHLE synchronously chalta hai, isliye ye painting rok deta hai. Ise sirf tab use karo jab tumhe DOM naapna ho aur user ke ek beech ki haalat dekhne se pehle use badalna ho, jaise ek tooltip rakhna. Ye server rendering ke dauraan nahi chalta, jo ek warning deta hai, aur iska zyada istemaal dikhne wali atkan banata hai.',
+    },
+  },
+  {
+    question: 'What is the key prop actually for?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A `key` gives React a stable IDENTITY for an element across renders so it can match old and new children correctly. Using an array INDEX breaks that whenever the list is reordered, filtered, or has items inserted, because item identity shifts and React reuses the wrong state — a checked checkbox follows the wrong row. Use a stable id from the data. A `key` on a component is also the cleanest way to force a full remount and reset its state deliberately.',
+      hinglish:
+        'Ek `key` React ko renders ke aar-paar ek element ki sthir PEHCHAAN deti hai taaki wo purane aur naye children sahi milaa sake. Ek array INDEX use karna use tab todta hai jab list dobara jame, chhaani jaaye, ya usme items dale jaayein, kyunki cheezon ki pehchaan khisak jaati hai aur React galat state dobara use karta hai — ek check kiya checkbox galat row ke saath chala jaata hai. Data se ek sthir id use karo. Ek component pe ek `key` jaan boojh kar poora remount karne aur uski state reset karne ka sabse saaf tareeka bhi hai.',
+    },
+  },
+  {
+    question: 'What causes unnecessary re-renders and how do you find them?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A parent re-rendering re-renders all children by default; a context value recreated each render re-renders every consumer; a new object or function prop breaks `React.memo` by reference. Find them with the React DevTools Profiler and the "highlight updates" option rather than guessing. Fix by moving state DOWN so fewer components sit above it, splitting context, memoising the value, or passing `children` so a subtree is not re-created. The React Compiler removes much of the manual work.',
+      hinglish:
+        'Ek parent ka re-render default se saare children ko re-render karta hai; har render pe dobara bana ek context value har consumer ko re-render karta hai; ek naya object ya function prop reference se `React.memo` tod deta hai. Unhe andaaza lagane ke bajaye React DevTools Profiler aur "highlight updates" option se dhoondho. State NEECHE le jaakar taaki uske upar kam components hon, context baant kar, value memoise karke, ya `children` pass karke theek karo taaki ek hissa dobara na bane. React Compiler bahut saara manual kaam hata deta hai.',
+    },
+  },
+  {
+    question: 'What is hydration and what causes a hydration mismatch?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Hydration is React attaching event handlers to server-rendered HTML to make it interactive. A mismatch occurs when the client renders something DIFFERENT from the server. Common causes: `Date.now()` or `Math.random()` in render, reading `window` or `localStorage` during the first render, invalid HTML nesting such as a `<div>` inside a `<p>`, and browser extensions modifying the DOM. Fix by moving browser-only logic into an effect or gating it behind a mounted flag.',
+      hinglish:
+        'Hydration React ka server-rendered HTML pe event handlers lagana hai taaki wo interactive ho. Ek mismatch tab hota hai jab client server se ALAG kuch render kare. Aam karan: render mein `Date.now()` ya `Math.random()`, pehle render mein `window` ya `localStorage` padhna, galat HTML nesting jaise ek `<p>` ke andar ek `<div>`, aur DOM badalte browser extensions. Sirf browser wale logic ko ek effect mein le jaakar ya ek mounted flag ke peeche rakh kar theek karo.',
+    },
+  },
+  {
+    question: 'What is a controlled versus uncontrolled component?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'A CONTROLLED input has its value driven by React state, so every keystroke triggers a re-render — which gives full control for validation and formatting but costs performance on a large form. An UNCONTROLLED input keeps its value in the DOM and you read it with a ref or on submit, which is far cheaper. React Hook Form is popular precisely because it keeps inputs uncontrolled and re-renders minimally, which is why it outperforms naive controlled forms.',
+      hinglish:
+        'Ek CONTROLLED input ki value React state chalati hai, isliye har keystroke ek re-render karta hai — jo validation aur roop pe poora control deta hai par ek bade form pe performance cost karta hai. Ek UNCONTROLLED input apni value DOM mein rakhta hai aur tum use ek ref se ya submit pe padhte ho, jo bahut sasta hai. React Hook Form theek isiliye popular hai kyunki wo inputs ko uncontrolled rakhta hai aur bahut kam re-render karta hai, isiliye wo naive controlled forms se behtar chalta hai.',
+    },
+  },
+  {
+    question: 'How do you test a React component well?',
+    difficulty: 'medium',
+    frequency: 'common',
+    answer: {
+      english:
+        'Use React Testing Library and query the way a USER would — by role, label, and text rather than by test id or class, so a refactor that keeps behaviour does not break the test. Test behaviour rather than implementation: assert what appears after a click, not that a state setter was called. Mock the network at the boundary with MSW rather than mocking your own modules, which tests the real wiring. And avoid snapshot tests as a substitute for assertions, since they mostly get blindly updated.',
+      hinglish:
+        'React Testing Library use karo aur waise dhoondho jaise ek USER dhoondhta — role, label, aur text se, ek test id ya class se nahi, taaki ek refactor jo vyavahaar bachaaye wo test na tode. Implementation ke bajaye vyavahaar test karo: ye jaancho ki ek click ke baad kya dikhta hai, ye nahi ki ek state setter bulaaya gaya. Apne modules mock karne ke bajaye MSW se network ko seema pe mock karo, jo asli judaav test karta hai. Aur assertions ke badal ki tarah snapshot tests se bacho, kyunki wo zyadatar aankh band karke update ho jaate hain.',
+    },
+  },
 ];
 
 export const curriculum = [...beginner, ...intermediate, ...advanced];
