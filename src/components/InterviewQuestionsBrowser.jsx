@@ -1,0 +1,304 @@
+'use client';
+
+import { useMemo, useState, useEffect, useRef } from 'react';
+import { useLang } from './LanguageProvider';
+
+const DIFF_ORDER = ['easy', 'medium', 'hard'];
+
+const DIFF_META = {
+  easy: {
+    dot: 'bg-emerald-500',
+    chip: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+    bar: 'bg-emerald-500',
+  },
+  medium: {
+    dot: 'bg-amber-500',
+    chip: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+    bar: 'bg-amber-500',
+  },
+  hard: {
+    dot: 'bg-red-500',
+    chip: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+    bar: 'bg-red-500',
+  },
+};
+
+function metaFor(d) {
+  return DIFF_META[d] || { dot: 'bg-slate-400', chip: 'bg-slate-100 text-slate-500', bar: 'bg-slate-400' };
+}
+
+export default function InterviewQuestionsBrowser({ questions }) {
+  const { pick } = useLang();
+
+  const [search, setSearch] = useState('');
+  const [freq, setFreq] = useState('all');
+  const [selectedId, setSelectedId] = useState(questions[0]?.id || null);
+  const [openId, setOpenId] = useState(null); // mobile accordion
+  const listRef = useRef(null);
+
+  // Filter (questions arrive already sorted easy → medium → hard)
+  const filtered = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return questions.filter((q) => {
+      if (freq !== 'all' && q.frequency !== freq) return false;
+      if (!term) return true;
+      return (
+        q.question.toLowerCase().includes(term) ||
+        q.english.toLowerCase().includes(term) ||
+        q.hinglish.toLowerCase().includes(term)
+      );
+    });
+  }, [questions, search, freq]);
+
+  // Keep selection valid as filters change
+  useEffect(() => {
+    if (filtered.length === 0) return;
+    if (!filtered.some((q) => q.id === selectedId)) setSelectedId(filtered[0].id);
+  }, [filtered, selectedId]);
+
+  const selected = filtered.find((q) => q.id === selectedId) || filtered[0] || null;
+
+  // Counts per difficulty within the current filter
+  const counts = useMemo(() => {
+    const c = { easy: 0, medium: 0, hard: 0 };
+    for (const q of filtered) if (c[q.difficulty] !== undefined) c[q.difficulty] += 1;
+    return c;
+  }, [filtered]);
+
+  // Keyboard navigation for the desktop list
+  function onListKeyDown(e) {
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+    e.preventDefault();
+    const i = filtered.findIndex((q) => q.id === selectedId);
+    const next = e.key === 'ArrowDown' ? Math.min(i + 1, filtered.length - 1) : Math.max(i - 1, 0);
+    const q = filtered[next];
+    if (!q) return;
+    setSelectedId(q.id);
+    listRef.current?.querySelector(`[data-qid="${q.id}"]`)?.scrollIntoView({ block: 'nearest' });
+  }
+
+  const freqChips = [
+    { key: 'all', label: pick('Sab', 'All') },
+    { key: 'common', label: pick('Common', 'Common') },
+    { key: 'rare', label: pick('Rare', 'Rare') },
+  ];
+
+  return (
+    <div className="mt-6">
+      {/* ── Toolbar ───────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative min-w-[200px] flex-1">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
+            </svg>
+          </span>
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={pick(
+              `${questions.length} questions mein search karo…`,
+              `Search ${questions.length} questions…`
+            )}
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800/60 dark:focus:bg-slate-800"
+          />
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          {freqChips.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              onClick={() => setFreq(f.key)}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
+                freq === f.key
+                  ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/25'
+                  : 'border border-slate-200 text-slate-600 hover:border-indigo-300 hover:text-indigo-600 dark:border-slate-700 dark:text-slate-400'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Result summary ────────────────────────────────── */}
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm">
+        <span className="font-medium text-slate-500 dark:text-slate-400">
+          {filtered.length} {filtered.length === 1 ? pick('question mila', 'question') : pick('questions mile', 'questions')}
+        </span>
+        {DIFF_ORDER.map((d) =>
+          counts[d] > 0 ? (
+            <span key={d} className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+              <span className={`h-2 w-2 rounded-full ${metaFor(d).dot}`} />
+              <span className="capitalize">{d}</span>
+              <span className="font-semibold text-slate-700 dark:text-slate-300">{counts[d]}</span>
+            </span>
+          ) : null
+        )}
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="mt-6 rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500 dark:border-slate-700">
+          {pick('Kuch nahi mila. Doosra search ya filter try karo.', 'Nothing matched. Try another search or filter.')}
+        </p>
+      ) : (
+        <>
+          {/* ── Desktop: two-pane ───────────────────────────── */}
+          <div className="mt-5 hidden overflow-hidden rounded-2xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(300px,2fr)_3fr] dark:border-slate-700 dark:bg-slate-900">
+            {/* List */}
+            <div
+              ref={listRef}
+              tabIndex={0}
+              onKeyDown={onListKeyDown}
+              className="max-h-[70vh] overflow-y-auto border-r border-slate-200 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500/30 dark:border-slate-700"
+            >
+              {DIFF_ORDER.map((level) => {
+                const group = filtered.filter((q) => q.difficulty === level);
+                if (group.length === 0) return null;
+                return (
+                  <div key={level}>
+                    <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-slate-100 bg-slate-50/95 px-4 py-1.5 backdrop-blur dark:border-slate-800 dark:bg-slate-800/95">
+                      <span className={`h-1.5 w-1.5 rounded-full ${metaFor(level).dot}`} />
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        {level}
+                      </span>
+                      <span className="text-[11px] font-semibold text-slate-400">{group.length}</span>
+                    </div>
+                    {group.map((q) => {
+                      const on = q.id === selectedId;
+                      return (
+                        <button
+                          key={q.id}
+                          type="button"
+                          data-qid={q.id}
+                          onClick={() => setSelectedId(q.id)}
+                          className={`flex w-full items-start gap-2.5 border-b border-slate-100 px-4 py-3 text-left transition dark:border-slate-800 ${
+                            on
+                              ? 'bg-indigo-50 shadow-[inset_3px_0_0_0_#4f46e5] dark:bg-indigo-950/40'
+                              : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                          }`}
+                        >
+                          <span className={`mt-1.5 h-1.5 w-1.5 flex-none rounded-full ${metaFor(q.difficulty).dot}`} />
+                          <span
+                            className={`text-sm leading-snug ${
+                              on
+                                ? 'font-semibold text-indigo-700 dark:text-indigo-300'
+                                : 'text-slate-700 dark:text-slate-300'
+                            }`}
+                          >
+                            {q.question}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Detail */}
+            <div className="max-h-[70vh] overflow-y-auto bg-slate-50/40 p-7 dark:bg-slate-900/40">
+              {selected && (
+                <>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${metaFor(selected.difficulty).chip}`}>
+                      {selected.difficulty}
+                    </span>
+                    <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium capitalize text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                      {selected.frequency}
+                    </span>
+                  </div>
+
+                  <h2 className="mt-3 text-xl font-bold leading-snug text-slate-900 dark:text-slate-100">
+                    {selected.question}
+                  </h2>
+
+                  {selected.english && (
+                    <p className="mt-5 text-[15px] leading-relaxed text-slate-700 dark:text-slate-300">
+                      {selected.english}
+                    </p>
+                  )}
+
+                  {selected.hinglish && (
+                    <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900 dark:border-amber-900/40 dark:bg-amber-900/20 dark:text-amber-200">
+                      <span className="font-semibold">Hinglish: </span>
+                      {selected.hinglish}
+                    </div>
+                  )}
+
+                  <p className="mt-6 border-t border-slate-200 pt-3 text-xs text-slate-400 dark:border-slate-800">
+                    {pick('Tip: list mein ↑ ↓ arrow keys use karo.', 'Tip: use ↑ ↓ arrow keys in the list.')}
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* ── Mobile: accordion ───────────────────────────── */}
+          <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white lg:hidden dark:border-slate-700 dark:bg-slate-900">
+            {DIFF_ORDER.map((level) => {
+              const group = filtered.filter((q) => q.difficulty === level);
+              if (group.length === 0) return null;
+              return (
+                <div key={level}>
+                  <div className="flex items-center gap-2 border-b border-slate-100 bg-slate-50 px-4 py-1.5 dark:border-slate-800 dark:bg-slate-800">
+                    <span className={`h-1.5 w-1.5 rounded-full ${metaFor(level).dot}`} />
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      {level}
+                    </span>
+                    <span className="text-[11px] font-semibold text-slate-400">{group.length}</span>
+                  </div>
+                  {group.map((q) => {
+                    const open = openId === q.id;
+                    return (
+                      <div key={q.id} className="border-b border-slate-100 dark:border-slate-800">
+                        <button
+                          type="button"
+                          onClick={() => setOpenId(open ? null : q.id)}
+                          className={`flex w-full items-start gap-2.5 px-4 py-3 text-left transition ${
+                            open ? 'bg-indigo-50 dark:bg-indigo-950/40' : ''
+                          }`}
+                        >
+                          <span className={`mt-1.5 h-1.5 w-1.5 flex-none rounded-full ${metaFor(q.difficulty).dot}`} />
+                          <span
+                            className={`flex-1 text-sm font-medium leading-snug ${
+                              open ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-800 dark:text-slate-200'
+                            }`}
+                          >
+                            {q.question}
+                          </span>
+                          <span
+                            className={`mt-0.5 flex-none text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`}
+                          >
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                              <path d="m6 9 6 6 6-6" />
+                            </svg>
+                          </span>
+                        </button>
+                        {open && (
+                          <div className="bg-slate-50/60 px-4 pb-4 pt-1 dark:bg-slate-800/40">
+                            {q.english && (
+                              <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">{q.english}</p>
+                            )}
+                            {q.hinglish && (
+                              <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm leading-relaxed text-amber-900 dark:border-amber-900/40 dark:bg-amber-900/20 dark:text-amber-200">
+                                <span className="font-semibold">Hinglish: </span>
+                                {q.hinglish}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
