@@ -3,6 +3,7 @@ import { connectDB } from '@/lib/db';
 import InterviewQuestion from '@/models/InterviewQuestion';
 import Course from '@/models/Course';
 import L from '@/components/L';
+import InterviewQuestionsBrowser from '@/components/InterviewQuestionsBrowser';
 
 export const revalidate = 3600;
 
@@ -13,11 +14,8 @@ export const metadata = {
 
 const LEVELS = ['all', 'easy', 'medium', 'hard'];
 
-const DIFFICULTY_COLORS = {
-  easy:   'bg-emerald-50 text-emerald-700',
-  medium: 'bg-amber-50  text-amber-700',
-  hard:   'bg-red-50    text-red-700',
-};
+// Questions are always presented easy → medium → hard.
+const DIFFICULTY_RANK = { easy: 0, medium: 1, hard: 2 };
 
 async function getData(courseSlug, difficulty) {
   try {
@@ -48,7 +46,22 @@ async function getData(courseSlug, difficulty) {
     if (activeCourse) filter.courseId = activeCourse._id;
     if (difficulty && difficulty !== 'all') filter.difficulty = difficulty;
 
-    const questions = await InterviewQuestion.find(filter).sort({ createdAt: -1 }).lean();
+    const rows = await InterviewQuestion.find(filter).sort({ createdAt: -1 }).lean();
+
+    // Order easy → medium → hard, then serialise for the client component.
+    const questions = rows
+      .sort(
+        (a, b) =>
+          (DIFFICULTY_RANK[a.difficulty] ?? 1) - (DIFFICULTY_RANK[b.difficulty] ?? 1)
+      )
+      .map((q) => ({
+        id: q._id.toString(),
+        question: q.question,
+        difficulty: q.difficulty || 'medium',
+        frequency: q.frequency || 'common',
+        english: q.answer?.english || '',
+        hinglish: q.answer?.hinglish || '',
+      }));
 
     return { courses, questions, courseById, countMap, activeCourse };
   } catch {
@@ -68,7 +81,7 @@ export default async function InterviewQuestionsPage({ searchParams }) {
   const sp = await searchParams;
   const course    = sp?.course     || 'all';
   const difficulty = sp?.difficulty || 'all';
-  const { courses, questions, courseById, countMap, activeCourse } = await getData(course, difficulty);
+  const { courses, questions, countMap, activeCourse } = await getData(course, difficulty);
 
   /* ── Default view: course cards ── */
   if (!questions) {
@@ -188,12 +201,7 @@ export default async function InterviewQuestionsPage({ searchParams }) {
         </div>
       </div>
 
-      <p className="mt-5 text-sm text-slate-500">
-        {questions.length}{' '}
-        {questions.length === 1
-          ? <L hi="question mila" en="question found" />
-          : <L hi="questions mile" en="questions found" />}
-      </p>
+      {questions.length > 0 && <InterviewQuestionsBrowser questions={questions} />}
 
       {questions.length === 0 ? (
         <p className="mt-4 rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500 dark:border-slate-700">
@@ -202,53 +210,7 @@ export default async function InterviewQuestionsPage({ searchParams }) {
             en="No questions for this filter. Try another level."
           />
         </p>
-      ) : (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {questions.map((q) => {
-            const c = q.courseId ? courseById[q.courseId.toString()] : null;
-            const diffColor = DIFFICULTY_COLORS[q.difficulty] || 'bg-slate-100 text-slate-500';
-            return (
-              <details
-                key={q._id.toString()}
-                className="group rounded-2xl border border-slate-200 bg-white transition hover:border-indigo-300 hover:shadow-sm dark:border-slate-700 dark:bg-slate-900"
-              >
-                <summary className="cursor-pointer list-none p-6">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {c && (
-                      <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300">
-                        {c.icon} {c.title}
-                      </span>
-                    )}
-                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${diffColor}`}>
-                      {q.difficulty}
-                    </span>
-                  </div>
-                  <h3 className="mt-3 font-semibold leading-snug text-slate-900 group-open:text-indigo-600 dark:text-slate-100">
-                    {q.question}
-                  </h3>
-                  <p className="mt-2 text-xs text-slate-400 group-open:hidden">
-                    <L hi="Tap karo jawab dekhne ke liye ▼" en="Tap to reveal answer ▼" />
-                  </p>
-                </summary>
-
-                <div className="border-t border-slate-100 px-6 pb-6 pt-4 dark:border-slate-800">
-                  {q.answer?.english && (
-                    <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                      {q.answer.english}
-                    </p>
-                  )}
-                  {q.answer?.hinglish && (
-                    <div className="mt-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-900/20 dark:text-amber-200">
-                      <span className="font-semibold">Hinglish: </span>
-                      {q.answer.hinglish}
-                    </div>
-                  )}
-                </div>
-              </details>
-            );
-          })}
-        </div>
-      )}
+      ) : null}
     </div>
   );
 }
