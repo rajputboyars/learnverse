@@ -178,6 +178,112 @@ NaN == NaN          // false (never equal)`,
       { caption: { en: 'Types differ → false immediately. This is why you should default to ===.', hi: 'Types alag → turant false. Isiliye default === use karo.' }, left: '0', right: '"0"', lt: 'number', rt: 'string', step: 'strict', result: false },
     ],
   },
+  /* Node's loop has named phases — quite different from the browser's. */
+  'node-event-loop': {
+    title: { en: 'Node event loop phases', hi: 'Node event loop ke phases' },
+    code: `setTimeout(()  => console.log('timers'), 0);
+setImmediate(() => console.log('check'));
+process.nextTick(() => console.log('nextTick'));
+Promise.resolve().then(() => console.log('promise'));
+console.log('sync');`,
+    kind: 'nodeloop',
+    steps: [
+      { caption: { en: 'All synchronous code runs first, before the loop starts a single phase.', hi: 'Saara synchronous code pehle chalta hai, loop ke ek bhi phase se pehle.' }, phase: null, tick: [], micro: [], out: 'sync' },
+      { caption: { en: 'Between every phase Node drains nextTick FIRST, then promises.', hi: 'Har phase ke beech Node pehle nextTick khaali karta hai, phir promises.' }, phase: null, tick: ['nextTick'], micro: ['promise'], out: 'sync' },
+      { caption: { en: 'nextTick has the highest priority of all — even above promises.', hi: 'nextTick ki priority sabse ooonchi hai — promises se bhi upar.' }, phase: null, tick: [], micro: ['promise'], out: 'sync, nextTick' },
+      { caption: { en: 'Then the promise microtask runs.', hi: 'Phir promise ka microtask chalta hai.' }, phase: null, tick: [], micro: [], out: 'sync, nextTick, promise' },
+      { caption: { en: 'Phase 1 — TIMERS. setTimeout and setInterval callbacks fire here.', hi: 'Phase 1 — TIMERS. setTimeout aur setInterval yahan chalte hain.' }, phase: 0, tick: [], micro: [], out: 'sync, nextTick, promise, timers' },
+      { caption: { en: 'Phase 4 — POLL. Node waits here for new I/O: files, sockets, network.', hi: 'Phase 4 — POLL. Node yahan naye I/O ka intezaar karta hai: files, sockets, network.' }, phase: 3, tick: [], micro: [], out: 'sync, nextTick, promise, timers' },
+      { caption: { en: 'Phase 5 — CHECK. This is where setImmediate runs, always after poll.', hi: 'Phase 5 — CHECK. Yahan setImmediate chalta hai, hamesha poll ke baad.' }, phase: 4, tick: [], micro: [], out: 'sync, nextTick, promise, timers, check' },
+      { caption: { en: 'The loop repeats. It only exits when no work and no handles remain.', hi: 'Loop dohraata hai. Ye tabhi rukta hai jab na kaam bache na handles.' }, phase: 5, tick: [], micro: [], out: 'sync, nextTick, promise, timers, check' },
+    ],
+  },
+
+  /* Why one slow function freezes an entire Node server. */
+  'blocking-io': {
+    title: { en: 'Blocking vs non-blocking', hi: 'Blocking vs non-blocking' },
+    code: `// BLOCKING — holds the one main thread
+const data = fs.readFileSync('big.json');
+
+// NON-BLOCKING — handed to the thread pool
+fs.readFile('big.json', (err, data) => { /* later */ });`,
+    kind: 'threads',
+    steps: [
+      { caption: { en: 'Node runs your JavaScript on ONE main thread.', hi: 'Node tumhara JavaScript EK main thread pe chalata hai.' }, main: 'idle', pool: [null, null, null, null], queue: [], note: null },
+      { caption: { en: 'readFileSync parks on the main thread and holds it.', hi: 'readFileSync main thread pe baith jaata hai aur use rok leta hai.' }, main: 'blocked', pool: [null, null, null, null], queue: ['req 2', 'req 3'], note: 'blocked' },
+      { caption: { en: 'Every other request now waits. The whole server is frozen.', hi: 'Baaki har request ab intezaar karti hai. Poora server jam gaya.' }, main: 'blocked', pool: [null, null, null, null], queue: ['req 2', 'req 3', 'req 4'], note: 'blocked' },
+      { caption: { en: 'Now the async version — readFile hands the work to libuv.', hi: 'Ab async version — readFile kaam libuv ko de deta hai.' }, main: 'free', pool: ['read file', null, null, null], queue: [], note: null },
+      { caption: { en: 'A thread-pool worker does the reading. The main thread is free again.', hi: 'Ek thread-pool worker padhta hai. Main thread phir khaali hai.' }, main: 'free', pool: ['read file', null, null, null], queue: [], note: 'serving others' },
+      { caption: { en: 'When it finishes, the callback is queued and runs on the main thread.', hi: 'Khatam hone pe callback queue mein aata hai aur main thread pe chalta hai.' }, main: 'callback', pool: [null, null, null, null], queue: [], note: null },
+      { caption: { en: 'The pool defaults to 4 threads. CPU-heavy work still blocks — use worker_threads for that.', hi: 'Pool default 4 threads ka hai. CPU-heavy kaam phir bhi rokta hai — uske liye worker_threads.' }, main: 'free', pool: [null, null, null, null], queue: [], note: null },
+    ],
+  },
+
+  /* Chunks, and what backpressure actually is. */
+  streams: {
+    title: { en: 'Streams and backpressure', hi: 'Streams aur backpressure' },
+    code: `// Loads the WHOLE file into memory first — 2GB file = 2GB RAM
+const data = await fs.promises.readFile('big.mp4');
+res.end(data);
+
+// Streams it in small chunks instead
+fs.createReadStream('big.mp4').pipe(res);`,
+    kind: 'stream',
+    steps: [
+      { caption: { en: 'A readable stream produces data in small chunks, not all at once.', hi: 'Ek readable stream data chhote chunks mein deta hai, sab ek saath nahi.' }, chunks: 1, buffer: 0, slow: false, note: null },
+      { caption: { en: 'Each chunk is handed on to the writable side.', hi: 'Har chunk writable side ko diya jaata hai.' }, chunks: 2, buffer: 1, slow: false, note: null },
+      { caption: { en: 'Memory stays flat — only a chunk or two is held at a time.', hi: 'Memory sthir rehti hai — ek-do chunk hi rakhe jaate hain.' }, chunks: 3, buffer: 1, slow: false, note: 'low memory' },
+      { caption: { en: 'Now the destination slows down — a slow network, a busy disk.', hi: 'Ab destination dheema pad gaya — slow network, busy disk.' }, chunks: 4, buffer: 3, slow: true, note: null },
+      { caption: { en: 'The internal buffer fills past its highWaterMark.', hi: 'Andar ka buffer apne highWaterMark se aage bhar jaata hai.' }, chunks: 5, buffer: 5, slow: true, note: 'buffer full' },
+      { caption: { en: 'BACKPRESSURE: write() returns false, so the reader PAUSES.', hi: 'BACKPRESSURE: write() false lautaata hai, isliye reader RUK jaata hai.' }, chunks: 5, buffer: 5, slow: true, note: 'paused' },
+      { caption: { en: 'On "drain" it resumes. pipe() does all of this for you — that is why you should use it.', hi: '"drain" pe wo chalu ho jaata hai. pipe() ye sab khud karta hai — isiliye use karo.' }, chunks: 6, buffer: 2, slow: false, note: 'resumed' },
+    ],
+  },
+
+  /* One process cannot use all your cores. */
+  cluster: {
+    title: { en: 'Clustering', hi: 'Clustering' },
+    code: `const cluster = require('node:cluster');
+const cpus = require('node:os').cpus().length;
+
+if (cluster.isPrimary) {
+  for (let i = 0; i < cpus; i++) cluster.fork();
+  cluster.on('exit', () => cluster.fork());   // restart a dead worker
+} else {
+  startServer();          // each worker runs the real app
+}`,
+    kind: 'cluster',
+    steps: [
+      { caption: { en: 'One Node process uses ONE CPU core, however many you have.', hi: 'Ek Node process EK CPU core use karta hai, chahe tumhare paas kitne bhi hon.' }, workers: [], load: [0, 0, 0, 0], primaryOnly: true, dead: -1 },
+      { caption: { en: 'The primary process forks one worker per core.', hi: 'Primary process har core ke liye ek worker fork karta hai.' }, workers: [1, 2, 3, 4], load: [0, 0, 0, 0], primaryOnly: false, dead: -1 },
+      { caption: { en: 'Incoming requests are shared out across the workers.', hi: 'Aane wali requests workers mein baant di jaati hain.' }, workers: [1, 2, 3, 4], load: [2, 1, 2, 1], primaryOnly: false, dead: -1 },
+      { caption: { en: 'Roughly four times the throughput — all cores are working.', hi: 'Lagbhag chaar guna throughput — saare cores kaam pe hain.' }, workers: [1, 2, 3, 4], load: [3, 3, 2, 3], primaryOnly: false, dead: -1 },
+      { caption: { en: 'A worker crashes. Only its own requests are affected.', hi: 'Ek worker crash hua. Sirf uski requests affect hui.' }, workers: [1, 2, 3, 4], load: [3, 0, 2, 3], primaryOnly: false, dead: 1 },
+      { caption: { en: 'The primary forks a replacement — the site never goes down.', hi: 'Primary ek naya fork karta hai — site kabhi band nahi hoti.' }, workers: [1, 5, 3, 4], load: [3, 1, 2, 3], primaryOnly: false, dead: -1 },
+      { caption: { en: 'Workers share nothing. Sessions and cache must live in Redis, not memory.', hi: 'Workers kuch share nahi karte. Sessions aur cache Redis mein rahein, memory mein nahi.' }, workers: [1, 5, 3, 4], load: [2, 2, 2, 2], primaryOnly: false, dead: -1 },
+    ],
+  },
+
+  /* The publish/subscribe object most of Node is built on. */
+  'event-emitter': {
+    title: { en: 'EventEmitter', hi: 'EventEmitter' },
+    code: `const EventEmitter = require('node:events');
+const bus = new EventEmitter();
+
+bus.on('order', (id) => console.log('email for', id));
+bus.on('order', (id) => console.log('invoice for', id));
+
+bus.emit('order', 42);`,
+    kind: 'emitter',
+    steps: [
+      { caption: { en: 'A fresh emitter has no listeners for anything.', hi: 'Ek naye emitter pe kisi cheez ka koi listener nahi.' }, listeners: [], firing: -1, out: '' },
+      { caption: { en: '.on() registers a listener for the "order" event.', hi: '.on() "order" event ke liye ek listener register karta hai.' }, listeners: ['email'], firing: -1, out: '' },
+      { caption: { en: 'A second listener for the SAME event. Both are kept, in order.', hi: 'USI event ka doosra listener. Dono rakhe jaate hain, kram mein.' }, listeners: ['email', 'invoice'], firing: -1, out: '' },
+      { caption: { en: '.emit() runs every listener SYNCHRONOUSLY, in the order they were added.', hi: '.emit() har listener ko SYNCHRONOUSLY chalata hai, jis kram mein wo jude the.' }, listeners: ['email', 'invoice'], firing: 0, out: 'email for 42' },
+      { caption: { en: 'Then the second one. emit does not wait for async work inside them.', hi: 'Phir doosra. emit unke andar ke async kaam ka intezaar nahi karta.' }, listeners: ['email', 'invoice'], firing: 1, out: 'email for 42, invoice for 42' },
+      { caption: { en: 'Remove listeners you no longer need — forgetting is a common memory leak.', hi: 'Jo listeners na chahiye unhe hatao — bhoolna ek aam memory leak hai.' }, listeners: ['email'], firing: -1, out: 'email for 42, invoice for 42' },
+    ],
+  },
 };
 
 export const ANIMATION_KEYS = Object.keys(SCRIPTS);
@@ -464,8 +570,241 @@ function CoercionView({ s }) {
   );
 }
 
+/* ── Node-specific renderers ────────────────────────────────── */
+
+const NODE_PHASES = ['timers', 'pending', 'idle/prepare', 'poll', 'check', 'close'];
+
+function NodeLoopView({ s }) {
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-6">
+        {NODE_PHASES.map((p, i) => (
+          <div
+            key={p}
+            className={`rounded-md border px-1.5 py-1.5 text-center text-[10px] font-semibold transition-all duration-300 ${
+              s.phase === i
+                ? 'border-indigo-500 bg-indigo-600 text-white shadow-sm shadow-indigo-600/30'
+                : 'border-slate-200 bg-white text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-600'
+            }`}
+          >
+            <div className="text-[9px] opacity-70">{i + 1}</div>
+            {p}
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <Panel label="process.nextTick (first)" accent="emerald">
+          {s.tick.length === 0 ? <Empty /> : s.tick.map((x, i) => <Chip key={i} tone="new">{x}</Chip>)}
+        </Panel>
+        <Panel label="Promise microtasks" accent="indigo">
+          {s.micro.length === 0 ? <Empty /> : s.micro.map((x, i) => <Chip key={i} tone="active">{x}</Chip>)}
+        </Panel>
+      </div>
+
+      <div className="rounded-lg bg-slate-900 px-3 py-2 font-mono text-[11px] text-emerald-400">
+        <span className="text-slate-500">output › </span>{s.out || ' '}
+      </div>
+    </div>
+  );
+}
+
+function ThreadsView({ s }) {
+  const mainTone = {
+    idle: 'border-slate-200 bg-white text-slate-500 dark:border-slate-700 dark:bg-slate-900',
+    free: 'border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
+    blocked: 'border-red-400 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-950/40 dark:text-red-300',
+    callback: 'border-indigo-400 bg-indigo-50 text-indigo-700 dark:border-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300',
+  }[s.main];
+
+  return (
+    <div className="space-y-2">
+      <div className={`rounded-lg border px-3 py-2 text-center transition-all duration-300 ${mainTone}`}>
+        <p className="text-[10px] font-bold uppercase tracking-wider opacity-70">Main thread</p>
+        <p className="mt-0.5 font-mono text-[12px] font-semibold">
+          {s.main === 'blocked' ? '🔒 readFileSync — stuck' : s.main === 'callback' ? 'running callback' : s.main === 'free' ? '✓ free for other work' : 'idle'}
+        </p>
+        {s.note && <p className="mt-0.5 text-[10px] opacity-70">{s.note}</p>}
+      </div>
+
+      <div>
+        <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">libuv thread pool (4)</p>
+        <div className="grid grid-cols-4 gap-1.5">
+          {s.pool.map((w, i) => (
+            <div
+              key={i}
+              className={`rounded-md border px-1 py-2 text-center text-[10px] transition-all duration-300 ${
+                w
+                  ? 'border-amber-400 bg-amber-50 font-semibold text-amber-700 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
+                  : 'border-slate-200 bg-white text-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-600'
+              }`}
+            >
+              {w || 'idle'}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <Panel label="Waiting requests">
+        {s.queue.length === 0 ? <Empty>none waiting</Empty> : s.queue.map((q, i) => <Chip key={i} tone="idle">{q}</Chip>)}
+      </Panel>
+    </div>
+  );
+}
+
+function StreamView({ s }) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-1.5">
+        <div className="flex-none rounded-lg border border-indigo-300 bg-indigo-50 px-2.5 py-2 text-center dark:border-indigo-800 dark:bg-indigo-950/40">
+          <p className="text-[9px] font-bold uppercase tracking-wider text-indigo-500">source</p>
+          <p className="font-mono text-[11px] text-indigo-700 dark:text-indigo-300">file</p>
+        </div>
+
+        <div className="flex flex-1 items-center justify-center gap-1">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <span
+              key={i}
+              className={`h-2 w-2 rounded-sm transition-all duration-300 ${
+                i < s.chunks ? 'bg-indigo-500' : 'bg-slate-200 dark:bg-slate-700'
+              }`}
+            />
+          ))}
+        </div>
+
+        <div
+          className={`flex-none rounded-lg border px-2.5 py-2 text-center transition-all duration-300 ${
+            s.slow
+              ? 'border-red-400 bg-red-50 dark:border-red-700 dark:bg-red-950/40'
+              : 'border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/40'
+          }`}
+        >
+          <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">dest</p>
+          <p className="font-mono text-[11px] text-slate-700 dark:text-slate-200">{s.slow ? '🐢 slow' : '✓ ok'}</p>
+        </div>
+      </div>
+
+      <div>
+        <div className="mb-1 flex items-center gap-2">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">internal buffer</span>
+          {s.note && (
+            <span
+              className={`rounded px-1.5 py-0.5 text-[9px] font-semibold ${
+                s.note === 'paused' || s.note === 'buffer full'
+                  ? 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300'
+                  : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+              }`}
+            >
+              {s.note}
+            </span>
+          )}
+        </div>
+        <div className="flex gap-1">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div
+              key={i}
+              className={`h-5 flex-1 rounded transition-all duration-300 ${
+                i < s.buffer
+                  ? s.buffer >= 5
+                    ? 'bg-red-500'
+                    : 'bg-indigo-500'
+                  : 'bg-slate-200 dark:bg-slate-700'
+              }`}
+            />
+          ))}
+        </div>
+        <p className="mt-0.5 text-right text-[9px] text-slate-400">highWaterMark ↑</p>
+      </div>
+    </div>
+  );
+}
+
+function ClusterView({ s }) {
+  return (
+    <div className="space-y-2">
+      <div className="rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-2 text-center dark:border-indigo-800 dark:bg-indigo-950/40">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-500">primary process</p>
+        <p className="font-mono text-[11px] text-indigo-700 dark:text-indigo-300">
+          {s.primaryOnly ? 'using 1 core only' : 'distributing requests'}
+        </p>
+      </div>
+
+      {!s.primaryOnly && <p className="text-center text-[11px] text-slate-300">↓ fork</p>}
+
+      <div className="grid grid-cols-4 gap-1.5">
+        {(s.primaryOnly ? [null, null, null, null] : s.workers).map((w, i) => (
+          <div
+            key={i}
+            className={`rounded-md border px-1 py-2 text-center transition-all duration-300 ${
+              s.dead === i
+                ? 'border-red-400 bg-red-50 dark:border-red-700 dark:bg-red-950/40'
+                : w
+                  ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/40'
+                  : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900'
+            }`}
+          >
+            <p className="font-mono text-[10px] font-semibold text-slate-700 dark:text-slate-200">
+              {s.dead === i ? '✗ dead' : w ? 'w' + w : 'core ' + (i + 1)}
+            </p>
+            {w && s.dead !== i && (
+              <div className="mt-1 flex justify-center gap-0.5">
+                {Array.from({ length: 3 }).map((_, n) => (
+                  <span
+                    key={n}
+                    className={`h-1 w-1 rounded-full ${n < s.load[i] ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function EmitterView({ s }) {
+  return (
+    <div className="space-y-2">
+      <div className="rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-1.5 text-center dark:border-indigo-800 dark:bg-indigo-950/40">
+        <p className="font-mono text-[11px] font-semibold text-indigo-700 dark:text-indigo-300">
+          emit(&apos;order&apos;, 42)
+        </p>
+      </div>
+
+      <Panel label="listeners for 'order'" accent="indigo">
+        {s.listeners.length === 0 ? (
+          <Empty>none registered</Empty>
+        ) : (
+          s.listeners.map((l, i) => (
+            <div
+              key={l}
+              className={`rounded-md border px-2 py-1.5 font-mono text-[11px] transition-all duration-300 ${
+                s.firing === i
+                  ? 'border-emerald-400 bg-emerald-50 font-semibold text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+                  : TONE.idle
+              }`}
+            >
+              {i + 1}. {l} handler {s.firing === i && <span className="font-sans text-[10px]">← running</span>}
+            </div>
+          ))
+        )}
+      </Panel>
+
+      <div className="rounded-lg bg-slate-900 px-3 py-2 font-mono text-[11px] text-emerald-400">
+        <span className="text-slate-500">output › </span>{s.out || ' '}
+      </div>
+    </div>
+  );
+}
+
 const VIEWS = {
   stack: StackView,
+  nodeloop: NodeLoopView,
+  threads: ThreadsView,
+  stream: StreamView,
+  cluster: ClusterView,
+  emitter: EmitterView,
   loop: LoopView,
   phases: PhasesView,
   scopes: ScopesView,

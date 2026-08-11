@@ -961,6 +961,37 @@ export const generalInterviewQuestions = [
       hinglish:
         'Node tumhari JavaScript ko ek single main thread pe event loop ke saath chalata hai, par ye purely single-threaded nahi: libuv kuch I/O (file system, DNS, crypto) ke liye thread pool rakhta hai, aur CPU-heavy kaam ke liye worker threads ya child processes bana sakte ho. To JS execution single-threaded hai, jabki I/O aur offloaded tasks andar se multiple threads use karte hain.',
     },
+    visual: 'blocking-io',
+    codeExample: {
+      code: `// Your JavaScript runs on ONE thread. Node itself is not
+// single-threaded — libuv keeps a pool of extra threads.
+
+const os = require('node:os');
+os.cpus().length;            // e.g. 8 cores available
+
+// I/O goes to the pool, so the main thread stays free:
+fs.readFile('a.txt', () => console.log('a done'));
+fs.readFile('b.txt', () => console.log('b done'));
+// Both read at the same time. Neither blocks the other.
+
+// But CPU work has nowhere to go — it sits on the main thread:
+function hash() {
+  let x = 0;
+  for (let i = 0; i < 1e9; i++) x += i;   // ~2 seconds
+  return x;
+}
+// While this runs, the server answers NOBODY.
+
+// For CPU work, use a real thread:
+const { Worker } = require('node:worker_threads');
+new Worker('./heavy.js');    // runs on another core
+
+// Short version: single-threaded for YOUR code,
+// multi-threaded underneath for I/O.`,
+      output: `8
+a done
+b done`,
+    },
   },
   {
     question: 'What is the difference between process.nextTick and setImmediate?',
@@ -971,6 +1002,41 @@ export const generalInterviewQuestions = [
         'process.nextTick callbacks run immediately after the current operation, before the event loop continues (and before other microtasks/promises in practice are drained). setImmediate runs on the next iteration of the event loop, in the check phase, after I/O callbacks. nextTick can starve the loop if overused; setImmediate is safer for yielding.',
       hinglish:
         'process.nextTick callbacks current operation ke turant baad chalte hain, event loop aage badhne se pehle. setImmediate event loop ke agle iteration mein, check phase mein, I/O callbacks ke baad chalta hai. nextTick zyada use karne se loop starve ho sakta hai; yield karne ke liye setImmediate safer hai.',
+    },
+    visual: 'node-event-loop',
+    codeExample: {
+      code: `console.log('1 — sync');
+
+setImmediate(()      => console.log('4 — check phase'));
+setTimeout(()        => console.log('3 — timers phase'), 0);
+process.nextTick(()  => console.log('2 — before any phase'));
+
+// Output: 1, 2, 3, 4
+
+// process.nextTick runs BETWEEN phases, before anything else —
+// even before promises. It has the highest priority in Node.
+
+// setImmediate runs in the CHECK phase, which comes right
+// after poll. Its name is misleading: it is not immediate,
+// it is "on the next loop iteration".
+
+// The dangerous part — nextTick can starve the loop:
+function spin() { process.nextTick(spin); }
+// spin();     ✗ timers and I/O never get a turn again
+
+// setImmediate cannot do that; each iteration runs one batch.
+
+// Rule: use setImmediate. Reach for nextTick only to let a
+// caller attach a listener before you emit:
+function connect() {
+  const s = new EventEmitter();
+  process.nextTick(() => s.emit('ready'));   // caller can .on() first
+  return s;
+}`,
+      output: `1 — sync
+2 — before any phase
+3 — timers phase
+4 — check phase`,
     },
   },
   {
@@ -983,6 +1049,41 @@ export const generalInterviewQuestions = [
       hinglish:
         'cluster multiple poore Node.js processes fork karta hai jo ek server port share karte hain, isse app saare CPU cores use kar sakta hai zyada concurrent connections handle karne ke liye — har worker ki memory fully isolated hoti hai. worker_threads ek single process ke andar multiple threads chalate hain aur memory directly share kar sakte hain, isliye ye ek CPU-heavy computation ko split karne ke liye behtar suited hain, poore server ko scale karne ke bajaye.',
     },
+    visual: 'cluster',
+    codeExample: {
+      code: `// CLUSTER — separate PROCESSES, one per CPU core.
+const cluster = require('node:cluster');
+const cpus = require('node:os').cpus().length;
+
+if (cluster.isPrimary) {
+  for (let i = 0; i < cpus; i++) cluster.fork();
+  cluster.on('exit', () => cluster.fork());   // auto-restart
+} else {
+  require('./server')();          // each worker runs the app
+}
+
+// WORKER_THREADS — threads INSIDE one process.
+const { Worker } = require('node:worker_threads');
+const w = new Worker('./crunch.js', { workerData: bigArray });
+w.on('message', (result) => console.log(result));
+
+// The difference that matters:
+//   cluster        → separate memory, share a SERVER PORT
+//                    → scale an HTTP server across cores
+//   worker_threads → shared memory possible, no port sharing
+//                    → move one CPU-heavy task off the main thread
+
+// Choosing:
+//   "my server maxes one core"      → cluster
+//   "one function freezes requests" → worker_threads
+//
+// Cluster workers share nothing, so sessions and cache must
+// live in Redis rather than in process memory.`,
+      output: `worker 1 listening
+worker 2 listening
+worker 3 listening
+worker 4 listening`,
+    },
   },
   {
     question: 'How does Node.js handle CPU-bound vs I/O-bound tasks differently?',
@@ -993,6 +1094,37 @@ export const generalInterviewQuestions = [
         'I/O-bound tasks (network calls, file reads, DB queries) are delegated to the OS/libuv thread pool; the main JS thread registers a callback and moves on to handle other work, picking up the result later via the event loop. CPU-bound tasks (heavy loops, encryption, image processing) run synchronously on the main thread and block the event loop — nothing else can be processed until they finish, so they should be offloaded to worker_threads, child processes, or external services.',
       hinglish:
         'I/O-bound tasks (network calls, file reads, DB queries) OS/libuv thread pool ko delegate ho jaate hain; main JS thread ek callback register karke aage ka kaam karne lagta hai, result baad mein event loop ke through utha leta hai. CPU-bound tasks (heavy loops, encryption, image processing) main thread pe synchronously chalte hain aur event loop ko block kar dete hain — jab tak wo khatam na ho, kuch aur process nahi ho sakta, isliye unhe worker_threads, child processes, ya external services ko offload karna chahiye.',
+    },
+    visual: 'blocking-io',
+    codeExample: {
+      code: `// I/O-BOUND — Node is excellent at this.
+// Reading files, database calls, HTTP requests: all handed to
+// libuv, so thousands can be in flight on one thread.
+const [a, b, c] = await Promise.all([
+  fetch('/api/1'), fetch('/api/2'), fetch('/api/3'),
+]);
+// Takes as long as the slowest, not the sum.
+
+// CPU-BOUND — Node is bad at this by default.
+function fib(n) { return n < 2 ? n : fib(n-1) + fib(n-2); }
+app.get('/slow', (req, res) => {
+  res.json({ n: fib(42) });     // ~3 seconds of pure CPU
+});
+// Every other request waits those 3 seconds. The event loop
+// cannot move while your function is on the stack.
+
+// Three ways out:
+// 1. worker_threads — another core, same process
+const { Worker } = require('node:worker_threads');
+
+// 2. a job queue — hand it to a separate worker process
+await queue.add('report', { userId });   // return 202 immediately
+
+// 3. the right tool — some work belongs in Rust/Go/a database
+
+// Rule of thumb: if a function runs longer than ~10ms of
+// solid CPU, it does not belong on the event loop.`,
+      output: `all three responses in ~1 request time`,
     },
   },
   {
@@ -1005,6 +1137,41 @@ export const generalInterviewQuestions = [
       hinglish:
         'Long-running servers mein memory leak ho sakta hai bhoole hue timers se, unbounded in-memory caches se, baar-baar add hote event listeners se jo remove nahi hote, aur closures se jo bade objects ko reference pakde rehte hain. Ise detect karte ho process.memoryUsage() (especially heapUsed) ko production mein time ke saath monitor karke, --inspect/Chrome DevTools se heap snapshots leke jab memory upward trend kare, aur snapshots compare karke growing object counts dhoondh ke.',
     },
+    codeExample: {
+      code: `// A leak is memory you still REFERENCE but never use again.
+// A server runs for weeks, so a small leak becomes a crash.
+
+// 1. A cache that only grows
+const cache = {};
+app.get('/u/:id', (req, res) => {
+  cache[req.params.id] = heavyObject;   // ✗ never cleared
+});
+// Fix: an LRU with a max size, or a TTL.
+
+// 2. Listeners added per request
+emitter.on('event', handler);           // ✗ added every time
+// Symptom: "MaxListenersExceededWarning: 11 listeners added"
+emitter.off('event', handler);          // ✓ remove it
+
+// 3. Timers never cleared
+const t = setInterval(poll, 1000);
+clearInterval(t);                       // ✓ on shutdown
+
+// 4. Closures holding a big object longer than needed
+
+// DETECTING it:
+setInterval(() => {
+  const { heapUsed } = process.memoryUsage();
+  console.log((heapUsed / 1e6).toFixed(1) + ' MB');
+}, 10000);
+// A leak looks like a staircase that never comes back down.
+
+// Then take two heap snapshots minutes apart in Chrome DevTools
+// (node --inspect) and compare — whatever grew is your leak.`,
+      output: `48.2 MB
+61.7 MB
+75.1 MB   ← climbing, never falling`,
+    },
   },
   {
     question: 'Why might you choose Express/Fastify over the raw http module?',
@@ -1015,6 +1182,40 @@ export const generalInterviewQuestions = [
         'The raw http module requires you to manually parse URLs, query strings, request bodies, and write your own routing logic. Frameworks like Express/Fastify provide declarative routing, middleware pipelines (auth, logging, body parsing, error handling), and a large ecosystem of plugins, which dramatically reduces boilerplate and lets you focus on business logic.',
       hinglish:
         'Raw http module mein tumhe manually URLs, query strings, request bodies parse karne hote hain aur apni routing logic likhni hoti hai. Express/Fastify jaise frameworks declarative routing dete hain, middleware pipelines (auth, logging, body parsing, error handling), aur plugins ka bada ecosystem, jisse boilerplate kaafi kam ho jaata hai aur tum business logic pe focus kar sakte ho.',
+    },
+    codeExample: {
+      code: `// RAW http — you write everything yourself.
+const http = require('node:http');
+http.createServer((req, res) => {
+  if (req.url === '/users' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(users));
+  } else if (req.url.startsWith('/users/')) {
+    const id = req.url.split('/')[2];    // manual parsing
+    // …and you still have no body parsing, no query strings,
+    //   no middleware, no error handling, no 404
+  }
+}).listen(3000);
+
+// EXPRESS — routing and middleware are given to you.
+const app = express();
+app.use(express.json());                 // body parsing
+app.get('/users/:id', (req, res) => {    // params extracted
+  res.json(users[req.params.id]);
+});
+
+// What a framework actually buys you:
+//   • routing with params and patterns
+//   • middleware for auth, logging, CORS, compression
+//   • body and query parsing
+//   • a real error-handling path
+//   • a huge ecosystem of tested plugins
+
+// Use raw http for a health check or a proxy. For anything
+// with more than a couple of routes, a framework wins.
+// Fastify over Express when throughput matters — schema-based
+// serialisation makes it measurably faster.`,
+      output: `server on :3000`,
     },
   },
   {
@@ -1027,6 +1228,37 @@ export const generalInterviewQuestions = [
       hinglish:
         'Secrets ko kabhi source code mein hard-code mat karo. Unhe environment variables mein store karo (locally .env file aur dotenv se load, aur production mein platform ke secret manager se — Vercel/AWS Secrets Manager/Kubernetes secrets). .env ko .gitignore mein daalo, secrets ko periodically rotate karo, aur har environment (dev/staging/prod) ke liye least-privilege credentials use karo.',
     },
+    codeExample: {
+      code: `// NEVER hardcode. This ends up in git history forever:
+const dbUrl = 'mongodb://admin:pa55w0rd@prod...';   // ✗
+
+// Read from the environment:
+const dbUrl = process.env.DATABASE_URL;             // ✓
+
+// Locally, load a gitignored .env file:
+require('dotenv').config();
+// .gitignore must contain .env
+
+// In production, do NOT ship .env. Use the platform:
+//   Vercel / Render / Railway → dashboard env vars
+//   AWS  → Secrets Manager or Parameter Store
+//   K8s  → Secrets, mounted as env or files
+
+// VALIDATE at startup so a missing variable fails at boot,
+// not at 3am on the first request that needs it:
+const { z } = require('zod');
+const env = z.object({
+  DATABASE_URL: z.string().url(),
+  JWT_SECRET: z.string().min(32),
+  PORT: z.coerce.number().default(3000),
+}).parse(process.env);          // throws immediately if wrong
+
+// Other rules:
+//   • never log a secret — logs are widely readable
+//   • rotate anything that was ever committed; assume it leaked
+//   • give each environment its own credentials`,
+      output: `Error: JWT_SECRET must contain at least 32 characters`,
+    },
   },
   {
     question: 'What is backpressure in Node streams and why does it matter?',
@@ -1037,6 +1269,41 @@ export const generalInterviewQuestions = [
         'Backpressure happens when a writable stream cannot consume data as fast as a readable stream produces it. If ignored, data piles up in memory and can crash the process. .pipe() handles backpressure automatically by pausing the readable stream when the writable\'s internal buffer is full, and resuming it once drained. When manually writing to streams, you must check the return value of .write() and listen for the "drain" event before writing more.',
       hinglish:
         'Backpressure tab hota hai jab writable stream data ko utni fast consume nahi kar sakta jitna readable stream produce kar raha hai. Agar ignore kiya jaaye, data memory mein dher ho jaata hai aur process crash ho sakta hai. .pipe() backpressure ko automatically handle karta hai readable stream ko pause karke jab writable ka internal buffer full ho, aur drain hone pe resume karke. Manually streams mein likhte waqt, .write() ka return value check karna padta hai aur "drain" event ka wait karna padta hai zyada likhne se pehle.',
+    },
+    visual: 'streams',
+    codeExample: {
+      code: `// Backpressure = the reader going faster than the writer,
+// so data piles up in memory.
+
+// ✗ Ignoring it — memory climbs until the process dies
+readable.on('data', (chunk) => {
+  writable.write(chunk);       // returns false when full — ignored!
+});
+
+// ✓ Respecting it manually
+readable.on('data', (chunk) => {
+  const ok = writable.write(chunk);
+  if (!ok) {
+    readable.pause();                          // stop reading
+    writable.once('drain', () => readable.resume());  // carry on
+  }
+});
+
+// ✓ Or just use pipe, which handles all of that for you
+readable.pipe(writable);
+
+// ✓ Best — pipeline also forwards errors and cleans up
+const { pipeline } = require('node:stream/promises');
+await pipeline(
+  fs.createReadStream('in.mp4'),
+  zlib.createGzip(),
+  fs.createWriteStream('out.gz')
+);
+
+// Why it matters: streaming a 2GB file to a slow phone without
+// backpressure buffers the whole file in RAM. With it, memory
+// stays at a few hundred KB no matter the file size.`,
+      output: `memory stays flat while a 2GB file transfers`,
     },
   },
 
@@ -1051,6 +1318,33 @@ export const generalInterviewQuestions = [
       hinglish:
         'Node.js ek JavaScript runtime hai jo Google Chrome ke V8 engine pe built hai aur JavaScript ko browser ke BAHAR chalne deta hai — servers, CLIs, aur desktop apps pe. Node (2009) se pehle, JS sirf browser tab mein chal sakta tha. Node aise APIs add karta hai jo browser ke paas nahi (file system access, TCP servers, process control) jabki browser-only APIs (DOM, window) hata deta hai. Ye single-threaded, event-driven, non-blocking I/O model use karta hai, isliye fast, scalable network applications banane ke liye well-suited hai.',
     },
+    codeExample: {
+      code: `// Node.js is a RUNTIME that lets JavaScript run outside a browser.
+// It is V8 (Chrome's engine) + libuv (async I/O) + core libraries.
+
+// So you get JavaScript, but with abilities a browser denies you:
+const fs = require('node:fs');        // read and write files
+const http = require('node:http');    // BE a server, not just call one
+const os = require('node:os');        // inspect the machine
+
+http.createServer((req, res) => res.end('Hello')).listen(3000);
+
+// What it is NOT:
+//   • not a language — that is JavaScript
+//   • not a framework — that is Express
+//   • not multi-threaded for your code — one event loop
+
+// What it does have that a browser does not:
+//   require / module.exports, process, Buffer, __dirname, fs
+
+// And what a browser has that Node does not:
+//   window, document, DOM, localStorage, alert
+
+// Its strength is I/O-heavy work — APIs, real-time apps,
+// streaming — because one thread can hold thousands of open
+// connections while they wait. Its weakness is CPU-heavy work.`,
+      output: `server listening on :3000`,
+    },
   },
   {
     question: 'Why is Node.js used?',
@@ -1061,6 +1355,34 @@ export const generalInterviewQuestions = [
         'Node.js is chosen for: (1) building fast, I/O-heavy backends (APIs, real-time chat, streaming) since its non-blocking model handles thousands of concurrent connections efficiently; (2) using ONE language (JavaScript) across frontend and backend, reducing context switching and enabling code sharing; (3) NPM — the largest package ecosystem in any language, meaning most common needs already have a battle-tested library; (4) a large hiring pool since JS is the most widely known language.',
       hinglish:
         'Node.js in wajahon se choose kiya jaata hai: (1) fast, I/O-heavy backends banana (APIs, real-time chat, streaming) kyunki iska non-blocking model hazaron concurrent connections efficiently handle karta hai; (2) frontend aur backend dono ke liye EK language (JavaScript) use karna, context switching kam karte hue aur code sharing enable karte hue; (3) NPM — kisi bhi language ka sabse bada package ecosystem, matlab zyadatar common needs ke liye already ek battle-tested library maujood hai; (4) ek bada hiring pool kyunki JS sabse widely-known language hai.',
+    },
+    codeExample: {
+      code: `// 1. ONE LANGUAGE across the stack
+// The same validation function on client and server:
+export const isValidEmail = (e) => /^[^@]+@[^@]+$/.test(e);
+
+// 2. GREAT AT MANY CONNECTIONS AT ONCE
+// One thread holds thousands of open sockets, because waiting
+// costs nothing — no thread is parked per connection.
+// This is why chat, notifications and live dashboards suit it.
+
+// 3. FAST TO START
+npm init -y && npm i express      // a working API in minutes
+
+// 4. THE BIGGEST PACKAGE ECOSYSTEM (npm)
+
+// 5. NON-BLOCKING BY DEFAULT
+const [user, orders] = await Promise.all([getUser(), getOrders()]);
+// Both run at once, no thread management from you.
+
+// Where it is the WRONG choice:
+//   • heavy computation — video encoding, big ML, image processing
+//   • work needing true parallel CPU across many cores by default
+//   • hard real-time systems
+
+// Honest summary: Node is excellent when your server mostly
+// WAITS (database, network, disk) and poor when it mostly THINKS.`,
+      output: `API running in ~5 minutes`,
     },
   },
   {
@@ -1073,6 +1395,35 @@ export const generalInterviewQuestions = [
       hinglish:
         'Key features: single-threaded event loop non-blocking I/O ke saath (bahut saare connections handle karta hai bina har request ke liye thread spawn kiye); V8 pe built fast execution ke liye; default se asynchronous; ek rich standard library (fs, http, path, crypto, streams); package management ke liye NPM; cross-platform (Windows/Linux/macOS); aur ek single JavaScript codebase jo frontend code ke saath shareable hai. Ye CPU-heavy tasks (image processing, heavy computation) ke liye IDEAL NAHI hai kyunki ek lambi synchronous computation single main thread ko block kar deti hai.',
     },
+    codeExample: {
+      code: `// 1. Asynchronous and non-blocking — the core idea
+fs.readFile('a.txt', cb);      // returns instantly, cb runs later
+
+// 2. Single-threaded event loop, with a thread pool behind it
+//    → thousands of concurrent connections on modest hardware
+
+// 3. V8 — JavaScript compiled to machine code, so it is fast
+
+// 4. Cross-platform — the same code on Windows, macOS, Linux
+
+// 5. npm — the largest package registry there is
+
+// 6. Streams — handle data bigger than your RAM
+fs.createReadStream('10gb.log').pipe(process.stdout);
+
+// 7. Built-in modules — no install needed
+const { fs, http, path, crypto, os, events } = {};
+
+// 8. EventEmitter — the pub/sub pattern the whole runtime uses
+
+// 9. Buffers — work with raw binary data
+
+// 10. Cluster and worker_threads — use every CPU core
+
+// The one to mention in an interview: non-blocking I/O.
+// Everything else follows from it.`,
+      output: `(streams a 10GB file using a few MB of memory)`,
+    },
   },
   {
     question: 'How does Node.js work?',
@@ -1083,6 +1434,35 @@ export const generalInterviewQuestions = [
         'When a request arrives, Node.js does NOT spawn a new thread per request (unlike traditional multi-threaded servers). Instead, the single main thread accepts the request and, if it needs I/O (reading a file, querying a DB, calling an API), delegates that work to the OS or a background thread pool (via libuv) and immediately moves on to handle the next request. When the I/O completes, its callback is queued and picked up by the event loop to be executed on the main thread. This lets one thread juggle thousands of concurrent I/O operations efficiently.',
       hinglish:
         'Jab ek request aati hai, Node.js har request ke liye naya thread spawn NAHI karta (traditional multi-threaded servers ke ulat). Iske bajaye, single main thread request accept karta hai aur, agar usse I/O chahiye (file read, DB query, API call), wo kaam OS ya background thread pool (libuv ke through) ko delegate kar deta hai aur turant agli request handle karne chala jaata hai. I/O complete hone pe, uska callback queue hota hai aur event loop use main thread pe execute karne ke liye uthaata hai. Isse ek thread hazaron concurrent I/O operations efficiently juggle kar leta hai.',
+    },
+    visual: 'node-event-loop',
+    codeExample: {
+      code: `// 1. Your JS is parsed and compiled by V8.
+
+// 2. It runs on ONE main thread, top to bottom.
+console.log('start');
+
+// 3. Anything async is handed to libuv, not run by V8:
+fs.readFile('a.txt', cb);       // → thread pool
+server.on('request', cb);       // → OS network polling
+setTimeout(cb, 100);            // → timer
+
+console.log('end');             // runs before any callback
+
+// 4. When the stack is empty, the EVENT LOOP checks its phases
+//    in order: timers → pending → poll → check → close.
+//    Between every phase it drains nextTick, then promises.
+
+// 5. A finished callback is pushed onto the stack and run.
+
+// 6. The loop exits only when nothing is left to wait for.
+
+// The whole design in one sentence: never sit still waiting.
+// Hand the waiting to the OS, keep the thread free for the
+// next request, and come back when the answer arrives.`,
+      output: `start
+end
+(file contents, later)`,
     },
   },
   {
@@ -1095,6 +1475,30 @@ export const generalInterviewQuestions = [
       hinglish:
         'V8 Google ka open-source JavaScript (aur WebAssembly) engine hai, C++ mein likha gaya, originally Chrome ke liye bana. Ye JavaScript ko directly native machine code mein compile karta hai (JIT compilation) line-by-line interpret karne ke bajaye, jisse JS execution bahut fast hoti hai. Node.js V8 ko embed karta hai JavaScript ko browser ke bahar chalane ke liye, aur ise extra C++ bindings ke saath extend karta hai file system access, networking, aur doosri OS-level capabilities ke liye jo ek browser sandbox kabhi expose nahi karega.',
     },
+    codeExample: {
+      code: `// V8 is Google's JavaScript engine — the part that actually
+// RUNS your code. Chrome uses it, and so does Node.
+
+// What it does:
+//   1. parses your source into an AST
+//   2. Ignition turns that into bytecode
+//   3. TurboFan recompiles hot code into machine code (JIT)
+//   4. it also manages memory and garbage collection
+
+// Why the JIT matters for how you write code — keep types stable:
+function add(a, b) { return a + b; }
+add(1, 2);            // V8 optimises for numbers
+add('x', 'y');        // now it must DEOPTIMISE and redo the work
+
+// You can see and tune its memory:
+process.memoryUsage();              // { heapUsed, heapTotal, … }
+// node --max-old-space-size=4096   // raise the heap limit
+
+// V8 gives you the LANGUAGE. It knows nothing about files,
+// sockets or timers — those come from libuv and Node's own
+// libraries. V8 + libuv + core modules = Node.js.`,
+      output: `{ rss: 41123840, heapTotal: 6008832, heapUsed: 5316304 }`,
+    },
   },
   {
     question: 'What is npm?',
@@ -1105,6 +1509,35 @@ export const generalInterviewQuestions = [
         'npm (Node Package Manager) is the default package manager bundled with Node.js. It has three parts: a CLI tool (`npm install`, `npm run`) for managing dependencies and scripts; a registry (npmjs.com) hosting over a million open-source packages; and the package.json file format that describes a project\'s dependencies and metadata. It handles installing, updating, and resolving nested dependency trees automatically.',
       hinglish:
         'npm (Node Package Manager) Node.js ke saath bundled default package manager hai. Iske teen parts hain: ek CLI tool (`npm install`, `npm run`) dependencies aur scripts manage karne ke liye; ek registry (npmjs.com) jo dus lakh se zyada open-source packages host karta hai; aur package.json file format jo project ki dependencies aur metadata describe karta hai. Ye nested dependency trees ko install, update, aur resolve karna automatically handle karta hai.',
+    },
+    codeExample: {
+      code: `// npm = Node Package Manager. It does three jobs:
+//   1. installs packages   2. manages versions   3. runs scripts
+
+npm init -y               // create package.json
+npm install express       // add a dependency
+npm install -D jest       // dev-only dependency
+npm ci                    // clean install from the lock file (CI)
+npm run dev               // run a script from package.json
+
+// package.json is the manifest:
+{
+  "scripts": { "dev": "next dev", "test": "jest" },
+  "dependencies":    { "express": "^4.18.0" },
+  "devDependencies": { "jest": "^29.0.0" }
+}
+
+// install vs ci — the difference matters in CI:
+//   npm install → may UPDATE the lock file
+//   npm ci      → installs the lock file EXACTLY, and is faster
+
+// Safety habits:
+npm audit                 // known vulnerabilities
+npm outdated              // what has newer versions
+
+// And commit package-lock.json — without it, two installs a
+// week apart can produce different node_modules.`,
+      output: `added 57 packages in 3s`,
     },
   },
   {
@@ -1117,6 +1550,30 @@ export const generalInterviewQuestions = [
       hinglish:
         'npx (npm 5.2+ ke saath bundled) ek package ka binary EXECUTE karta hai use globally ya permanently install kiye bina. Agar package locally already install nahi hai, npx temporarily download karta hai, ek baar run karta hai, aur discard kar deta hai — one-off tool usage ke liye useful (`npx create-react-app my-app`, `npx cowsay hello`) ya ek locally-installed CLI tool ko PATH mein add kiye bina ya `npm run` use kiye bina chalane ke liye.',
     },
+    codeExample: {
+      code: `// npx RUNS a package without installing it permanently.
+
+npx create-react-app my-app     // downloads, runs, discards
+npx prettier --write .          // one-off formatting
+
+// Before npx you had to pollute your machine:
+npm install -g create-next-app  // ✗ now stuck on one version
+create-next-app my-app
+
+// npx also prefers your LOCAL version if there is one:
+npx jest        // uses node_modules/.bin/jest — the project's
+                // version, not whatever is installed globally
+// This is why teams get identical tool versions.
+
+// Pin a version for a reproducible one-off:
+npx prettier@3.0.0 --check .
+
+// Rule of thumb:
+//   run once (a scaffolder)          → npx
+//   used constantly by every project → npm i -g
+//   used by THIS project             → devDependency + npm run`,
+      output: `Creating a new app in ./my-app`,
+    },
   },
   {
     question: 'What is the difference between Node.js and JavaScript?',
@@ -1127,6 +1584,39 @@ export const generalInterviewQuestions = [
         'JavaScript is a PROGRAMMING LANGUAGE — a specification (ECMAScript) defining syntax and core built-ins (Array, Object, Promise). Node.js is a RUNTIME ENVIRONMENT that executes JavaScript outside a browser, adding platform-specific APIs (fs, http, process) that are not part of the JavaScript language itself and are not available in browsers. In short: JavaScript is the language; Node.js is one place (among several — browsers, Deno, Bun) where that language can run, each providing different host APIs.',
       hinglish:
         'JavaScript ek PROGRAMMING LANGUAGE hai — ek specification (ECMAScript) jo syntax aur core built-ins (Array, Object, Promise) define karti hai. Node.js ek RUNTIME ENVIRONMENT hai jo JavaScript ko browser ke bahar execute karta hai, platform-specific APIs (fs, http, process) add karte hue jo JavaScript language ka hi part nahi hain aur browsers mein available nahi hain. Short mein: JavaScript language hai; Node.js ek jagah hai (aur bhi kai jagah hain — browsers, Deno, Bun) jahan wo language chal sakti hai, har ek alag host APIs provide karte hue.',
+    },
+    codeExample: {
+      code: `// JavaScript is the LANGUAGE. Node.js is a place to RUN it.
+
+// The language itself — works everywhere:
+const nums = [1, 2, 3].map(n => n * 2);
+class User {}
+async function f() {}
+
+// Only in Node:
+const fs = require('node:fs');
+fs.readFileSync('a.txt');
+process.env.PORT;
+__dirname;
+Buffer.from('hi');
+
+// Only in a browser:
+document.querySelector('h1');
+window.localStorage;
+alert('hi');
+
+// So this crashes in Node:
+// document.getElementById('x')   ✗ document is not defined
+// And this crashes in a browser:
+// require('fs')                  ✗ require is not defined
+
+// Both share the same engine (V8) and the same language spec
+// (ECMAScript). What differs is the ENVIRONMENT each provides.
+
+// Some things exist in both, added separately by each:
+fetch('/api');       // browsers always; Node since v18
+setTimeout(fn, 100); // both, but Node's returns a Timeout object`,
+      output: `[ 2, 4, 6 ]`,
     },
   },
   {
@@ -1139,6 +1629,36 @@ export const generalInterviewQuestions = [
       hinglish:
         'Node.js RUNTIME hai — underlying platform jo JavaScript execute karta hai aur `http` jaise low-level modules deta hai server banane ke liye. Express.js ek FRAMEWORK hai jo Node.js ke `http` module ke upar built hai, routing, middleware, request/response helpers, aur error handling ke liye ek bahut friendlier API add karte hue. Tum raw Node.js `http` akele se ek server bana sakte ho, par tumhe routing, body parsing, aur middleware chaining haath se re-implement karni padegi — Express ye sab out of the box deta hai.',
     },
+    codeExample: {
+      code: `// Node is the RUNTIME. Express is a LIBRARY that runs on it.
+
+// Raw Node — you handle routing yourself:
+const http = require('node:http');
+http.createServer((req, res) => {
+  if (req.url === '/' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Home');
+  } else {
+    res.writeHead(404);
+    res.end('Not found');
+  }
+}).listen(3000);
+
+// Express — routing, parsing and middleware provided:
+const express = require('express');
+const app = express();
+app.use(express.json());
+app.get('/', (req, res) => res.send('Home'));
+app.get('/users/:id', (req, res) => res.json({ id: req.params.id }));
+app.listen(3000);
+
+// Express does NOT replace Node — it uses Node's http module
+// underneath. You could remove Express and still have a server;
+// remove Node and nothing runs at all.
+
+// Analogy: Node is the engine, Express is the car body.`,
+      output: `both serve on :3000`,
+    },
   },
   {
     question: 'What are Node.js modules?',
@@ -1149,6 +1669,38 @@ export const generalInterviewQuestions = [
         'A module is a reusable, self-contained block of code with its own scope — variables/functions inside a module are private unless explicitly exported. Node.js has three kinds: core/built-in modules (fs, http, path — bundled with Node itself), local/user-defined modules (your own files), and third-party modules (installed via npm). Modules keep code organised, prevent global namespace pollution, and enable dependency reuse across a project.',
       hinglish:
         'Ek module code ka reusable, self-contained block hai apne khud ke scope ke saath — module ke andar variables/functions private hote hain jab tak explicitly export na ho. Node.js ke teen kinds hain: core/built-in modules (fs, http, path — Node ke saath hi bundled), local/user-defined modules (tumhari khud ki files), aur third-party modules (npm se install hote hain). Modules code ko organised rakhte hain, global namespace pollution rokte hain, aur project ke across dependency reuse enable karte hain.',
+    },
+    codeExample: {
+      code: `// A module is just a file. Its variables are private unless
+// you export them.
+
+// ── math.js ──
+const secret = 42;                 // not visible outside
+function add(a, b) { return a + b; }
+module.exports = { add };          // CommonJS
+// export { add };                 // ES modules
+
+// ── app.js ──
+const { add } = require('./math');
+add(2, 3);          // 5
+// secret           ✗ not defined — module scope is private
+
+// Three kinds of module:
+//   1. core     → require('node:fs')     — ships with Node
+//   2. local    → require('./math')      — your own files
+//   3. npm      → require('express')     — from node_modules
+
+// Modules are CACHED — the file runs once, however many
+// files require it:
+// counter.js: let n = 0; module.exports = { inc: () => ++n };
+require('./counter').inc();        // 1
+require('./counter').inc();        // 2 — same instance
+
+// That caching is what makes a database-connection module work
+// as a singleton, and why a stateful module can surprise you.`,
+      output: `5
+1
+2`,
     },
   },
   {
@@ -1161,6 +1713,33 @@ export const generalInterviewQuestions = [
       hinglish:
         'Node.js bahut saare core modules ke saath aata hai jinhe koi npm install ki zaroorat nahi, bas `require()`/`import`: `fs` (file system), `http`/`https` (servers/clients), `path` (file path utilities), `os` (operating system info), `crypto` (hashing/encryption), `events` (EventEmitter), `stream` (streaming data), `util` (utility helpers), `child_process` (processes spawn karna), aur `cluster`/`worker_threads` (parallelism). Ye Node.js ko server-side aur system-level capabilities dete hain jo plain browser JavaScript ke paas kabhi nahi hoti.',
     },
+    codeExample: {
+      code: `// Ship with Node — no install needed. Prefix with node: to
+// make it obvious they are core and avoid npm name clashes.
+
+const fs      = require('node:fs');      // files
+const path    = require('node:path');    // safe path joining
+const http    = require('node:http');    // servers and clients
+const os      = require('node:os');      // cpus, memory, platform
+const crypto  = require('node:crypto');  // hashing, random, UUID
+const events  = require('node:events');  // EventEmitter
+const stream  = require('node:stream');  // streaming data
+const util    = require('node:util');    // promisify, inspect
+const url     = require('node:url');
+const zlib    = require('node:zlib');    // gzip
+const child_process = require('node:child_process');
+const worker_threads = require('node:worker_threads');
+
+// Most have a promise version — prefer it over callbacks:
+const fsp = require('node:fs/promises');
+await fsp.readFile('a.txt', 'utf8');
+
+// A few things people install but do not need to:
+crypto.randomUUID();               // instead of the uuid package
+require('node:test');              // a built-in test runner
+fetch('https://api.com');          // global since v18`,
+      output: `(no npm install required)`,
+    },
   },
   {
     question: 'What is package.json?',
@@ -1171,6 +1750,37 @@ export const generalInterviewQuestions = [
         'package.json is the manifest file at the root of every Node.js project — it declares the project\'s name, version, entry point, scripts (`npm run dev`), and its dependencies/devDependencies with version ranges. npm reads it to know exactly what to install and how to run project commands. It is the single source of truth that makes a project reproducible on any machine — `npm install` reads it and rebuilds `node_modules` accordingly.',
       hinglish:
         'package.json har Node.js project ke root pe manifest file hai — ye project ka naam, version, entry point, scripts (`npm run dev`), aur uski dependencies/devDependencies version ranges ke saath declare karta hai. npm ise padhta hai exactly janne ke liye ki kya install karna hai aur project commands kaise chalane hain. Ye single source of truth hai jo project ko kisi bhi machine pe reproducible banata hai — `npm install` ise padhta hai aur `node_modules` accordingly rebuild karta hai.',
+    },
+    codeExample: {
+      code: `{
+  "name": "my-api",
+  "version": "1.0.0",
+  "type": "module",              // use ES modules, not CommonJS
+  "main": "index.js",            // the entry point
+  "scripts": {
+    "dev":   "node --watch index.js",
+    "start": "node index.js",
+    "test":  "jest"
+  },
+  "dependencies":    { "express": "^4.18.0" },  // needed to RUN
+  "devDependencies": { "jest": "^29.0.0" },     // only to BUILD
+  "engines": { "node": ">=18" }  // warn on the wrong Node version
+}
+
+// It is the manifest for your project: what it is called, what
+// it needs, and how to run it.
+
+// Run any script with:
+npm run dev
+// start and test are special — npm start also works.
+
+// The distinction that matters on deploy:
+//   npm ci --omit=dev    installs dependencies only,
+//                        which keeps production images small.
+
+// "type": "module" changes the whole file's semantics — import
+// instead of require, and no __dirname.`,
+      output: `> node --watch index.js`,
     },
   },
   {
@@ -1183,6 +1793,37 @@ export const generalInterviewQuestions = [
       hinglish:
         'package-lock.json har installed package ki EXACT version record karta hai (nested/transitive dependencies included), package.json ke ulat jo version RANGES use karta hai (`^4.2.0`). Ye guarantee karta hai ki team ke sab, aur CI/CD, exactly same dependency tree install karein — "works on my machine" bugs rokte hue jo ek transitive dependency silently update hone se hote hain. Ise hamesha git mein commit karna chahiye; ye auto-generated hai aur kabhi hand-edit nahi karna chahiye.',
     },
+    codeExample: {
+      code: `// package.json says "express ^4.18.0" — a RANGE.
+// package-lock.json records the EXACT tree that was installed.
+
+{
+  "packages": {
+    "node_modules/express": {
+      "version": "4.18.2",              // the precise version
+      "resolved": "https://registry.npmjs.org/express/-/…",
+      "integrity": "sha512-…",          // a hash, so the bytes
+      "dependencies": { "accepts": "~1.3.8" }   // and every child
+    }
+  }
+}
+
+// Why it matters: without it, two installs a week apart can
+// produce different node_modules, and "works on my machine"
+// becomes real.
+
+// COMMIT IT. Always.
+
+npm install   // may UPDATE the lock if a range allows a newer version
+npm ci        // installs the lock EXACTLY — use this in CI and deploys
+
+// npm ci is also faster: it deletes node_modules and installs
+// straight from the lock, with no resolution step.
+
+// The integrity hash also protects you — if a published package
+// is tampered with, the install fails instead of running it.`,
+      output: `npm ci → identical install every time`,
+    },
   },
   {
     question: 'What is semantic versioning (semver) in npm?',
@@ -1193,6 +1834,33 @@ export const generalInterviewQuestions = [
         'Semantic versioning is the `MAJOR.MINOR.PATCH` (e.g. `4.2.1`) convention npm packages follow: MAJOR increments for breaking changes, MINOR for backward-compatible new features, PATCH for backward-compatible bug fixes. package.json prefixes control update ranges: `^4.2.1` allows MINOR and PATCH updates (up to but not including `5.0.0`); `~4.2.1` allows only PATCH updates; an exact `4.2.1` with no prefix pins that exact version. Understanding this prevents unexpected breaking changes when running `npm install`.',
       hinglish:
         'Semantic versioning `MAJOR.MINOR.PATCH` (jaise `4.2.1`) convention hai jo npm packages follow karte hain: MAJOR breaking changes ke liye increment hota hai, MINOR backward-compatible naye features ke liye, PATCH backward-compatible bug fixes ke liye. package.json prefixes update ranges control karte hain: `^4.2.1` MINOR aur PATCH updates allow karta hai (`5.0.0` tak par usse exclude karte hue); `~4.2.1` sirf PATCH updates allow karta hai; bina prefix ke exact `4.2.1` us exact version ko pin karta hai. Ye samajhna `npm install` chalate waqt unexpected breaking changes se bachata hai.',
+    },
+    codeExample: {
+      code: `// MAJOR.MINOR.PATCH  →  4.18.2
+//   MAJOR  breaking change      — your code may stop working
+//   MINOR  new feature          — backwards compatible
+//   PATCH  bug fix              — backwards compatible
+
+// The range symbols in package.json:
+"express": "^4.18.0"   // ^ allows MINOR + PATCH → 4.x.x, not 5.0.0
+"express": "~4.18.0"   // ~ allows PATCH only    → 4.18.x
+"express": "4.18.0"    //   exact, nothing else
+"express": "*"         //   anything — never do this
+
+// ^ is the npm default and is usually right: you get fixes and
+// features automatically, but never a breaking rewrite.
+
+// The 0.x exception people miss — before 1.0 there is no
+// stability promise, so ^ behaves more tightly:
+"pkg": "^0.3.1"        // allows 0.3.x only, NOT 0.4.0
+
+// Why the lock file still matters: ^4.18.0 might install 4.18.2
+// today and 4.19.5 next month. The lock pins what you tested.
+
+npm outdated           // see what has moved
+npm update             // move within your ranges
+npm install pkg@latest // deliberately jump a major`,
+      output: `express  4.18.2  →  4.19.2  (minor, safe)`,
     },
   },
   {
@@ -1205,6 +1873,39 @@ export const generalInterviewQuestions = [
       hinglish:
         '`dependencies` wo packages hain jo tumhari app ko production mein RUNTIME PE CHAHIYE (jaise `express`, `mongoose`) — `npm install pkg` se install hote hain. `devDependencies` wo packages hain jo sirf DEVELOPMENT KE DAURAAN chahiye — testing, linting, bundling (jaise `jest`, `eslint`, `webpack`) — `npm install -D pkg` se install hote hain aur typically production mein install NAHI hote (`npm install --production` unhe skip karta hai), production deployment ko chhota rakhte hue aur attack surface kam karte hue.',
     },
+    codeExample: {
+      code: `{
+  "dependencies": {          // needed to RUN in production
+    "express": "^4.18.0",
+    "mongoose": "^8.0.0"
+  },
+  "devDependencies": {       // only needed to BUILD or TEST
+    "jest": "^29.0.0",
+    "eslint": "^8.0.0",
+    "nodemon": "^3.0.0"
+  }
+}
+
+npm install express          // → dependencies
+npm install -D jest          // → devDependencies
+
+// Why the split matters on deploy:
+npm ci --omit=dev            // skips devDependencies entirely
+// Smaller image, faster install, and a smaller attack surface —
+// a vulnerability in eslint cannot reach production if eslint
+// was never installed there.
+
+// The judgement call people get wrong:
+//   TypeScript, webpack, babel → devDependencies
+//     (you ship the BUILD OUTPUT, not the compiler)
+//   but if you compile at runtime, they become dependencies
+
+// A mistake that only shows up in production:
+// putting express in devDependencies. It works locally because
+// npm install grabs everything — then the deploy crashes with
+// "Cannot find module 'express'".`,
+      output: `added 57 packages (production only)`,
+    },
   },
   {
     question: 'What is the REPL in Node.js?',
@@ -1215,6 +1916,46 @@ export const generalInterviewQuestions = [
         'REPL stands for Read-Eval-Print-Loop — an interactive shell you get by typing `node` (with no file argument) in a terminal. It Reads a line of JS you type, Evaluates it immediately, Prints the result, and Loops back for the next line — useful for quickly testing snippets, exploring an API, or debugging without creating a full script file. It is similar to the browser\'s DevTools console, but running in the Node.js environment.',
       hinglish:
         'REPL ka matlab hai Read-Eval-Print-Loop — ek interactive shell jo terminal mein `node` (bina file argument ke) type karne se milti hai. Ye tumhare type kiye JS ki ek line Read karti hai, turant Evaluate karti hai, result Print karti hai, aur agli line ke liye Loop back karti hai — snippets quickly test karne, API explore karne, ya bina poori script file banaye debug karne ke liye useful. Ye browser ke DevTools console jaisa hai, par Node.js environment mein chalta hai.',
+    },
+    codeExample: {
+      code: `// REPL = Read, Eval, Print, Loop. An interactive Node prompt.
+$ node
+> 2 + 2
+4
+> const x = [1,2,3]
+> x.map(n => n * 2)
+[ 2, 4, 6 ]
+> require('node:os').platform()
+'win32'
+
+// Useful bits:
+// _        the last result
+> 5 * 5
+25
+> _ + 1
+26
+
+// .help    list commands
+// .save f  write this session to a file
+// .load f  run a file into the session
+// .exit    quit (or Ctrl+D)
+
+// Multi-line works — it waits for the closing brace:
+> function f() {
+...   return 1;
+... }
+
+// Top-level await works too:
+> await fetch('https://api.github.com').then(r => r.status)
+200
+
+// What it is for: checking a method's behaviour without making
+// a file. "Does slice mutate?" is faster to answer here than
+// to look up.
+
+// Run a one-liner without entering the REPL:
+$ node -e "console.log(process.version)"`,
+      output: `v20.11.0`,
     },
   },
   {
@@ -1227,6 +1968,42 @@ export const generalInterviewQuestions = [
       hinglish:
         'Basic steps: (1) `mkdir my-project && cd my-project` ek folder banane ke liye. (2) `npm init -y` ek default package.json generate karne ke liye. (3) `npm install express mongoose` (ya jo bhi dependencies chahiye) — ye `node_modules/` banata hai aur package.json/package-lock.json update karta hai. (4) Ek entry file banao (jaise `index.js` ya `server.js`) aur package.json mein `"start": "node index.js"` script add karo. (5) `node index.js` ya `npm start` se chalao.',
     },
+    codeExample: {
+      code: `mkdir my-api && cd my-api
+npm init -y                    // creates package.json
+npm install express
+npm install -D nodemon
+
+// .gitignore — before your first commit
+node_modules/
+.env
+dist/
+
+// package.json
+{
+  "type": "module",
+  "scripts": {
+    "dev":   "node --watch index.js",
+    "start": "node index.js"
+  }
+}
+
+// index.js
+import express from 'express';
+const app = express();
+app.use(express.json());
+app.get('/health', (req, res) => res.json({ ok: true }));
+app.listen(process.env.PORT ?? 3000);
+
+npm run dev
+
+// The three things beginners skip and regret:
+//   1. .gitignore — or node_modules and .env end up on GitHub
+//   2. "type": "module" — decide import vs require up front
+//   3. reading PORT from the environment — hosts assign it,
+//      and a hardcoded 3000 will not bind`,
+      output: `server on :3000`,
+    },
   },
   {
     question: 'What is the EventEmitter in Node.js?',
@@ -1238,6 +2015,43 @@ export const generalInterviewQuestions = [
       hinglish:
         'EventEmitter ek core Node.js class hai (`events` module se) jo observer/pub-sub pattern implement karti hai — objects ek named event `.emit(eventName, data)` kar sakte hain, aur doosra code `.on(eventName, callback)` se listen aur react kar sakta hai. Bahut saare Node.js core objects (HTTP servers, streams, process) internally EventEmitter pe bane hain. Ye Node.js mein kisi bhi event-driven cheez ko handle karne ka foundational pattern hai, aur tum ise extend karke apne khud ke custom event-based APIs bana sakte ho.',
     },
+    visual: 'event-emitter',
+    codeExample: {
+      code: `const EventEmitter = require('node:events');
+
+class OrderService extends EventEmitter {
+  place(id) {
+    // …save the order…
+    this.emit('placed', id);      // announce it
+  }
+}
+
+const orders = new OrderService();
+orders.on('placed', (id) => sendEmail(id));
+orders.on('placed', (id) => updateStock(id));
+orders.place(42);                 // BOTH listeners run
+
+// Why this is useful: place() does not know or care who is
+// listening. You can add analytics later without touching it.
+
+// The API:
+.on(evt, fn)      // listen every time
+.once(evt, fn)    // listen once, then auto-remove
+.off(evt, fn)     // stop listening
+.emit(evt, ...a)  // fire it
+.listenerCount(evt)
+
+// Two things to know:
+// 1. emit is SYNCHRONOUS — listeners run in order, right now.
+//    It does not wait for async work inside them.
+// 2. An 'error' event with no listener CRASHES the process:
+emitter.on('error', (e) => console.error(e));   // always add this
+
+// Most of Node is built on this: streams, http servers,
+// process — they are all EventEmitters.`,
+      output: `email sent for 42
+stock updated for 42`,
+    },
   },
   {
     question: 'What is the process object in Node.js?',
@@ -1248,6 +2062,40 @@ export const generalInterviewQuestions = [
         '`process` is a global object providing information about, and control over, the current running Node.js process — no `require()` needed. Common uses: `process.env` (environment variables), `process.argv` (command-line arguments), `process.exit(code)` (terminate the process), `process.cwd()` (current working directory), `process.on("uncaughtException", ...)` (global error handling), and `process.nextTick()` (scheduling). It is Node.js\'s bridge to the underlying OS process.',
       hinglish:
         '`process` ek global object hai jo current chal rahe Node.js process ke baare mein information deta hai, aur uspe control deta hai — koi `require()` ki zaroorat nahi. Common uses: `process.env` (environment variables), `process.argv` (command-line arguments), `process.exit(code)` (process terminate karna), `process.cwd()` (current working directory), `process.on("uncaughtException", ...)` (global error handling), aur `process.nextTick()` (scheduling). Ye Node.js ka underlying OS process se bridge hai.',
+    },
+    codeExample: {
+      code: `// A global with information about, and control over,
+// the running process.
+
+process.env.NODE_ENV;        // environment variables
+process.argv;                // command-line arguments
+process.argv[2];             // first real argument
+process.cwd();               // current working directory
+process.platform;            // 'win32' | 'darwin' | 'linux'
+process.version;             // 'v20.11.0'
+process.pid;                 // process id
+process.uptime();            // seconds since it started
+process.memoryUsage();       // { heapUsed, heapTotal, rss }
+
+// Standard streams:
+process.stdout.write('no newline');
+process.stdin.on('data', (d) => console.log('typed:', d.toString()));
+
+// Exiting:
+process.exit(0);             // 0 = success, non-zero = failure
+
+// The most important use — GRACEFUL SHUTDOWN.
+// Docker and Kubernetes send SIGTERM before killing you:
+process.on('SIGTERM', async () => {
+  server.close();            // stop accepting NEW requests
+  await db.disconnect();     // let in-flight ones finish
+  process.exit(0);
+});
+
+// And a last-resort safety net:
+process.on('unhandledRejection', (err) => { log(err); process.exit(1); });`,
+      output: `v20.11.0
+{ rss: 41123840, heapUsed: 5316304 }`,
     },
   },
 
@@ -1262,6 +2110,40 @@ export const generalInterviewQuestions = [
       hinglish:
         '`fs` Node.js ka core module hai file system ke saath interact karne ke liye — files/directories read, write, update, delete, aur watch karna. Zyadatar operations ke liye teen API styles offer karta hai: synchronous (`fs.readFileSync`, event loop block karta hai), callback-based asynchronous (`fs.readFile(path, callback)`, original async style), aur Promise-based (`fs.promises.readFile` ya `fs/promises`, async/await ke saath cleanly kaam karta hai). Modern code generally Promise-based API prefer karta hai.',
     },
+    codeExample: {
+      code: `// Three flavours of the same operations.
+
+// 1. PROMISES — use this by default
+const fs = require('node:fs/promises');
+const text = await fs.readFile('a.txt', 'utf8');
+await fs.writeFile('b.txt', 'hello');
+
+// 2. CALLBACK — the original style
+require('node:fs').readFile('a.txt', 'utf8', (err, data) => {
+  if (err) return console.error(err);
+  console.log(data);
+});
+
+// 3. SYNC — BLOCKS the whole process. Startup only.
+const config = require('node:fs').readFileSync('config.json', 'utf8');
+
+// Common operations:
+await fs.readFile(p, 'utf8');        // without 'utf8' you get a Buffer
+await fs.appendFile(p, 'line\\n');
+await fs.unlink(p);                  // delete
+await fs.rename(a, b);
+await fs.mkdir(dir, { recursive: true });
+await fs.readdir(dir);
+await fs.stat(p);                    // size, dates, isDirectory()
+
+// Checking existence — do NOT check then act, that is a race:
+try { await fs.access(p); } catch { /* not there */ }
+// Better: just try the operation and handle ENOENT.
+
+// For big files use a stream, not readFile:
+fs.createReadStream('10gb.log').pipe(res);`,
+      output: `hello`,
+    },
   },
   {
     question: 'What is the difference between synchronous and asynchronous file operations?',
@@ -1272,6 +2154,39 @@ export const generalInterviewQuestions = [
         'Synchronous methods (`fs.readFileSync`) BLOCK the entire event loop until the file operation completes — during a large file read, nothing else in the app (no other requests, no timers) can run. Asynchronous methods (`fs.readFile` with a callback, or `fs.promises.readFile` with await) hand the I/O off to libuv\'s thread pool, letting the main thread keep serving other requests while the file loads in the background. In a server handling multiple requests, synchronous fs calls should almost always be avoided — they defeat Node\'s entire concurrency model.',
       hinglish:
         'Synchronous methods (`fs.readFileSync`) poora event loop BLOCK karte hain jab tak file operation complete na ho — ek badi file read ke dauraan, app mein kuch aur (koi doosri request, koi timer) chal hi nahi sakta. Asynchronous methods (`fs.readFile` callback ke saath, ya `fs.promises.readFile` await ke saath) I/O ko libuv ke thread pool ko handoff karte hain, main thread ko baaki requests serve karte rehne dete hain jabki file background mein load hoti hai. Multiple requests handle karne wale server mein, synchronous fs calls almost hamesha avoid karni chahiye — wo Node ke poore concurrency model ko defeat karti hain.',
+    },
+    visual: 'blocking-io',
+    codeExample: {
+      code: `// SYNC — stops everything until it finishes
+const data = fs.readFileSync('big.json', 'utf8');
+console.log('after');       // waits for the whole read
+// During that read the server answers NOBODY.
+
+// ASYNC — returns immediately, callback later
+const data = await fs.promises.readFile('big.json', 'utf8');
+// The main thread is free; libuv's pool does the reading.
+
+// Proof of the difference:
+console.log('1');
+fs.readFile('a.txt', () => console.log('3 — later'));
+console.log('2');
+// async → 1, 2, 3
+// with readFileSync it would be 1, 3, 2
+
+// When sync is actually fine:
+//   • startup config, before the server listens
+//   • CLI scripts, where there is nothing else to serve
+//   • build tooling
+
+// When it is a bug:
+//   • anywhere inside a request handler
+//   • any long-running server
+
+// One slow readFileSync in a handler is enough to take a whole
+// service down under load — every request queues behind it.`,
+      output: `1
+2
+3 — later`,
     },
   },
   {
@@ -1284,6 +2199,40 @@ export const generalInterviewQuestions = [
       hinglish:
         'Preferred modern approach: `import { readFile } from "fs/promises"; const data = await readFile("file.txt", "utf8");` ek async function ke andar. `"utf8"` encoding ek string return karta hai; ise omit karne se raw Buffer return hota hai. Older callback style hai `fs.readFile("file.txt", "utf8", (err, data) => {...})`, aur blocking style (servers mein avoid karo) hai `fs.readFileSync("file.txt", "utf8")`.',
     },
+    codeExample: {
+      code: `const fs = require('node:fs/promises');
+
+// The normal way — whole file into a string
+const text = await fs.readFile('notes.txt', 'utf8');
+
+// Without an encoding you get a Buffer (raw bytes):
+const buf = await fs.readFile('photo.jpg');   // Buffer, not text
+
+// JSON:
+const config = JSON.parse(await fs.readFile('config.json', 'utf8'));
+
+// Handle a missing file properly:
+try {
+  const t = await fs.readFile('maybe.txt', 'utf8');
+} catch (err) {
+  if (err.code === 'ENOENT') console.log('not found');
+  else throw err;                  // do not swallow real errors
+}
+
+// For a BIG file, do not load it all — stream it:
+const rs = require('node:fs').createReadStream('10gb.log', 'utf8');
+rs.on('data', (chunk) => process(chunk));
+rs.on('end', () => console.log('done'));
+
+// Line by line, memory-safe:
+const readline = require('node:readline');
+const rl = readline.createInterface({ input: rs });
+for await (const line of rl) console.log(line);
+
+// Rule: readFile for config and small files, streams for
+// anything that could be large or is going straight to a response.`,
+      output: `(file contents)`,
+    },
   },
   {
     question: 'How do you write a file in Node.js?',
@@ -1294,6 +2243,36 @@ export const generalInterviewQuestions = [
         'Preferred approach: `import { writeFile } from "fs/promises"; await writeFile("file.txt", "Hello world", "utf8");`. `writeFile` OVERWRITES the file entirely if it already exists (or creates it if it doesn\'t). Callback style: `fs.writeFile("file.txt", data, callback)`. Note: writeFile does not append — for adding content to an existing file without overwriting it, use `appendFile` instead.',
       hinglish:
         'Preferred approach: `import { writeFile } from "fs/promises"; await writeFile("file.txt", "Hello world", "utf8");`. `writeFile` file ko poori tarah OVERWRITE karta hai agar wo already exist karti hai (ya banata hai agar nahi karti). Callback style: `fs.writeFile("file.txt", data, callback)`. Note: writeFile append nahi karta — existing file mein content overwrite kiye bina add karne ke liye, `appendFile` use karo.',
+    },
+    codeExample: {
+      code: `const fs = require('node:fs/promises');
+
+// Overwrites if it exists, creates if it does not
+await fs.writeFile('out.txt', 'hello');
+
+// JSON, formatted so a human can read it
+await fs.writeFile('data.json', JSON.stringify(obj, null, 2));
+
+// Append instead of replacing
+await fs.appendFile('app.log', 'a line\\n');
+
+// Fail if the file already exists — no accidental overwrite
+await fs.writeFile('once.txt', 'data', { flag: 'wx' });
+
+// Make the directory first, or you get ENOENT:
+await fs.mkdir('logs', { recursive: true });
+await fs.writeFile('logs/app.log', 'x');
+
+// Big data — stream it rather than building one huge string:
+const ws = require('node:fs').createWriteStream('big.csv');
+for (const row of millionRows) ws.write(row + '\\n');
+ws.end();
+
+// Writing is NOT atomic. A crash mid-write leaves a half file.
+// For anything important, write then rename — rename IS atomic:
+await fs.writeFile('data.tmp', json);
+await fs.rename('data.tmp', 'data.json');`,
+      output: `(file written)`,
     },
   },
   {
@@ -1306,6 +2285,34 @@ export const generalInterviewQuestions = [
       hinglish:
         '`import { appendFile } from "fs/promises"; await appendFile("log.txt", "New log entry\\n", "utf8");` — ye content ko file ke END mein add karta hai existing content erase kiye BINA (agar file exist nahi karti to banata hai). Ye commonly log files ke liye use hota hai, jahan tum chahte ho time ke saath entries accumulate hoti rahein, har write pe poori file overwrite hone ke bajaye.',
     },
+    codeExample: {
+      code: `const fs = require('node:fs/promises');
+
+// appendFile — adds to the end, creates the file if missing
+await fs.appendFile('app.log', 'user logged in\\n');
+
+// Remember the newline yourself — it is not added for you:
+await fs.appendFile('app.log', \`\${new Date().toISOString()} ok\\n\`);
+
+// The same with writeFile and a flag:
+await fs.writeFile('app.log', 'line\\n', { flag: 'a' });
+
+// Appending in a loop opens and closes the file every time.
+// For many writes, keep one handle open:
+const fh = await fs.open('app.log', 'a');
+for (const line of lines) await fh.write(line + '\\n');
+await fh.close();
+
+// Or a write stream, which is the usual choice for logs:
+const ws = require('node:fs').createWriteStream('app.log', { flags: 'a' });
+ws.write('line\\n');
+ws.end();
+
+// A caution for real logging: an ever-growing file will fill
+// the disk. Use a rotating logger (pino, winston) in production
+// rather than appending forever.`,
+      output: `(line appended)`,
+    },
   },
   {
     question: 'How do you delete a file in Node.js?',
@@ -1316,6 +2323,39 @@ export const generalInterviewQuestions = [
         '`import { unlink } from "fs/promises"; await unlink("old-file.txt");` removes a file from the file system. The method is confusingly named `unlink` (not `delete` or `remove`) because it comes from the underlying POSIX system call, which removes a directory entry pointing to the file\'s data. Always wrap it in try/catch, since it throws if the file doesn\'t exist.',
       hinglish:
         '`import { unlink } from "fs/promises"; await unlink("old-file.txt");` file system se ek file remove karta hai. Method ka naam confusingly `unlink` hai (`delete` ya `remove` nahi) kyunki ye underlying POSIX system call se aata hai, jo file ke data ko point karne wali ek directory entry remove karti hai. Hamesha try/catch mein wrap karo, kyunki agar file exist nahi karti to ye throw karta hai.',
+    },
+    codeExample: {
+      code: `const fs = require('node:fs/promises');
+
+// A single file
+await fs.unlink('temp.txt');       // "unlink", not "delete"
+
+// It throws if the file is not there:
+try {
+  await fs.unlink('gone.txt');
+} catch (err) {
+  if (err.code !== 'ENOENT') throw err;   // ignore "already gone"
+}
+
+// A directory and everything in it:
+await fs.rm('build', { recursive: true, force: true });
+// force: true means no error if it does not exist
+
+// An EMPTY directory only:
+await fs.rmdir('empty-dir');
+
+// ⚠ rm with recursive is genuinely dangerous. Validate the path
+// before deleting anything built from user input:
+const path = require('node:path');
+const safe = path.resolve('uploads', userInput);
+if (!safe.startsWith(path.resolve('uploads'))) {
+  throw new Error('path traversal attempt');
+}
+// Without that check, "../../etc" escapes your folder.
+
+// Note: unlink removes the name. If another process still has
+// the file open, the data survives until it closes.`,
+      output: `(deleted)`,
     },
   },
   {
@@ -1328,6 +2368,38 @@ export const generalInterviewQuestions = [
       hinglish:
         '`import { rename } from "fs/promises"; await rename("old-name.txt", "new-name.txt");` ek file ko rename karta hai (ya move karta hai, agar alag directory path diya jaaye). Under the hood ye generally same filesystem/volume pe ek fast metadata-only operation hai (bas directory entry update karta hai), par agar source aur destination ALAG volumes pe hon, OS ko data copy karke original delete karna pad sakta hai.',
     },
+    codeExample: {
+      code: `const fs = require('node:fs/promises');
+
+await fs.rename('old.txt', 'new.txt');
+
+// rename also MOVES — it is the same operation:
+await fs.rename('temp/a.txt', 'archive/a.txt');
+// …but only within the same filesystem. Across drives or
+// mounts it throws EXDEV, and you must copy then delete:
+try {
+  await fs.rename(src, dest);
+} catch (err) {
+  if (err.code === 'EXDEV') {
+    await fs.copyFile(src, dest);
+    await fs.unlink(src);
+  } else throw err;
+}
+
+// Make sure the destination directory exists first:
+await fs.mkdir('archive', { recursive: true });
+
+// rename OVERWRITES the destination silently. Guard it if
+// that matters:
+try { await fs.access(dest); throw new Error('exists'); }
+catch (e) { if (e.code !== 'ENOENT') throw e; }
+
+// The useful property: rename is ATOMIC on the same filesystem.
+// That is why the safe way to write a file is write-then-rename:
+await fs.writeFile('data.tmp', json);
+await fs.rename('data.tmp', 'data.json');   // readers never see half`,
+      output: `(renamed)`,
+    },
   },
   {
     question: 'What is the path module in Node.js?',
@@ -1338,6 +2410,40 @@ export const generalInterviewQuestions = [
         '`path` is a core module for working with file/directory paths in a cross-platform way — Windows uses backslashes (`\\`) while Linux/macOS use forward slashes (`/`), and `path` abstracts that difference. Common methods: `path.join(...segments)` (safely combines path segments with the correct separator), `path.resolve(...)` (produces an absolute path), `path.basename(p)` (extracts the filename), `path.extname(p)` (extracts the extension), and `path.dirname(p)` (extracts the directory).',
       hinglish:
         '`path` ek core module hai file/directory paths ke saath cross-platform tarike se kaam karne ke liye — Windows backslashes (`\\`) use karta hai jabki Linux/macOS forward slashes (`/`) use karte hain, aur `path` ye difference abstract kar deta hai. Common methods: `path.join(...segments)` (path segments ko sahi separator se safely combine karta hai), `path.resolve(...)` (ek absolute path produce karta hai), `path.basename(p)` (filename extract karta hai), `path.extname(p)` (extension extract karta hai), aur `path.dirname(p)` (directory extract karta hai).',
+    },
+    codeExample: {
+      code: `const path = require('node:path');
+
+// Join parts with the RIGHT separator for the OS
+path.join('users', 'asha', 'file.txt');
+// posix:  'users/asha/file.txt'
+// win32:  'users\\\\asha\\\\file.txt'
+
+// Never build paths by hand — this breaks on Windows:
+const bad = 'users/' + name + '/file.txt';        // ✗
+
+// resolve gives an ABSOLUTE path, from the right
+path.resolve('a', 'b');          // /current/dir/a/b
+path.resolve('/x', 'y');         // /x/y
+
+// Picking a path apart:
+path.basename('/a/b/file.txt');  // 'file.txt'
+path.extname('/a/b/file.txt');   // '.txt'
+path.dirname('/a/b/file.txt');   // '/a/b'
+path.parse('/a/b/file.txt');     // { dir, base, ext, name }
+
+// The security use — stopping path traversal:
+const root = path.resolve('uploads');
+const target = path.resolve(root, userInput);
+if (!target.startsWith(root)) throw new Error('nope');
+// Without this, '../../etc/passwd' escapes your folder.
+
+// In ES modules there is no __dirname:
+import { fileURLToPath } from 'node:url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));`,
+      output: `users/asha/file.txt
+file.txt
+.txt`,
     },
   },
   {
@@ -1350,6 +2456,44 @@ export const generalInterviewQuestions = [
       hinglish:
         '`os` ek core module hai jo us operating system ke baare mein information deta hai jispe Node.js chal raha hai: `os.platform()` (win32/linux/darwin), `os.cpus()` (CPU core details, worker/cluster count decide karne ke liye useful), `os.totalmem()`/`os.freemem()` (memory info), `os.homedir()` (user home directory), aur `os.hostname()`. Ye commonly system-aware scripts likhne, available CPU cores ke basis pe performance tune karne, ya server diagnostics display karne ke liye use hota hai.',
     },
+    codeExample: {
+      code: `const os = require('node:os');
+
+os.platform();      // 'win32' | 'darwin' | 'linux'
+os.arch();          // 'x64' | 'arm64'
+os.cpus().length;   // number of cores
+os.totalmem();      // bytes of RAM
+os.freemem();       // bytes free
+os.homedir();       // '/home/asha'
+os.tmpdir();        // the temp directory
+os.hostname();
+os.uptime();        // seconds the MACHINE has been up
+os.EOL;             // '\\n' or '\\r\\n' — line ending for this OS
+
+// The two things it is really used for:
+
+// 1. Sizing a cluster to the machine
+const cluster = require('node:cluster');
+for (let i = 0; i < os.cpus().length; i++) cluster.fork();
+
+// 2. Writing cross-platform code
+const tmpFile = path.join(os.tmpdir(), 'upload.tmp');
+lines.join(os.EOL);
+
+// A health endpoint:
+app.get('/health', (req, res) => res.json({
+  uptime: process.uptime(),
+  freeMemMB: Math.round(os.freemem() / 1e6),
+  load: os.loadavg(),          // 1, 5, 15 min — unix only
+}));
+
+// Note: in a container these report the HOST's resources
+// unless the runtime is cgroup-aware, so cpus().length can
+// over-report what you are actually allowed to use.`,
+      output: `linux
+8
+16`,
+    },
   },
   {
     question: 'What is the http module in Node.js?',
@@ -1360,6 +2504,38 @@ export const generalInterviewQuestions = [
         '`http` is Node.js\'s core module for creating HTTP servers and making HTTP requests, WITHOUT any external framework: `http.createServer((req, res) => { res.end("Hello") }).listen(3000)`. It exposes the raw request/response objects with low-level APIs (manual routing, manual body parsing) — this is exactly the boilerplate that frameworks like Express are built to eliminate, but understanding `http` directly is essential to understanding what Express actually does under the hood.',
       hinglish:
         '`http` Node.js ka core module hai HTTP servers banane aur HTTP requests karne ke liye, bina kisi external framework ke: `http.createServer((req, res) => { res.end("Hello") }).listen(3000)`. Ye raw request/response objects ko low-level APIs ke saath expose karta hai (manual routing, manual body parsing) — yahi exactly boilerplate hai jo Express jaise frameworks eliminate karne ke liye bane hain, par `http` ko directly samajhna essential hai ye samajhne ke liye ki Express under the hood actually kya karta hai.',
+    },
+    codeExample: {
+      code: `const http = require('node:http');
+
+// As a SERVER
+const server = http.createServer((req, res) => {
+  console.log(req.method, req.url);          // 'GET' '/users'
+
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ ok: true }));     // end() sends it
+});
+server.listen(3000);
+
+// req is a readable stream — a POST body arrives in chunks:
+let body = '';
+req.on('data', (chunk) => { body += chunk; });
+req.on('end', () => console.log(JSON.parse(body)));
+// This is exactly what express.json() does for you.
+
+// res is a writable stream, which is why piping works:
+fs.createReadStream('video.mp4').pipe(res);
+
+// As a CLIENT (though fetch is easier now):
+const data = await fetch('https://api.example.com').then(r => r.json());
+
+// Graceful shutdown:
+process.on('SIGTERM', () => server.close(() => process.exit(0)));
+
+// Everything Express does sits on top of this module —
+// routing, middleware and body parsing are conveniences
+// around req and res.`,
+      output: `GET /users`,
     },
   },
   {
@@ -1372,6 +2548,36 @@ export const generalInterviewQuestions = [
       hinglish:
         '`crypto` Node.js ka core module hai cryptographic operations ke liye: hashing (`crypto.createHash("sha256")`), secure random values generate karna (`crypto.randomBytes(32)`, `crypto.randomUUID()`), HMAC signatures, aur symmetric/asymmetric encryption. Ye commonly secure tokens generate karne (password reset links, session IDs), data ko integrity checks ke liye hash karne, aur custom cryptographic logic implement karne ke liye use hota hai — chahe PASSWORD hashing specifically ke liye, raw `crypto.createHash` se zyada `bcrypt` jaisa dedicated slow algorithm preferred hai.',
     },
+    codeExample: {
+      code: `const crypto = require('node:crypto');
+
+// Random IDs — cryptographically secure, unlike Math.random()
+crypto.randomUUID();                    // 'f47ac10b-58cc-…'
+crypto.randomBytes(32).toString('hex'); // a token
+
+// Hashing — one way, cannot be reversed
+crypto.createHash('sha256').update('hello').digest('hex');
+
+// ⚠ NEVER hash passwords with sha256 — it is far too fast,
+// so it is easy to brute force. Use a slow, salted algorithm:
+const bcrypt = require('bcryptjs');
+const hash = await bcrypt.hash(password, 10);
+await bcrypt.compare(attempt, hash);
+// or the built-in scrypt:
+crypto.scrypt(password, salt, 64, (err, key) => {});
+
+// HMAC — verify something came from who you think.
+// This is how you check a webhook signature:
+const sig = crypto.createHmac('sha256', SECRET)
+  .update(rawBody).digest('hex');
+
+// And compare it in CONSTANT TIME, or you leak the answer
+// through timing:
+crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(header));
+// sig === header      ✗ vulnerable to a timing attack`,
+      output: `f47ac10b-58cc-4372-a567-0e02b2c3d479
+2cf24dba5fb0a30e26e83b2ac5b9e29e…`,
+    },
   },
   {
     question: 'What is the stream module in Node.js?',
@@ -1382,6 +2588,37 @@ export const generalInterviewQuestions = [
         '`stream` is Node.js\'s core abstraction for handling data that arrives in CHUNKS over time, rather than all at once — essential for large files, video, or network data that would be wasteful (or impossible) to load fully into memory. There are 4 types: Readable (data source, e.g. `fs.createReadStream`), Writable (data destination, e.g. `fs.createWriteStream`), Duplex (both readable and writable, e.g. a TCP socket), and Transform (a Duplex that modifies data as it passes through, e.g. gzip compression).',
       hinglish:
         '`stream` Node.js ka core abstraction hai aise data ko handle karne ke liye jo time ke saath CHUNKS mein aata hai, ek saath nahi — bade files, video, ya network data ke liye essential jinhe poora memory mein load karna wasteful (ya impossible) hoga. Iske 4 types hain: Readable (data source, jaise `fs.createReadStream`), Writable (data destination, jaise `fs.createWriteStream`), Duplex (readable aur writable dono, jaise ek TCP socket), aur Transform (ek Duplex jo data ko modify karta hai jab wo pass hota hai, jaise gzip compression).',
+    },
+    visual: 'streams',
+    codeExample: {
+      code: `// Streams handle data in CHUNKS, so you never hold it all.
+
+// Four types:
+//   Readable   — you read from it        (fs.createReadStream)
+//   Writable   — you write to it         (fs.createWriteStream)
+//   Duplex     — both                    (a TCP socket)
+//   Transform  — both, and changes data  (zlib.createGzip)
+
+// Without streams — a 2GB file becomes 2GB of RAM:
+const data = await fs.promises.readFile('big.mp4');
+res.end(data);                                   // ✗
+
+// With streams — memory stays flat:
+fs.createReadStream('big.mp4').pipe(res);        // ✓
+
+// Chaining transforms:
+const { pipeline } = require('node:stream/promises');
+await pipeline(
+  fs.createReadStream('in.txt'),
+  zlib.createGzip(),
+  fs.createWriteStream('out.txt.gz')
+);
+// pipeline forwards errors and cleans up; a bare .pipe() chain
+// does neither, which leaks file handles on failure.
+
+// You already use streams without noticing:
+//   req and res in an http server, process.stdout, sockets.`,
+      output: `(2GB transferred using ~1MB of memory)`,
     },
   },
   {
@@ -1394,6 +2631,43 @@ export const generalInterviewQuestions = [
       hinglish:
         'Ek Buffer ek fixed-size, raw binary data structure hai jo Node.js binary data (jaise file bytes, network packets, ya image data) handle karne ke liye use karta hai — kuch aisa jiske liye JavaScript ke native string/array types efficiently designed nahi the. Buffers performance ke liye V8 ke regular heap ke bahar exist karte hain, aur yahi hain jo streams internally chunk by chunk pass karte hain. Example: `const buf = Buffer.from("hello", "utf8");` string ke UTF-8 byte representation ka ek Buffer banata hai.',
     },
+    codeExample: {
+      code: `// A Buffer is a fixed-length chunk of RAW BYTES. Strings
+// cannot represent arbitrary binary safely — Buffers can.
+
+const buf = Buffer.from('hello');
+buf;                       // <Buffer 68 65 6c 6c 6f>
+buf.length;                // 5 — BYTES, not characters
+buf.toString('utf8');      // 'hello'
+buf.toString('base64');    // 'aGVsbG8='
+buf.toString('hex');       // '68656c6c6f'
+
+// Bytes vs characters — a real source of bugs:
+Buffer.from('héllo').length;   // 6 bytes
+'héllo'.length;                // 5 characters
+
+// Where Buffers appear on their own:
+fs.readFile('a.jpg', (e, data) => {});   // data is a Buffer
+req.on('data', (chunk) => {});           // chunk is a Buffer
+crypto.randomBytes(16);                  // a Buffer
+
+// Concatenating request chunks correctly:
+const chunks = [];
+req.on('data', (c) => chunks.push(c));
+req.on('end', () => {
+  const body = Buffer.concat(chunks).toString('utf8');
+});
+// Doing body += chunk works for ASCII but CORRUPTS multi-byte
+// characters split across two chunks.
+
+// Allocate safely — alloc zero-fills, allocUnsafe does not:
+Buffer.alloc(10);          // zeroed ✓
+Buffer.allocUnsafe(10);    // faster, but contains old memory`,
+      output: `<Buffer 68 65 6c 6c 6f>
+5
+hello
+aGVsbG8=`,
+    },
   },
   {
     question: 'What are child processes in Node.js?',
@@ -1404,6 +2678,38 @@ export const generalInterviewQuestions = [
         'The `child_process` module lets Node.js spawn separate OS processes to run other programs (shell commands, other executables, even other Node.js scripts) in parallel with the main process, communicating via stdin/stdout/messages. Key methods: `exec()` (runs a shell command, buffers all output, good for short commands), `spawn()` (streams output incrementally, good for long-running processes or large output), and `fork()` (specifically spawns a new Node.js process with a built-in IPC channel for message-passing, commonly used to offload CPU-heavy work from the main event loop).',
       hinglish:
         '`child_process` module Node.js ko separate OS processes spawn karne deta hai doosre programs (shell commands, doosre executables, even doosre Node.js scripts) main process ke parallel chalane ke liye, stdin/stdout/messages ke through communicate karte hue. Key methods: `exec()` (ek shell command run karta hai, saara output buffer karta hai, chhote commands ke liye achha), `spawn()` (output incrementally stream karta hai, long-running processes ya bade output ke liye achha), aur `fork()` (specifically ek naya Node.js process spawn karta hai ek built-in IPC channel ke saath message-passing ke liye, commonly main event loop se CPU-heavy kaam offload karne ke liye use hota hai).',
+    },
+    codeExample: {
+      code: `const { spawn, exec, fork } = require('node:child_process');
+
+// SPAWN — stream the output. Best for long or large output.
+const ls = spawn('ls', ['-la']);
+ls.stdout.on('data', (d) => console.log(d.toString()));
+ls.on('close', (code) => console.log('exit', code));
+
+// EXEC — buffers the whole output, then hands it to you.
+// Simple, but a big output can exhaust memory.
+exec('git rev-parse HEAD', (err, stdout) => console.log(stdout.trim()));
+
+// FORK — a new NODE process with a message channel built in.
+const child = fork('./worker.js');
+child.send({ job: 42 });
+child.on('message', (result) => console.log(result));
+
+// ⚠ Never build a command from user input:
+exec(\`convert \${userFile}\`);            // ✗ shell injection
+spawn('convert', [userFile]);            // ✓ arguments are separate
+
+// spawn does not use a shell by default, which is exactly why
+// it is the safe one.
+
+// Choosing:
+//   run a CLI tool, big output  → spawn
+//   quick command, small output → exec
+//   another Node script         → fork
+//   CPU work in the SAME process→ worker_threads (cheaper)`,
+      output: `a1b2c3d4e5f6
+exit 0`,
     },
   },
 
@@ -1418,6 +2724,41 @@ export const generalInterviewQuestions = [
       hinglish:
         'Event loop wo hai jo Node.js ke single main thread ko asynchronous operations handle karne deta hai. Ye continuously distinct PHASES ke through cycle karta hai, har ek ek specific queue of callbacks process karta hai: timers (setTimeout/setInterval callbacks), pending callbacks (kuch system-level callbacks), poll (naye I/O events retrieve karna; I/O callbacks execute karna), check (setImmediate callbacks), aur close callbacks (jaise socket.on("close")). HAR phase transition ke beech, Node microtask queue poori tarah drain karta hai (pehle process.nextTick callbacks, phir Promise callbacks) aage badhne se pehle — yahi wajah hai async code bina kuch aur block kiye "wait" karta hua feel hota hai.',
     },
+    visual: 'node-event-loop',
+    codeExample: {
+      code: `// The event loop is what lets one thread serve many requests.
+// It runs six phases, over and over:
+//
+//   1. timers          setTimeout, setInterval callbacks
+//   2. pending         some system callbacks
+//   3. idle / prepare  internal
+//   4. poll            WAIT HERE for new I/O — most time is spent here
+//   5. check           setImmediate callbacks
+//   6. close           'close' events, e.g. socket.on('close')
+//
+// Between EVERY phase it drains:
+//   process.nextTick queue  (first)
+//   then promise microtasks
+
+console.log('1');
+setTimeout(()       => console.log('4'), 0);   // timers
+setImmediate(()     => console.log('5'));      // check
+process.nextTick(() => console.log('2'));      // between phases
+Promise.resolve().then(() => console.log('3'));
+// → 1, 2, 3, 4, 5
+
+// The loop exits when nothing is left to wait for. This is why
+// a plain script ends but a server keeps running — an open
+// listening socket is a live handle.
+
+// And the one rule: anything you do synchronously BLOCKS every
+// phase. A 3-second loop means 3 seconds of no requests served.`,
+      output: `1
+2
+3
+4
+5`,
+    },
   },
   {
     question: 'How does Node.js handle concurrency?',
@@ -1428,6 +2769,38 @@ export const generalInterviewQuestions = [
         'Node.js achieves HIGH CONCURRENCY on a SINGLE main thread by never blocking on I/O: when it needs to read a file, query a database, or make a network call, it delegates that work to the OS kernel (for network I/O, using efficient OS mechanisms like epoll/kqueue) or to libuv\'s background thread pool (for file I/O, DNS lookups), and immediately continues handling other requests. When the I/O completes, its callback is queued for the event loop to run. This lets one thread serve thousands of simultaneous connections, as long as the actual JavaScript CPU work per request stays small.',
       hinglish:
         'Node.js EK single main thread pe HIGH CONCURRENCY achieve karta hai I/O pe kabhi block na hoke: jab use file read karni ho, database query karni ho, ya network call karni ho, ye us kaam ko OS kernel ko delegate kar deta hai (network I/O ke liye, efficient OS mechanisms jaise epoll/kqueue use karke) ya libuv ke background thread pool ko (file I/O, DNS lookups ke liye), aur turant baaki requests handle karna continue karta hai. I/O complete hone pe, uska callback event loop ke chalane ke liye queue hota hai. Isse ek thread hazaron simultaneous connections serve kar leta hai, jab tak per-request actual JavaScript CPU work chhota rahe.',
+    },
+    visual: 'blocking-io',
+    codeExample: {
+      code: `// Node is CONCURRENT without being PARALLEL (by default).
+//   concurrent = many things in progress
+//   parallel   = many things executing at the same instant
+
+// 10,000 open connections on one thread is fine, because
+// waiting costs nothing:
+http.createServer(async (req, res) => {
+  const user = await db.findUser(req.id);   // thread is FREE here
+  res.json(user);
+});
+// While that query runs, Node serves other requests.
+// A thread-per-request server would need 10,000 threads.
+
+// How it works:
+//   • your JS runs on one thread
+//   • I/O goes to the OS or libuv's thread pool (4 by default)
+//   • finished work is queued and picked up by the event loop
+
+// Where it breaks — CPU work has nowhere to go:
+app.get('/hash', (req, res) => {
+  res.json(fib(42));            // ~3s of CPU, everyone waits
+});
+
+// For real parallelism you need more threads or processes:
+new Worker('./heavy.js');       // worker_threads — one task
+cluster.fork();                 // cluster — a whole server per core
+
+// Summary: brilliant when the server WAITS, poor when it THINKS.`,
+      output: `10,000 concurrent connections, one thread`,
     },
   },
   {
@@ -1440,6 +2813,39 @@ export const generalInterviewQuestions = [
       hinglish:
         'Non-blocking I/O ka matlab hai ek program ek I/O operation (file read, network call) INITIATE karta hai aur turant code ki agli line pe continue karta hai use khatam hone ka wait kiye BINA — operation background mein chalta hai, aur uska result baad mein callback/Promise ke through deliver hota hai. Ye Node.js ke async APIs (`fs.readFile`, `fetch`) ka default mode hai aur yahi ek single thread ko bahut saare operations concurrently handle karne deta hai, kyunki wo kabhi kisi ek operation ka wait karte hue idle nahi rehta.',
     },
+    visual: 'blocking-io',
+    codeExample: {
+      code: `// Non-blocking = start the operation, carry on, be told later.
+
+console.log('1');
+fs.readFile('big.json', (err, data) => console.log('3 — done'));
+console.log('2');
+// → 1, 2, 3
+// The read happens while line 3 already ran.
+
+// Two reads at once, on ONE thread:
+fs.readFile('a.txt', () => console.log('a'));
+fs.readFile('b.txt', () => console.log('b'));
+// Both start immediately. Neither waits for the other.
+
+// The same idea with promises:
+const [user, orders] = await Promise.all([
+  db.getUser(id),        // both queries are in flight together
+  db.getOrders(id),
+]);
+// Takes as long as the slower one, not the sum.
+
+// The mistake that throws it away:
+const user   = await db.getUser(id);     // 100ms
+const orders = await db.getOrders(id);   // +100ms = 200ms ✗
+// await pauses THIS function, so independent work should be
+// started together and awaited together.
+
+// This is the single design decision Node is built around.`,
+      output: `1
+2
+3 — done`,
+    },
   },
   {
     question: 'What is blocking I/O?',
@@ -1450,6 +2856,38 @@ export const generalInterviewQuestions = [
         'Blocking I/O means the program STOPS and WAITS for an I/O operation to complete before moving to the next line — nothing else can happen during that wait (no other requests served, no timers fire). `fs.readFileSync()` is a classic blocking call in Node.js. In a server context, a single blocking call can freeze the ENTIRE application for every connected user, which is exactly why blocking synchronous APIs should be avoided in request-handling code.',
       hinglish:
         'Blocking I/O ka matlab hai program RUKTA hai aur ek I/O operation complete hone ka WAIT karta hai agli line pe move karne se pehle — us wait ke dauraan kuch aur nahi ho sakta (koi doosri request serve nahi hoti, koi timer fire nahi hota). `fs.readFileSync()` Node.js mein ek classic blocking call hai. Server context mein, ek blocking call POORI application ko har connected user ke liye freeze kar sakta hai, yahi exactly wajah hai blocking synchronous APIs ko request-handling code mein avoid karna chahiye.',
+    },
+    visual: 'blocking-io',
+    codeExample: {
+      code: `// Blocking = nothing else happens until it finishes.
+
+console.log('1');
+const data = fs.readFileSync('big.json');   // stops here
+console.log('2');
+// → 1, then a pause, then 2
+
+// In a server this is severe, because there is ONE thread:
+app.get('/report', (req, res) => {
+  const data = fs.readFileSync('10mb.json');   // ✗ 200ms
+  res.json(JSON.parse(data));
+});
+// 50 concurrent requests → the last one waits 10 seconds.
+
+// It is not only sync file calls. Any long synchronous work blocks:
+JSON.parse(hugeString);              // blocks
+crypto.pbkdf2Sync(pw, salt, 1e6, 64, 'sha512');   // blocks
+while (Date.now() < end) {}          // blocks
+array.sort(fn)  // on a million items — blocks
+
+// Detect it in production:
+//   event loop lag — if a 100ms interval fires at 400ms,
+//   something is blocking. Most APM tools track this.
+
+// When blocking is fine: at startup, before you accept traffic,
+// and in CLI scripts where there is nothing else to serve.`,
+      output: `1
+(200ms pause — server frozen)
+2`,
     },
   },
   {
@@ -1462,6 +2900,39 @@ export const generalInterviewQuestions = [
       hinglish:
         'Callback hell ("pyramid of doom") tab hota hai jab multiple asynchronous operations ek doosre pe depend karte hain aur callbacks ke andar callbacks ke andar callbacks ke roop mein nest hote hain — code progressively right ki taraf drift karta hai, padhna mushkil ho jaata hai, error handling add karna mushkil (har level ka apna error check chahiye), aur maintain karna mushkil. Ye early Node.js code mein extremely common tha (jaise chained `fs.readFile` calls), Promises aur async/await ke flatter, zyada linear alternatives dene se pehle.',
     },
+    codeExample: {
+      code: `// Nested callbacks, each depending on the last:
+getUser(1, (err, user) => {
+  if (err) return handle(err);
+  getOrders(user.id, (err, orders) => {
+    if (err) return handle(err);
+    getItems(orders[0].id, (err, items) => {
+      if (err) return handle(err);
+      getPrice(items[0].id, (err, price) => {
+        if (err) return handle(err);
+        console.log(price);          // five levels deep
+      });
+    });
+  });
+});
+
+// Why it is bad — and it is not only the indentation:
+//   • error handling repeated at every level
+//   • impossible to run two of them in parallel
+//   • hard to add a step in the middle
+//   • one mistake and a callback fires twice, or never
+
+// The same thing with async/await:
+try {
+  const user   = await getUser(1);
+  const orders = await getOrders(user.id);
+  const items  = await getItems(orders[0].id);
+  console.log(await getPrice(items[0].id));
+} catch (err) {
+  handle(err);                       // ONE handler
+}`,
+      output: `499`,
+    },
   },
   {
     question: 'How do you avoid callback hell?',
@@ -1472,6 +2943,38 @@ export const generalInterviewQuestions = [
         'Modern solutions: (1) use Promises and chain them with `.then()` instead of nesting callbacks. (2) Use async/await, which makes sequential async code read like synchronous code with try/catch for errors — this is the current best practice. (3) Break large functions into small, named, single-purpose functions instead of anonymous inline callbacks. (4) Use utility libraries like `async` for complex control flow (parallel, series, waterfall) when needed. In modern Node.js code, callback hell is largely a solved, historical problem thanks to async/await.',
       hinglish:
         'Modern solutions: (1) Promises use karo aur callbacks nest karne ke bajaye `.then()` se chain karo. (2) async/await use karo, jo sequential async code ko synchronous code jaisa padhne layak banata hai try/catch se errors ke saath — ye current best practice hai. (3) bade functions ko chhote, named, single-purpose functions mein tod do anonymous inline callbacks ke bajaye. (4) `async` jaisi utility libraries use karo complex control flow (parallel, series, waterfall) ke liye jab zaroorat ho. Modern Node.js code mein, callback hell largely ek solved, historical problem hai async/await ki wajah se.',
+    },
+    codeExample: {
+      code: `// 1. async/await — the answer in modern code
+try {
+  const user  = await getUser(1);
+  const posts = await getPosts(user.id);
+  console.log(posts);
+} catch (err) { handle(err); }
+
+// 2. Promise chaining — flat instead of nested
+getUser(1)
+  .then(u => getPosts(u.id))
+  .then(console.log)
+  .catch(handle);
+
+// 3. Promisify an old callback API
+const util = require('node:util');
+const readFile = util.promisify(require('node:fs').readFile);
+// or just use the promise version:
+const fs = require('node:fs/promises');
+
+// 4. Named functions instead of inline ones
+function onUser(err, user) { if (err) return handle(err); … }
+getUser(1, onUser);
+
+// 5. Run independent work in PARALLEL — the point people miss.
+// This is still slow even though it is flat:
+const a = await getA();   // 1s
+const b = await getB();   // 1s → 2s
+
+const [a, b] = await Promise.all([getA(), getB()]);   // ✓ 1s`,
+      output: `(posts)`,
     },
   },
   {
@@ -1484,6 +2987,43 @@ export const generalInterviewQuestions = [
       hinglish:
         '`setImmediate(callback)` ek callback ko event loop ki "check" phase mein chalne ke liye schedule karta hai, jo har event loop iteration mein "poll" (I/O) phase complete hone ke turant BAAD chalti hai. Ye commonly current I/O event poori tarah process hone ke baad tak execution defer karne ke liye use hota hai, us minimum-delay overhead ke bina jo `setTimeout(fn, 0)` technically rakhta hai. Ye ek baar chalta hai, `setInterval` ke ulat.',
     },
+    visual: 'node-event-loop',
+    codeExample: {
+      code: `// Runs a callback in the CHECK phase — the next turn of the
+// event loop, after poll.
+
+console.log('1');
+setImmediate(() => console.log('3'));
+console.log('2');
+// → 1, 2, 3
+
+// The name is misleading: it is NOT immediate. process.nextTick
+// is the one that runs sooner, despite its name suggesting later.
+
+// Against setTimeout(fn, 0) at the top level, the order is
+// genuinely NON-DETERMINISTIC — it depends how long the process
+// took to start:
+setTimeout(()   => console.log('timeout'), 0);
+setImmediate(() => console.log('immediate'));
+// could print either order
+
+// But inside an I/O callback it is always the same, because
+// poll runs immediately before check:
+fs.readFile('a.txt', () => {
+  setTimeout(()   => console.log('timeout'), 0);
+  setImmediate(() => console.log('immediate'));   // ALWAYS first
+});
+
+// The real use — break up CPU work so the loop can breathe:
+function processChunk(items, i = 0) {
+  if (i >= items.length) return;
+  heavyWork(items[i]);
+  setImmediate(() => processChunk(items, i + 1));  // yield
+}`,
+      output: `1
+2
+3`,
+    },
   },
   {
     question: 'What is the difference between setImmediate(), setTimeout(), and process.nextTick()?',
@@ -1494,6 +3034,43 @@ export const generalInterviewQuestions = [
         '`process.nextTick(cb)` runs BEFORE the event loop continues to any phase — it has the highest priority, and its entire queue is drained before even the Promise microtask queue. `setTimeout(cb, 0)` schedules the callback for the "timers" phase, with a minimum delay (roughly 1ms in practice, even with 0 specified). `setImmediate(cb)` schedules for the "check" phase, right after I/O callbacks in the current loop iteration. Inside a plain script (not inside an I/O callback), the order of setTimeout(0) vs setImmediate is not guaranteed and can vary; but INSIDE an I/O callback, setImmediate always fires before setTimeout(0), since "check" comes right after "poll" in the same iteration.',
       hinglish:
         '`process.nextTick(cb)` event loop kisi bhi phase mein continue hone se PEHLE chalta hai — iski highest priority hai, aur iski poori queue Promise microtask queue se bhi pehle drain hoti hai. `setTimeout(cb, 0)` callback ko "timers" phase ke liye schedule karta hai, ek minimum delay ke saath (practically roughly 1ms, 0 specify karne pe bhi). `setImmediate(cb)` "check" phase ke liye schedule karta hai, current loop iteration mein I/O callbacks ke turant baad. Ek plain script ke andar (I/O callback ke andar nahi), setTimeout(0) vs setImmediate ka order guaranteed nahi hai aur vary kar sakta hai; par ek I/O callback ke ANDAR, setImmediate hamesha setTimeout(0) se pehle fire hota hai, kyunki "check" same iteration mein "poll" ke turant baad aata hai.',
+    },
+    visual: 'node-event-loop',
+    codeExample: {
+      code: `console.log('1 — sync');
+setTimeout(()       => console.log('4 — timers phase'), 0);
+setImmediate(()     => console.log('5 — check phase'));
+process.nextTick(() => console.log('2 — before any phase'));
+Promise.resolve().then(() => console.log('3 — microtask'));
+
+// → 1, 2, 3, 4, 5
+
+// Priority, highest first:
+//   1. synchronous code
+//   2. process.nextTick   — between phases, before promises
+//   3. promise microtasks — also between phases
+//   4. setTimeout         — the TIMERS phase
+//   5. setImmediate       — the CHECK phase
+
+// Despite the names: nextTick is sooner than setImmediate.
+
+// The danger with nextTick — it can starve the loop entirely:
+function loop() { process.nextTick(loop); }
+// loop();    ✗ no timer or I/O ever runs again
+
+// setImmediate cannot do that; it yields each iteration.
+
+// Practical guidance:
+//   want to defer work?         setImmediate
+//   want a delay?               setTimeout
+//   need to run before I/O,
+//   e.g. let a caller attach
+//   a listener first?           process.nextTick (rarely)`,
+      output: `1 — sync
+2 — before any phase
+3 — microtask
+4 — timers phase
+5 — check phase`,
     },
   },
   {
@@ -1506,6 +3083,42 @@ export const generalInterviewQuestions = [
       hinglish:
         '`process.nextTick(callback)` ek callback ko currently executing operation khatam hone ke TURANT BAAD chalne ke liye schedule karta hai, event loop apne next phase mein jaane se PEHLE — iski priority Promise callbacks se bhi zyada hai. Ye sparingly use hota hai, un cases ke liye jahan kaam thoda sa defer karna hai (jaise ek constructor ko event fire hone se pehle khatam hone dena) poora event loop cycle wait kiye bina. Isse overuse karna event loop ko starve kar sakta hai (agar code recursively aur nextTick calls schedule karta rahe, I/O ko kabhi chalne ka mauka nahi milta).',
     },
+    visual: 'node-event-loop',
+    codeExample: {
+      code: `// Runs a callback BEFORE the event loop continues to its
+// next phase — sooner than promises, timers, or setImmediate.
+
+console.log('1');
+process.nextTick(() => console.log('2'));
+Promise.resolve().then(() => console.log('3'));
+setImmediate(() => console.log('4'));
+// → 1, 2, 3, 4
+
+// It has the HIGHEST priority of any deferred callback,
+// which is also what makes it dangerous:
+function spin() { process.nextTick(spin); }
+// spin();    ✗ the queue never empties, so no I/O, no timers,
+//              and the process appears to hang
+
+// The one legitimate pattern — let the caller attach a listener
+// before you emit, so the event is not missed:
+function connect() {
+  const conn = new EventEmitter();
+  process.nextTick(() => conn.emit('ready'));
+  return conn;                    // caller can .on('ready') first
+}
+connect().on('ready', () => console.log('connected'));
+
+// Emitting synchronously would fire before .on() is called and
+// the listener would never run.
+
+// For everything else, prefer setImmediate — it cannot starve
+// the loop.`,
+      output: `1
+2
+3
+4`,
+    },
   },
   {
     question: 'Explain the execution order of asynchronous tasks in Node.js.',
@@ -1517,6 +3130,47 @@ export const generalInterviewQuestions = [
       hinglish:
         'Priority order (highest se lowest): (1) synchronous code pehle chalta hai, top se bottom. (2) `process.nextTick()` queue — poori tarah drain hoti hai. (3) Promise microtask queue (`.then`/`async-await` continuations) — poori tarah drain hoti hai. (4) Phir event loop apne phases ke through order mein aage badhta hai: timers (`setTimeout`/`setInterval`) → pending callbacks → poll (I/O) → check (`setImmediate`) → close callbacks — steps 2 aur 3 HAR phase transition ke beech poori tarah phir se drain hote hue. Yahi wajah hai `process.nextTick` hamesha ek Promise `.then` ko haraata hai, aur dono hamesha ek `setTimeout(fn, 0)` ko haraate hain, chahe code mein wo kisi bhi order mein likhe gaye hon.',
     },
+    visual: 'node-event-loop',
+    codeExample: {
+      code: `console.log('1');
+
+setTimeout(()       => console.log('6'), 0);
+setImmediate(()     => console.log('7'));
+
+process.nextTick(() => {
+  console.log('3');
+  process.nextTick(() => console.log('4'));   // added to the SAME drain
+});
+
+Promise.resolve().then(() => console.log('5'));
+
+console.log('2');
+
+// → 1, 2, 3, 4, 5, 6, 7
+
+// The rules, in order:
+//   1. ALL synchronous code finishes first          → 1, 2
+//   2. the nextTick queue drains COMPLETELY,
+//      including anything added while draining      → 3, 4
+//   3. then the promise microtask queue             → 5
+//   4. then the loop enters its phases:
+//        timers  → 6
+//        check   → 7
+
+// The step people miss is 2: a nextTick added from inside a
+// nextTick runs in the same drain, not the next one. That is
+// exactly why an endless chain can freeze the process.
+
+// Same rule for promises — a .then added inside a .then runs
+// before the loop moves on.`,
+      output: `1
+2
+3
+4
+5
+6
+7`,
+    },
   },
   {
     question: 'What is libuv?',
@@ -1527,6 +3181,38 @@ export const generalInterviewQuestions = [
         'libuv is a C library that provides Node.js\'s underlying event loop implementation and abstracts OS-level asynchronous I/O across platforms (Windows, Linux, macOS each have different native async I/O mechanisms — libuv unifies them behind one API). It also manages a THREAD POOL (4 threads by default) used for operations that don\'t have a native async OS API — like file system operations, DNS lookups, and some crypto functions — running them in the background so the main JS thread is never blocked. V8 runs the JavaScript; libuv is what makes the async, event-driven part of Node.js actually work.',
       hinglish:
         'libuv ek C library hai jo Node.js ka underlying event loop implementation provide karti hai aur platforms ke across OS-level asynchronous I/O ko abstract karti hai (Windows, Linux, macOS har ek ke different native async I/O mechanisms hain — libuv unhe ek API ke peeche unify kar deta hai). Ye ek THREAD POOL bhi manage karta hai (default 4 threads) un operations ke liye jinke paas native async OS API nahi hai — jaise file system operations, DNS lookups, aur kuch crypto functions — unhe background mein chalate hue taaki main JS thread kabhi block na ho. V8 JavaScript chalata hai; libuv wo hai jo Node.js ka async, event-driven part actually kaam karta hai.',
+    },
+    visual: 'blocking-io',
+    codeExample: {
+      code: `// libuv is the C library that gives Node its async powers.
+// V8 runs JavaScript; libuv does everything V8 cannot.
+
+// It provides:
+//   • the EVENT LOOP itself and its phases
+//   • a THREAD POOL (4 threads by default)
+//   • cross-platform async file I/O
+//   • async networking (TCP, UDP, DNS)
+//   • child processes and signals
+
+// The important distinction — not all async work is the same:
+//
+//   NETWORK  → the OS does it (epoll / kqueue / IOCP).
+//              No thread pool involved. Scales to thousands.
+//
+//   FILES, DNS, crypto (pbkdf2, scrypt), zlib
+//            → the THREAD POOL. Only 4 at a time by default.
+
+// That is why 5 concurrent heavy hashes queue up:
+process.env.UV_THREADPOOL_SIZE = 8;   // must be set BEFORE
+                                      // the first pool use
+
+const os = require('node:os');
+// A sensible cap is roughly the core count.
+console.log(os.cpus().length);
+
+// So "Node is single-threaded" is only true of YOUR code.
+// libuv is quietly multi-threaded underneath.`,
+      output: `8`,
     },
   },
 
@@ -1541,6 +3227,37 @@ export const generalInterviewQuestions = [
       hinglish:
         'Environment variables key-value pairs hain jo tumhari application code ke BAHAR set kiye jaate hain, OS/process level pe, aur Node.js mein `process.env.VAR_NAME` se accessible hote hain. Ye aise configuration ke liye use hote hain jo environments (dev/staging/production) ke beech vary karta hai ya sensitive hai (API keys, database URLs) — is data ko source code se bahar rakhte hue taaki ye per-deployment alag ho sake aur kabhi git mein commit na ho. Examples: `NODE_ENV`, `PORT`, `DATABASE_URL`.',
     },
+    codeExample: {
+      code: `// Values that come from OUTSIDE your code, so the same build
+// runs in dev, staging and production without edits.
+
+process.env.NODE_ENV;      // 'development' | 'production'
+process.env.PORT;
+process.env.DATABASE_URL;
+
+// Always ALWAYS strings — convert what you need:
+const port = Number(process.env.PORT) || 3000;
+const debug = process.env.DEBUG === 'true';    // not Boolean(...)
+// Boolean('false') is TRUE — a classic bug.
+
+// Setting them:
+PORT=4000 node index.js                  // one command
+export PORT=4000                         // the shell session
+// Windows: $env:PORT=4000               // PowerShell
+
+// Reading a port the way hosts expect:
+app.listen(process.env.PORT ?? 3000);
+// Vercel, Render and Heroku assign the port. Hardcoding 3000
+// means the app never binds and the deploy fails health checks.
+
+// Validate at startup so a missing value fails at boot:
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is required');
+}
+
+// And never commit secrets — .env belongs in .gitignore.`,
+      output: `3000`,
+    },
   },
   {
     question: 'Why use dotenv?',
@@ -1551,6 +3268,39 @@ export const generalInterviewQuestions = [
         'The `dotenv` package lets you define environment variables in a local `.env` file (e.g. `DATABASE_URL=mongodb://localhost/mydb`) which it loads into `process.env` at startup with `require("dotenv").config()`. This is purely a LOCAL DEVELOPMENT convenience — it lets you keep secrets out of your shell profile and easily switch between projects, each with its own `.env`. In production, real environment variables are usually set directly by the hosting platform (Vercel, AWS, Docker) rather than a `.env` file, and `.env` must always be added to `.gitignore`.',
       hinglish:
         '`dotenv` package tumhe environment variables ko ek local `.env` file mein define karne deta hai (jaise `DATABASE_URL=mongodb://localhost/mydb`) jise ye startup pe `process.env` mein load karta hai `require("dotenv").config()` se. Ye purely ek LOCAL DEVELOPMENT convenience hai — ye tumhe secrets ko shell profile se bahar rakhne deta hai aur projects ke beech easily switch karne deta hai, har ek ka apna `.env`. Production mein, real environment variables usually hosting platform (Vercel, AWS, Docker) se directly set hote hain `.env` file ke bajaye, aur `.env` ko hamesha `.gitignore` mein add karna chahiye.',
+    },
+    codeExample: {
+      code: `// Locally you do not want to type env vars before every run.
+// dotenv reads a .env file into process.env.
+
+// .env  (gitignored!)
+DATABASE_URL=mongodb://localhost:27017/app
+JWT_SECRET=dev-only-secret
+PORT=3000
+
+// index.js — load it FIRST, before anything reads process.env
+require('dotenv').config();
+console.log(process.env.PORT);      // '3000'
+
+// In ES modules:
+import 'dotenv/config';             // must be the first import
+
+// The ordering mistake:
+import { db } from './db.js';       // ✗ reads env at import time
+import 'dotenv/config';             //   …too late
+
+// Two rules:
+//   1. .env goes in .gitignore. Always.
+//   2. commit a .env.example with the KEYS and dummy values,
+//      so a new developer knows what to set.
+
+// In PRODUCTION you usually do not use dotenv at all — the
+// platform injects real environment variables. dotenv is a
+// local-development convenience.
+
+// Node 20+ can do it natively, no package:
+// node --env-file=.env index.js`,
+      output: `3000`,
     },
   },
 
@@ -1565,6 +3315,36 @@ export const generalInterviewQuestions = [
       hinglish:
         'Streams tumhe data ko incrementally, piece by piece process karne dete hain, ek saath poori memory mein load kiye bina — bade files, video, ya network data ke liye critical. `readFile()` (poori file memory mein load karta hai use kuch bhi use karne se pehle) ke bajaye, `createReadStream()` chunks emit karta hai jaise wo available hote hain, isliye ek 10GB file kisi bhi time pe sirf thodi si memory use karke process ho sakti hai. `.pipe()` ek readable stream ko directly ek writable se connect karta hai (jaise file read karke HTTP response mein likhna) automatic backpressure handling ke saath.',
     },
+    visual: 'streams',
+    codeExample: {
+      code: `// Streams process data in CHUNKS instead of all at once.
+
+// Without — a 2GB file becomes 2GB of RAM, and the user waits
+// for the whole read before a single byte is sent:
+const data = await fs.promises.readFile('movie.mp4');
+res.end(data);                                    // ✗
+
+// With — memory stays flat and bytes start flowing instantly:
+fs.createReadStream('movie.mp4').pipe(res);       // ✓
+
+// Three reasons to use them:
+//   1. MEMORY — handle files bigger than your RAM
+//   2. TIME TO FIRST BYTE — the user sees data immediately
+//   3. COMPOSABILITY — chain transforms together
+
+const { pipeline } = require('node:stream/promises');
+await pipeline(
+  fs.createReadStream('data.csv'),
+  parseCsv(),                    // Transform
+  zlib.createGzip(),             // Transform
+  fs.createWriteStream('out.gz')
+);
+// Use pipeline, not a .pipe() chain — it forwards errors and
+// destroys every stream on failure. A bare pipe leaks handles.
+
+// You already use streams: req, res, process.stdout, sockets.`,
+      output: `(2GB served using ~1MB of memory)`,
+    },
   },
   {
     question: 'What is Clustering in Node.js?',
@@ -1575,6 +3355,41 @@ export const generalInterviewQuestions = [
         'Node.js runs on a SINGLE CPU core by default, wasting the extra cores on a multi-core machine. The `cluster` module solves this by forking multiple copies of your app as separate child processes ("workers"), one per CPU core, all sharing the same server port — the master process load-balances incoming connections across the workers (typically round-robin on most platforms). Each worker has its own memory and event loop, so a crash in one worker doesn\'t take down the others, and total throughput scales roughly with core count for CPU-bound workloads.',
       hinglish:
         'Node.js default se ek SINGLE CPU core pe chalta hai, ek multi-core machine pe extra cores waste karte hue. `cluster` module ise solve karta hai tumhari app ki multiple copies ko separate child processes ("workers") ke roop mein fork karke, per CPU core ek, sab same server port share karte hue — master process incoming connections ko workers ke across load-balance karta hai (typically zyadatar platforms pe round-robin). Har worker ki apni memory aur event loop hoti hai, isliye ek worker mein crash doosron ko down nahi karta, aur total throughput CPU-bound workloads ke liye roughly core count ke saath scale karta hai.',
+    },
+    visual: 'cluster',
+    codeExample: {
+      code: `// One Node process uses ONE core. Cluster forks a process
+// per core so you use the whole machine.
+
+const cluster = require('node:cluster');
+const os = require('node:os');
+
+if (cluster.isPrimary) {
+  const cpus = os.cpus().length;
+  console.log(\`forking \${cpus} workers\`);
+  for (let i = 0; i < cpus; i++) cluster.fork();
+
+  cluster.on('exit', (worker) => {
+    console.log(\`worker \${worker.process.pid} died — restarting\`);
+    cluster.fork();                        // stay alive
+  });
+} else {
+  require('./server')();                   // the real app
+}
+
+// The workers all share ONE listening port — the primary hands
+// out incoming connections.
+
+// The catch that surprises people: workers share NO memory.
+let counter = 0;                           // ✗ per worker
+// In-memory sessions, caches and rate-limit counters all break.
+// Move them to Redis.
+
+// In practice PM2 or your platform often does this for you:
+// pm2 start app.js -i max
+// And in Kubernetes you usually run one process per container
+// and scale pods instead.`,
+      output: `forking 8 workers`,
     },
   },
   {
@@ -1587,6 +3402,43 @@ export const generalInterviewQuestions = [
       hinglish:
         '`worker_threads` module tumhe SAME process ke andar PARALLEL threads mein JavaScript chalane deta hai — `cluster` (separate processes with separate memory) ya `child_process` ke ulat, worker threads memory ko directly `SharedArrayBuffer` se share kar sakte hain, jo unhe CPU-intensive tasks ke liye lighter-weight banata hai. Ye specifically heavy, synchronous CPU work (image processing, complex calculations, huge JSON parse karna) offload karne ke liye design kiye gaye hain jo warna main event loop ko block kar dega, bina `cluster` ki tarah poore alag processes spawn karne ke overhead ke.',
     },
+    codeExample: {
+      code: `// Real threads inside one process — for CPU work that would
+// otherwise freeze the event loop.
+
+// main.js
+const { Worker } = require('node:worker_threads');
+
+function runHeavy(data) {
+  return new Promise((resolve, reject) => {
+    const w = new Worker('./heavy.js', { workerData: data });
+    w.on('message', resolve);
+    w.on('error', reject);
+    w.on('exit', (code) => code !== 0 && reject(new Error('exit ' + code)));
+  });
+}
+
+app.get('/hash', async (req, res) => {
+  const result = await runHeavy(req.body);   // loop stays free ✓
+  res.json(result);
+});
+
+// heavy.js
+const { parentPort, workerData } = require('node:worker_threads');
+parentPort.postMessage(expensiveCalculation(workerData));
+
+// vs cluster:
+//   cluster        → many processes, share a PORT, scale a server
+//   worker_threads → threads in one process, share MEMORY,
+//                    offload one heavy function
+
+// Creating a worker costs a few ms and its own V8 heap, so do
+// not spawn one per request — use a pool (piscina).
+
+// Genuinely shared memory is possible with SharedArrayBuffer;
+// otherwise messages are structured-cloned (copied).`,
+      output: `{ hash: '…' }  — served without blocking others`,
+    },
   },
   {
     question: 'How do you improve Node.js performance?',
@@ -1598,6 +3450,39 @@ export const generalInterviewQuestions = [
       hinglish:
         'Key strategies: (1) request-handling paths mein kabhi blocking/synchronous APIs (`readFileSync`) use mat karo. (2) sab CPU cores utilise karne ke liye clustering ya ek process manager (PM2) use karo. (3) CPU-heavy kaam ko worker threads ya ek separate service ko offload karo. (4) expensive operations ko cache karo (Redis, in-memory LRU cache) har request pe recompute karne ke bajaye. (5) badi data ke liye streams use karo sab kuch memory mein buffer karne ke bajaye. (6) database pe proper indexes add karo aur N+1 query patterns avoid karo. (7) static assets aur load balancing ke liye ek reverse proxy/CDN (Nginx, Cloudflare) use karo. (8) `clinic.js` jaise tools ya built-in `--prof` flag se profile karo actual bottlenecks dhundhne ke liye, guess karne ke bajaye.',
     },
+    codeExample: {
+      code: `// MEASURE FIRST. Guessing wastes time.
+node --prof app.js && node --prof-process isolate*.log
+// or clinic.js / 0x for a flame graph
+
+// 1. Never block the event loop — the biggest win by far
+//    Move CPU work to worker_threads or a queue.
+//    Watch event-loop lag; if it climbs, nothing else matters.
+
+// 2. Do independent I/O in parallel
+const [a, b] = await Promise.all([getA(), getB()]);   // not sequential
+
+// 3. Fix the database, not Node
+//    Add indexes. Kill N+1 queries. Most "slow Node" is slow SQL.
+const users = await User.find().populate('posts');    // one query
+
+// 4. Cache what is expensive and stable
+const cached = await redis.get(key) ?? await compute();
+
+// 5. Stream large responses instead of buffering
+fs.createReadStream(file).pipe(res);
+
+// 6. Use every core
+cluster.fork();   // or run more containers
+
+// 7. Cheap wins
+app.use(compression());
+// keep-alive agents, a CDN for static files, pino not console.log
+
+// Order matters: profile → fix the blocking → fix the database →
+// then micro-optimise. Most people start at the wrong end.`,
+      output: `p99 latency 850ms → 90ms`,
+    },
   },
   {
     question: 'Explain the complete lifecycle of a Node.js request from client to database and back.',
@@ -1608,6 +3493,40 @@ export const generalInterviewQuestions = [
         'End-to-end flow: (1) The client (browser/app) sends an HTTP request over TCP to the server\'s port. (2) The OS/reverse proxy (e.g. Nginx, or a Node cluster master) routes the connection to a Node.js process. (3) Node\'s `http` module (or Express/Fastify built on it) parses the raw request into a request object and matches it against registered routes/middleware. (4) Middleware runs in order (auth check, body parsing, logging) via `next()`. (5) The route handler executes — if it needs data, it calls an async database driver method (e.g. Mongoose `.find()`), which Node hands off to libuv/the OS network stack rather than blocking. (6) The main thread immediately continues handling OTHER requests while this one waits. (7) When the database responds, the driver\'s callback/Promise resolves, its continuation is queued as a microtask, and the event loop picks it up. (8) The handler builds a response object, and `res.send()`/`res.json()` serializes it and writes it back over the same TCP connection. (9) The client receives the response and renders/uses it. Throughout, the single main thread never sat idle waiting for the database — it kept servicing other requests, which is the entire reason Node.js scales well for I/O-bound web workloads.',
       hinglish:
         'End-to-end flow: (1) Client (browser/app) TCP ke through server ke port pe ek HTTP request bhejta hai. (2) OS/reverse proxy (jaise Nginx, ya ek Node cluster master) connection ko ek Node.js process pe route karta hai. (3) Node ka `http` module (ya uske upar built Express/Fastify) raw request ko ek request object mein parse karta hai aur registered routes/middleware se match karta hai. (4) Middleware order mein chalta hai (auth check, body parsing, logging) `next()` ke through. (5) Route handler execute hota hai — agar use data chahiye, ye ek async database driver method call karta hai (jaise Mongoose `.find()`), jise Node libuv/OS network stack ko handoff kar deta hai block hone ke bajaye. (6) Main thread turant OTHER requests handle karna continue karta hai jabki ye wait karta hai. (7) Jab database respond karta hai, driver ka callback/Promise resolve hota hai, uska continuation ek microtask ke roop mein queue hota hai, aur event loop use uthaata hai. (8) Handler ek response object banata hai, aur `res.send()`/`res.json()` use serialize karke usi TCP connection pe wapas likhta hai. (9) Client response receive karta hai aur render/use karta hai. Poore process mein, single main thread kabhi database ka wait karte hue idle nahi baitha — wo baaki requests service karta raha, yahi poori wajah hai Node.js I/O-bound web workloads ke liye achhe se scale karta hai.',
+    },
+    visual: 'node-event-loop',
+    codeExample: {
+      code: `// 1. DNS + TCP + TLS — the browser resolves your host and
+//    opens a connection. (Reused if keep-alive is on.)
+
+// 2. The OS hands the socket to Node. libuv notices it during
+//    the POLL phase and queues the 'request' event.
+
+// 3. Your handler runs ON THE MAIN THREAD:
+app.post('/orders', async (req, res) => {
+
+  // 4. Middleware already ran — body parsed, user authenticated
+  const { item } = req.body;
+
+  // 5. The DB call is async. The driver sends the query over a
+  //    socket and RETURNS. Your function suspends here; the
+  //    thread is free to serve other requests.
+  const order = await db.orders.insert({ item, user: req.user.id });
+
+  // 6. The database replies. libuv sees the socket is readable,
+  //    the promise resolves, and the continuation is queued as
+  //    a MICROTASK.
+
+  // 7. Execution resumes here, on the main thread again.
+  res.status(201).json(order);      // written to the response stream
+});
+
+// 8. res.end() flushes, and the socket closes or is kept alive.
+
+// The key insight: between steps 5 and 7 your code is not
+// running at all — and that gap is exactly what lets one
+// thread handle thousands of concurrent requests.`,
+      output: `201 Created`,
     },
   },
 ];
