@@ -2481,6 +2481,36 @@ function freeze() {
       hinglish:
         'undefined matlab variable declare hua par value nahi mili (JS ka default). null tum khud "koi value nahi" ke liye assign karte ho. typeof undefined "undefined" hai; typeof null "object" (famous bug). undefined == null true hai, par undefined === null false.',
     },
+    codeExample: {
+      code: `let a;                 // declared, never given a value
+console.log(a);        // undefined  ← JavaScript did this
+
+let b = null;          // YOU deliberately said "empty"
+console.log(b);        // null
+
+// Simple way to remember:
+//   undefined = "nobody has filled this in yet"
+//   null      = "I filled it in, and the value is nothing"
+
+typeof undefined       // 'undefined'
+typeof null            // 'object'  ← a famous old bug, kept for compatibility
+
+undefined == null      // true   — loose check treats both as "empty"
+undefined === null     // false  — different types
+
+// Where undefined shows up on its own:
+function f(x) { return x; }
+f();                   // undefined — missing argument
+({}).missing;          // undefined — missing property`,
+      output: `undefined
+null
+'undefined'
+'object'
+true
+false
+undefined
+undefined`,
+    },
   },
   {
     question: 'What are the different ways to copy an object in JavaScript?',
@@ -2491,6 +2521,34 @@ function freeze() {
         'Shallow copy: spread { ...obj } or Object.assign({}, obj) — nested objects still share references. Deep copy: structuredClone(obj) (modern), or JSON.parse(JSON.stringify(obj)) (loses functions/dates/undefined). Choose deep copy when you must avoid shared nested references.',
       hinglish:
         'Shallow copy: spread { ...obj } ya Object.assign({}, obj) — nested objects ab bhi reference share karte hain. Deep copy: structuredClone(obj) (modern), ya JSON.parse(JSON.stringify(obj)) (functions/dates/undefined kho deta hai). Jab nested shared references avoid karne hon to deep copy chuno.',
+    },
+    codeExample: {
+      code: `const original = { name: 'Asha', tags: ['a', 'b'] };
+
+// SHALLOW — top level only, nested things stay shared
+const s1 = { ...original };
+const s2 = Object.assign({}, original);
+
+s1.name = 'Ravi';          // ✓ safe
+s1.tags.push('c');         // ✗ original.tags changed too!
+console.log(original.tags); // ['a','b','c']
+
+// DEEP — everything copied, fully independent
+const d1 = structuredClone(original);   // modern, handles Date/Map/cycles
+d1.tags.push('z');
+console.log(original.tags);             // unchanged by d1
+
+// The old JSON trick — works, but loses things:
+const d2 = JSON.parse(JSON.stringify(original));
+//  ✗ functions and undefined disappear
+//  ✗ Date becomes a string
+//  ✗ throws on circular references
+
+// Picking one:
+//   flat object, no nesting  → spread (fastest)
+//   nested data              → structuredClone`,
+      output: `[ 'a', 'b', 'c' ]
+[ 'a', 'b', 'c' ]`,
     },
   },
   {
@@ -2503,6 +2561,32 @@ function freeze() {
       hinglish:
         'Temporal dead zone (TDZ) wo period hai scope mein ghusne se le kar us line tak jahan let/const variable declare hota hai. Variable hoist to hota hai par TDZ mein use karne pe ReferenceError aata hai, var ke ulat jo undefined deta.',
     },
+    visual: 'hoisting',
+    codeExample: {
+      code: `{
+  // ── temporal dead zone for "x" starts here ──
+  console.log(x);   // ReferenceError, NOT undefined
+  let x = 5;
+  // ── dead zone ends: x now holds 5 ──
+  console.log(x);   // 5
+}
+
+// var behaves differently — no dead zone:
+{
+  console.log(y);   // undefined (no error)
+  var y = 5;
+}
+
+// Why does the dead zone exist?
+// It turns a silent bug into a loud error.
+// With var you get "undefined" and wonder why your code
+// is broken. With let you get told exactly what went wrong.
+
+// typeof is normally safe — but not in the dead zone:
+typeof notDeclared;   // 'undefined' — fine
+typeof z; let z;      // ReferenceError`,
+      output: `ReferenceError: Cannot access 'x' before initialization`,
+    },
   },
   {
     question: 'Explain event delegation and why it is useful.',
@@ -2513,6 +2597,31 @@ function freeze() {
         'Event delegation attaches a single listener to a parent element and uses event bubbling plus event.target to handle events from many children. It reduces the number of listeners (better performance/memory) and automatically handles elements added to the DOM later.',
       hinglish:
         'Event delegation ek parent element pe ek hi listener lagata hai aur event bubbling plus event.target se bahut saare children ke events handle karta hai. Isse listeners kam lagte hain (better performance/memory) aur baad mein DOM mein add hue elements bhi apne aap handle ho jaate hain.',
+    },
+    codeExample: {
+      code: `// ❌ One listener per item — 1000 items = 1000 listeners
+document.querySelectorAll('li').forEach(li => {
+  li.addEventListener('click', handle);
+});
+
+// ✅ ONE listener on the parent
+document.querySelector('ul').addEventListener('click', (e) => {
+  const li = e.target.closest('li');   // which item was clicked?
+  if (!li) return;                     // clicked the gap — ignore
+  console.log('clicked:', li.textContent);
+});
+
+// How it works: a click on <li> BUBBLES up to <ul>,
+// so the parent hears about it.
+
+// The big win — this works for items added LATER:
+ul.append(document.createElement('li'));   // still clickable!
+// With per-item listeners you would have to attach a new one
+// every single time you add an element.
+
+// Use closest(), not e.target directly, or a click on an
+// icon INSIDE the <li> would miss.`,
+      output: `clicked: Item 2`,
     },
   },
   {
@@ -2525,6 +2634,33 @@ function freeze() {
       hinglish:
         'ECMAScript (ES) ECMA International dwara maintain ki jane wali official language specification hai. JavaScript us spec ki sabse popular implementation hai. ES6 (ES2015) ek landmark release thi jisne let/const, arrow functions, classes, template literals, destructuring, modules, Promises, aur aur cheezein add ki. Nayi editions ab har saal release hoti hain (ES2016, ES2017, …). Jab log "modern JS" kehte hain to aam taur pe ES6+ matlab hota hai.',
     },
+    codeExample: {
+      code: `// ECMAScript is the SPECIFICATION — the rulebook.
+// JavaScript is an IMPLEMENTATION — a language that follows it.
+//
+//   ECMAScript  = the recipe
+//   V8 / SpiderMonkey / JavaScriptCore = cooks following it
+//
+// Versions are yearly: ES2015 (aka ES6), ES2016 … ES2024.
+
+// ES6 (2015) was the big one:
+const x = 1;                       // let / const
+const f = n => n * 2;              // arrow functions
+const { a } = obj;                 // destructuring
+const s = \`value: \${x}\`;           // template literals
+class Dog {}                       // classes
+new Promise(() => {});             // promises
+
+// Later additions you use daily:
+obj?.deep?.value;                  // ES2020 optional chaining
+value ?? 'fallback';               // ES2020 nullish coalescing
+arr.at(-1);                        // ES2022 last item
+arr.toSorted();                    // ES2023 non-mutating sort
+
+// Note: things like fetch, DOM and setTimeout are NOT
+// ECMAScript. They come from the browser or Node.`,
+      output: `value: 1`,
+    },
   },
   {
     question: 'What is the difference between let, const, and var?',
@@ -2535,6 +2671,33 @@ function freeze() {
         'var: function-scoped, hoisted with value undefined, can be redeclared and reassigned, no block scope. let: block-scoped ({} or loop), hoisted but in TDZ (ReferenceError if accessed before declaration), can be reassigned but not redeclared in same scope. const: block-scoped, must be initialised, cannot be reassigned (but object properties CAN be mutated). Best practice: use const by default; let when you need to reassign; never use var in modern code.',
       hinglish:
         'var: function-scoped, undefined value ke saath hoisted, redeclare aur reassign ho sakta hai, block scope nahi. let: block-scoped ({} ya loop), hoisted but TDZ mein (declaration se pehle access karo to ReferenceError), reassign ho sakta hai par same scope mein redeclare nahi. const: block-scoped, initialise zaroori, reassign nahi ho sakta (par object properties mutate HO sakti hain). Best practice: default const use karo; reassign karna ho to let; modern code mein kabhi var use mat karo.',
+    },
+    codeExample: {
+      code: `// 1. SCOPE — where the variable can be seen
+if (true) {
+  var  a = 1;   // function-scoped — escapes the block
+  let  b = 2;   // block-scoped — trapped inside { }
+}
+console.log(a);   // 1
+console.log(b);   // ReferenceError
+
+// 2. REASSIGNING
+let  x = 1; x = 2;    // fine
+const y = 1; y = 2;   // TypeError: Assignment to constant variable
+
+// 3. const does NOT mean frozen — only the NAME is locked
+const user = { name: 'Asha' };
+user.name = 'Ravi';   // ✓ allowed — the object can still change
+user = {};            // ✗ TypeError — cannot point it elsewhere
+
+// 4. Redeclaring in the same scope
+var p = 1; var p = 2;   // allowed — a silent source of bugs
+let q = 1; let q = 2;   // SyntaxError — caught immediately
+
+// Rule of thumb:
+//   const by default → let when you must reassign → var never.`,
+      output: `1
+ReferenceError: b is not defined`,
     },
   },
   {
@@ -2547,6 +2710,36 @@ function freeze() {
       hinglish:
         'Spread (...arr): iterable ko individual elements mein expand karta hai — arrays/objects copy/merge karne ke liye: [...a, ...b], {...obj, key: val}. Rest (...args): remaining arguments ko ek array mein collect karta hai — function parameters mein: function fn(a, b, ...rest). Default parameters: function greet(name = "World") {} — argument undefined hone pe fallback value provide karta hai. Teeno ... use karte hain par context decide karta hai kaun sa hai.',
     },
+    codeExample: {
+      code: `// SPREAD (...) — takes something apart
+const nums = [1, 2, 3];
+console.log(Math.max(...nums));      // 3  — same as max(1,2,3)
+
+const copy  = [...nums];             // shallow copy
+const merged = [...nums, 4, 5];      // [1,2,3,4,5]
+const obj = { ...{a:1}, b:2 };       // {a:1, b:2}
+
+// REST (...) — gathers things together
+function sum(...values) {            // values is a real array
+  return values.reduce((t, n) => t + n, 0);
+}
+sum(1, 2, 3, 4);                     // 10
+
+// Same three dots — the difference is WHERE they appear:
+//   on the right of = or in a call  → spread (unpack)
+//   in a parameter list or pattern  → rest (collect)
+
+// DEFAULT PARAMETERS — used only when the argument is undefined
+function greet(name = 'guest') { return 'Hi ' + name; }
+greet();            // 'Hi guest'
+greet(undefined);   // 'Hi guest'
+greet(null);        // 'Hi null'  ← null is a real value, not missing!`,
+      output: `3
+10
+'Hi guest'
+'Hi guest'
+'Hi null'`,
+    },
   },
   {
     question: 'What is the difference between deep copy and shallow copy in JavaScript?',
@@ -2557,6 +2750,34 @@ function freeze() {
         'Shallow copy: copies only the top-level properties — nested objects/arrays are still shared by reference. Methods: spread { ...obj }, Object.assign(), [...arr]. If you mutate a nested object in the copy, it also changes the original. Deep copy: copies all levels recursively — no shared references. Methods: structuredClone(obj) (modern, native), JSON.parse(JSON.stringify(obj)) (loses functions, undefined, Date becomes string). Use deep copy when nested data must be fully independent.',
       hinglish:
         'Shallow copy: sirf top-level properties copy karta hai — nested objects/arrays reference se share hote hain. Methods: spread { ...obj }, Object.assign(), [...arr]. Agar copy mein nested object mutate karo, original bhi change hota hai. Deep copy: saare levels recursively copy karta hai — koi shared references nahi. Methods: structuredClone(obj) (modern, native), JSON.parse(JSON.stringify(obj)) (functions, undefined khota hai, Date string ban jaata hai). Deep copy tab use karo jab nested data fully independent hona chahiye.',
+    },
+    codeExample: {
+      code: `const original = { name: 'Asha', address: { city: 'Pune' } };
+
+// SHALLOW copy — copies the top level only
+const shallow = { ...original };
+shallow.name = 'Ravi';              // safe — a new top-level value
+shallow.address.city = 'Delhi';     // DANGER — shared object!
+
+console.log(original.name);         // 'Asha'  ✓ unaffected
+console.log(original.address.city); // 'Delhi' ✗ changed too!
+
+// Why? ...spread copies the REFERENCE to address,
+// not the address object itself. Both point to one object.
+
+// DEEP copy — copies everything, all the way down
+const deep = structuredClone(original);
+deep.address.city = 'Chennai';
+console.log(original.address.city); // 'Delhi' ✓ truly separate
+
+// The old trick, and why it is risky:
+JSON.parse(JSON.stringify(original));
+//  ✗ drops functions and undefined
+//  ✗ turns Date into a string
+//  ✗ throws on circular references`,
+      output: `Asha
+Delhi
+Delhi`,
     },
   },
   {
@@ -2569,6 +2790,44 @@ function freeze() {
       hinglish:
         'Callback: ek function jo argument ke roop mein pass hota hai baad mein call hone ke liye — async ka purana tarika. Problem: "callback hell" (deeply nested). Promise: ek object jo future value represent karta hai states pending → fulfilled/rejected ke saath. .then()/.catch()/.finally() se chain karo. async/await: Promises pe syntactic sugar — async functions hamesha Promise return karte hain; await execution pause karta hai jab tak Promise resolve na ho, async code synchronous jaisa dikhta hai. Readability ke liye async/await use karo; parallel operations ke liye Promises (Promise.all).',
     },
+    visual: 'promise-states',
+    codeExample: {
+      code: `// 1. CALLBACK — pass a function to run "when done"
+getUser(1, (err, user) => {
+  if (err) return handle(err);
+  getPosts(user.id, (err, posts) => {      // nesting begins…
+    if (err) return handle(err);
+    getComments(posts[0].id, (err, c) => { // "callback hell"
+      console.log(c);
+    });
+  });
+});
+
+// 2. PROMISE — an object for a value that arrives later.
+// Chaining keeps it flat instead of nested.
+getUser(1)
+  .then(user  => getPosts(user.id))
+  .then(posts => getComments(posts[0].id))
+  .then(console.log)
+  .catch(handle);          // ONE place for every error
+
+// 3. ASYNC/AWAIT — the same promises, written like normal code.
+async function show() {
+  try {
+    const user  = await getUser(1);
+    const posts = await getPosts(user.id);
+    console.log(await getComments(posts[0].id));
+  } catch (err) {
+    handle(err);           // ordinary try/catch works
+  }
+}
+
+// await does not make anything faster — it just pauses THIS
+// function while the promise settles. For independent work,
+// start them together:
+const [a, b] = await Promise.all([getA(), getB()]);`,
+      output: `(comments for the first post)`,
+    },
   },
   {
     question: 'What is event bubbling and event capturing in JavaScript?',
@@ -2579,6 +2838,36 @@ function freeze() {
         'When an event fires, it goes through three phases: (1) Capturing: travels down from window to the target. (2) Target: reaches the target element. (3) Bubbling: travels back up to window. By default, addEventListener uses bubbling (third argument false). To use the capturing phase, pass true or { capture: true }. To stop propagation: event.stopPropagation(). event.stopImmediatePropagation() also stops other listeners on the same element.',
       hinglish:
         'Jab event fire hota hai, teen phases se guzarta hai: (1) Capturing: window se target tak neeche travel karta hai. (2) Target: target element tak pahuncha. (3) Bubbling: wapas window tak upar travel karta hai. By default, addEventListener bubbling use karta hai (third argument false). Capturing phase ke liye true ya { capture: true } pass karo. Propagation rokne ke liye: event.stopPropagation(). event.stopImmediatePropagation() same element pe doosre listeners bhi rokta hai.',
+    },
+    codeExample: {
+      code: `// <div id="outer"><button id="inner">Click</button></div>
+
+// A click travels in TWO passes:
+//   1. CAPTURE  — top down:  document → div → button
+//   2. BUBBLE   — bottom up: button → div → document
+
+outer.addEventListener('click', () => console.log('div bubble'));
+outer.addEventListener('click', () => console.log('div capture'), true);
+inner.addEventListener('click', () => console.log('button'));
+
+// Clicking the button prints:
+//   div capture   ← going down
+//   button        ← the target
+//   div bubble    ← coming back up
+
+// Listeners bubble BY DEFAULT. Pass true (or {capture:true})
+// for the downward pass — useful to intercept before a child.
+
+// Stop the journey:
+inner.addEventListener('click', (e) => {
+  e.stopPropagation();   // parent never hears it
+});
+
+// Careful: stopPropagation breaks event delegation
+// set up elsewhere on the page.`,
+      output: `div capture
+button
+div bubble`,
     },
   },
   {
@@ -2591,6 +2880,39 @@ function freeze() {
       hinglish:
         'Higher-order function ek function hai jo ek ya zyada functions arguments ke roop mein leta hai ya function return karta hai. Examples: map, filter, reduce, forEach, setTimeout. Ye functional programming patterns enable karte hain — composing, currying, aur iteration abstract karna. Custom example: function withLogging(fn) { return (...args) => { console.log(args); return fn(...args); }; }.',
     },
+    codeExample: {
+      code: `// A higher-order function does ONE of these:
+//   a) takes a function as an argument, or
+//   b) returns a function
+
+// (a) takes a function
+[1, 2, 3].map(n => n * 2);           // map is higher-order
+[1, 2, 3].filter(n => n > 1);
+setTimeout(() => console.log('hi'), 100);
+
+// (b) returns a function
+function multiplyBy(factor) {
+  return (n) => n * factor;          // a new function
+}
+const double = multiplyBy(2);
+double(5);                           // 10
+
+// This works because functions in JS are just VALUES —
+// you can store them, pass them, and return them like numbers.
+
+// Practical use: wrap behaviour without editing the original
+function withLogging(fn) {
+  return (...args) => {
+    console.log('calling with', args);
+    return fn(...args);
+  };
+}
+const loudAdd = withLogging((a, b) => a + b);
+loudAdd(2, 3);                       // logs, then returns 5`,
+      output: `10
+calling with [ 2, 3 ]
+5`,
+    },
   },
   {
     question: 'What are the different types of functions in JavaScript?',
@@ -2601,6 +2923,41 @@ function freeze() {
         'Function declaration: function foo() {} — hoisted completely, can be called before declaration. Function expression: const foo = function() {} — not hoisted (only variable is). Arrow function: const foo = () => {} — no own this, arguments, or super; cannot be used as constructor. IIFE: (function(){})() — immediately invoked, creates private scope. Generator: function* gen() { yield 1; } — pauseable. Async function: async function fetchData() {} — returns a Promise.',
       hinglish:
         'Function declaration: function foo() {} — completely hoisted, declaration se pehle call ho sakta hai. Function expression: const foo = function() {} — hoisted nahi (sirf variable). Arrow function: const foo = () => {} — apna this, arguments, ya super nahi; constructor ke roop mein use nahi ho sakta. IIFE: (function(){})() — immediately invoked, private scope banata hai. Generator: function* gen() { yield 1; } — pauseable. Async function: async function fetchData() {} — Promise return karta hai.',
+    },
+    codeExample: {
+      code: `// 1. Declaration — hoisted completely, can call it above
+sayHi();
+function sayHi() { return 'hi'; }
+
+// 2. Expression — only the variable is hoisted
+// sayBye();          ← TypeError: not a function
+const sayBye = function () { return 'bye'; };
+
+// 3. Arrow — short, and no own \`this\`
+const double = n => n * 2;
+
+// 4. Method — a function living on an object
+const obj = { greet() { return 'hello'; } };
+
+// 5. IIFE — runs itself immediately (used to make a private scope)
+(function () { console.log('runs now'); })();
+
+// 6. Generator — can pause and resume
+function* count() { yield 1; yield 2; }
+
+// 7. Async — always returns a promise
+async function load() { return 'data'; }
+
+// 8. Constructor — called with new
+function Person(name) { this.name = name; }
+
+// 9. Callback — any function passed to another
+[1,2].map(double);
+
+// The two that behave differently are arrow (no this,
+// no arguments, no new) and generator (pausable).`,
+      output: `hi
+runs now`,
     },
   },
   {
@@ -2613,6 +2970,37 @@ function freeze() {
       hinglish:
         'Arrow functions (const fn = () => {}) zyada concise hain aur key differences hain: (1) Apna this nahi — enclosing lexical scope se this inherit karte hain (outer this chahiye wale callbacks ke liye best). (2) Arguments object nahi — rest parameters use karo. (3) Constructors ke roop mein use nahi ho sakte (no new). (4) prototype property nahi. (5) Generator functions nahi ban sakte. Regular functions methods, constructors ke liye; arrow functions callbacks aur closures ke liye use karo.',
     },
+    visual: 'this-binding',
+    codeExample: {
+      code: `// Shorter to write
+const add = (a, b) => a + b;         // implicit return
+const square = n => n * n;           // one arg needs no ()
+
+// But the REAL difference is \`this\`.
+const timer = {
+  seconds: 0,
+  startBroken() {
+    setInterval(function () {
+      this.seconds++;                // ✗ this is NOT timer here
+    }, 1000);
+  },
+  startWorking() {
+    setInterval(() => {
+      this.seconds++;                // ✓ arrow borrows timer's this
+    }, 1000);
+  },
+};
+
+// An arrow function has NO OWN this. It uses the this from
+// wherever it was WRITTEN. That is why it fixes callbacks.
+
+// For the same reason, never use an arrow as a method:
+const bad = { name: 'x', get: () => this.name };
+bad.get();          // undefined — this is not \`bad\`
+
+// Arrows also have no \`arguments\`, and cannot be used with new.`,
+      output: `undefined`,
+    },
   },
   {
     question: 'Why do we use call, apply, and bind in JavaScript?',
@@ -2623,6 +3011,38 @@ function freeze() {
         'All three let you explicitly set the this value of a function. call(thisArg, arg1, arg2): calls the function immediately with a given this and individual arguments. apply(thisArg, [args]): same but arguments are passed as an array. bind(thisArg, arg1...): returns a new function permanently bound to thisArg (and optionally pre-fills arguments — partial application). Use bind for event handlers that need a specific this; call/apply for borrowing methods from other objects.',
       hinglish:
         'Teeno function ke this value explicitly set karne dete hain. call(thisArg, arg1, arg2): given this aur individual arguments ke saath function immediately call karta hai. apply(thisArg, [args]): same hai par arguments array ke roop mein pass hote hain. bind(thisArg, arg1...): thisArg se permanently bound new function return karta hai (aur optionally arguments pre-fill karta hai — partial application). Specific this chahiye wale event handlers ke liye bind use karo; doosre objects se methods borrow karne ke liye call/apply.',
+    },
+    visual: 'this-binding',
+    codeExample: {
+      code: `function greet(greeting, mark) {
+  return greeting + ' ' + this.name + mark;
+}
+const user = { name: 'Asha' };
+
+// All three set \`this\` by hand. They differ in HOW you pass args.
+
+// call  → arguments listed one by one
+greet.call(user, 'Hello', '!');        // 'Hello Asha!'
+
+// apply → arguments in an ARRAY   (a for array)
+greet.apply(user, ['Hi', '?']);        // 'Hi Asha?'
+
+// bind  → does NOT run. Returns a new function with this locked.
+const hello = greet.bind(user, 'Hey');
+hello('.');                            // 'Hey Asha.'
+
+// call/apply run immediately; bind runs later.
+
+// Classic real use — fixing a lost \`this\`:
+const btnHandler = user.greet?.bind(user);
+
+// And borrowing a method you do not own:
+function list() {
+  return Array.prototype.slice.call(arguments);  // array-like → array
+}`,
+      output: `Hello Asha!
+Hi Asha?
+Hey Asha.`,
     },
   },
   {
@@ -2635,6 +3055,39 @@ function freeze() {
       hinglish:
         '(1) Object literal: const obj = { key: val }. (2) Object.create(proto): prototype explicitly set karta hai. (3) Constructor function: function Person(n){this.name=n} new Person("A"). (4) ES6 class: class Person { constructor(n){ this.name=n } } new Person("A"). (5) Object.assign({}, src): shallow copy/merge. (6) Factory function: function makePerson(n){ return {name:n} }. (7) Spread: const copy = {...other}. Production code mein classes aur constructor functions sabse common hain.',
     },
+    codeExample: {
+      code: `// 1. Object literal — what you will use 95% of the time
+const a = { name: 'Asha' };
+
+// 2. new Object() — same thing, more typing
+const b = new Object();
+b.name = 'Asha';
+
+// 3. Constructor function — the pre-class way
+function Person(name) { this.name = name; }
+const c = new Person('Asha');
+
+// 4. class — modern syntax over the same prototype system
+class User { constructor(name) { this.name = name; } }
+const d = new User('Asha');
+
+// 5. Object.create() — choose the prototype yourself
+const proto = { greet() { return 'hi ' + this.name; } };
+const e = Object.create(proto);
+e.name = 'Asha';
+e.greet();                    // 'hi Asha'
+
+// A truly empty object with NO inherited methods:
+const bare = Object.create(null);
+// bare.toString  → undefined. Useful as a safe dictionary,
+// because a key named "toString" cannot clash with anything.
+
+// 6. Factory function — no new, no this
+const make = name => ({ name, greet: () => 'hi ' + name });
+make('Asha').greet();         // 'hi Asha'`,
+      output: `hi Asha
+hi Asha`,
+    },
   },
   {
     question: 'What is prototype inheritance in JavaScript?',
@@ -2645,6 +3098,45 @@ function freeze() {
         'Every JavaScript object has an internal [[Prototype]] link to another object. When you access a property not found on the object, JS looks up the prototype chain until it finds it or hits null. This is prototype inheritance — objects inherit properties/methods from their prototype. Constructor functions set the prototype via .prototype; ES6 classes are syntax sugar over the same mechanism. Object.getPrototypeOf(obj) or obj.__proto__ inspect the chain.',
       hinglish:
         'Har JavaScript object ka ek internal [[Prototype]] link hota hai doosre object se. Jab tum object pe property access karo jo nahi mili, JS prototype chain mein upar dhundhta hai jab tak nahi milti ya null pe nahi pahunchta. Ye prototype inheritance hai — objects apne prototype se properties/methods inherit karte hain. Constructor functions .prototype se prototype set karte hain; ES6 classes same mechanism pe syntax sugar hain. Object.getPrototypeOf(obj) ya obj.__proto__ chain inspect karte hain.',
+    },
+    visual: 'prototype-chain',
+    codeExample: {
+      code: `// Every object has a hidden link to another object.
+// Miss a property, and JS follows that link upward.
+
+const animal = {
+  eats: true,
+  describe() { return this.name + ' eats: ' + this.eats; },
+};
+
+const dog = Object.create(animal);   // dog's link points at animal
+dog.name = 'Rex';
+
+dog.name;         // 'Rex'  — its own
+dog.eats;         // true   — borrowed from animal
+dog.describe();   // 'Rex eats: true'   ← note: this is still dog
+
+dog.hasOwnProperty('eats');   // false — it is inherited
+
+// Writing NEVER walks up. It always lands on the object itself:
+dog.eats = false;
+animal.eats;      // true — the parent is untouched
+
+// Classes are the same machinery with nicer syntax:
+class Animal { speak() { return 'noise'; } }
+class Dog extends Animal { speak() { return 'woof'; } }
+new Dog().speak();                    // 'woof'
+Object.getPrototypeOf(Dog.prototype) === Animal.prototype;  // true
+
+// The chain always ends at null:
+//   dog → animal → Object.prototype → null`,
+      output: `Rex
+true
+Rex eats: true
+false
+true
+woof
+true`,
     },
   },
   {
@@ -2657,6 +3149,39 @@ function freeze() {
       hinglish:
         'Dono limit karte hain kitni baar function run kare. Throttle: maximum call rate enforce karta hai — trigger kitni baar bhi fire ho, function most per interval ek baar hi chalega. Scroll/resize handlers ke liye accha. Debounce: wait karta hai jab tak trigger set delay ke liye fire hona band na ho, phir function ek baar call karta hai. Search-as-you-type ke liye accha (user typing band karne ka wait karo). Lodash ke _.throttle aur _.debounce common implementations hain.',
     },
+    codeExample: {
+      code: `// Both limit how often a function runs. They differ in WHEN.
+
+// DEBOUNCE — wait until the user STOPS, then run once.
+function debounce(fn, delay) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);              // cancel the previous plan
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+// Typing "hello" fast → runs ONCE, 300ms after the last key.
+search.addEventListener('input', debounce(doSearch, 300));
+
+// THROTTLE — run at most once every X ms, while it keeps happening.
+function throttle(fn, limit) {
+  let waiting = false;
+  return (...args) => {
+    if (waiting) return;              // ignore until the window opens
+    fn(...args);
+    waiting = true;
+    setTimeout(() => { waiting = false; }, limit);
+  };
+}
+// Scrolling for 5s with limit 200 → runs about 25 times, evenly.
+window.addEventListener('scroll', throttle(onScroll, 200));
+
+// Pick by intent:
+//   debounce → "tell me when they're finished"  (search, autosave)
+//   throttle → "keep updating, but not madly"   (scroll, resize, drag)`,
+      output: `debounce → 1 call after typing stops
+throttle → steady calls while scrolling`,
+    },
   },
   {
     question: 'What are falsy values in JavaScript?',
@@ -2667,6 +3192,51 @@ function freeze() {
         'Values that coerce to false in a boolean context: false, 0, -0, 0n (BigInt zero), "" (empty string), null, undefined, NaN. Everything else is truthy — including "0", "false", [], and {}. Common pitfall: if ([]) is truthy because an empty array is an object. Use Boolean(val) or !!val to explicitly check.',
       hinglish:
         'Values jo boolean context mein false mein coerce hote hain: false, 0, -0, 0n (BigInt zero), "" (empty string), null, undefined, NaN. Baaki sab truthy hai — including "0", "false", [], aur {}. Common pitfall: if ([]) truthy hai kyunki empty array ek object hai. Explicitly check karne ke liye Boolean(val) ya !!val use karo.',
+    },
+    visual: 'coercion',
+    codeExample: {
+      code: `// There are exactly EIGHT falsy values. Memorise these:
+false
+0
+-0
+0n          // BigInt zero
+''          // empty string
+null
+undefined
+NaN
+
+// Everything else is truthy — including these surprises:
+Boolean('0')        // true  — a string with a character in it
+Boolean('false')    // true  — still just a string
+Boolean([])         // true  — an empty array is an object
+Boolean({})         // true  — an empty object
+Boolean(-1)         // true  — only zero is falsy
+
+// This causes a very common bug:
+function setCount(n) {
+  if (!n) return 'no count';   // ✗ 0 is a valid count!
+  return n;
+}
+setCount(0);        // 'no count' — wrong
+
+// Fix: check for what you actually mean
+function better(n) {
+  if (n === undefined || n === null) return 'no count';
+  return n;
+}
+better(0);          // 0  ✓
+
+// Or use ?? which only catches null/undefined:
+0 || 'fallback';    // 'fallback'  ✗
+0 ?? 'fallback';    // 0           ✓`,
+      output: `true
+true
+true
+true
+'no count'
+0
+'fallback'
+0`,
     },
   },
   {
@@ -2709,6 +3279,35 @@ console.log('2 — still runs now');
       hinglish:
         'setTimeout(fn, delay): delay milliseconds ke baad fn ek baar call karta hai. setInterval(fn, interval): clearInterval call hone tak har interval milliseconds pe fn repeatedly call karta hai. Dono non-blocking hain — callback event loop ke through schedule karte hain, isliye actual execution specified delay se thoda baad ho sakta hai. Cancel karne ke liye clearTimeout/clearInterval use karo. Overlapping executions avoid karne ke liye setInterval pe recursive setTimeout prefer karo.',
     },
+    visual: 'event-loop',
+    codeExample: {
+      code: `// setTimeout — run ONCE after a delay
+const t = setTimeout(() => console.log('once'), 1000);
+clearTimeout(t);            // cancel before it fires
+
+// setInterval — run AGAIN AND AGAIN every delay
+const i = setInterval(() => console.log('tick'), 1000);
+clearInterval(i);           // must cancel, or it runs forever
+
+// Important: the delay is a MINIMUM, not a promise.
+// The callback only runs when the call stack is free.
+setTimeout(() => console.log('me'), 0);
+for (let n = 0; n < 1e9; n++) {}     // blocks for seconds
+// 'me' waits until this loop finishes.
+
+// Problem with setInterval: if the work takes LONGER than the
+// interval, calls pile up. This self-scheduling version cannot:
+function safeLoop() {
+  setTimeout(() => {
+    doWork();               // finish first...
+    safeLoop();             // ...then schedule the next
+  }, 1000);
+}
+
+// Always clear timers when a component unmounts,
+// otherwise they keep running and leak memory.`,
+      output: `me`,
+    },
   },
   {
     question: 'What is the difference between Object.seal() and Object.freeze()?',
@@ -2719,6 +3318,37 @@ console.log('2 — still runs now');
         'Object.seal(obj): prevents adding or deleting properties, but existing properties can still be modified (if writable). Object.freeze(obj): prevents adding, deleting, AND modifying any property — the object is fully immutable at the top level. Neither is deep — nested objects are not sealed/frozen. Use freeze for constants/config objects. Check with Object.isSealed() / Object.isFrozen().',
       hinglish:
         'Object.seal(obj): properties add ya delete hone se rokta hai, par existing properties ab bhi modify ho sakti hain (agar writable ho). Object.freeze(obj): properties add, delete, AUR modify sabse rokta hai — object top level pe fully immutable ho jaata hai. Dono deep nahi hain — nested objects seal/freeze nahi hote. Constants/config objects ke liye freeze use karo. Object.isSealed() / Object.isFrozen() se check karo.',
+    },
+    codeExample: {
+      code: `const sealed = Object.seal({ a: 1 });
+sealed.a = 2;        // ✓ allowed — can CHANGE existing
+sealed.b = 3;        // ✗ ignored — cannot ADD
+delete sealed.a;     // ✗ ignored — cannot REMOVE
+console.log(sealed); // { a: 2 }
+
+const frozen = Object.freeze({ a: 1 });
+frozen.a = 2;        // ✗ ignored — cannot change anything
+frozen.b = 3;        // ✗ ignored
+console.log(frozen); // { a: 1 }
+
+// Simple way to remember:
+//   seal   = the SHAPE is fixed, values can change
+//   freeze = everything is fixed
+
+// Both fail SILENTLY in normal mode, but THROW in strict mode
+// and inside modules — which is where you usually are.
+
+// Big catch: freeze is SHALLOW.
+const config = Object.freeze({ db: { host: 'local' } });
+config.db.host = 'hacked';     // ✓ this works!
+console.log(config.db.host);   // 'hacked'
+
+// For real protection you must freeze every level yourself.
+Object.isFrozen(config);       // true — misleading!`,
+      output: `{ a: 2 }
+{ a: 1 }
+hacked
+true`,
     },
   },
   {
@@ -2731,6 +3361,41 @@ console.log('2 — still runs now');
       hinglish:
         'Map: key-value store jahan keys koi bhi type ho sakti hain (object, function, primitive) — plain objects ke ulat jahan keys hamesha strings/symbols hoti hain. Insertion order maintain karta hai. Methods: set, get, has, delete, size, forEach. Set: unique values ka collection — duplicates silently ignore hote hain. Methods: add, has, delete, size, forEach. Dono iterable hain. Non-string keys chahiye ya size asaani se jaanna ho to Map use karo; arrays deduplicate karne ke liye Set.',
     },
+    codeExample: {
+      code: `// MAP — key/value pairs, like an object but better
+const m = new Map();
+m.set('name', 'Asha');
+m.set(42, 'a number key');
+m.set({id:1}, 'an OBJECT as a key');   // objects can't do this
+m.get('name');       // 'Asha'
+m.size;              // 3
+m.has(42);           // true
+
+// SET — a bag of UNIQUE values, no keys
+const s = new Set([1, 2, 2, 3, 3, 3]);
+s.size;              // 3  — duplicates dropped automatically
+s.has(2);            // true
+s.add(4);
+
+// The most common real use of Set:
+const unique = [...new Set([1,1,2,3,3])];   // [1,2,3]
+
+// Why not just use an object / array?
+//   • object keys are always strings — Map keys can be anything
+//   • Map keeps insertion order and has .size
+//   • Set.has() is O(1); array.includes() is O(n)
+
+// That last point matters a lot in loops:
+const list = new Set(bigArray);
+items.filter(x => list.has(x));   // fast
+// items.filter(x => bigArray.includes(x));  // slow (n²)`,
+      output: `Asha
+3
+true
+3
+true
+[ 1, 2, 3 ]`,
+    },
   },
   {
     question: 'What are WeakMap and WeakSet in JavaScript?',
@@ -2741,6 +3406,38 @@ console.log('2 — still runs now');
         'WeakMap: like Map but keys must be objects and are held weakly — if the key object has no other references, it can be garbage collected (and the entry is removed automatically). Not enumerable/iterable. WeakSet: like Set but stores only objects, held weakly. Used for: private data associated with objects, tracking DOM nodes without preventing GC. Do not use when you need to iterate or know the size — use regular Map/Set instead.',
       hinglish:
         'WeakMap: Map jaisa par keys objects hone chahiye aur weakly held hote hain — agar key object ke aur koi references nahi, garbage collected ho sakta hai (aur entry automatically remove hoti hai). Enumerable/iterable nahi. WeakSet: Set jaisa par sirf objects store karta hai, weakly held. Use cases: objects ke saath associated private data, DOM nodes track karna bina GC rokne ke. Jab iterate karna ho ya size jaanna ho tab use mat karo — regular Map/Set use karo.',
+    },
+    codeExample: {
+      code: `// A normal Map holds its keys FOREVER.
+let user = { name: 'Asha' };
+const strong = new Map();
+strong.set(user, 'some data');
+user = null;              // we are done with the user...
+// ...but the Map still holds it. It can never be garbage collected.
+// That is a memory leak.
+
+// A WeakMap does not hold on.
+let user2 = { name: 'Ravi' };
+const weak = new WeakMap();
+weak.set(user2, 'some data');
+user2 = null;             // now the object CAN be cleaned up,
+                          // and the WeakMap entry disappears with it.
+
+// The trade-off — because entries can vanish at any moment:
+//   ✗ keys must be objects (not strings or numbers)
+//   ✗ no .size
+//   ✗ cannot loop over it
+//   ✓ only get / set / has / delete
+
+// Where you actually use it: attaching private data to an object
+// you do not own, without preventing it being freed.
+const privateData = new WeakMap();
+class Person {
+  constructor(secret) { privateData.set(this, { secret }); }
+  reveal() { return privateData.get(this).secret; }
+}
+new Person('hidden').reveal();   // 'hidden'`,
+      output: `hidden`,
     },
   },
   {
@@ -2753,6 +3450,34 @@ console.log('2 — still runs now');
       hinglish:
         'localStorage: browser mein key-value strings store karta hai koi expiry nahi — tabs aur browser restarts ke beech persist karta hai (same origin). sessionStorage: same API par tab/window close hone pe data clear hota hai — tabs ke across share nahi hota. Cookies: har HTTP request ke saath bheje jaate hain (server padh sakta hai), expiry, HttpOnly, Secure, aur SameSite flags ho sakte hain — auth tokens ke liye use hote hain. Storage capacity: localStorage/sessionStorage ~5–10MB; cookies ~4KB. Preferences ke liye localStorage; server dwara manage session/auth ke liye cookies.',
     },
+    codeExample: {
+      code: `// localStorage — stays until you delete it
+localStorage.setItem('theme', 'dark');
+localStorage.getItem('theme');        // 'dark' — even after restart
+localStorage.removeItem('theme');
+
+// sessionStorage — same API, but dies when the TAB closes
+sessionStorage.setItem('step', '2');
+// open the same site in a new tab → 'step' is not there
+
+// cookies — small, and sent to the server on EVERY request
+document.cookie = 'id=abc; max-age=3600; path=/';
+
+//                 size     sent to server?   lifetime
+// localStorage    ~5-10MB  no                forever
+// sessionStorage  ~5-10MB  no                until tab closes
+// cookie          ~4KB     YES, every time   you choose
+
+// Both storages only take STRINGS:
+localStorage.setItem('user', JSON.stringify({ id: 1 }));
+JSON.parse(localStorage.getItem('user'));
+
+// Security: never put a token in localStorage — any XSS
+// script on your page can read it. Use an httpOnly cookie,
+// which JavaScript cannot touch at all.`,
+      output: `dark
+{ id: 1 }`,
+    },
   },
   {
     question: 'What are map, filter, and reduce in JavaScript?',
@@ -2764,6 +3489,42 @@ console.log('2 — still runs now');
       hinglish:
         'Teeno array higher-order methods hain jo callback lete hain aur original mutate kiye bina new value return karte hain. map(fn): har element transform karta hai, same length ka new array return karta hai. filter(fn): sirf un elements ka new array return karta hai jahan fn true return kare. reduce(fn, initial): elements ko single value (sum, object, etc.) mein accumulate karta hai — sabse flexible. Example: [1,2,3].map(x => x*2) → [2,4,6]. [1,2,3].filter(x => x>1) → [2,3]. [1,2,3].reduce((acc,x)=>acc+x,0) → 6.',
     },
+    codeExample: {
+      code: `const nums = [1, 2, 3, 4, 5];
+
+// MAP — same number of items, each transformed
+nums.map(n => n * 2);              // [2, 4, 6, 8, 10]
+
+// FILTER — fewer items, same values, keeps where you return true
+nums.filter(n => n % 2 === 0);     // [2, 4]
+
+// REDUCE — many items squashed into ONE result
+nums.reduce((total, n) => total + n, 0);   // 15
+//           ↑ running   ↑ current  ↑ starting value
+
+// How reduce actually walks:
+//   total=0  n=1 → 1
+//   total=1  n=2 → 3
+//   total=3  n=3 → 6   … → 15
+
+// All three RETURN A NEW ARRAY — the original is untouched.
+console.log(nums);                 // [1,2,3,4,5] still
+
+// They chain, which reads top to bottom:
+const users = [{name:'A', age:30}, {name:'B', age:17}];
+users
+  .filter(u => u.age >= 18)
+  .map(u => u.name);               // ['A']
+
+// reduce is the flexible one — it can build anything:
+nums.reduce((acc, n) => { acc[n] = n * n; return acc; }, {});
+// { 1:1, 2:4, 3:9, 4:16, 5:25 }`,
+      output: `[ 2, 4, 6, 8, 10 ]
+[ 2, 4 ]
+15
+[ 1, 2, 3, 4, 5 ]
+[ 'A' ]`,
+    },
   },
   {
     question: 'What is a generator function in JavaScript?',
@@ -2774,6 +3535,45 @@ console.log('2 — still runs now');
         'A generator (function*) can pause its execution with yield and be resumed externally. Calling a generator returns an iterator object with a next() method. Each next() call runs until the next yield, returning { value, done }. Use cases: lazy infinite sequences, custom iterators, async flow control (before async/await), or processing large datasets without loading all at once. function* counter() { let i=0; while(true) yield i++; }',
       hinglish:
         'Generator (function*) apni execution yield ke saath pause kar sakta hai aur externally resume ho sakta hai. Generator call karne pe next() method wala iterator object milta hai. Har next() call agले yield tak run karta hai, { value, done } return karta hai. Use cases: lazy infinite sequences, custom iterators, async flow control (async/await se pehle), ya large datasets ko ek baar mein load kiye bina process karna. function* counter() { let i=0; while(true) yield i++; }',
+    },
+    codeExample: {
+      code: `// A normal function runs to the end. A generator can PAUSE.
+function* counter() {
+  console.log('start');
+  yield 1;              // pause here, hand back 1
+  console.log('resumed');
+  yield 2;
+  return 'done';
+}
+
+const it = counter();   // nothing has run yet!
+it.next();   // logs 'start'    → { value: 1, done: false }
+it.next();   // logs 'resumed'  → { value: 2, done: false }
+it.next();   //                 → { value: 'done', done: true }
+
+// Because it is lazy, an infinite sequence is fine —
+// values are only made when you ask:
+function* ids() {
+  let n = 1;
+  while (true) yield n++;
+}
+const gen = ids();
+gen.next().value;   // 1
+gen.next().value;   // 2   … never runs out, never hangs
+
+// Generators are iterable, so for…of works:
+for (const n of counter()) console.log(n);   // 1, 2
+
+// You can also send values back IN:
+function* ask() { const name = yield 'who?'; return 'hi ' + name; }
+const a = ask();
+a.next();            // { value: 'who?' }
+a.next('Asha');      // { value: 'hi Asha', done: true }`,
+      output: `start
+resumed
+1
+2
+hi Asha`,
     },
   },
   {
@@ -2856,6 +3656,37 @@ ReferenceError: Cannot access 'age' before initialization`,
       hinglish:
         'Currying multiple arguments wale function ko functions ki chain mein transform karta hai jahan har ek ek argument leta hai: f(a, b, c) → f(a)(b)(c). Ye partial application enable karta hai — kuch arguments fix karo aur function reuse karo. Example: const multiply = a => b => a * b; const double = multiply(2); double(5) → 10. Ramda aur Lodash/fp jaisi libraries currying extensively use karti hain. General ones se specialised functions banane ke liye useful.',
     },
+    codeExample: {
+      code: `// Normal: take all arguments at once
+function add(a, b, c) { return a + b + c; }
+add(1, 2, 3);               // 6
+
+// Curried: take them ONE at a time, returning a function each step
+const curried = a => b => c => a + b + c;
+curried(1)(2)(3);           // 6
+
+// Why bother? Because you can lock in some arguments early
+// and reuse the rest — each step remembers via a closure.
+const addTax = rate => amount => amount * (1 + rate);
+const gst18 = addTax(0.18);    // rate is now fixed
+gst18(100);                    // 118
+gst18(250);                    // 295
+
+// Same idea for logging:
+const log = level => message => console.log('[' + level + '] ' + message);
+const error = log('ERROR');
+error('disk full');            // [ERROR] disk full
+
+// bind() does a limited version of the same thing:
+const add5 = add.bind(null, 5);
+add5(2, 3);                    // 10`,
+      output: `6
+6
+118
+295
+[ERROR] disk full
+10`,
+    },
   },
   {
     question: 'What is memoization in JavaScript?',
@@ -2866,6 +3697,35 @@ ReferenceError: Cannot access 'age' before initialization`,
         'Memoization is an optimization that caches the result of a function for given inputs so the same computation is not repeated. It trades memory for speed. Implementation: function memo(fn) { const cache = {}; return (n) => cache[n] ?? (cache[n] = fn(n)); }. Commonly used for recursive algorithms (Fibonacci), expensive calculations. In React, useMemo does memoization for computed values; useCallback memoizes function references.',
       hinglish:
         'Memoization ek optimization hai jo given inputs ke liye function ka result cache karta hai taaki same computation repeat na ho. Speed ke liye memory trade karta hai. Implementation: function memo(fn) { const cache = {}; return (n) => cache[n] ?? (cache[n] = fn(n)); }. Recursive algorithms (Fibonacci), expensive calculations ke liye commonly use hota hai. React mein, useMemo computed values ke liye memoization karta hai; useCallback function references memoize karta hai.',
+    },
+    codeExample: {
+      code: `// Memoization = remember an answer so you never compute it twice.
+
+function memoize(fn) {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);   // seen before
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+// Fibonacci without it recomputes the same values endlessly:
+const slowFib = n => (n <= 1 ? n : slowFib(n-1) + slowFib(n-2));
+// slowFib(40) → about 1.6 BILLION calls
+
+const fib = memoize(n => (n <= 1 ? n : fib(n-1) + fib(n-2)));
+fib(40);        // instant — each n is computed once
+
+// Two rules before you memoize:
+//   1. The function must be PURE — same input, same output,
+//      and no side effects. Caching a function that reads
+//      a database gives you stale answers.
+//   2. Watch memory — an unlimited cache on varied inputs
+//      is a leak. Real code uses an LRU with a size limit.`,
+      output: `102334155`,
     },
   },
   {
@@ -2878,6 +3738,39 @@ ReferenceError: Cannot access 'age' before initialization`,
       hinglish:
         'MutationObserver ek native browser API hai jo DOM mein changes watch karta hai — added/removed nodes, attribute changes, text content changes. Ye asynchronous hai aur mutations batch karta hai. Usage: const obs = new MutationObserver(cb); obs.observe(node, { childList: true, attributes: true, subtree: true }); rokne ke liye obs.disconnect(). Use cases: third-party DOM changes pe react karna, undo/redo implement karna, form data auto-save karna, virtual scroll libraries implement karna.',
     },
+    codeExample: {
+      code: `// Watches the DOM and tells you when it changes —
+// without polling in a loop.
+
+const observer = new MutationObserver((records) => {
+  for (const r of records) {
+    console.log(r.type);            // 'childList' | 'attributes' | …
+    console.log(r.addedNodes);      // what appeared
+  }
+});
+
+observer.observe(document.querySelector('#list'), {
+  childList: true,    // children added or removed
+  attributes: true,   // an attribute changed
+  subtree: true,      // watch descendants too, not just direct children
+});
+
+// Anything that changes #list now fires the callback:
+document.querySelector('#list').append(document.createElement('li'));
+
+observer.disconnect();   // always stop when done, or it leaks
+
+// Two things worth knowing:
+//   • The callback is BATCHED — several changes arrive together
+//     as one array, so it stays fast.
+//   • It runs as a MICROTASK, after the changes are applied.
+
+// Real uses: reacting to DOM injected by a third-party script,
+// auto-resizing a textarea, or lazy-loading content you did
+// not render yourself.`,
+      output: `childList
+NodeList [ li ]`,
+    },
   },
   {
     question: 'Write a program to find the occurrence count of elements in an array.',
@@ -2888,6 +3781,40 @@ ReferenceError: Cannot access 'age' before initialization`,
         'Use an object as a frequency map. Iterate the array with for...of and increment the count for each element: const arr = [1,1,2,3,1,4]; const count = {}; for (const el of arr) { count[el] = (count[el] || 0) + 1; } // → { 1:3, 2:1, 3:1, 4:1 }. Alternatively, use Array.reduce: arr.reduce((acc, el) => ({ ...acc, [el]: (acc[el]||0)+1 }), {}). The reduce version is more functional but creates a new object on each iteration.',
       hinglish:
         'Object ko frequency map ke roop mein use karo. Array ko for...of se iterate karo aur har element ka count increment karo: const arr = [1,1,2,3,1,4]; const count = {}; for (const el of arr) { count[el] = (count[el] || 0) + 1; } // → { 1:3, 2:1, 3:1, 4:1 }. Alternative: Array.reduce use karo: arr.reduce((acc, el) => ({ ...acc, [el]: (acc[el]||0)+1 }), {}). Reduce version zyada functional hai par har iteration pe new object banata hai.',
+    },
+    codeExample: {
+      code: `const arr = ['a', 'b', 'a', 'c', 'b', 'a'];
+
+// With reduce — the common one-liner
+const counts = arr.reduce((acc, item) => {
+  acc[item] = (acc[item] || 0) + 1;    // start at 0 the first time
+  return acc;
+}, {});
+// { a: 3, b: 2, c: 1 }
+
+// Same thing, easier to read as a loop:
+const c2 = {};
+for (const item of arr) c2[item] = (c2[item] ?? 0) + 1;
+
+// With a Map — safer, because keys can be any type and
+// there is no clash with inherited names like "constructor":
+const m = new Map();
+for (const item of arr) m.set(item, (m.get(item) ?? 0) + 1);
+
+// Then the follow-up questions interviewers ask:
+
+// most frequent:
+Object.entries(counts).sort((a, b) => b[1] - a[1])[0];   // ['a', 3]
+
+// only the duplicates:
+Object.keys(counts).filter(k => counts[k] > 1);          // ['a','b']
+
+// first non-repeating:
+arr.find(x => counts[x] === 1);                          // 'c'`,
+      output: `{ a: 3, b: 2, c: 1 }
+[ 'a', 3 ]
+[ 'a', 'b' ]
+c`,
     },
   },
   {
@@ -2900,6 +3827,36 @@ ReferenceError: Cannot access 'age' before initialization`,
       hinglish:
         'Sabse achha modern tarika: Set use karo — [...new Set(arr)]. Set sirf unique values store karta hai. Example: const arr = [1,2,3,4,1,2]; const unique = [...new Set(arr)]; // → [1,2,3,4]. filter alternative: arr.filter((val, idx) => arr.indexOf(val) === idx). Objects ke arrays ke liye, Map use karke ek key se deduplicate karo.',
     },
+    codeExample: {
+      code: `const arr = [1, 2, 2, 3, 3, 3, 4];
+
+// 1. Set — the shortest and the fastest. O(n)
+[...new Set(arr)];                        // [1, 2, 3, 4]
+
+// 2. filter + indexOf — keeps only the FIRST occurrence.
+// Readable, but O(n²) because indexOf scans every time.
+arr.filter((v, i) => arr.indexOf(v) === i);
+
+// 3. reduce — when you want to build something as you go
+arr.reduce((out, v) => (out.includes(v) ? out : [...out, v]), []);
+
+// Careful — Set compares by identity, so objects are never equal:
+const objs = [{id:1}, {id:1}];
+[...new Set(objs)].length;                // 2, not 1!
+
+// To dedupe objects, pick a key:
+const seen = new Map();
+for (const o of objs) if (!seen.has(o.id)) seen.set(o.id, o);
+[...seen.values()].length;                // 1
+
+// NaN note: Set treats NaN as equal to itself, even though
+// NaN === NaN is false.
+[...new Set([NaN, NaN])].length;          // 1`,
+      output: `[ 1, 2, 3, 4 ]
+2
+1
+1`,
+    },
   },
   {
     question: 'What will be the output when using let vs var inside setTimeout in a loop?',
@@ -2910,6 +3867,42 @@ ReferenceError: Cannot access 'age' before initialization`,
         'With let: for (let i=0; i<5; i++) setTimeout(()=>console.log(i), i*1000) → logs 0,1,2,3,4 (one per second). let creates a new binding per iteration. With var: for (var i=0; i<5; i++) setTimeout(()=>console.log(i), i*1000) → logs 5,5,5,5,5. All callbacks share the same var i which is 5 by the time they execute. Fix with var: use an IIFE ((function(i){ setTimeout(...);})(i)) or replace var with let.',
       hinglish:
         'let ke saath: for (let i=0; i<5; i++) setTimeout(()=>console.log(i), i*1000) → 0,1,2,3,4 log karta hai (har second ek). let har iteration pe new binding banata hai. var ke saath: for (var i=0; i<5; i++) setTimeout(()=>console.log(i), i*1000) → 5,5,5,5,5 log karta hai. Saare callbacks ek hi var i share karte hain jo execute hone tak 5 ho jaata hai. var ke saath fix: IIFE use karo ((function(i){ setTimeout(...);})(i)) ya var ko let se replace karo.',
+    },
+    visual: 'closure',
+    codeExample: {
+      code: `// With var — prints 3, 3, 3
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 0);
+}
+
+// With let — prints 0, 1, 2
+for (let j = 0; j < 3; j++) {
+  setTimeout(() => console.log(j), 0);
+}
+
+// Why?
+// var makes ONE variable for the whole loop. All three callbacks
+// close over that same variable. By the time they run (after the
+// loop finishes) it is already 3.
+//
+// let makes a NEW binding for every iteration. Each callback
+// closes over its own copy, frozen at that moment.
+
+// The classic pre-ES6 fix was an IIFE to create a fresh scope:
+for (var k = 0; k < 3; k++) {
+  (function (copy) {
+    setTimeout(() => console.log(copy), 0);
+  })(k);
+}
+
+// Remember: setTimeout(…, 0) still runs AFTER the loop,
+// because the loop is synchronous and must finish first.`,
+      output: `3
+3
+3
+0
+1
+2`,
     },
   },
   {
@@ -2922,6 +3915,34 @@ ReferenceError: Cannot access 'age' before initialization`,
       hinglish:
         'Array.prototype.myMap = function(cb) { const result = []; for (let i = 0; i < this.length; i++) { result.push(cb(this[i], i, this)); } return result; }; // Usage: [2,3,4].myMap(x => x*2) → [4,6,8]. Callback ko (currentValue, index, array) milta hai — native map jaisi same signature. Important: polyfill definition ke liye arrow function use mat karo warna "this" array nahi hogi.',
     },
+    codeExample: {
+      code: `Array.prototype.myMap = function (callback, thisArg) {
+  if (typeof callback !== 'function') {
+    throw new TypeError(callback + ' is not a function');
+  }
+  const out = [];
+  for (let i = 0; i < this.length; i++) {
+    // \`in\` skips HOLES: [1, , 3] has no index 1.
+    if (i in this) {
+      out[i] = callback.call(thisArg, this[i], i, this);
+    }
+  }
+  return out;
+};
+
+[1, 2, 3].myMap(n => n * 2);        // [2, 4, 6]
+
+// The details that separate a real answer from a rough one:
+//   • the callback gets THREE args: value, index, whole array
+//   • thisArg is the optional second parameter of map
+//   • holes are preserved, not turned into undefined
+//   • the original array is never changed
+//   • length is read from \`this\`, which map is called on
+
+[1, , 3].myMap(n => n * 2);         // [2, <1 empty>, 6]`,
+      output: `[ 2, 4, 6 ]
+[ 2, <1 empty item>, 6 ]`,
+    },
   },
   {
     question: 'Write a polyfill for Array.prototype.filter.',
@@ -2932,6 +3953,35 @@ ReferenceError: Cannot access 'age' before initialization`,
         'Array.prototype.myFilter = function(cb) { const result = []; for (let i = 0; i < this.length; i++) { if (cb(this[i], i, this)) result.push(this[i]); } return result; }; // Usage: [2,3,4,5].myFilter(x => x > 2) → [3,4,5]. Key difference from map: push only when callback returns truthy. The result can be shorter than the original array.',
       hinglish:
         'Array.prototype.myFilter = function(cb) { const result = []; for (let i = 0; i < this.length; i++) { if (cb(this[i], i, this)) result.push(this[i]); } return result; }; // Usage: [2,3,4,5].myFilter(x => x > 2) → [3,4,5]. map se key difference: sirf tab push karo jab callback truthy return kare. Result original array se chhota ho sakta hai.',
+    },
+    codeExample: {
+      code: `Array.prototype.myFilter = function (callback, thisArg) {
+  if (typeof callback !== 'function') {
+    throw new TypeError(callback + ' is not a function');
+  }
+  const out = [];
+  for (let i = 0; i < this.length; i++) {
+    if (i in this) {                        // skip holes
+      const value = this[i];
+      // note: push, not out[i] — the result is RE-INDEXED
+      if (callback.call(thisArg, value, i, this)) out.push(value);
+    }
+  }
+  return out;
+};
+
+[1, 2, 3, 4].myFilter(n => n % 2 === 0);    // [2, 4]
+
+// The key difference from map:
+//   map    keeps the same indexes and length
+//   filter closes the gaps — indexes are renumbered
+//
+// So the callback's truthiness decides inclusion, and the
+// returned array is usually SHORTER than the original.
+
+[1,2,3].myFilter(() => false);              // []`,
+      output: `[ 2, 4 ]
+[]`,
     },
   },
   {
@@ -2944,6 +3994,41 @@ ReferenceError: Cannot access 'age' before initialization`,
       hinglish:
         'Array.prototype.myReduce = function(cb, initialValue) { let acc = initialValue; let startIdx = 0; if (acc === undefined) { acc = this[0]; startIdx = 1; } for (let i = startIdx; i < this.length; i++) { acc = cb(acc, this[i], i, this); } return acc; }; // Usage: [1,2,3,4].myReduce((acc, x) => acc+x, 0) → 10. Agar initialValue nahi, pehla element accumulator use karo aur index 1 se shuru karo.',
     },
+    codeExample: {
+      code: `Array.prototype.myReduce = function (callback, initialValue) {
+  if (typeof callback !== 'function') {
+    throw new TypeError(callback + ' is not a function');
+  }
+  let acc = initialValue;
+  let start = 0;
+
+  // No initial value? Use the first real element as the seed.
+  if (arguments.length < 2) {
+    while (start < this.length && !(start in this)) start++;
+    if (start >= this.length) {
+      throw new TypeError('Reduce of empty array with no initial value');
+    }
+    acc = this[start++];
+  }
+
+  for (let i = start; i < this.length; i++) {
+    if (i in this) acc = callback(acc, this[i], i, this);
+  }
+  return acc;
+};
+
+[1, 2, 3, 4].myReduce((a, b) => a + b);       // 10
+[1, 2, 3].myReduce((a, b) => a + b, 100);     // 106
+[].myReduce((a, b) => a + b, 0);              // 0
+
+// The two cases people forget:
+//   • no initial value → first element becomes the accumulator
+//     and the loop starts at index 1
+//   • empty array with no initial value → must THROW`,
+      output: `10
+106
+0`,
+    },
   },
   {
     question: 'Write a program to multiply two numbers without using the * operator.',
@@ -2955,6 +4040,43 @@ ReferenceError: Cannot access 'age' before initialization`,
       hinglish:
         'Repeated addition use karo: function multiply(a, b) { let result = 0; for (let i = 0; i < Math.abs(b); i++) { result += a; } return b < 0 ? -result : result; } // multiply(5, 3) → 15. Negatives handle karne ke liye Math.abs use karo aur sign flip karo. Recursion bhi use kar sakte ho: multiply(a, b) = a + multiply(a, b-1) base case b===0 ke saath.',
     },
+    codeExample: {
+      code: `// 1. Repeated addition — simple, but O(n)
+function multiply(a, b) {
+  let result = 0;
+  const times = Math.abs(b);
+  for (let i = 0; i < times; i++) result += Math.abs(a);
+  return (a < 0) !== (b < 0) ? -result : result;   // one negative → negative
+}
+multiply(4, 5);      // 20
+multiply(-4, 5);     // -20
+
+// 2. Russian peasant / bit shifting — O(log n)
+// Doubling is a left shift, halving is a right shift.
+function fastMultiply(a, b) {
+  let result = 0;
+  let x = Math.abs(a);
+  let y = Math.abs(b);
+  while (y > 0) {
+    if (y & 1) result += x;    // odd → add the current x
+    x <<= 1;                   // double x
+    y >>= 1;                   // halve y
+  }
+  return (a < 0) !== (b < 0) ? -result : result;
+}
+fastMultiply(13, 7);   // 91
+
+// 3. Recursion
+const mul = (a, b) => (b === 0 ? 0 : a + mul(a, b - 1));
+mul(3, 4);             // 12
+
+// Interviewers are checking: do you handle negatives and zero,
+// and can you get past the naive loop to the log-time version?`,
+      output: `20
+-20
+91
+12`,
+    },
   },
   {
     question: 'What will be the output when using objects as keys in another object?',
@@ -2965,6 +4087,42 @@ ReferenceError: Cannot access 'age' before initialization`,
         'const a={}; const b={key:"b"}; const c={key:"c"}; a[b]=123; a[c]=456; console.log(a[b]); → 456. Object keys are automatically converted to strings via .toString(). Both b and c stringify to "[object Object]", so a["[object Object]"] is first set to 123, then overwritten to 456. a[b] and a[c] both read the same key "[object Object]", returning 456. Use Map if you need object keys.',
       hinglish:
         'const a={}; const b={key:"b"}; const c={key:"c"}; a[b]=123; a[c]=456; console.log(a[b]); → 456. Object keys automatically strings mein convert hote hain .toString() ke through. b aur c dono "[object Object]" pe stringify hote hain, isliye a["[object Object]"] pehle 123 set hota hai, phir 456 se overwrite. a[b] aur a[c] dono same key "[object Object]" padhte hain, 456 return karte hain. Agar object keys chahiye to Map use karo.',
+    },
+    codeExample: {
+      code: `const keyA = { id: 1 };
+const keyB = { id: 2 };
+
+const store = {};
+store[keyA] = 'first';
+store[keyB] = 'second';
+
+console.log(store[keyA]);   // 'second'  ← surprising!
+console.log(store);         // { '[object Object]': 'second' }
+
+// Why? Object keys must be STRINGS. Both objects are converted
+// with toString(), and every plain object gives the same
+// string: "[object Object]". So the second write overwrites
+// the first — they are literally the same key.
+
+// A Map keeps real object identity:
+const m = new Map();
+m.set(keyA, 'first');
+m.set(keyB, 'second');
+m.get(keyA);       // 'first'  ✓
+m.size;            // 2        ✓
+
+// Same trap with arrays as keys:
+store[[1,2]] = 'x';
+store['1,2'];      // 'x' — the array became the string "1,2"
+
+// Symbols are the exception — they stay unique as object keys:
+const s = Symbol('id');
+store[s] = 'safe';`,
+      output: `second
+{ '[object Object]': 'second' }
+first
+2
+x`,
     },
   },
 
@@ -2979,6 +4137,32 @@ ReferenceError: Cannot access 'age' before initialization`,
       hinglish:
         'JavaScript ek high-level, interpreted (JIT-compiled), single-threaded, dynamically-typed programming language hai. Ye 1995 mein web pages interactive banane ke liye bani thi, aur aaj browsers (V8, SpiderMonkey jaise engines se) aur servers (Node.js se) pe chalti hai. Ye ECMAScript specification follow karti hai, multiple paradigms support karti hai — procedural, object-oriented (prototypes ke through), aur functional — aur under the hood class-based nahi, prototype-based hai, chahe ES6 ne `class` syntax add ki ho prototypes ke upar sugar ke roop mein.',
     },
+    codeExample: {
+      code: `// JavaScript is a high-level, interpreted (JIT-compiled)
+// language that runs in browsers and on servers via Node.
+
+// It is:
+//   • dynamically typed — a variable can hold anything
+let thing = 42;
+thing = 'now a string';        // no complaint
+
+//   • single-threaded — one call stack, one thing at a time
+//   • prototype-based — objects inherit from objects
+//   • multi-paradigm — functional AND object-oriented
+
+// Functions are values, which is what makes callbacks work:
+const twice = fn => x => fn(fn(x));
+twice(n => n + 1)(5);          // 7
+
+// Two things that are NOT JavaScript, though people say they are:
+//   • the DOM, fetch, setTimeout  → given by the browser
+//   • require, fs, process        → given by Node
+// The language itself is defined by ECMAScript.
+
+// And despite the name, it has nothing to do with Java.
+// It was named that way in 1995 for marketing reasons.`,
+      output: `7`,
+    },
   },
   {
     question: 'What are the data types in JavaScript?',
@@ -2989,6 +4173,37 @@ ReferenceError: Cannot access 'age' before initialization`,
         'JavaScript has 7 primitive types — string, number, boolean, undefined, null, symbol (ES6), and bigint (ES2020) — plus one non-primitive type, object (which covers arrays, functions, dates, maps, sets, etc.). Primitives are immutable and compared by value; objects are mutable and compared by reference. `typeof` distinguishes them at runtime, though `typeof null` famously (and incorrectly) returns "object" — a long-standing language bug kept for backward compatibility.',
       hinglish:
         'JavaScript mein 7 primitive types hain — string, number, boolean, undefined, null, symbol (ES6), aur bigint (ES2020) — plus ek non-primitive type, object (jo arrays, functions, dates, maps, sets, etc. cover karta hai). Primitives immutable hote hain aur value se compare hote hain; objects mutable hote hain aur reference se compare hote hain. `typeof` runtime pe inhe distinguish karta hai, chahe `typeof null` famously (aur incorrectly) "object" return karta hai — ek purana language bug jo backward compatibility ke liye rakha gaya hai.',
+    },
+    codeExample: {
+      code: `// SEVEN primitives — simple, immutable values
+typeof 42;                 // 'number'   — one type for int and float
+typeof 9007199254740993n;  // 'bigint'   — integers beyond number's limit
+typeof 'hi';               // 'string'
+typeof true;               // 'boolean'
+typeof undefined;          // 'undefined'
+typeof Symbol('id');       // 'symbol'   — a guaranteed-unique key
+typeof null;               // 'object'   ← a known bug, kept forever
+
+// Everything else is an OBJECT
+typeof {};                 // 'object'
+typeof [];                 // 'object'   — arrays are objects
+typeof new Date();         // 'object'
+typeof function () {};     // 'function' — really an object too
+
+// The difference that matters day to day:
+let a = 1, b = a;   b = 2;
+console.log(a);            // 1 — primitives are COPIED
+
+let x = {n:1}, y = x;  y.n = 2;
+console.log(x.n);          // 2 — objects share a REFERENCE
+
+// Better checks than typeof:
+Array.isArray([]);                            // true
+Object.prototype.toString.call(new Date());   // '[object Date]'`,
+      output: `1
+2
+true
+[object Date]`,
     },
   },
   {
@@ -3040,6 +4255,40 @@ true`,
       hinglish:
         'Har JS value "truthy" ya "falsy" hoti hai jab boolean context (if, &&, ||, ternary) mein evaluate ho. Exactly 8 falsy values hain: `false`, `0`, `-0`, `0n` (BigInt zero), `""` (empty string), `null`, `undefined`, aur `NaN`. Baaki har value — including `"0"`, `"false"`, `[]` (empty array), aur `{}` (empty object) — truthy hoti hai, jo ek common bug source hai jab log assume karte hain ki empty arrays/objects falsy hote hain.',
     },
+    visual: 'coercion',
+    codeExample: {
+      code: `// When JS needs a yes/no (if, ||, &&, !) it converts your value.
+// Exactly EIGHT things are falsy. Everything else is truthy.
+
+false, 0, -0, 0n, '', null, undefined, NaN     // the whole list
+
+// The ones that trip people up — all TRUTHY:
+Boolean('0');       // true — a non-empty string
+Boolean('false');   // true — still just letters
+Boolean([]);        // true — empty array is an object
+Boolean({});        // true — empty object
+Boolean(-1);        // true — only zero is falsy
+
+// The classic bug:
+function show(count) {
+  if (!count) return 'none';    // 0 is a real answer!
+  return count;
+}
+show(0);            // 'none'  ✗
+
+// Fix — say what you actually mean:
+if (count === undefined) …
+// or use ?? which only catches null and undefined:
+0 || 'fallback';    // 'fallback'  ✗
+0 ?? 'fallback';    // 0           ✓`,
+      output: `true
+true
+true
+true
+'none'
+'fallback'
+0`,
+    },
   },
   {
     question: 'What is undefined?',
@@ -3050,6 +4299,46 @@ true`,
         '`undefined` is a primitive value automatically assigned by JavaScript when a variable is declared but not initialised, a function parameter is not passed, a function has no explicit return, or an object property does not exist. It represents "value not yet assigned" — it is the language\'s own default, not something a developer typically assigns intentionally (though you can).',
       hinglish:
         '`undefined` ek primitive value hai jo JavaScript automatically assign karta hai jab ek variable declare ho par initialise na ho, ek function parameter pass na ho, function ka explicit return na ho, ya object property exist na kare. Ye represent karta hai "value abhi tak assign nahi hui" — ye language ka apna default hai, kuch aisa nahi jo developer typically intentionally assign kare (chahe kar sakte ho).',
+    },
+    codeExample: {
+      code: `// undefined means "this exists, but nothing has been put in it".
+// JavaScript sets it for you — you rarely write it yourself.
+
+let a;                    // declared, never assigned
+a;                        // undefined
+
+({}).nothing;             // undefined — missing property
+[1,2][99];                // undefined — index out of range
+
+function f(x) { return x; }
+f();                      // undefined — argument not passed
+
+function g() {}
+g();                      // undefined — no return statement
+
+typeof undefined;         // 'undefined'
+
+// Safe checks:
+if (a === undefined) …            // explicit
+if (typeof maybe === 'undefined') // works even if never declared
+
+// Compare with null: null is a value YOU choose to mean empty.
+undefined == null;        // true  — loosely, both are "empty"
+undefined === null;       // false — different types
+
+// Handy: ?? and default parameters treat only undefined as missing
+function h(n = 10) { return n; }
+h(undefined);             // 10
+h(null);                  // null — null is a real value`,
+      output: `undefined
+undefined
+undefined
+undefined
+'undefined'
+true
+false
+10
+null`,
     },
   },
   {
@@ -3062,6 +4351,38 @@ true`,
       hinglish:
         '`null` ek primitive value hai jo kisi bhi object value ki intentional absence represent karta hai — developer explicitly ise assign karta hai ye kehne ke liye "is variable ki abhi koi value nahi honi chahiye." `undefined` (language ka default "abhi tak set nahi") ke ulat, `null` ek deliberate signal hai, commonly ek object reference reset karne ya ek variable initialise karne ke liye use hota hai jo baad mein object hold karega.',
     },
+    codeExample: {
+      code: `// null means "deliberately empty". A human decided this.
+let user = null;          // we know there is no user yet
+
+typeof null;              // 'object'  ← a bug from 1995, never fixed
+                          // (fixing it would break the web)
+
+// Correct way to check for null:
+user === null;            // true
+Object.is(user, null);    // true
+
+// Where null shows up from built-ins:
+'abc'.match(/z/);         // null — no match found
+document.getElementById('nope');   // null — element not there
+
+// JSON keeps null but throws undefined away:
+JSON.stringify({ a: null, b: undefined });   // '{"a":null}'
+
+// null in maths behaves like 0, undefined does not:
+null + 1;                 // 1
+undefined + 1;            // NaN
+
+// Practical rule:
+//   undefined → "not set yet" (let JS produce it)
+//   null      → "set, and intentionally nothing"`,
+      output: `'object'
+true
+null
+'{"a":null}'
+1
+NaN`,
+    },
   },
   {
     question: 'What is NaN?',
@@ -3073,6 +4394,42 @@ true`,
       hinglish:
         '`NaN` ("Not a Number") ek special numeric value hai jo ek invalid ya undefined mathematical operation se result hoti hai, jaise `0/0`, `Math.sqrt(-1)`, ya `parseInt("abc")`. Iska `typeof` confusingly "number" hai. Sabse strange property: `NaN` JavaScript mein sirf aisi value hai jo khud ke barabar nahi hoti (`NaN === NaN` `false` hai), isliye reliably check karne ke liye `Number.isNaN(x)` ya `Object.is(x, NaN)` use karna padta hai — kabhi `x === NaN` nahi.',
     },
+    codeExample: {
+      code: `// NaN = "Not a Number" — the result of an impossible calculation.
+0 / 0;               // NaN
+'abc' * 2;           // NaN
+Math.sqrt(-1);       // NaN
+parseInt('hello');   // NaN
+undefined + 1;       // NaN
+
+typeof NaN;          // 'number'  ← ironic, but it IS a number type
+
+// The famous rule: NaN is not equal to ANYTHING, even itself.
+NaN === NaN;         // false
+NaN == NaN;          // false
+[NaN].includes(NaN); // true  ← includes uses a different comparison
+
+// So how do you check for it?
+Number.isNaN(NaN);   // true   ✓ the right way
+Number.isNaN('abc'); // false  — it is a string, not NaN
+
+isNaN('abc');        // true   ✗ the OLD global — it converts first,
+                     //          so it lies about non-numbers
+
+// Once NaN enters a calculation it spreads:
+[1, 2, NaN].reduce((a, b) => a + b);   // NaN
+
+// Guard when parsing user input:
+const n = Number(input);
+if (Number.isNaN(n)) return 'please enter a number';`,
+      output: `'number'
+false
+true
+true
+false
+true
+NaN`,
+    },
   },
   {
     question: 'What is the difference between primitive and reference data types?',
@@ -3083,6 +4440,44 @@ true`,
         'Primitives (string, number, boolean, null, undefined, symbol, bigint) are stored directly by value on the stack — copying a primitive creates an independent copy, so changing the copy never affects the original. Reference types (objects, arrays, functions) are stored on the heap; the variable holds a reference (pointer) to that memory location. Copying a reference copies the pointer, not the data, so two variables can point to the same object — mutating it through one variable is visible through the other.',
       hinglish:
         'Primitives (string, number, boolean, null, undefined, symbol, bigint) stack pe directly value se store hote hain — ek primitive copy karne se independent copy banti hai, isliye copy change karne se original kabhi affect nahi hota. Reference types (objects, arrays, functions) heap pe store hote hain; variable us memory location ka ek reference (pointer) hold karta hai. Reference copy karne se pointer copy hota hai, data nahi, isliye do variables same object ko point kar sakte hain — ek variable ke through mutate karna doosre se bhi visible hota hai.',
+    },
+    codeExample: {
+      code: `// PRIMITIVES are copied by VALUE
+let a = 1;
+let b = a;        // b gets its own copy
+b = 2;
+console.log(a);   // 1 — untouched
+
+// OBJECTS are copied by REFERENCE (the address, not the thing)
+let x = { n: 1 };
+let y = x;        // y points at the SAME object
+y.n = 2;
+console.log(x.n); // 2 — both names see the change
+
+// Comparison follows the same rule:
+'hi' === 'hi';          // true  — same value
+{ a: 1 } === { a: 1 };  // false — two different objects
+const o = {}; o === o;  // true  — same reference
+
+// This is why functions can surprise you:
+function change(obj, num) {
+  obj.n = 99;     // caller SEES this
+  num = 99;       // caller does NOT — num was a copy
+}
+const data = { n: 1 };
+let count = 1;
+change(data, count);
+data.n;           // 99
+count;            // 1
+
+// Copy before mutating if the caller should not be affected:
+const safe = { ...data };`,
+      output: `1
+2
+true
+false
+99
+1`,
     },
   },
   {
@@ -3142,6 +4537,45 @@ true
       hinglish:
         'Implicit conversion (type coercion) automatically, silently, engine ke through hoti hai — jaise `"5" * "2"` `10` ban jaata hai kyunki `*` ka string meaning nahi hai. Explicit conversion tab hoti hai jab developer deliberately ek type ko functions se convert kare jaise `Number("5")`, `String(5)`, `Boolean(1)`, ya `parseInt("5px")`. Production code mein explicit conversion preferred hai kyunki ye intent clear karta hai aur engine ke implicit rules pe depend karne se zyada easy hai reason karna aur debug karna.',
     },
+    visual: 'coercion',
+    codeExample: {
+      code: `// IMPLICIT — JavaScript converts behind your back
+'5' + 3;      // '53'  — + with a string GLUES
+'5' - 3;      // 2     — every other operator does maths
+'5' * '2';    // 10
+true + 1;     // 2     — true becomes 1
+[] + {};      // '[object Object]'
+1 < 2 < 3;    // true  — but for the wrong reason!
+3 > 2 > 1;    // false — (3>2) is true, true>1 is false
+
+// EXPLICIT — you convert on purpose. Always clearer.
+Number('5');      // 5
+Number('abc');    // NaN
+parseInt('5px');  // 5    — stops at the first non-digit
+String(5);        // '5'
+Boolean(0);       // false
+(5).toString();   // '5'
++'42';            // 42   — the unary plus shortcut
+
+// parseInt vs Number, the one that bites:
+Number('');       // 0     — empty string becomes zero
+parseInt('');     // NaN
+Number('12px');   // NaN
+parseInt('12px'); // 12
+
+// Rule: never rely on implicit conversion for user input.
+const age = Number(input);
+if (Number.isNaN(age)) return 'invalid';`,
+      output: `'53'
+2
+10
+2
+true
+false
+5
+NaN
+12`,
+    },
   },
   {
     question: 'What is the typeof operator?',
@@ -3152,6 +4586,42 @@ true
         '`typeof` is a unary operator that returns a string naming the type of its operand: "string", "number", "boolean", "undefined", "symbol", "bigint", "function", or "object". Quirks to remember: `typeof null === "object"` (a decades-old bug never fixed for compatibility), `typeof NaN === "number"` (NaN is still a number type), and `typeof []` and `typeof {}` are both `"object"` — use `Array.isArray()` to distinguish arrays specifically.',
       hinglish:
         '`typeof` ek unary operator hai jo apne operand ke type ka naam batane wala string return karta hai: "string", "number", "boolean", "undefined", "symbol", "bigint", "function", ya "object". Yaad rakhne wale quirks: `typeof null === "object"` (ek decades-old bug jo compatibility ke liye kabhi fix nahi hua), `typeof NaN === "number"` (NaN abhi bhi number type hai), aur `typeof []` aur `typeof {}` dono `"object"` hain — arrays ko specifically distinguish karne ke liye `Array.isArray()` use karo.',
+    },
+    codeExample: {
+      code: `typeof 42;              // 'number'
+typeof 'hi';            // 'string'
+typeof true;            // 'boolean'
+typeof undefined;       // 'undefined'
+typeof Symbol();        // 'symbol'
+typeof 10n;             // 'bigint'
+typeof {};              // 'object'
+typeof [];              // 'object'    ← cannot spot arrays
+typeof null;            // 'object'    ← the famous bug
+typeof function(){};    // 'function'
+
+// Two things typeof cannot do:
+//   1. tell an array from an object  → use Array.isArray()
+//   2. tell null from an object      → use value === null
+
+// Its one superpower: it does NOT throw on undeclared names.
+typeof neverDeclared;   // 'undefined'  — safe
+neverDeclared;          // ReferenceError
+
+// …except inside a temporal dead zone:
+typeof x; let x;        // ReferenceError
+
+// For precise types, use this instead:
+const typeOf = v => Object.prototype.toString.call(v).slice(8, -1);
+typeOf([]);             // 'Array'
+typeOf(null);           // 'Null'
+typeOf(new Date());     // 'Date'`,
+      output: `'object'
+'object'
+'function'
+'undefined'
+Array
+Null
+Date`,
     },
   },
   {
@@ -3164,6 +4634,42 @@ true
       hinglish:
         '`instanceof` check karta hai ki ek object ki prototype chain mein diye gaye constructor ki `.prototype` property hai ya nahi — `obj instanceof Ctor` `obj.__proto__ → obj.__proto__.__proto__ → ...` walk karta hai `Ctor.prototype` dhundhte hue. Ye check karne ke liye use hota hai ki koi object ek class ka instance hai — `[] instanceof Array` `true` hai, `[] instanceof Object` bhi `true` hai (arrays Object se inherit karte hain). `typeof` ke ulat, ye custom classes ke liye kaam karta hai par different execution contexts/iframes ke across fail ho jaata hai kyunki har ek ki apni constructor identity hoti hai.',
     },
+    codeExample: {
+      code: `// instanceof asks: is this constructor's prototype
+// anywhere in the object's prototype chain?
+
+[] instanceof Array;        // true
+[] instanceof Object;       // true  — Array inherits from Object
+'hi' instanceof String;     // false — a primitive, not an object
+new String('hi') instanceof String;   // true
+
+class Animal {}
+class Dog extends Animal {}
+const d = new Dog();
+d instanceof Dog;           // true
+d instanceof Animal;        // true — inherited counts
+
+// Where it FAILS: across frames/iframes/workers.
+// Each context has its OWN Array constructor.
+arrayFromIframe instanceof Array;   // false (!)
+Array.isArray(arrayFromIframe);     // true  ✓ use this
+
+// It also fails for primitives, which is why typeof still matters:
+typeof 'hi';                // 'string'  ✓
+'hi' instanceof String;     // false
+
+// Quick guide:
+//   primitive?     → typeof
+//   array?         → Array.isArray
+//   custom class?  → instanceof
+//   exact builtin? → Object.prototype.toString.call(v)`,
+      output: `true
+true
+false
+true
+true
+true`,
+    },
   },
   {
     question: 'What is the difference between Object and Map?',
@@ -3174,6 +4680,40 @@ true
         'A plain Object has string/symbol keys only (numeric keys get stringified), inherits properties from its prototype chain (which can cause collisions with built-in names like "toString"), has no reliable `.size`, and iteration order is a somewhat complex spec rule. A Map allows keys of ANY type (objects, functions, NaN — even objects as keys), has no default inheritance so no accidental collisions, has an O(1) `.size` property, and reliably iterates in insertion order. Use Map when keys are dynamic/unknown or non-string, or when you need frequent additions/removals.',
       hinglish:
         'Ek plain Object mein sirf string/symbol keys hoti hain (numeric keys stringify ho jaati hain), apni prototype chain se properties inherit karta hai (jo built-in names jaise "toString" ke saath collisions cause kar sakta hai), koi reliable `.size` nahi, aur iteration order ek somewhat complex spec rule hai. Ek Map ANY type ki keys allow karta hai (objects, functions, NaN — even objects as keys), koi default inheritance nahi isliye koi accidental collisions nahi, ek O(1) `.size` property, aur reliably insertion order mein iterate karta hai. Map use karo jab keys dynamic/unknown ya non-string hon, ya jab frequent additions/removals chahiye hon.',
+    },
+    codeExample: {
+      code: `// KEYS
+const obj = {};
+obj[1] = 'a';  obj['1'] = 'b';
+obj[1];               // 'b'  — the number became the string '1'!
+
+const map = new Map();
+map.set(1, 'a');  map.set('1', 'b');
+map.get(1);           // 'a'  ✓ types are kept apart
+map.set({}, 'x');     // objects work as keys too
+
+// SIZE
+Object.keys(obj).length;   // you have to build an array first
+map.size;                  // direct
+
+// ORDER
+// Map always keeps insertion order.
+// Object puts integer-like keys FIRST, in numeric order:
+const weird = { b: 1, 2: 2, a: 3, 1: 4 };
+Object.keys(weird);        // ['1','2','b','a']  — not what you wrote
+
+// INHERITED KEYS — a real safety issue with user input
+const dict = {};
+dict['toString'];          // a function, not undefined!
+new Map().get('toString'); // undefined ✓
+
+// Use Object for fixed, known fields and JSON.
+// Use Map for a real dictionary: unknown keys, frequent
+// add/delete, non-string keys, or when you need .size.`,
+      output: `b
+a
+1,2,b,a
+undefined`,
     },
   },
   {
@@ -3186,6 +4726,45 @@ true
       hinglish:
         'Ek Array ek ordered, index-based collection hai (keys sequential integers 0, 1, 2... hoti hain) ordered data ke liye optimised aur built-in methods (map, filter, reduce, push, etc.) `Array.prototype` ke through. Ek Object key-value pairs ka ek unordered (technically string keys ke liye insertion-ordered) collection hai, named/labelled data ke liye better suited jahan tum ek meaningful key se cheez dhundhte ho, position se nahi. Under the hood, arrays actually objects HAIN — `typeof [] === "object"` — bas special index-based behaviour aur ek `.length` property ke saath.',
     },
+    codeExample: {
+      code: `// An array IS an object — with a special length and ordered keys.
+typeof [];              // 'object'
+Array.isArray([]);      // true  ← the real check
+
+const arr = ['a', 'b'];
+arr[0];                 // 'a' — accessed by POSITION
+arr.length;             // 2   — kept up to date automatically
+
+const obj = { first: 'a', second: 'b' };
+obj.first;              // 'a' — accessed by NAME
+
+// Arrays give you the iteration methods:
+arr.map(x => x);  arr.filter(Boolean);  arr.reduce(fn);
+// Objects need converting first:
+Object.entries(obj).map(([k, v]) => k + v);
+
+// Do not use array indexes as object keys — length breaks:
+const fake = {};  fake[0] = 'a';
+fake.length;            // undefined
+
+// And avoid holes in arrays:
+const holey = [1, , 3];
+holey.length;           // 3
+holey[1];               // undefined — but the slot does not exist
+1 in holey;             // false
+
+// Pick by intent:
+//   ordered list, same kind of thing → Array
+//   named fields, different kinds    → Object`,
+      output: `object
+true
+a
+2
+a
+undefined
+3
+false`,
+    },
   },
   {
     question: 'How do you check if a value is an array?',
@@ -3196,6 +4775,37 @@ true
         'Use `Array.isArray(value)` — it returns `true` only for real arrays, and it works reliably even across different iframes/execution contexts (unlike `instanceof Array`, which can fail cross-realm because each realm has its own Array constructor). `typeof` is useless here since `typeof []` is `"object"`, same as a plain object. `Array.isArray()` is the standard, spec-recommended way and has been supported since ES5.',
       hinglish:
         '`Array.isArray(value)` use karo — ye sirf real arrays ke liye `true` return karta hai, aur ye reliably kaam karta hai different iframes/execution contexts ke across bhi (unlike `instanceof Array`, jo cross-realm fail ho sakta hai kyunki har realm ka apna Array constructor hota hai). `typeof` yahan bekaar hai kyunki `typeof []` `"object"` hai, plain object jaisa hi. `Array.isArray()` standard, spec-recommended tareeka hai aur ES5 se supported hai.',
+    },
+    codeExample: {
+      code: `// The correct answer:
+Array.isArray([1, 2]);        // true
+Array.isArray('abc');         // false
+Array.isArray({ length: 2 }); // false
+
+// Why not typeof? Because it cannot tell you:
+typeof [];                    // 'object' — same as {} and null
+
+// Why not instanceof? It breaks across FRAMES.
+// An array from an iframe has a different Array constructor,
+// so this can wrongly say false:
+arrayFromIframe instanceof Array;      // false (!)
+Array.isArray(arrayFromIframe);        // true  ✓
+
+// The pre-2015 workaround, which still works:
+Object.prototype.toString.call([]);    // '[object Array]'
+
+// Array-LIKE things are not arrays — they have length and
+// indexes but none of the methods:
+function f() {
+  Array.isArray(arguments);            // false
+  return Array.from(arguments);        // now a real array
+}
+f(1, 2);                               // [1, 2]`,
+      output: `true
+false
+false
+[object Array]
+[ 1, 2 ]`,
     },
   },
   {
@@ -3208,6 +4818,40 @@ true
       hinglish:
         '`slice(start, end)` non-mutating hai — ye ek NAYA array return karta hai jisme selected portion ki shallow copy hoti hai, original array untouched rehta hai. `splice(start, deleteCount, ...items)` mutating hai — ye original array ko IN PLACE change karta hai elements remove/replace/insert karke, aur REMOVED elements ka array return karta hai. Mnemonic: "slice" read-only slice ke liye, "splice" surgery ke liye jo actually original ko kaat ti hai.',
     },
+    codeExample: {
+      code: `// SLICE — copies. Original untouched.
+const a = [1, 2, 3, 4, 5];
+a.slice(1, 3);      // [2, 3]  — from index 1 UP TO (not incl.) 3
+console.log(a);     // [1,2,3,4,5]  ✓ unchanged
+a.slice(-2);        // [4, 5]  — negative counts from the end
+a.slice();          // a shallow copy of the whole array
+
+// SPLICE — cuts. Original IS changed.
+const b = [1, 2, 3, 4, 5];
+b.splice(1, 2);     // returns [2, 3]  — the REMOVED items
+console.log(b);     // [1, 4, 5]  ✗ mutated
+
+// splice can also insert:
+const c = [1, 4];
+c.splice(1, 0, 2, 3);   // remove 0 items at index 1, insert 2 and 3
+console.log(c);         // [1, 2, 3, 4]
+
+// Remember by the letter:
+//   sPlice has a P — it's destructive (chops the array)
+//   slice is safe
+
+// Second argument differs too:
+//   slice(start, END index)
+//   splice(start, COUNT to delete)
+
+// Modern non-mutating alternative:
+[1,2,3].toSpliced(1, 1);   // [1,3], original safe`,
+      output: `[ 2, 3 ]
+[ 1, 2, 3, 4, 5 ]
+[ 2, 3 ]
+[ 1, 4, 5 ]
+[ 1, 2, 3, 4 ]`,
+    },
   },
   {
     question: 'What is the difference between for, for...of, and for...in?',
@@ -3219,6 +4863,40 @@ true
       hinglish:
         'Classic `for (let i=0; i<n; i++)` loop index pe full manual control deta hai — performance-critical code ya non-standard iteration ke liye best. `for...of` ek iterable (arrays, strings, Maps, Sets, generators) ki VALUES pe iterate karta hai — arrays ke liye modern default. `for...in` ek object ki ENUMERABLE KEYS (property names, strings ke roop mein) pe iterate karta hai, inherited enumerable properties included — ye plain objects ke liye meant hai, arrays ke liye NAHI (arrays pe use karne se unexpected inherited/added properties iterate ho sakte hain aur numeric order guarantee nahi hota).',
     },
+    codeExample: {
+      code: `const arr = ['a', 'b', 'c'];
+
+// classic for — full control, can break, gives the index
+for (let i = 0; i < arr.length; i++) console.log(i, arr[i]);
+
+// for…of — gives the VALUES. Use this for arrays.
+for (const v of arr) console.log(v);          // a, b, c
+
+// for…in — gives the KEYS, as STRINGS. Meant for objects.
+for (const k in arr) console.log(k, typeof k); // '0' string, '1'…
+
+// Why for…in on an array is a trap:
+arr.extra = 'oops';
+for (const k in arr) console.log(k);   // 0,1,2, AND 'extra'
+// It also walks INHERITED properties, and order is not guaranteed.
+
+// For objects, prefer the explicit forms:
+const o = { x: 1, y: 2 };
+for (const [k, v] of Object.entries(o)) console.log(k, v);
+Object.keys(o);      // own keys only, no inherited surprises
+
+// forEach cannot break or await:
+[1,2,3].forEach(async v => await save(v));   // does NOT wait
+for (const v of [1,2,3]) await save(v);      // ✓ waits
+
+// Quick rule: for…of for values, Object.entries for objects,
+// for…in almost never.`,
+      output: `a
+b
+c
+0 string
+extra`,
+    },
   },
   {
     question: 'What is the difference between includes() and indexOf()?',
@@ -3229,6 +4907,42 @@ true
         '`indexOf(item)` returns the numeric position of the first matching element (or `-1` if not found) — useful when you need the POSITION. `includes(item)` returns a simple `true`/`false` for whether the element exists — cleaner and more readable when you only care about presence, not position. Crucially, `includes()` correctly finds `NaN` (`[NaN].includes(NaN)` is `true`), while `indexOf()` cannot (`[NaN].indexOf(NaN)` is `-1`) because `indexOf` uses `===` comparison and `NaN === NaN` is false.',
       hinglish:
         '`indexOf(item)` pehle matching element ki numeric position return karta hai (ya `-1` agar na mile) — useful jab tumhe POSITION chahiye. `includes(item)` simple `true`/`false` return karta hai element exist karta hai ya nahi — cleaner aur more readable jab sirf presence matter karti ho, position nahi. Crucially, `includes()` correctly `NaN` find karta hai (`[NaN].includes(NaN)` `true` hai), jabki `indexOf()` nahi kar sakta (`[NaN].indexOf(NaN)` `-1` hai) kyunki `indexOf` `===` comparison use karta hai aur `NaN === NaN` false hai.',
+    },
+    codeExample: {
+      code: `const arr = [1, 2, 3];
+
+arr.indexOf(2);      // 1   — the position
+arr.indexOf(9);      // -1  — the "not found" signal
+arr.includes(2);     // true
+arr.includes(9);     // false
+
+// includes reads better when you only care yes/no:
+if (arr.indexOf(2) !== -1) …    // easy to write !== 0 by mistake
+if (arr.includes(2)) …          // ✓ clear
+
+// The real difference — NaN:
+[NaN].indexOf(NaN);    // -1    ✗ indexOf uses ===, and NaN !== NaN
+[NaN].includes(NaN);   // true  ✓ includes handles it
+
+// Both compare by identity, so objects need find():
+[{id:1}].includes({id:1});          // false — different objects
+[{id:1}].some(o => o.id === 1);     // true  ✓
+
+// Both work on strings too:
+'hello'.includes('ell');    // true
+'hello'.indexOf('ell');     // 1
+
+// Both are O(n). Inside a loop over a big list, use a Set:
+const set = new Set(bigArray);
+items.filter(x => set.has(x));      // O(1) per check`,
+      output: `1
+-1
+true
+false
+-1
+true
+false
+true`,
     },
   },
 
@@ -3243,6 +4957,36 @@ true
       hinglish:
         'Ek function declaration `function` keyword ko naam ke saath statement level pe use karta hai: `function greet() {...}`. Ye fully hoisted hota hai — naam AUR implementation dono us line se pehle available hote hain jahan likha gaya hai, isliye tum ise file mein pehle call kar sakte ho. Ye function expression se alag hai, jo sirf ek variable ke roop mein hoisted hota hai (uski value baad mein, definition ke point pe assign hoti hai).',
     },
+    codeExample: {
+      code: `// A declaration starts with the word \`function\` and has a name.
+function greet(name) {
+  return 'Hello ' + name;
+}
+
+// Its defining feature: it is FULLY hoisted.
+// The whole function is available before its own line.
+sayHi();                     // ✓ works
+function sayHi() { return 'hi'; }
+
+// An expression is not:
+// sayBye();                 // ✗ TypeError: sayBye is not a function
+const sayBye = function () { return 'bye'; };
+
+// Declarations are also scoped to the enclosing function/block:
+function outer() {
+  function inner() {}        // only visible inside outer
+  return inner;
+}
+
+// Inside a block, behaviour differs between strict and sloppy
+// mode, so avoid declaring functions inside if/for:
+if (true) { function risky() {} }   // ⚠ inconsistent — use const instead
+
+// Practical takeaway: declarations let you write helpers at the
+// bottom and use them at the top, which reads well. Expressions
+// force definition-before-use, which some teams prefer.`,
+      output: `hi`,
+    },
   },
   {
     question: 'What is a function expression?',
@@ -3253,6 +4997,37 @@ true
         'A function expression assigns a function (named or anonymous) to a variable: `const greet = function() {...}`. Unlike a function declaration, it is NOT hoisted with its implementation — only the `const`/`let`/`var` variable binding follows normal hoisting rules, meaning calling `greet()` before this line throws a ReferenceError (with `const`/`let`, due to the TDZ) or gives `undefined is not a function` (with `var`). Function expressions are commonly used for callbacks and conditionally-defined functions.',
       hinglish:
         'Ek function expression ek function (named ya anonymous) ko ek variable mein assign karta hai: `const greet = function() {...}`. Function declaration ke ulat, ye apni implementation ke saath hoisted NAHI hota — sirf `const`/`let`/`var` variable binding normal hoisting rules follow karti hai, matlab is line se pehle `greet()` call karne se ReferenceError aata hai (`const`/`let` ke saath, TDZ ki wajah se) ya `undefined is not a function` milta hai (`var` ke saath). Function expressions commonly callbacks aur conditionally-defined functions ke liye use hote hain.',
+    },
+    codeExample: {
+      code: `// A function used as a VALUE — assigned, passed, or returned.
+const greet = function (name) {
+  return 'Hello ' + name;
+};
+
+// Only the variable is hoisted, not the function:
+// greet();       // TypeError: greet is not a function (before the line)
+
+// Anonymous — the common form:
+setTimeout(function () { console.log('later'); }, 100);
+
+// Named expression — the name is visible only INSIDE, which
+// is handy for recursion and gives better stack traces:
+const fact = function f(n) {
+  return n <= 1 ? 1 : n * f(n - 1);   // f works in here
+};
+fact(5);          // 120
+// typeof f       // ReferenceError — not visible outside
+
+// Arrow functions are always expressions:
+const double = n => n * 2;
+
+// IIFE — an expression invoked on the spot:
+(function () { console.log('runs immediately'); })();
+
+// Use an expression when the function is data: a callback,
+// a value in an object, or something you build conditionally.`,
+      output: `120
+runs immediately`,
     },
   },
   {
@@ -3265,6 +5040,37 @@ true
       hinglish:
         'Callback ek function hai jo doosre function mein argument ke roop mein pass hota hai, baad mein invoke (call back) hone ke liye — ya to synchronously (jaise `[1,2].map(x => x*2)`) ya asynchronously (jaise `setTimeout(() => {...}, 1000)`, ya Node.js ka `fs.readFile(path, callback)`). Callbacks core mein JavaScript ke asynchrony handle karne ka tareeka hain — Promises aur async/await usi callback mechanism ke upar bane hain, bas cleaner syntax aur better error propagation ke saath.',
     },
+    codeExample: {
+      code: `// A function you hand to another function, to be called later.
+
+// Synchronous — called right away, during the same tick:
+[1, 2, 3].map(function (n) { return n * 2; });   // [2,4,6]
+
+// Asynchronous — called after something finishes:
+setTimeout(() => console.log('1 second later'), 1000);
+button.addEventListener('click', () => console.log('clicked'));
+
+// Writing one yourself:
+function fetchUser(id, callback) {
+  setTimeout(() => callback(null, { id, name: 'Asha' }), 100);
+}
+fetchUser(1, (err, user) => {
+  if (err) return console.error(err);
+  console.log(user.name);
+});
+
+// The Node convention: error FIRST, so it is hard to ignore.
+
+// The problem callbacks create — nesting, once steps depend
+// on each other. Three levels deep and it becomes hard to read
+// and harder to handle errors in. That is "callback hell",
+// and it is exactly why promises and async/await exist.
+
+// One rule: call the callback once, and only once.`,
+      output: `Asha
+clicked
+1 second later`,
+    },
   },
   {
     question: 'What are first-class functions?',
@@ -3275,6 +5081,37 @@ true
         'A language has "first-class functions" if functions are treated like any other value: they can be assigned to variables, stored in arrays/objects, passed as arguments (callbacks), and returned from other functions (higher-order functions). JavaScript treats functions this way natively, which is what enables functional programming patterns like map/filter/reduce, currying, and composition to exist without special language support.',
       hinglish:
         'Ek language mein "first-class functions" tab hoti hain jab functions ko kisi bhi doosri value ki tarah treat kiya jaaye: variables mein assign ho sakein, arrays/objects mein store ho sakein, arguments (callbacks) ke roop mein pass ho sakein, aur doosre functions se return ho sakein (higher-order functions). JavaScript functions ko natively is tarah treat karta hai, yahi wajah hai functional programming patterns jaise map/filter/reduce, currying, aur composition bina special language support ke exist kar sakte hain.',
+    },
+    codeExample: {
+      code: `// "First-class" means functions are treated like any other value.
+// You can do all four of these:
+
+// 1. store in a variable
+const greet = () => 'hi';
+
+// 2. pass as an argument
+[1, 2].map(n => n * 2);
+
+// 3. return from a function
+const make = prefix => msg => prefix + msg;
+make('[log] ')('started');       // '[log] started'
+
+// 4. keep in objects and arrays
+const handlers = { save() {}, load() {} };
+const steps = [() => 1, () => 2];
+
+// They are objects, so they even have properties:
+function f(a, b) {}
+f.name;         // 'f'
+f.length;       // 2 — number of declared parameters
+f.custom = 1;   // you can attach things
+
+// This one feature is what makes callbacks, higher-order
+// functions, closures, currying and functional composition
+// possible. Without it, none of those patterns exist.`,
+      output: `[log] started
+f
+2`,
     },
   },
   {
@@ -3287,6 +5124,39 @@ true
       hinglish:
         'IIFE (Immediately Invoked Function Expression) ek function hai jo define hote hi run hota hai: `(function() { console.log("run now"); })();`. Ye pre-ES6 ka classic tareeka tha private scope banane ka — andar declare kiye variables kabhi global scope mein leak nahi hote, scripts ke beech naming collisions avoid karte hue. Modern code isi purpose ke liye ES modules ya simply block scope (`{}` mein `let`/`const`) use karta hai, isliye IIFEs aaj kam common hain par library/bundler-generated code mein abhi bhi dikhte hain.',
     },
+    codeExample: {
+      code: `// Immediately Invoked Function Expression —
+// a function that defines and runs itself at once.
+(function () {
+  console.log('runs immediately');
+})();
+
+// Arrow version:
+(() => { console.log('also runs'); })();
+
+// The wrapping ( ) matter: they turn the declaration into an
+// EXPRESSION, which is what can be called.
+// function () {}();   ✗ SyntaxError
+
+// Why it existed: before let/const, var leaked everywhere.
+// An IIFE was the only way to get a private scope.
+var counter = (function () {
+  let count = 0;                 // nobody outside can reach this
+  return { inc: () => ++count };
+})();
+counter.inc();      // 1
+// count            ← ReferenceError ✓ truly private
+
+// Today a block or a module does the same job:
+{ let count = 0; }               // block scope
+// and every ES module has its own scope automatically.
+
+// Still useful for one thing: top-level await in older setups.
+(async () => { await main(); })();`,
+      output: `runs immediately
+also runs
+1`,
+    },
   },
   {
     question: 'What is recursion?',
@@ -3297,6 +5167,36 @@ true
         'Recursion is when a function calls itself to break a problem into smaller sub-problems, until it reaches a "base case" that stops the calling. Every recursive function needs: (1) a base case (the simplest, non-recursive scenario that ends the chain), and (2) a recursive case (that calls itself with a smaller/simpler input, moving towards the base case). Example: `function factorial(n) { return n <= 1 ? 1 : n * factorial(n - 1); }`. Deep recursion can cause a "Maximum call stack size exceeded" error since each call adds a frame to the call stack.',
       hinglish:
         'Recursion tab hai jab ek function khud ko call kare ek problem ko chhote sub-problems mein tod ne ke liye, jab tak wo ek "base case" tak na pahunche jo calling rok de. Har recursive function ko chahiye: (1) base case (sabse simple, non-recursive scenario jo chain khatam kare), aur (2) recursive case (jo khud ko chhote/simpler input ke saath call kare, base case ki taraf move karte hue). Example: `function factorial(n) { return n <= 1 ? 1 : n * factorial(n - 1); }`. Deep recursion se "Maximum call stack size exceeded" error aa sakti hai kyunki har call call stack mein ek frame add karti hai.',
+    },
+    codeExample: {
+      code: `// A function that calls itself, with a base case to stop.
+function factorial(n) {
+  if (n <= 1) return 1;          // BASE CASE — must exist
+  return n * factorial(n - 1);   // moves toward the base case
+}
+factorial(5);      // 120  → 5*4*3*2*1
+
+// Every recursive call adds a frame to the call stack:
+//   factorial(5) → (4) → (3) → (2) → (1) returns, then unwinds
+
+// Miss the base case and you run out of stack:
+// function boom() { return boom(); }
+// boom();   → RangeError: Maximum call stack size exceeded
+
+// JS has no tail-call optimisation in practice, so depth is
+// limited to roughly 10,000 frames. Deep work needs a loop.
+
+// Where recursion is genuinely the clearest tool — nested data:
+function countAll(items) {
+  return items.reduce(
+    (sum, i) => sum + 1 + (i.children ? countAll(i.children) : 0),
+    0
+  );
+}
+
+// And the classic fix for repeated work — memoise it:
+const fib = memo(n => (n <= 1 ? n : fib(n-1) + fib(n-2)));`,
+      output: `120`,
     },
   },
   {
@@ -3409,6 +5309,44 @@ true
         'Shadowing happens when a variable declared in an inner scope has the same name as a variable in an outer scope — the inner variable "shadows" (hides) the outer one for the duration of that inner scope, without modifying the outer variable at all. `let x = 1; { let x = 2; console.log(x); } console.log(x);` logs `2` then `1` — the inner `x` never touched the outer `x`. Illegal shadowing occurs if you try to shadow a `let`/`const` with `var` in the same or a nested function scope, which throws a SyntaxError.',
       hinglish:
         'Shadowing tab hoti hai jab ek inner scope mein declare kiya variable ek outer scope ke variable jaisa hi naam rakhta hai — inner variable us inner scope ki duration ke liye outer wale ko "shadow" (hide) karta hai, outer variable ko bilkul bhi modify kiye bina. `let x = 1; { let x = 2; console.log(x); } console.log(x);` `2` phir `1` log karta hai — inner `x` ne outer `x` ko kabhi touch nahi kiya. Illegal shadowing tab hoti hai agar tum same ya nested function scope mein `let`/`const` ko `var` se shadow karne ki koshish karo, jo SyntaxError throw karta hai.',
+    },
+    codeExample: {
+      code: `// An inner variable with the same name HIDES the outer one.
+let name = 'outer';
+
+function show() {
+  let name = 'inner';     // shadows the outer \`name\`
+  console.log(name);      // 'inner'
+}
+show();
+console.log(name);        // 'outer' — never touched
+
+// It happens per block, too:
+let x = 1;
+{
+  let x = 2;
+  console.log(x);         // 2
+}
+console.log(x);           // 1
+
+// Parameters shadow as well:
+const value = 'global';
+function f(value) { return value; }
+f('argument');            // 'argument'
+
+// The dangerous version — "illegal shadowing" with var:
+// let y = 1; { var y = 2; }   ✗ SyntaxError
+// because var escapes the block and would clash.
+
+// And the subtle bug: shadowing inside a loop or callback
+// means you are updating the copy, not the original.
+// If you meant to change the outer one, drop the let/const:
+function fix() { name = 'changed'; }   // no keyword → outer`,
+      output: `inner
+outer
+2
+1
+argument`,
     },
   },
   {
