@@ -61,6 +61,10 @@ async function getData(courseSlug, difficulty) {
         frequency: q.frequency || 'common',
         english: q.answer?.english || '',
         hinglish: q.answer?.hinglish || '',
+        codeExample: q.codeExample?.code
+          ? { code: q.codeExample.code, output: q.codeExample.output || '' }
+          : null,
+        visual: q.visual || '',
       }));
 
     return { courses, questions, courseById, countMap, activeCourse };
