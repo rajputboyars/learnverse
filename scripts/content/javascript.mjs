@@ -1790,6 +1790,31 @@ export const generalInterviewQuestions = [
       hinglish:
         'JavaScript by default single-threaded aur synchronous hai — ek time pe ek statement, ek hi call stack pe. Asynchronous behaviour (timers, fetch, promises) host environment (browser/Node) deta hai aur event loop ke through coordinate hota hai, isliye JS apne main thread pe kabhi sach mein parallel code nahi chalata.',
     },
+    visual: 'call-stack',
+    codeExample: {
+      code: `// JavaScript has ONE call stack — one thing at a time.
+
+function third()  { return 'done'; }
+function second() { return third(); }
+function first()  { return second(); }
+
+first();
+
+// The stack grows and shrinks like a pile of plates:
+//   push first()  →  push second()  →  push third()
+//   pop third()   →  pop second()   →  pop first()
+
+// Because there is only one stack, slow code BLOCKS everything:
+function freeze() {
+  const end = Date.now() + 3000;
+  while (Date.now() < end) {}   // page is frozen for 3 seconds
+}
+
+// So how does JS do two things at once?
+// It does not. The BROWSER handles timers and network,
+// then hands the result back when the stack is free.`,
+      output: `done`,
+    },
   },
   {
     question: 'What is the difference between null and undefined?',
@@ -1999,6 +2024,25 @@ export const generalInterviewQuestions = [
       hinglish:
         'Execution context: environment jisme JS code run karta hai (global ya function) — variable bindings, this, aur scope chain rakhta hai. Call stack: LIFO stack jo function calls track karta hai; function call hone pe push hota hai, return pe pop. Event loop: constantly check karta hai call stack empty hai ya nahi, phir queues se tasks move karta hai. Microtask queue: Promises (.then), queueMicrotask, MutationObserver callbacks hold karta hai — next macro-task se PEHLE process hote hain. Callback queue (task queue): setTimeout, setInterval, UI events hold karta hai — microtasks ke baad process hote hain.',
     },
+    visual: 'event-loop',
+    codeExample: {
+      code: `console.log('1 — runs now');
+
+setTimeout(() => console.log('4 — macrotask'), 0);
+
+Promise.resolve().then(() => console.log('3 — microtask'));
+
+console.log('2 — still runs now');
+
+// Even with 0ms, the timer waits. Why?
+// 1. All plain code finishes first.
+// 2. Then EVERY microtask runs.
+// 3. Only then does one macrotask run.`,
+      output: `1 — runs now
+2 — still runs now
+3 — microtask
+4 — macrotask`,
+    },
   },
   {
     question: 'What is the difference between setTimeout and setInterval?',
@@ -2087,6 +2131,31 @@ export const generalInterviewQuestions = [
       hinglish:
         'Closure ek function hai jo outer scope ke variables yaad rakhta hai aur access karta hai chahe outer function return ho chuka ho. Function un variables ke upar "close" ho jaata hai. Example: function counter() { let n=0; return () => ++n; } — returned function har call pe same n increment karta hai. Closures data privacy, factory functions, memoization, aur event handler state ka basis hain.',
     },
+    visual: 'closure',
+    codeExample: {
+      code: `function makeCounter() {
+  let count = 0;             // private — nobody outside can touch it
+  return function () {
+    count = count + 1;       // still remembers count
+    return count;
+  };
+}
+
+const a = makeCounter();
+const b = makeCounter();     // a SEPARATE count
+
+console.log(a()); // 1
+console.log(a()); // 2
+console.log(b()); // 1  ← its own copy
+
+// makeCounter already finished running.
+// Normally its variables would be thrown away.
+// But the inner function still uses count,
+// so JavaScript keeps that box alive. That is a closure.`,
+      output: `1
+2
+1`,
+    },
   },
   {
     question: 'What is hoisting in JavaScript?',
@@ -2097,6 +2166,29 @@ export const generalInterviewQuestions = [
         'Hoisting is JavaScript\'s behaviour of moving declarations to the top of their scope before execution. var declarations are hoisted with value undefined — so you can reference a var before its line (no error, but value is undefined). Function declarations are fully hoisted — you can call them before they appear in code. let and const are hoisted but stay in the Temporal Dead Zone until their declaration line — accessing them before that throws a ReferenceError.',
       hinglish:
         'Hoisting JavaScript ka behaviour hai jo declarations ko execution se pehle unke scope ke top pe move karta hai. var declarations undefined value ke saath hoisted hote hain — isliye var ko uski line se pehle reference kar sakte ho (error nahi, par value undefined hogi). Function declarations fully hoisted hote hain — code mein appear hone se pehle call kar sakte ho. let aur const hoisted hote hain par Temporal Dead Zone mein rehte hain unki declaration line tak — pehle access karo to ReferenceError.',
+    },
+    visual: 'hoisting',
+    codeExample: {
+      code: `console.log(name);   // undefined  — not an error!
+console.log(age);    // ReferenceError
+
+var name = 'Asha';
+let age = 25;
+
+// Why the difference?
+// Before running, JS reads the whole scope and
+// reserves a box for every variable.
+//   var  → box created AND filled with undefined
+//   let  → box created but LEFT EMPTY until its line runs
+//          (this empty period is the "temporal dead zone")
+
+sayHi();             // works — whole function is hoisted
+function sayHi() { console.log('hi'); }
+
+sayBye();            // TypeError: sayBye is not a function
+var sayBye = function () {};   // only the var is hoisted`,
+      output: `undefined
+ReferenceError: Cannot access 'age' before initialization`,
     },
   },
   {
@@ -2254,6 +2346,34 @@ export const generalInterviewQuestions = [
       hinglish:
         '`==` loose equality hai — compare karne se pehle operands ko same type mein coerce karta hai, isliye `1 == "1"` aur `null == undefined` dono true hain. `===` strict equality hai — koi type coercion nahi; value AUR type dono match hone chahiye, isliye `1 === "1"` false hai. Best practice: hamesha `===` use karo surprising coercion bugs se bachne ke liye (jaise `"" == 0` true hai, `[] == false` true hai), `==` ko sirf specific, well-known `== null` idiom ke liye reserve karo jo null aur undefined dono ek saath check karta hai.',
     },
+    visual: 'coercion',
+    codeExample: {
+      code: `// ===  checks TYPE first. Different type → false. No conversion.
+// ==   converts first, THEN compares. This is where surprises come from.
+
+0 === '0'      // false — number vs string
+0 ==  '0'      // true  — '0' is turned into 0
+
+'' ==  0       // true  — '' becomes 0
+[] ==  false   // true  — both end up as 0  (!)
+null == undefined   // true  — special rule, only for each other
+null == 0      // false — null is NOT converted to 0
+
+NaN == NaN     // false — NaN is never equal to anything
+Number.isNaN(NaN)   // true  ← use this instead
+
+// Rule of thumb: always use ===.
+// The one good use of == :
+if (value == null) { /* catches null AND undefined */ }`,
+      output: `false
+true
+true
+true
+true
+false
+false
+true`,
+    },
   },
   {
     question: 'What are truthy and falsy values?',
@@ -2319,6 +2439,42 @@ export const generalInterviewQuestions = [
         'Type coercion is JavaScript automatically converting a value from one type to another when an operation expects a different type — e.g. `"5" + 1` coerces the number to a string, producing `"51"` (string concatenation wins with `+`), while `"5" - 1` coerces the string to a number, producing `4` (subtraction has no string meaning). Coercion follows well-defined but sometimes surprising rules (via `ToPrimitive`, `ToNumber`, `ToString` abstract operations), which is exactly why `==` is considered risky.',
       hinglish:
         'Type coercion matlab JavaScript automatically ek value ko ek type se doosre mein convert kar deta hai jab operation ek alag type expect kare — jaise `"5" + 1` number ko string mein coerce karta hai, `"51"` produce karke (`+` ke saath string concatenation jeetta hai), jabki `"5" - 1` string ko number mein coerce karta hai, `4` produce karke (subtraction ka string meaning nahi hai). Coercion well-defined par kabhi-kabhi surprising rules follow karta hai (ToPrimitive, ToNumber, ToString abstract operations se), yahi wajah hai `==` risky maana jaata hai.',
+    },
+    visual: 'coercion',
+    codeExample: {
+      code: `// Coercion = JavaScript silently changing one type into another.
+
+// + with a string GLUES instead of adding:
+'5' + 3      // '53'   — 3 became '3'
+'5' - 3      //  2     — '5' became 5  (only + is special)
+
+// Comparisons convert too:
+'10' > 9     // true   — '10' became 10
+'10' > '9'   // false  — both strings! 'compared letter by letter'
+
+// Truthy / falsy — used by if, ||, &&
+// Only 8 falsy values exist:
+false, 0, -0, 0n, '', null, undefined, NaN
+// EVERYTHING else is truthy, including these traps:
+Boolean('0')     // true  — a non-empty string
+Boolean([])      // true  — an empty array
+Boolean({})      // true  — an empty object
+
+// So this bug is common:
+if ('false') { /* this RUNS */ }
+
+// Be explicit instead:
+Number('5') + 3  // 8
+String(5) + '3'  // '53'`,
+      output: `'53'
+2
+true
+false
+true
+true
+true
+8
+'53'`,
     },
   },
   {
@@ -2711,6 +2867,38 @@ export const generalInterviewQuestions = [
       hinglish:
         '`this` us object ko refer karta hai jo currently function ko "execute" kar raha hai — iski value is baat se decide hoti hai ki function KAISE call hua, kahan define hua (arrow functions ke alawa). Rules: ek plain function call (`fn()`) mein `this` strict mode mein `undefined` hai (ya non-strict mein global object); ek method call (`obj.method()`) mein `this` `obj` hai; `new Fn()` mein `this` newly created instance hai; aur `call`/`apply`/`bind` tumhe explicitly `this` set karne dete hain. Ye "call-site dependent" behaviour beginners ke liye JS ka sabse confusing feature hai.',
     },
+    visual: 'this-binding',
+    codeExample: {
+      code: `const user = {
+  name: 'Asha',
+  greet() { return 'Hi ' + this.name; },
+};
+
+// 1. Called WITH a dot → this is whatever is left of the dot
+user.greet();            // 'Hi Asha'
+
+// 2. Pulled out and called alone → no dot, no owner
+const g = user.greet;
+g();                     // 'Hi undefined'
+
+// 3. You choose it yourself
+g.call(user);            // 'Hi Asha'
+const bound = g.bind(user);
+bound();                 // 'Hi Asha'  — locked forever
+
+// 4. With new → this is the brand-new object
+function Person(n) { this.name = n; }
+new Person('Ravi').name; // 'Ravi'
+
+// The one thing to remember:
+// this is NOT decided by where the function is written.
+// It is decided by HOW it is called.`,
+      output: `Hi Asha
+Hi undefined
+Hi Asha
+Hi Asha
+Ravi`,
+    },
   },
   {
     question: 'How does "this" work in arrow functions?',
@@ -2732,6 +2920,34 @@ export const generalInterviewQuestions = [
         'Every JavaScript object has an internal link (`[[Prototype]]`, accessible via `Object.getPrototypeOf(obj)` or the deprecated `__proto__`) to another object called its prototype, from which it inherits properties and methods. `Function.prototype` is the object that becomes the `[[Prototype]]` of every instance created with `new SomeFunction()` — this is how, for example, every array automatically has access to `.map`, `.filter`, `.push`, etc., without those methods being copied onto each array individually.',
       hinglish:
         'Har JavaScript object ka ek internal link hota hai (`[[Prototype]]`, `Object.getPrototypeOf(obj)` ya deprecated `__proto__` se accessible) ek doosre object se jise uska prototype kehte hain, jisse wo properties aur methods inherit karta hai. `Function.prototype` wo object hai jo har instance ka `[[Prototype]]` bant jaata hai jo `new SomeFunction()` se banaya jaata hai — isi tarah, for example, har array automatically `.map`, `.filter`, `.push`, etc. ka access rakhta hai, bina in methods ko har array pe individually copy kiye.',
+    },
+    visual: 'prototype-chain',
+    codeExample: {
+      code: `const dog = { name: 'Rex' };
+
+dog.name;        // 'Rex'  — found on the object itself
+dog.toString();  // works! — but we never wrote toString
+
+// Where did toString come from?
+// Every object has a hidden link to another object.
+// When a property is missing, JS follows that link upward.
+
+//   dog  →  Object.prototype  →  null
+//   ↑ not here    ↑ found here!
+
+dog.fly;         // undefined — searched the whole chain, nothing
+
+// This is why arrays get .map() free:
+const nums = [1, 2, 3];
+//   nums → Array.prototype (has map, filter…) → Object.prototype → null
+
+Object.getPrototypeOf(nums) === Array.prototype;  // true
+nums.hasOwnProperty('map');                        // false — it is inherited`,
+      output: `Rex
+[object Object]
+undefined
+true
+false`,
     },
   },
 
@@ -2857,6 +3073,34 @@ export const generalInterviewQuestions = [
         'A Promise has exactly 3 states: **pending** (initial state — the async operation has not completed yet), **fulfilled** (the operation completed successfully, and `.then()` handlers run with the resolved value), and **rejected** (the operation failed, and `.catch()` handlers run with the error/reason). Once a Promise moves from pending to either fulfilled or rejected, it is permanently "settled" — its state and value can never change again, which is what makes Promises reliable and predictable compared to raw callbacks.',
       hinglish:
         'Ek Promise ki exactly 3 states hoti hain: **pending** (initial state — async operation abhi complete nahi hua), **fulfilled** (operation successfully complete hua, aur `.then()` handlers resolved value ke saath chalte hain), aur **rejected** (operation fail hua, aur `.catch()` handlers error/reason ke saath chalte hain). Ek baar Promise pending se fulfilled ya rejected mein move ho jaaye, ye permanently "settled" ho jaata hai — iska state aur value kabhi phir se change nahi ho sakti, yahi Promises ko raw callbacks ke comparison mein reliable aur predictable banata hai.',
+    },
+    visual: 'promise-states',
+    codeExample: {
+      code: `const p = new Promise((resolve, reject) => {
+  setTimeout(() => resolve('data ready'), 1000);
+});
+
+console.log(p);          // Promise { <pending> }  — no value yet
+
+p.then(value => console.log(value));   // runs 1 second later
+
+// A promise has exactly 3 states:
+//   pending    → still working, no result
+//   fulfilled  → finished with a value
+//   rejected   → finished with an error
+//
+// Once it leaves pending it is SETTLED — permanently.
+
+const done = Promise.resolve('first');
+done.then(v => console.log(v));
+
+// Calling resolve twice does nothing the second time:
+new Promise(res => { res('A'); res('B'); })
+  .then(v => console.log(v));   // 'A' — 'B' is ignored`,
+      output: `Promise { <pending> }
+first
+A
+data ready`,
     },
   },
   {

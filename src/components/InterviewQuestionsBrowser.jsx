@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useLang } from './LanguageProvider';
+import ConceptAnimation from './ConceptAnimation';
 
 const DIFF_ORDER = ['easy', 'medium', 'hard'];
 
@@ -25,6 +26,42 @@ const DIFF_META = {
 
 function metaFor(d) {
   return DIFF_META[d] || { dot: 'bg-slate-400', chip: 'bg-slate-100 text-slate-500', bar: 'bg-slate-400' };
+}
+
+/* Runnable snippet shown under an answer, with its expected output. */
+function CodeExample({ example, label, outputLabel }) {
+  const [copied, setCopied] = useState(false);
+  if (!example?.code) return null;
+
+  return (
+    <div className="mt-5 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">
+      <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-3.5 py-1.5 dark:border-slate-700 dark:bg-slate-800/60">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{label}</span>
+        <button
+          type="button"
+          onClick={() => {
+            navigator.clipboard?.writeText(example.code);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1400);
+          }}
+          className="ml-auto rounded-md px-2 py-0.5 text-[11px] font-semibold text-slate-500 transition hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-200"
+        >
+          {copied ? '✓' : '⧉'}
+        </button>
+      </div>
+
+      <pre className="overflow-x-auto bg-slate-900 px-3.5 py-3 font-mono text-[12px] leading-relaxed text-slate-200">
+        <code>{example.code}</code>
+      </pre>
+
+      {example.output && (
+        <div className="border-t border-slate-700 bg-slate-950 px-3.5 py-2 font-mono text-[11.5px] leading-relaxed">
+          <span className="text-slate-500">{outputLabel} › </span>
+          <span className="whitespace-pre-wrap text-emerald-400">{example.output}</span>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function InterviewQuestionsBrowser({ questions }) {
@@ -228,6 +265,14 @@ export default function InterviewQuestionsBrowser({ questions }) {
                     </div>
                   )}
 
+                  <CodeExample
+                    example={selected.codeExample}
+                    label={pick('Example', 'Example')}
+                    outputLabel={pick('output', 'output')}
+                  />
+
+                  {selected.visual && <ConceptAnimation type={selected.visual} />}
+
                   <p className="mt-6 border-t border-slate-200 pt-3 text-xs text-slate-400 dark:border-slate-800">
                     {pick('Tip: list mein ↑ ↓ arrow keys use karo.', 'Tip: use ↑ ↓ arrow keys in the list.')}
                   </p>
@@ -288,6 +333,12 @@ export default function InterviewQuestionsBrowser({ questions }) {
                                 {q.hinglish}
                               </div>
                             )}
+                            <CodeExample
+                              example={q.codeExample}
+                              label={pick('Example', 'Example')}
+                              outputLabel={pick('output', 'output')}
+                            />
+                            {q.visual && <ConceptAnimation type={q.visual} />}
                           </div>
                         )}
                       </div>

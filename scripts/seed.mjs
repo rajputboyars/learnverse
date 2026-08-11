@@ -228,6 +228,8 @@ async function processCourse(mod, totals) {
           answer: iq.answer,
           difficulty: iq.difficulty || 'medium',
           frequency: iq.frequency || 'common',
+          codeExample: iq.codeExample || undefined,
+          visual: iq.visual || '',
           tags: c.tags || [],
           status: 'published',
         });
@@ -245,6 +247,8 @@ async function processCourse(mod, totals) {
       answer: iq.answer,
       difficulty: iq.difficulty || 'medium',
       frequency: iq.frequency || 'common',
+      codeExample: iq.codeExample || undefined,
+      visual: iq.visual || '',
       status: 'published',
     });
     totals.iq += 1;

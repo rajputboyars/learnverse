@@ -13,6 +13,18 @@ const InterviewQuestionSchema = new mongoose.Schema(
       hinglish: { type: String, default: '' },
     },
 
+    // Short runnable snippet shown under the answer.
+    codeExample: {
+      code: { type: String, default: '' },
+      output: { type: String, default: '' },
+      language: { type: String, default: 'javascript' },
+    },
+
+    // Key of an animated explainer component (call-stack, event-loop,
+    // hoisting, closure, prototype-chain, promise-states, this-binding,
+    // coercion, …). Empty means the question has no animation.
+    visual: { type: String, default: '' },
+
     difficulty: {
       type: String,
       enum: ['easy', 'medium', 'hard'],
