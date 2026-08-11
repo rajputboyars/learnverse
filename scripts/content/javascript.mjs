@@ -5209,6 +5209,38 @@ const fib = memo(n => (n <= 1 ? n : fib(n-1) + fib(n-2)));`,
       hinglish:
         'Default parameters (ES6) tumhe ek function parameter ke liye fallback value specify karne dete hain jo SIRF tab use hoti hai jab argument `undefined` ho (pass hi na ho, ya explicitly `undefined` pass ho) — `function greet(name = "Guest") {...}`. Note: `null` pass karne se default trigger NAHI hota, kyunki `null` ek deliberate value hai, "missing" nahi. Default values call time pe evaluate hoti hain aur pehle ke parameters ko reference bhi kar sakti hain: `function add(a, b = a) {...}`.',
     },
+    codeExample: {
+      code: `function greet(name = 'guest') { return 'Hi ' + name; }
+greet();            // 'Hi guest'
+greet('Asha');      // 'Hi Asha'
+
+// The rule: the default is used ONLY for undefined.
+greet(undefined);   // 'Hi guest'  — counts as missing
+greet(null);        // 'Hi null'   — null is a real value
+greet('');          // 'Hi '       — empty string is a real value
+
+// Defaults are evaluated at CALL time, so this is safe
+// (unlike Python, where a shared list would leak between calls):
+function add(item, list = []) { list.push(item); return list; }
+add(1);   // [1]
+add(2);   // [2]  ✓ a fresh array every call
+
+// A later default can use an earlier parameter:
+function box(w, h = w) { return w * h; }
+box(3);       // 9
+
+// And a default can be a function call — only run when needed:
+function required() { throw new Error('missing argument'); }
+function f(x = required()) { return x; }
+// f();       → throws ✓ a neat way to force an argument`,
+      output: `Hi guest
+Hi Asha
+Hi guest
+Hi null
+[ 1 ]
+[ 2 ]
+9`,
+    },
   },
   {
     question: 'What are rest parameters?',
@@ -5219,6 +5251,41 @@ const fib = memo(n => (n <= 1 ? n : fib(n-1) + fib(n-2)));`,
         'Rest parameters (`...args`) collect all remaining arguments passed to a function into a REAL array: `function sum(...nums) { return nums.reduce((a,b) => a+b, 0); }`. This replaces the old `arguments` object, which is an array-LIKE object (has indices and .length but not real array methods like .map/.filter). A rest parameter must be the LAST parameter in the function signature, and there can be only one.',
       hinglish:
         'Rest parameters (`...args`) ek function ko pass kiye saare remaining arguments ko ek REAL array mein collect karte hain: `function sum(...nums) { return nums.reduce((a,b) => a+b, 0); }`. Ye purane `arguments` object ki jagah leta hai, jo ek array-LIKE object hai (indices aur .length hote hain par real array methods jaise .map/.filter nahi). Rest parameter function signature mein LAST parameter hona chahiye, aur sirf ek ho sakta hai.',
+    },
+    codeExample: {
+      code: `// ...name in a PARAMETER list collects the leftovers
+// into a real array.
+function sum(...numbers) {
+  return numbers.reduce((t, n) => t + n, 0);
+}
+sum(1, 2, 3);        // 6
+sum();               // 0 — an empty array, never undefined
+
+// It can follow named parameters:
+function log(level, ...messages) {
+  console.log(level, messages);
+}
+log('warn', 'a', 'b');    // 'warn' [ 'a', 'b' ]
+
+// Two rules:
+//   • it must be LAST
+//   • only one per function
+// function f(...a, b) {}   ✗ SyntaxError
+
+// Why not just use \`arguments\`?
+function old() {
+  arguments;                 // array-LIKE: no map, no filter
+  Array.from(arguments);     // must convert first
+}
+// arguments also does not exist in arrow functions.
+// Rest gives you a genuine array straight away.
+
+// It works in destructuring too:
+const [first, ...others] = [1, 2, 3];    // first=1, others=[2,3]
+const { a, ...restProps } = { a:1, b:2, c:3 };   // restProps={b:2,c:3}`,
+      output: `6
+0
+warn [ 'a', 'b' ]`,
     },
   },
   {
@@ -5231,6 +5298,38 @@ const fib = memo(n => (n <= 1 ? n : fib(n-1) + fib(n-2)));`,
       hinglish:
         'Spread operator (`...`) ek iterable (array, string, Set, Map values) ya ek object ki own enumerable properties ko individual elements mein EXPAND karta hai — rest parameters ki opposite direction, jo array mein COLLECT karte hain. Common uses: arrays/objects copy karna (`[...arr]`, `{...obj}`), arrays/objects merge karna (`[...a, ...b]`), array elements ko individual function arguments ke roop mein pass karna (`Math.max(...numbers)`), aur Set/string ko array mein convert karna (`[...new Set(arr)]`).',
     },
+    codeExample: {
+      code: `// ...value in a CALL or LITERAL takes something apart.
+
+// Into arguments:
+Math.max(...[3, 1, 2]);        // 3  — same as Math.max(3,1,2)
+
+// Copying and merging arrays:
+const a = [1, 2];
+const copy   = [...a];              // shallow copy
+const joined = [...a, 3, ...[4]];   // [1,2,3,4]
+
+// Copying and merging objects (later wins):
+const base = { theme: 'dark', size: 1 };
+const merged = { ...base, size: 2 };     // { theme:'dark', size:2 }
+
+// Works on anything iterable:
+[...'abc'];                    // ['a','b','c']
+[...new Set([1,1,2])];         // [1,2]
+[...document.querySelectorAll('li')];   // NodeList → real array
+
+// The catch — it is SHALLOW. Nested objects stay shared:
+const orig = { list: [1] };
+const shallow = { ...orig };
+shallow.list.push(2);
+orig.list;                     // [1,2] ✗ both changed
+// For deep copies: structuredClone(orig)`,
+      output: `3
+[ 1, 2, 3, 4 ]
+{ theme: 'dark', size: 2 }
+[ 'a', 'b', 'c' ]
+[ 1, 2 ]`,
+    },
   },
   {
     question: 'What is the difference between rest and spread?',
@@ -5242,6 +5341,37 @@ const fib = memo(n => (n <= 1 ? n : fib(n-1) + fib(n-2)));`,
       hinglish:
         'Dono SAME `...` syntax use karte hain par context ke hisaab se opposite kaam karte hain. Rest multiple values ko ek single array mein COLLECT karta hai — function parameters (`function f(...args)`) ya destructuring (`const [a, ...rest] = arr`) mein use hota hai. Spread ek single array/object ko multiple individual values mein EXPAND karta hai — function calls (`f(...args)`) ya literals (`[...arr1, ...arr2]`, `{...obj}`) mein use hota hai. Mnemonic: rest assignment/parameter list ke LEFT side pe aata hai (gathering); spread RIGHT side pe / call ke andar aata hai (scattering).',
     },
+    codeExample: {
+      code: `// Same three dots. The difference is WHERE they appear.
+
+// SPREAD — unpacks. Used in a call or a literal.
+const nums = [1, 2, 3];
+Math.max(...nums);         // spread → max(1,2,3)
+const copy = [...nums];    // spread → new array
+const obj  = { ...{a:1} }; // spread → new object
+
+// REST — collects. Used in a parameter list or a pattern.
+function sum(...values) {} // rest → values is an array
+const [first, ...tail] = nums;         // rest → tail = [2,3]
+const { a, ...others } = { a:1, b:2 }; // rest → others = {b:2}
+
+// One sentence to remember:
+//   on the RIGHT of = (or in a call) → spread, it EXPANDS
+//   on the LEFT of = (or a parameter) → rest, it GATHERS
+
+// They often appear together:
+function forward(...args) {   // rest: collect
+  return original(...args);   // spread: hand them on
+}
+
+// Rest must be last; spread can go anywhere:
+[0, ...nums, 4];           // ✓ fine
+// function f(...a, b) {}  ✗ SyntaxError`,
+      output: `3
+[ 1, 2, 3 ]
+2,3
+{ b: 2 }`,
+    },
   },
   {
     question: 'What is function composition?',
@@ -5252,6 +5382,41 @@ const fib = memo(n => (n <= 1 ? n : fib(n-1) + fib(n-2)));`,
         'Function composition is combining two or more simple functions into a single, more complex function, where the output of one becomes the input of the next — `compose(f, g)(x) === f(g(x))`. It is a core functional-programming pattern used to build complex data transformations from small, reusable, testable pieces instead of one large imperative function. Utility libraries like Ramda/Lodash provide `compose`/`pipe` helpers: `const pipe = (...fns) => x => fns.reduce((acc, fn) => fn(acc), x);`.',
       hinglish:
         'Function composition do ya zyada simple functions ko ek single, zyada complex function mein combine karna hai, jahan ek ka output agle ka input ban jaata hai — `compose(f, g)(x) === f(g(x))`. Ye ek core functional-programming pattern hai jo complex data transformations ko chhote, reusable, testable pieces se banata hai ek bade imperative function ke bajaye. Ramda/Lodash jaisi utility libraries `compose`/`pipe` helpers dete hain: `const pipe = (...fns) => x => fns.reduce((acc, fn) => fn(acc), x);`.',
+    },
+    codeExample: {
+      code: `// Combining small functions so the output of one
+// feeds into the next.
+
+const double = n => n * 2;
+const addOne = n => n + 1;
+
+// By hand:
+addOne(double(5));      // 11
+
+// compose — runs RIGHT to left (like maths: f(g(x)))
+const compose = (...fns) => x => fns.reduceRight((v, f) => f(v), x);
+compose(addOne, double)(5);      // 11  — double first, then addOne
+
+// pipe — runs LEFT to right. Usually easier to read.
+const pipe = (...fns) => x => fns.reduce((v, f) => f(v), x);
+pipe(double, addOne)(5);         // 11  — same result, natural order
+
+// Why it is useful: each piece stays tiny and testable, and
+// you build behaviour by arranging them instead of nesting.
+const slugify = pipe(
+  s => s.trim(),
+  s => s.toLowerCase(),
+  s => s.replace(/\\s+/g, '-')
+);
+slugify('  Hello World  ');      // 'hello-world'
+
+// Requirement: each function takes one argument and returns
+// one value. Currying is how you make multi-argument
+// functions fit that shape.`,
+      output: `11
+11
+11
+hello-world`,
     },
   },
 
@@ -5266,6 +5431,44 @@ const fib = memo(n => (n <= 1 ? n : fib(n-1) + fib(n-2)));`,
       hinglish:
         'Scope decide karta hai ki code mein kahan ek variable accessible hai. JavaScript variable lookups ko current scope search karke resolve karta hai, phir enclosing scopes ke through bahar walk karta hai, jab tak variable mil na jaaye ya global scope tak pahunch jaaye (agar kabhi na mile to ReferenceError throw karte hue). Scope samajhna ye explain karta hai ki ek function ke andar declare kiya variable bahar kyun invisible hai, aur ye foundation hai jispe closures aur module pattern bane hain.',
     },
+    visual: 'closure',
+    codeExample: {
+      code: `// Scope = where a name is visible.
+
+const globalVar = 'everywhere';
+
+function outer() {
+  const outerVar = 'inside outer';
+
+  function inner() {
+    const innerVar = 'only here';
+    console.log(globalVar);   // ✓ can see out
+    console.log(outerVar);    // ✓ can see out
+  }
+
+  inner();
+  // console.log(innerVar);   ✗ ReferenceError — cannot see in
+}
+
+// The rule: inner code can look OUTWARD, never inward.
+
+// Lookup walks up the chain until it finds the name:
+//   inner → outer → global → ReferenceError
+
+// Blocks make scope too (with let/const):
+if (true) {
+  let blockVar = 'trapped';
+  var oldVar   = 'escapes';    // var ignores blocks
+}
+// blockVar   ✗ ReferenceError
+oldVar;       // 'escapes'
+
+// Scope is why closures work: an inner function keeps its
+// outer scope alive even after the outer call has finished.`,
+      output: `everywhere
+inside outer
+escapes`,
+    },
   },
   {
     question: 'What are Global, Function, and Block scope?',
@@ -5276,6 +5479,42 @@ const fib = memo(n => (n <= 1 ? n : fib(n-1) + fib(n-2)));`,
         'Global scope: variables declared outside any function/block, accessible everywhere in the program. Function scope: variables declared with `var` inside a function are visible throughout that entire function, regardless of nested blocks (if/for/while) — `var` ignores block boundaries. Block scope (ES6): variables declared with `let`/`const` inside any `{}` block are only visible within that block — this is why `let`/`const` are strongly preferred over `var` for predictable, contained scoping.',
       hinglish:
         'Global scope: koi bhi function/block ke bahar declare kiye variables, program mein har jagah accessible. Function scope: ek function ke andar `var` se declare kiye variables us poori function mein visible hote hain, nested blocks (if/for/while) ki parwah kiye bina — `var` block boundaries ignore karta hai. Block scope (ES6): kisi bhi `{}` block ke andar `let`/`const` se declare kiye variables sirf us block ke andar visible hote hain — yahi wajah hai `let`/`const` ko `var` se zyada strongly prefer kiya jaata hai predictable, contained scoping ke liye.',
+    },
+    codeExample: {
+      code: `// GLOBAL — visible everywhere. Declared outside any function.
+const appName = 'Learnverse';
+// In a browser, var at top level also lands on window:
+var legacy = 1;      // window.legacy === 1
+// let/const do NOT: they stay in a separate script scope.
+
+// FUNCTION scope — var respects this, and only this.
+function f() {
+  var inside = 'function scoped';
+  if (true) {
+    var alsoInside = 'still function scoped';  // NOT block scoped
+  }
+  console.log(alsoInside);   // ✓ visible — var leaked out of the if
+}
+// console.log(inside);      ✗ ReferenceError
+
+// BLOCK scope — any { } with let / const.
+{
+  let a = 1;
+  const b = 2;
+}
+// a, b  ✗ ReferenceError
+
+// The loop case where it really matters:
+for (var i = 0; i < 3; i++) {}
+i;        // 3  — leaked
+
+for (let j = 0; j < 3; j++) {}
+// j     ✗ ReferenceError ✓ contained
+
+// Keep everything as tightly scoped as you can — fewer
+// name clashes and fewer accidental writes.`,
+      output: `still function scoped
+3`,
     },
   },
   {
@@ -5288,6 +5527,44 @@ const fib = memo(n => (n <= 1 ? n : fib(n-1) + fib(n-2)));`,
       hinglish:
         'Lexical (static) scope ka matlab hai ki ek variable ki accessibility is baat se decide hoti hai ki wo source code mein PHYSICALLY kahan likha hai, is baat se nahi ki function kaise ya kahan se call hota hai. Ek function ka scope chain us moment fix ho jaata hai jab wo DEFINE hota hai, code mein uski nesting ke basis pe — yahi closures ko possible banata hai, kyunki ek inner function permanently outer function ke variables "yaad rakhta hai" jiske andar wo likha gaya tha, chahe wo baad mein kahin bhi invoke ho.',
     },
+    visual: 'closure',
+    codeExample: {
+      code: `// Lexical = decided by WHERE the code is WRITTEN,
+// not by where or how it is called.
+
+const value = 'global';
+
+function printValue() {
+  console.log(value);        // looks up where it was WRITTEN
+}
+
+function caller() {
+  const value = 'local';     // a different \`value\`
+  printValue();              // still prints 'global'
+}
+caller();                    // 'global'
+
+// JavaScript uses lexical (static) scope. The alternative,
+// dynamic scope, would print 'local' — the caller's value.
+// JS does NOT do that.
+
+// You can see the chain just by reading the nesting:
+function a() {
+  const x = 1;
+  function b() {
+    function c() { return x; }   // c → b → a → found
+    return c();
+  }
+  return b();
+}
+a();      // 1
+
+// The one thing that is NOT lexical is \`this\` — it depends on
+// the call. That is exactly why arrow functions exist: they
+// make \`this\` lexical too.`,
+      output: `global
+1`,
+    },
   },
   {
     question: 'Give a real-world use case of closures.',
@@ -5298,6 +5575,44 @@ const fib = memo(n => (n <= 1 ? n : fib(n-1) + fib(n-2)));`,
         'A common real-world use is a private counter/module pattern: `function createCounter() { let count = 0; return { increment: () => ++count, getCount: () => count }; }`. The `count` variable is completely private — it cannot be accessed or modified from outside except through the returned functions, since the returned functions "close over" the `count` variable from their enclosing scope. This pattern powers React\'s `useState` internals, memoization/caching, event handler factories, and the classic module pattern for encapsulation before ES modules existed.',
       hinglish:
         'Ek common real-world use hai private counter/module pattern: `function createCounter() { let count = 0; return { increment: () => ++count, getCount: () => count }; }`. `count` variable poori tarah private hai — bahar se access ya modify nahi ho sakta except returned functions ke through, kyunki returned functions apne enclosing scope se `count` variable ko "close over" karte hain. Ye pattern React ke `useState` internals, memoization/caching, event handler factories, aur ES modules exist karne se pehle classic module pattern (encapsulation ke liye) power karta hai.',
+    },
+    visual: 'closure',
+    codeExample: {
+      code: `// 1. Private state — the variable cannot be reached outside
+function createBankAccount(initial) {
+  let balance = initial;                  // truly private
+  return {
+    deposit: (n) => (balance += n),
+    getBalance: () => balance,
+  };
+}
+const acc = createBankAccount(100);
+acc.deposit(50);
+acc.getBalance();     // 150
+acc.balance;          // undefined ✓ cannot touch it directly
+
+// 2. Remembering settings — the classic factory
+const createLogger = (prefix) => (msg) => console.log(prefix, msg);
+const error = createLogger('[ERROR]');
+error('disk full');   // [ERROR] disk full
+
+// 3. Caching — the cache lives in the closure
+function memoize(fn) {
+  const cache = new Map();
+  return (n) => cache.get(n) ?? (cache.set(n, fn(n)), cache.get(n));
+}
+
+// 4. Debounce / throttle — the timer id is kept between calls
+function debounce(fn, ms) {
+  let timer;                              // survives every call
+  return (...a) => { clearTimeout(timer); timer = setTimeout(() => fn(...a), ms); };
+}
+
+// The pattern in all four: a function finished running, but
+// its variables live on because an inner function still needs them.`,
+      output: `150
+undefined
+[ERROR] disk full`,
     },
   },
   {
@@ -5359,6 +5674,41 @@ argument`,
       hinglish:
         'Hoisting ka matlab hai declarations code execution se pehle process hote hain, ek "creation phase" ke dauraan. Function declarations POORI TARAH hoisted hote hain — naam aur body dono — isliye unhe unki line se pehle call kiya ja sakta hai. `var` declarations hoisted hote hain par sirf DECLARATION, `undefined` se initialised; assignment apni jagah rehta hai. `let`/`const` declarations bhi technically hoisted hote hain (unka naam register hota hai), par wo initialise NAHI hote — unhe unki line se pehle access karne se ReferenceError aata hai Temporal Dead Zone ki wajah se, `undefined` return karne ke bajaye.',
     },
+    visual: 'hoisting',
+    codeExample: {
+      code: `// Before running a scope, JS reserves space for every
+// declaration in it. WHAT it puts there differs.
+
+// var → reserved AND set to undefined
+console.log(a);      // undefined
+var a = 1;
+
+// function declaration → the WHOLE function is ready
+sayHi();             // ✓ 'hi'
+function sayHi() { return 'hi'; }
+
+// let / const → reserved but EMPTY (temporal dead zone)
+// console.log(b);   ✗ ReferenceError
+let b = 2;
+
+// class → also in the dead zone
+// new Dog();        ✗ ReferenceError
+class Dog {}
+
+// function EXPRESSION → only the variable is hoisted
+// f();              ✗ TypeError: f is not a function
+var f = function () {};
+
+// Quick table:
+//   function declaration  → fully usable early
+//   var                   → usable, value is undefined
+//   let / const / class   → ReferenceError until its line
+//   function expression   → follows its variable's rules
+
+// Assignments are NEVER hoisted — only declarations.`,
+      output: `undefined
+hi`,
+    },
   },
   {
     question: 'Can let and const be hoisted?',
@@ -5369,6 +5719,39 @@ argument`,
         'Yes — `let` and `const` ARE hoisted, contrary to the popular misconception that they are not. What actually differs from `var` is INITIALISATION timing: `var` is hoisted and immediately initialised to `undefined`, so accessing it early gives `undefined`. `let`/`const` are hoisted but left UNINITIALISED, sitting in the "Temporal Dead Zone" from the start of their block until their declaration line executes — accessing them in that window throws `ReferenceError: Cannot access before initialization`, not a silent `undefined`.',
       hinglish:
         'Haan — `let` aur `const` HOISTED hote hain, is popular misconception ke ulat ki nahi hote. `var` se actually jo differ karta hai wo hai INITIALISATION timing: `var` hoisted hota hai aur turant `undefined` se initialise ho jaata hai, isliye jaldi access karne pe `undefined` milta hai. `let`/`const` hoisted hote hain par UNINITIALISED chhode jaate hain, apne block ki shuruaat se lekar declaration line execute hone tak "Temporal Dead Zone" mein baithe rehte hain — us window mein access karne se `ReferenceError: Cannot access before initialization` aata hai, silent `undefined` nahi.',
+    },
+    visual: 'hoisting',
+    codeExample: {
+      code: `// Yes — they ARE hoisted. People say they are not, but that
+// is a simplification.
+
+// If they were not hoisted at all, this would find the outer x:
+let x = 'outer';
+{
+  // console.log(x);   ✗ ReferenceError, not 'outer'
+  let x = 'inner';
+}
+// The error proves the inner x already EXISTS in this block —
+// it is just not usable yet.
+
+// The difference from var is INITIALISATION:
+//   var   → hoisted AND set to undefined
+//   let   → hoisted, left uninitialised (temporal dead zone)
+
+console.log(v);   // undefined  ← var was given a value
+var v = 1;
+
+// console.log(l);   ✗ ReferenceError  ← let has no value yet
+let l = 1;
+
+// The dead zone runs from the top of the block to the
+// declaration line. Even typeof throws inside it:
+// typeof l;      ✗ ReferenceError
+typeof neverDeclared;   // 'undefined' ✓ safe outside
+
+// So the accurate answer: hoisted, but not initialised.`,
+      output: `undefined
+'undefined'`,
     },
   },
 
@@ -5383,6 +5766,42 @@ argument`,
       hinglish:
         'Ek object key-value pairs (properties) ka collection hai, jahan keys strings ya symbols hoti hain aur values kisi bhi type ki ho sakti hain — including doosre objects aur functions (jo unhe "methods" banata hai). Objects JavaScript ka fundamental building block hain: arrays, functions, dates, regexes, Maps, aur Sets — sab under the hood specialised kinds of objects hain. Ye reference types hain, heap pe store hote hain, aur runtime pe properties ka dynamic addition/removal support karte hain.',
     },
+    codeExample: {
+      code: `// A collection of key/value pairs. Keys are strings or symbols.
+const user = {
+  name: 'Asha',                 // property
+  age: 25,
+  greet() { return 'hi ' + this.name; },   // method
+};
+
+// Two ways to read a property:
+user.name;          // dot — when you know the name
+user['name'];       // bracket — when the name is in a variable
+const key = 'age';
+user[key];          // 25 ✓ dot cannot do this
+
+// Add, change, delete:
+user.city = 'Pune';
+user.age = 26;
+delete user.city;
+
+// Check existence — note the difference:
+'name' in user;                      // true (includes inherited)
+user.hasOwnProperty('name');         // true (own only)
+Object.hasOwn(user, 'name');         // true — the modern form
+user.missing === undefined;          // true, but so is a real
+                                     // property set to undefined
+
+// Objects are REFERENCE types:
+const copy = user;   copy.age = 99;
+user.age;            // 99 — same object
+const real = { ...user };            // an actual copy`,
+      output: `Asha
+25
+true
+true
+99`,
+    },
   },
   {
     question: 'What is object destructuring?',
@@ -5393,6 +5812,41 @@ argument`,
         'Destructuring is syntax that unpacks values from objects (or arrays) into distinct variables in a single expression: `const { name, age } = user;` extracts `user.name` and `user.age` directly into local variables. It supports renaming (`const { name: userName } = user`), default values (`const { role = "guest" } = user`), nested extraction, and combines with rest (`const { id, ...rest } = user`). It dramatically reduces boilerplate when working with function parameters or API response objects.',
       hinglish:
         'Destructuring ek syntax hai jo objects (ya arrays) se values ko ek single expression mein distinct variables mein unpack karta hai: `const { name, age } = user;` `user.name` aur `user.age` ko directly local variables mein extract karta hai. Ye renaming (`const { name: userName } = user`), default values (`const { role = "guest" } = user`), nested extraction support karta hai, aur rest ke saath combine hota hai (`const { id, ...rest } = user`). Function parameters ya API response objects ke saath kaam karte waqt ye boilerplate dramatically kam karta hai.',
+    },
+    codeExample: {
+      code: `const user = { name: 'Asha', age: 25, address: { city: 'Pune' } };
+
+// Pull properties out by name
+const { name, age } = user;       // name='Asha', age=25
+
+// Rename while extracting
+const { name: userName } = user;  // userName='Asha'
+
+// Default — used only when the property is undefined
+const { role = 'user' } = user;   // 'user'
+const { age: a = 99 } = user;     // 25 (age exists, so no default)
+
+// Nested
+const { address: { city } } = user;      // 'Pune'
+
+// Rest — collect what is left
+const { name: n, ...others } = user;     // others = {age, address}
+
+// In parameters — very common for options objects:
+function greet({ name, greeting = 'Hi' }) { return greeting + ' ' + name; }
+greet({ name: 'Asha' });                 // 'Hi Asha'
+
+// Guard against undefined being passed at all:
+function safe({ name } = {}) { return name; }
+safe();                                  // undefined, not a crash
+
+// Careful — destructuring null throws:
+// const { x } = null;   ✗ TypeError`,
+      output: `Asha
+25
+user
+Pune
+Hi Asha`,
     },
   },
   {
@@ -5405,6 +5859,44 @@ argument`,
       hinglish:
         'Optional chaining (`?.`) ek deeply nested property ko safely access karta hai bina error throw kiye agar koi intermediate reference `null` ya `undefined` ho — `user?.address?.city` `undefined` return karta hai crash hone ke bajaye agar `user` ya `user.address` exist nahi karta, purane, verbose `user && user.address && user.address.city` pattern ki jagah leta hai. Ye function calls (`obj.method?.()`, sirf tab call karta hai jab `method` exist kare) aur array/bracket access (`arr?.[0]`) ke saath bhi kaam karta hai.',
     },
+    codeExample: {
+      code: `const user = { profile: { name: 'Asha' } };
+
+// Without it, you guard every level:
+user && user.profile && user.profile.name;
+
+// With it:
+user?.profile?.name;          // 'Asha'
+user?.address?.city;          // undefined — no crash
+
+// Without ?. that second line would throw:
+// user.address.city   ✗ TypeError: Cannot read properties of undefined
+
+// It short-circuits: the moment something is null/undefined
+// it stops and returns undefined. Nothing further is evaluated.
+
+// Three forms:
+obj?.prop;          // property
+arr?.[0];           // index
+fn?.();             // call — only if fn exists
+
+// Handy for optional callbacks:
+options.onDone?.();           // no "if (options.onDone)" needed
+
+// Important: it only guards null and undefined.
+const o = { count: 0 };
+o?.count;                     // 0 ✓ falsy values pass through fine
+
+// Pairs naturally with ??:
+const city = user?.address?.city ?? 'unknown';
+
+// Do not overuse it — a?.b?.c?.d everywhere can hide a real
+// bug where the data should have been there.`,
+      output: `Asha
+undefined
+0
+unknown`,
+    },
   },
   {
     question: 'What is nullish coalescing (??)?',
@@ -5415,6 +5907,43 @@ argument`,
         'The nullish coalescing operator (`??`) returns its right-hand side ONLY when the left-hand side is `null` or `undefined` — unlike `||`, which falls back for ANY falsy value (`0`, `""`, `false`, `NaN` too). `const count = userInput ?? 10;` correctly preserves a legitimate `0` from `userInput`, whereas `userInput || 10` would incorrectly replace a valid `0` with `10`. This makes `??` the safer choice specifically for "provide a default only if truly missing" scenarios.',
       hinglish:
         'Nullish coalescing operator (`??`) apni right-hand side SIRF tab return karta hai jab left-hand side `null` ya `undefined` ho — `||` ke ulat, jo KISI BHI falsy value ke liye fallback karta hai (`0`, `""`, `false`, `NaN` bhi). `const count = userInput ?? 10;` correctly ek legitimate `0` ko `userInput` se preserve karta hai, jabki `userInput || 10` galat tarike se ek valid `0` ko `10` se replace kar deta. Isse `??` "sirf tab default do jab truly missing ho" scenarios ke liye safer choice ban jaata hai.',
+    },
+    codeExample: {
+      code: `// ?? returns the right side ONLY when the left is
+// null or undefined.
+
+null ?? 'default';        // 'default'
+undefined ?? 'default';   // 'default'
+0 ?? 'default';           // 0      ✓ kept
+'' ?? 'default';          // ''     ✓ kept
+false ?? 'default';       // false  ✓ kept
+
+// Compare with || which falls back on ANY falsy value:
+0 || 'default';           // 'default'  ✗ wrong for a real 0
+'' || 'default';          // 'default'  ✗ wrong for an empty name
+
+// This is a genuine bug source in settings code:
+const volume = settings.volume || 50;   // ✗ 0 becomes 50!
+const better = settings.volume ?? 50;   // ✓ 0 stays 0
+
+// Use || when any falsy value should trigger the fallback
+// (an empty string really is "no name").
+// Use ?? when zero, '' and false are valid values.
+
+// You cannot mix ?? with || or && without brackets:
+// a ?? b || c      ✗ SyntaxError
+(a ?? b) || c;      // ✓ explicit
+
+// There is an assignment form too:
+let config = {};
+config.retries ??= 3;     // set only if null/undefined`,
+      output: `default
+default
+0
+0
+default
+50
+0`,
     },
   },
   {
@@ -5427,6 +5956,46 @@ argument`,
       hinglish:
         '`Object.keys(obj)` object ki own enumerable PROPERTY NAMES (strings) ka array return karta hai. `Object.values(obj)` corresponding VALUES ka array return karta hai, same order mein. `Object.entries(obj)` `[key, value]` pairs ka array return karta hai — `for...of` iteration ke liye ideal (`for (const [k, v] of Object.entries(obj))`) ya object ko Map mein convert karne ke liye (`new Map(Object.entries(obj))`). Teeno inherited (prototype-chain) properties ignore karte hain, sirf object ki own properties list karte hain.',
     },
+    codeExample: {
+      code: `const user = { name: 'Asha', age: 25 };
+
+Object.keys(user);      // ['name', 'age']
+Object.values(user);    // ['Asha', 25]
+Object.entries(user);   // [['name','Asha'], ['age',25]]
+
+// entries is what lets you loop an object like an array:
+for (const [key, value] of Object.entries(user)) {
+  console.log(key, value);
+}
+
+// And transform one:
+Object.fromEntries(
+  Object.entries(user).map(([k, v]) => [k, String(v)])
+);      // { name: 'Asha', age: '25' }
+
+// All three:
+//   • return OWN properties only — nothing inherited
+//   • skip symbol keys
+//   • give the same order (integer-like keys first, then
+//     insertion order)
+
+const proto = { inherited: true };
+const obj = Object.create(proto);
+obj.own = 1;
+Object.keys(obj);       // ['own'] — 'inherited' is not listed
+'inherited' in obj;     // true — but it IS reachable
+
+// Quick counts and checks:
+Object.keys(user).length;              // 2
+Object.keys({}).length === 0;          // true — is it empty?`,
+      output: `[ 'name', 'age' ]
+[ 'Asha', 25 ]
+name Asha
+age 25
+{ name: 'Asha', age: '25' }
+[ 'own' ]
+2`,
+    },
   },
   {
     question: 'What is Object.freeze()?',
@@ -5438,6 +6007,40 @@ argument`,
       hinglish:
         '`Object.freeze(obj)` ek object ko TOP LEVEL pe fully immutable bana deta hai: tum uski kisi bhi existing property ko add, remove, ya reassign nahi kar sakte — non-strict mode mein changes silently fail hote hain; strict mode mein TypeError throw hota hai. Important caveat: ye SHALLOW hai — agar ek property ki value khud ek object hai, wo nested object fully mutable rehta hai. `Object.isFrozen(obj)` frozen state check karta hai. Commonly constants ya config objects export karne ke liye use hota hai jo kabhi mutate nahi hone chahiye.',
     },
+    codeExample: {
+      code: `const config = Object.freeze({ host: 'localhost', port: 3000 });
+
+config.port = 8080;      // ignored
+config.newKey = 'x';     // ignored
+delete config.host;      // ignored
+console.log(config);     // { host: 'localhost', port: 3000 }
+
+Object.isFrozen(config); // true
+
+// Silent in sloppy mode, but THROWS in strict mode and inside
+// modules — which is where most of your code runs:
+'use strict';
+// config.port = 8080;   ✗ TypeError: Cannot assign to read only property
+
+// The big catch: freeze is SHALLOW.
+const settings = Object.freeze({ db: { host: 'local' } });
+settings.db.host = 'changed';    // ✓ this works!
+settings.db.host;                // 'changed'
+
+// Deep freeze has to walk the object yourself:
+function deepFreeze(obj) {
+  for (const v of Object.values(obj)) {
+    if (v && typeof v === 'object') deepFreeze(v);
+  }
+  return Object.freeze(obj);
+}
+
+// Also note: freezing an array blocks push and index writes,
+// and freeze cannot be undone.`,
+      output: `{ host: 'localhost', port: 3000 }
+true
+changed`,
+    },
   },
   {
     question: 'What is Object.seal()?',
@@ -5448,6 +6051,39 @@ argument`,
         '`Object.seal(obj)` prevents adding new properties and DELETING existing ones, but — unlike `freeze` — still allows MODIFYING the values of existing writable properties. It essentially locks the object\'s "shape" (its set of keys) while leaving the values flexible. `Object.isSealed(obj)` checks the sealed state. Use `seal` when you want a fixed structure (no new/removed fields) but still need to update values, e.g. a settings object with a known, fixed set of keys.',
       hinglish:
         '`Object.seal(obj)` naye properties add karne aur existing properties DELETE karne se rokta hai, par — `freeze` ke ulat — existing writable properties ki values MODIFY karne ki abhi bhi allow karta hai. Ye essentially object ki "shape" (uski keys ka set) lock kar deta hai jabki values flexible chhod deta hai. `Object.isSealed(obj)` sealed state check karta hai. `seal` tab use karo jab tumhe ek fixed structure chahiye (no new/removed fields) par values update karne ki zaroorat abhi bhi ho, jaise ek settings object with a known, fixed set of keys.',
+    },
+    codeExample: {
+      code: `const user = Object.seal({ name: 'Asha', age: 25 });
+
+user.age = 26;        // ✓ allowed — existing property
+user.city = 'Pune';   // ✗ ignored — cannot ADD
+delete user.name;     // ✗ ignored — cannot REMOVE
+console.log(user);    // { name: 'Asha', age: 26 }
+
+Object.isSealed(user);   // true
+
+// seal vs freeze in one line:
+//   seal   → the SHAPE is locked, values can change
+//   freeze → shape AND values are locked
+
+// Both throw in strict mode instead of failing quietly.
+
+// Like freeze, seal is SHALLOW:
+const s = Object.seal({ nested: { a: 1 } });
+s.nested.b = 2;       // ✓ works — the inner object is not sealed
+
+// There is a third, weaker option:
+Object.preventExtensions(user);
+// cannot add, but you CAN still delete.
+
+// Strength order:
+//   preventExtensions < seal < freeze
+
+// Real use: seal a config object so a typo like
+// config.timeoutt = 5000 fails loudly instead of silently
+// creating a property nobody reads.`,
+      output: `{ name: 'Asha', age: 26 }
+true`,
     },
   },
   {
@@ -5503,6 +6139,47 @@ Ravi`,
       hinglish:
         'Arrow functions ka apna `this` binding NAHI hota — wo lexically enclosing (surrounding) scope se `this` inherit karte hain jab DEFINE hote hain, aur ye binding kabhi change nahi ho sakti, `call`/`apply`/`bind` se bhi nahi. Isse arrow functions callbacks/methods ke andar ideal hain jahan tum chahte ho `this` outer context hi rahe: `class Timer { start() { setTimeout(() => this.tick(), 1000); } }` — arrow function correctly `this` ko Timer instance rakhta hai, jabki ek regular function ise kho deta.',
     },
+    visual: 'this-binding',
+    codeExample: {
+      code: `// An arrow function has NO OWN \`this\`.
+// It uses the \`this\` from where it was WRITTEN.
+
+const timer = {
+  seconds: 0,
+
+  broken() {
+    setInterval(function () {
+      this.seconds++;      // ✗ this is not \`timer\` here
+    }, 1000);
+  },
+
+  works() {
+    setInterval(() => {
+      this.seconds++;      // ✓ borrowed from works(), so \`timer\`
+    }, 1000);
+  },
+};
+
+// For the same reason, never use an arrow as an object METHOD:
+const bad = {
+  name: 'Asha',
+  greet: () => 'hi ' + this.name,   // this is the outer scope
+};
+bad.greet();          // 'hi undefined'
+
+const good = {
+  name: 'Asha',
+  greet() { return 'hi ' + this.name; },
+};
+good.greet();         // 'hi Asha'
+
+// call/apply/bind cannot change an arrow's this — it is fixed.
+// Arrows also have no \`arguments\` and cannot be used with new.
+
+// Rule: arrows for callbacks, normal functions for methods.`,
+      output: `hi undefined
+hi Asha`,
+    },
   },
   {
     question: 'What is a prototype in JavaScript?',
@@ -5555,6 +6232,39 @@ false`,
       hinglish:
         '`map()` har element ko transform karta hai aur same length ka EK NAYA ARRAY results ka RETURN karta hai — ye ek derived dataset banane ke liye designed hai aur chainable hai (`arr.map(...).filter(...)`). `forEach()` simply har element ke liye ek function execute karta hai SIDE EFFECTS ke liye (logging, external array mein push karna, kuch mutate karna) aur hamesha `undefined` return karta hai — chain nahi ho sakta. Rule of thumb: `map` use karo jab tumhe transformed values wapas chahiye; `forEach` sirf tab use karo jab "kuch karna" ho bina naya array produce kiye.',
     },
+    codeExample: {
+      code: `const nums = [1, 2, 3];
+
+// map RETURNS a new array
+const doubled = nums.map(n => n * 2);    // [2, 4, 6]
+
+// forEach returns undefined — it is only for side effects
+const nothing = nums.forEach(n => n * 2);
+nothing;                                  // undefined
+
+// So this is a common mistake:
+const wrong = nums.forEach(n => n * 2);   // ✗ wrong is undefined
+
+// Use map when you want a transformed array.
+// Use forEach when you just want to DO something each time:
+nums.forEach(n => console.log(n));
+nums.forEach(n => saveToDb(n));
+
+// map is chainable because it returns an array:
+nums.map(n => n * 2).filter(n => n > 2);  // [4, 6]
+// forEach is not — you cannot chain undefined.
+
+// Neither can break early. Use for…of or some() for that.
+// And neither waits for async work:
+nums.forEach(async n => await save(n));   // ✗ does not wait
+for (const n of nums) await save(n);      // ✓ waits
+
+// Both skip holes and neither changes the original array
+// (unless your callback does).`,
+      output: `[ 2, 4, 6 ]
+undefined
+[ 4, 6 ]`,
+    },
   },
   {
     question: 'What is the difference between filter() and find()?',
@@ -5565,6 +6275,43 @@ false`,
         '`filter(predicate)` returns a NEW ARRAY containing ALL elements that pass the test — the result can be empty, one item, or many. `find(predicate)` returns only the FIRST matching element itself (not wrapped in an array), or `undefined` if none match, and stops searching as soon as it finds a match (more efficient for finding "the one item"). Use `filter` when you need every match; use `find` when you need a single result.',
       hinglish:
         '`filter(predicate)` EK NAYA ARRAY return karta hai jisme test pass karne wale SAARE elements hote hain — result empty, ek item, ya bahut saare ho sakte hain. `find(predicate)` sirf PEHLA matching element khud return karta hai (array mein wrap kiye bina), ya `undefined` agar koi match na kare, aur match milte hi search rok deta hai (ek item dhundhne ke liye zyada efficient). `filter` use karo jab har match chahiye; `find` use karo jab ek single result chahiye.',
+    },
+    codeExample: {
+      code: `const users = [
+  { id: 1, active: true },
+  { id: 2, active: false },
+  { id: 3, active: true },
+];
+
+// filter → ALL matches, as an ARRAY
+users.filter(u => u.active);        // [{id:1…}, {id:3…}]
+users.filter(u => u.id === 99);     // []  — empty array
+
+// find → the FIRST match, as the ITEM itself
+users.find(u => u.active);          // {id:1, active:true}
+users.find(u => u.id === 99);       // undefined
+
+// The two differences that matter:
+//   1. filter gives an array, find gives one item
+//   2. find STOPS at the first hit — faster on big lists
+
+// This is why looking up by id should use find:
+const user = users.find(u => u.id === 2);          // ✓
+const user2 = users.filter(u => u.id === 2)[0];    // ✗ wasteful
+
+// Check the result correctly — an empty array is truthy!
+if (users.filter(u => u.active).length) …    // ✓
+if (users.filter(u => u.active)) …           // ✗ always true
+
+// Related: findIndex gives the position, some gives a boolean.
+users.findIndex(u => u.id === 3);   // 2
+users.some(u => u.active);          // true`,
+      output: `2
+[]
+{ id: 1, active: true }
+undefined
+2
+true`,
     },
   },
   {
@@ -5577,6 +6324,40 @@ false`,
       hinglish:
         '`some(predicate)` `true` return karta hai agar KAM SE KAM ek element test pass kare (pehle match pe short-circuit) — `[]` (empty array) `false` return karta hai. `every(predicate)` `true` sirf tab return karta hai jab SAARE elements test pass karein (pehli FAILURE pe short-circuit) — `[]` (empty array) `true` return karta hai (vacuous truth). Dono manually flag variable se loop karne se zyada expressive aur readable hain.',
     },
+    codeExample: {
+      code: `const nums = [1, 2, 3, 4];
+
+// some → true if AT LEAST ONE passes   (like OR)
+nums.some(n => n > 3);        // true
+nums.some(n => n > 10);       // false
+
+// every → true only if ALL pass         (like AND)
+nums.every(n => n > 0);       // true
+nums.every(n => n > 2);       // false
+
+// Both stop early:
+//   some  stops at the first TRUE
+//   every stops at the first FALSE
+// So they are cheaper than filtering the whole array.
+
+// Use them instead of filter when you only need yes/no:
+if (users.some(u => u.isAdmin)) …          // ✓
+if (users.filter(u => u.isAdmin).length) … // ✗ scans everything
+
+// The empty-array behaviour surprises people:
+[].some(() => true);          // false — nothing passed
+[].every(() => false);        // true  — "vacuously true",
+                              // there is nothing that fails
+
+// Guard for that if an empty list should not count as valid:
+items.length > 0 && items.every(isValid);`,
+      output: `true
+false
+true
+false
+false
+true`,
+    },
   },
   {
     question: 'What is reduce() and how does it work?',
@@ -5587,6 +6368,44 @@ false`,
         '`reduce(callback, initialValue)` "reduces" an entire array to a SINGLE value by running an accumulator function over each element in order — the callback receives `(accumulator, currentValue, index, array)` and its return value becomes the accumulator for the next iteration. It is the most general array method; sum, count, group-by, flatten, and even `map`/`filter` can all be re-implemented using `reduce` alone, which is why it is a favourite interview topic.',
       hinglish:
         '`reduce(callback, initialValue)` poore array ko ek SINGLE value mein "reduce" karta hai ek accumulator function ko har element pe order mein chalate hue — callback ko `(accumulator, currentValue, index, array)` milta hai aur uska return value agli iteration ke liye accumulator ban jaata hai. Ye sabse general array method hai; sum, count, group-by, flatten, aur even `map`/`filter` sab `reduce` se hi re-implement kiye ja sakte hain, yahi wajah hai ye ek favourite interview topic hai.',
+    },
+    codeExample: {
+      code: `// reduce squashes an array into ONE value.
+[1, 2, 3, 4].reduce((acc, n) => acc + n, 0);   // 10
+//                   ↑running  ↑current  ↑start
+
+// Step by step:
+//   acc=0  n=1 → 1
+//   acc=1  n=2 → 3
+//   acc=3  n=3 → 6
+//   acc=6  n=4 → 10
+
+// The accumulator can be ANY type — that is the power.
+
+// build an object (count occurrences):
+['a','b','a'].reduce((acc, k) => {
+  acc[k] = (acc[k] || 0) + 1;
+  return acc;                       // ← always return it
+}, {});                             // { a: 2, b: 1 }
+
+// group items:
+users.reduce((acc, u) => {
+  (acc[u.role] ??= []).push(u);
+  return acc;
+}, {});
+
+// flatten:
+[[1,2],[3]].reduce((a, b) => a.concat(b), []);   // [1,2,3]
+
+// Two mistakes to avoid:
+//   • forgetting to return the accumulator → undefined
+//   • omitting the initial value on an empty array → TypeError
+[].reduce((a, b) => a + b);        // ✗ throws
+[].reduce((a, b) => a + b, 0);     // ✓ 0`,
+      output: `10
+{ a: 2, b: 1 }
+[ 1, 2, 3 ]
+0`,
     },
   },
   {
@@ -5599,6 +6418,46 @@ false`,
       hinglish:
         'Built-in tareeka: `arr.flat(depth)` nested arrays ko `depth` levels tak flatten karta hai (default 1); arbitrarily nested arrays ko fully flatten karne ke liye `arr.flat(Infinity)` use karo. `arr.flatMap(fn)` ek combined map + flat(1) hai, useful hai jab tumhara mapping function khud arrays return kare. ES2019 se pehle, ye manually recursion se hota tha: `function flatten(arr) { return arr.reduce((acc, val) => acc.concat(Array.isArray(val) ? flatten(val) : val), []); }`.',
     },
+    codeExample: {
+      code: `const nested = [1, [2, [3, [4]]]];
+
+// flat() — the built-in. Depth is 1 by default.
+nested.flat();            // [1, 2, [3, [4]]]
+nested.flat(2);           // [1, 2, 3, [4]]
+nested.flat(Infinity);    // [1, 2, 3, 4]  ← fully flat
+
+// flatMap — map then flatten one level. Handy for one-to-many:
+[1, 2].flatMap(n => [n, n * 2]);      // [1, 2, 2, 4]
+
+// By hand, with recursion:
+function flatten(arr) {
+  return arr.reduce(
+    (out, item) => out.concat(Array.isArray(item) ? flatten(item) : item),
+    []
+  );
+}
+flatten(nested);          // [1, 2, 3, 4]
+
+// Iterative version — no recursion limit on very deep data:
+function flatIter(arr) {
+  const stack = [...arr];
+  const out = [];
+  while (stack.length) {
+    const item = stack.pop();
+    if (Array.isArray(item)) stack.push(...item);
+    else out.push(item);
+  }
+  return out.reverse();
+}
+
+// Note: flat() also removes empty slots.
+[1, , 2].flat();          // [1, 2]`,
+      output: `[ 1, 2, [ 3, [ 4 ] ] ]
+[ 1, 2, 3, 4 ]
+[ 1, 2, 2, 4 ]
+[ 1, 2, 3, 4 ]
+[ 1, 2 ]`,
+    },
   },
   {
     question: 'What is the difference between push() and concat()?',
@@ -5609,6 +6468,43 @@ false`,
         '`push(...items)` MUTATES the original array by adding items to its end, and returns the new LENGTH of the array (not the array itself). `concat(...items/arrays)` does NOT mutate anything — it returns a brand NEW array containing the original elements plus the new ones. Use `push` when in-place mutation is fine (e.g. building up a local array); use `concat` (or the spread operator `[...arr, newItem]`) when you need immutability, such as in React state updates.',
       hinglish:
         '`push(...items)` original array ko MUTATE karta hai uske end mein items add karke, aur array ki nayi LENGTH return karta hai (array khud nahi). `concat(...items/arrays)` kuch bhi mutate NAHI karta — ye ek BILKUL NAYA array return karta hai jisme original elements plus naye elements hote hain. `push` use karo jab in-place mutation theek ho (jaise ek local array banana); `concat` (ya spread operator `[...arr, newItem]`) use karo jab immutability chahiye, jaise React state updates mein.',
+    },
+    codeExample: {
+      code: `// push MUTATES and returns the new LENGTH
+const a = [1, 2];
+const r1 = a.push(3);
+console.log(a);    // [1, 2, 3]   ← changed
+console.log(r1);   // 3           ← the length, not the array!
+
+// concat returns a NEW array, original untouched
+const b = [1, 2];
+const r2 = b.concat(3);
+console.log(b);    // [1, 2]      ← unchanged
+console.log(r2);   // [1, 2, 3]
+
+// The classic bug — chaining after push:
+// [1,2].push(3).map(…)   ✗ TypeError: 3.map is not a function
+
+// concat flattens ONE level of array arguments:
+[1].concat([2, 3]);        // [1, 2, 3]
+[1].concat([[2]]);         // [1, [2]]  — only one level
+
+// push adds the array as a single item:
+const c = [1]; c.push([2, 3]);   // [1, [2,3]]
+// To push many items, spread them:
+const d = [1]; d.push(...[2, 3]); // [1, 2, 3]
+
+// Performance: push is O(1); concat copies everything, so
+// concat inside a loop is O(n²). Use push there, or spread once.
+
+// Modern immutable spread is usually clearest:
+const next = [...b, 3];`,
+      output: `[ 1, 2, 3 ]
+3
+[ 1, 2 ]
+[ 1, 2, 3 ]
+[ 1, [ 2, 3 ] ]
+[ 1, 2, 3 ]`,
     },
   },
   {
@@ -5621,6 +6517,40 @@ false`,
       hinglish:
         'Mutable methods ORIGINAL array ko in place change karte hain: `push`, `pop`, `shift`, `unshift`, `splice`, `sort`, `reverse`, `fill`. Immutable (non-mutating) methods ek NAYA array/value return karte hain, original untouched chhodte hue: `map`, `filter`, `reduce`, `slice`, `concat`, `flat`, spread operator, aur newer ES2023 counterparts `toSorted`, `toReversed`, `toSpliced`. React/Redux jaise frameworks mein jo changes detect karne ke liye reference-equality checks pe depend karte hain, state pe directly mutating methods use karna ek bahut common bug hai — hamesha immutable alternatives prefer karo.',
     },
+    codeExample: {
+      code: `// MUTATING — they change the original and usually return
+// something other than the array.
+const a = [3, 1, 2];
+a.push(4); a.pop(); a.shift(); a.unshift(0);
+a.splice(1, 1); a.sort(); a.reverse(); a.fill(0);
+
+// NON-MUTATING — they return a NEW array.
+const b = [3, 1, 2];
+b.map(n => n); b.filter(Boolean); b.slice(0, 2);
+b.concat([4]); [...b];
+
+// The one that catches everyone — sort mutates:
+const scores = [3, 1, 2];
+const sorted = scores.sort();
+scores;        // [1, 2, 3]  ✗ the original changed too
+sorted === scores;   // true — the SAME array
+
+// Safe version:
+const safe = [...scores].sort();
+
+// ES2023 added non-mutating twins:
+const c = [3, 1, 2];
+c.toSorted();      // [1,2,3], c untouched
+c.toReversed();
+c.toSpliced(0, 1);
+c.with(0, 99);     // replace one index immutably
+
+// Why it matters: React and Redux compare by reference. If you
+// mutate state in place, the reference never changes and the
+// UI does not re-render.`,
+      output: `[ 1, 2, 3 ]
+true`,
+    },
   },
   {
     question: 'How do you sort numbers correctly in JavaScript?',
@@ -5631,6 +6561,39 @@ false`,
         'By default, `.sort()` converts elements to STRINGS and compares them lexicographically, so `[10, 2, 1].sort()` gives the wrong `[1, 10, 2]` (since "10" < "2" as strings). To sort numbers correctly, always pass a comparator function: `arr.sort((a, b) => a - b)` for ascending, `arr.sort((a, b) => b - a)` for descending. Note that `.sort()` also mutates the original array in place — use `[...arr].sort(...)` or the newer `arr.toSorted(...)` (ES2023) if you need an immutable sort.',
       hinglish:
         'By default, `.sort()` elements ko STRINGS mein convert karke lexicographically compare karta hai, isliye `[10, 2, 1].sort()` galat `[1, 10, 2]` deta hai (kyunki strings ke roop mein "10" < "2"). Numbers ko sahi se sort karne ke liye, hamesha ek comparator function pass karo: ascending ke liye `arr.sort((a, b) => a - b)`, descending ke liye `arr.sort((a, b) => b - a)`. Note karo ki `.sort()` original array ko bhi in place mutate karta hai — agar immutable sort chahiye to `[...arr].sort(...)` ya newer `arr.toSorted(...)` (ES2023) use karo.',
+    },
+    codeExample: {
+      code: `// The trap — sort() converts everything to STRINGS by default.
+[10, 9, 1].sort();          // [1, 10, 9]  ✗
+// '10' comes before '9' because '1' < '9' character by character.
+
+// The fix — give it a comparator:
+[10, 9, 1].sort((a, b) => a - b);    // [1, 9, 10]   ascending
+[10, 9, 1].sort((a, b) => b - a);    // [10, 9, 1]   descending
+
+// How the comparator is read:
+//   negative → a comes first
+//   positive → b comes first
+//   zero     → leave their order alone
+
+// Objects — sort by a field:
+users.sort((a, b) => a.age - b.age);
+
+// Strings — subtraction does not work, use localeCompare:
+names.sort((a, b) => a.localeCompare(b));
+// It also handles accents and other alphabets correctly.
+
+// Multiple keys — fall through to the next when equal:
+users.sort((a, b) => a.age - b.age || a.name.localeCompare(b.name));
+
+// Two more things:
+//   • sort MUTATES. Use [...arr].sort() or toSorted().
+//   • sort is stable since ES2019, so equal items keep
+//     their relative order — which is what makes the
+//     multi-key pattern above work.`,
+      output: `[ 1, 10, 9 ]
+[ 1, 9, 10 ]
+[ 10, 9, 1 ]`,
     },
   },
 
@@ -5645,6 +6608,42 @@ false`,
       hinglish:
         'Synchronous code line by line, order mein execute hota hai, aur har operation ko agla shuru hone se pehle KHATAM hona zaroori hai — agar ek line 5 seconds leti hai (jaise ek heavy loop), uske baad sab kuch (browser mein UI rendering included) un 5 seconds ke liye block ho jaata hai. Zyadatar basic JavaScript code (variable assignment, arithmetic, simple function calls) by default synchronous hota hai; asynchronous behaviour explicitly callbacks, Promises, ya async/await se introduce karna padta hai.',
     },
+    visual: 'call-stack',
+    codeExample: {
+      code: `// Synchronous = one line finishes before the next starts.
+console.log('first');
+console.log('second');
+console.log('third');
+// Always in that order. Simple to follow.
+
+// The problem: a slow line BLOCKS everything behind it.
+function wait(ms) {
+  const end = Date.now() + ms;
+  while (Date.now() < end) {}   // busy loop
+}
+
+console.log('start');
+wait(3000);                     // page frozen for 3 seconds:
+                                // no clicks, no scrolling, no rendering
+console.log('end');
+
+// Because JavaScript has ONE call stack, there is nothing
+// else it can do meanwhile.
+
+// This is why file and network work is never synchronous
+// in the browser. Compare:
+//   sync  → ask, wait doing nothing, get answer
+//   async → ask, carry on, get told when the answer arrives
+
+// A synchronous read in Node blocks the whole server:
+// const data = fs.readFileSync('big.json');   ✗ blocks
+// const data = await fs.promises.readFile('big.json');  ✓`,
+      output: `first
+second
+third
+start
+end`,
+    },
   },
   {
     question: 'What is asynchronous programming?',
@@ -5655,6 +6654,40 @@ false`,
         'Asynchronous programming lets an operation (network request, file read, timer) START without blocking the rest of the program — the code continues executing other statements, and the async operation\'s result is handled LATER via a callback, Promise `.then()`, or `await`, once it completes. This is essential in JavaScript, especially in browsers, because a single-threaded language would otherwise freeze the entire UI while waiting for slow operations like network calls.',
       hinglish:
         'Asynchronous programming ek operation (network request, file read, timer) ko baaki program ko block kiye bina START karne deta hai — code baaki statements execute karta rehta hai, aur async operation ka result BAAD MEIN handle hota hai ek callback, Promise `.then()`, ya `await` ke through, jab wo complete ho jaaye. Ye JavaScript mein essential hai, especially browsers mein, kyunki ek single-threaded language warna poori UI freeze kar degi slow operations jaise network calls ka wait karte hue.',
+    },
+    visual: 'event-loop',
+    codeExample: {
+      code: `// Async = start something now, deal with the result later,
+// and keep running in the meantime.
+
+console.log('1 — start');
+
+setTimeout(() => console.log('3 — after 1 second'), 1000);
+
+fetch('/api/data').then(() => console.log('4 — when it arrives'));
+
+console.log('2 — this does NOT wait');
+
+// Order: 1, 2, then 3 and 4 whenever they finish.
+
+// JavaScript itself is single-threaded. The BROWSER (or Node)
+// does the waiting — timers, network, disk — and hands the
+// callback back when the call stack is free.
+
+// Three ways to write it, oldest to newest:
+getUser(1, (err, user) => {});                  // callback
+getUser(1).then(user => {});                    // promise
+const user = await getUser(1);                  // async/await
+
+// await pauses only THIS function, not the whole program.
+
+// Do independent work in parallel, not one after another:
+const a = await getA(); const b = await getB();      // ✗ 2 seconds
+const [x, y] = await Promise.all([getA(), getB()]);  // ✓ 1 second`,
+      output: `1 — start
+2 — this does NOT wait
+3 — after 1 second
+4 — when it arrives`,
     },
   },
   {
@@ -5706,6 +6739,40 @@ data ready`,
       hinglish:
         'Callbacks plain functions hain jo baad mein invoke hone ke liye pass hote hain — multiple async callbacks nest karne se "callback hell" hota hai (deeply indented, hard-to-read pyramid code), aur error handling har level pe manually repeat karni padti hai (usually ek `(err, data)` convention se). Promises future value represent karne wale objects hain, built-in chaining ke saath (`.then().then()`, pyramid ko flatten karte hue), ek single centralised error path (`.catch()` chain ke KISI BHI step se errors catch karta hai), aur `Promise.all`/`race`/`allSettled` se composability. Promises callbacks ke upar ek structural improvement hain, ek alag underlying mechanism nahi — wo internally callbacks ke upar hi bane hain.',
     },
+    visual: 'promise-states',
+    codeExample: {
+      code: `// CALLBACK — you hand over a function to be called later.
+getUser(1, (err, user) => {
+  if (err) return handle(err);           // check errors every level
+  getPosts(user.id, (err, posts) => {
+    if (err) return handle(err);
+    getComments(posts[0].id, (err, c) => {   // nesting grows
+      console.log(c);
+    });
+  });
+});
+
+// PROMISE — an object representing a future value. Chains flat.
+getUser(1)
+  .then(user => getPosts(user.id))
+  .then(posts => getComments(posts[0].id))
+  .then(console.log)
+  .catch(handle);            // ONE error handler for all of it
+
+// What promises fix:
+//   • nesting → chaining
+//   • error handling in every callback → one .catch
+//   • "callback called twice" bugs → a promise settles ONCE
+//   • no way to run things in parallel → Promise.all
+
+// A promise is also a VALUE you can pass around and store;
+// a callback is not.
+
+// Converting an old callback API:
+const readFile = (p) => new Promise((res, rej) =>
+  fs.readFile(p, (e, d) => (e ? rej(e) : res(d))));`,
+      output: `(the comments)`,
+    },
   },
   {
     question: 'What is the difference between async/await and plain Promises?',
@@ -5716,6 +6783,44 @@ data ready`,
         'async/await (ES2017) is SYNTACTIC SUGAR over Promises — it does not replace them, it makes asynchronous code LOOK synchronous and is easier to read/debug, especially with sequential dependent operations and try/catch error handling. Under the hood, `await someAsyncFn()` is equivalent to `.then()` chaining; an `async function` always implicitly returns a Promise. The trade-off: raw `.then()` chains are sometimes better for PARALLEL operations expressed declaratively (though `Promise.all` with await handles that too), while async/await shines for readable sequential logic.',
       hinglish:
         'async/await (ES2017) Promises ke upar SYNTACTIC SUGAR hai — ye unhe replace nahi karta, ye asynchronous code ko synchronous jaisa DIKHATA hai aur padhna/debug karna easier hai, especially sequential dependent operations aur try/catch error handling ke saath. Under the hood, `await someAsyncFn()` `.then()` chaining ke barabar hai; ek `async function` hamesha implicitly ek Promise return karta hai. Trade-off: raw `.then()` chains kabhi-kabhi PARALLEL operations declaratively express karne ke liye better hote hain (chahe `Promise.all` with await bhi wo handle karta hai), jabki async/await readable sequential logic ke liye shine karta hai.',
+    },
+    codeExample: {
+      code: `// Same promises underneath — await is just nicer syntax.
+
+// .then chain
+function load() {
+  return getUser(1)
+    .then(user => getPosts(user.id))
+    .then(posts => ({ posts }))
+    .catch(err => ({ error: err }));
+}
+
+// async/await — reads top to bottom, like normal code
+async function load2() {
+  try {
+    const user  = await getUser(1);
+    const posts = await getPosts(user.id);
+    return { posts };
+  } catch (err) {
+    return { error: err };      // ordinary try/catch
+  }
+}
+
+// An async function ALWAYS returns a promise:
+async function f() { return 1; }
+f();                     // Promise { 1 }, not 1
+await f();               // 1
+
+// The mistake await makes easy — accidental sequencing:
+const a = await getA();  // 1s
+const b = await getB();  // 1s → 2s total, but they were independent
+
+const [x, y] = await Promise.all([getA(), getB()]);   // ✓ 1s
+
+// And an unawaited promise loses its error:
+someAsync();             // ✗ unhandled rejection if it fails`,
+      output: `Promise { 1 }
+1`,
     },
   },
   {
@@ -5728,6 +6833,38 @@ data ready`,
       hinglish:
         '`Promise.all(promises)` multiple Promises ko CONCURRENTLY run karta hai aur ek single Promise return karta hai jo saare results ke ek ARRAY se resolve hota hai, input ke SAME ORDER mein, jab HAR promise fulfil ho jaaye. Iska key trade-off: ye "fail-fast" hai — agar ek bhi promise reject ho, `Promise.all` turant us error ke saath reject ho jaata hai, chahe baaki promises abhi pending/succeeding hi kyun na hon. Ye multiple independent async operations (jaise multiple API calls) ko sequentially await karne ke bajaye parallel mein chalane ke liye go-to tool hai.',
     },
+    codeExample: {
+      code: `// Runs promises in PARALLEL and waits for all of them.
+const [user, posts, tags] = await Promise.all([
+  fetchUser(),      // all three start at the same moment
+  fetchPosts(),
+  fetchTags(),
+]);
+// Takes as long as the SLOWEST one, not the sum.
+
+// Results come back in the order you listed them,
+// not the order they finished.
+
+// The important behaviour: it FAILS FAST.
+// If any single promise rejects, the whole thing rejects
+// immediately with that error — the others are abandoned
+// (they keep running, but their results are thrown away).
+try {
+  await Promise.all([ok(), fails(), ok()]);
+} catch (e) {
+  // only the FIRST error reaches here
+}
+
+// When you want every result, success or failure:
+const results = await Promise.allSettled([ok(), fails()]);
+// [ {status:'fulfilled', value:…}, {status:'rejected', reason:…} ]
+
+// Compare with sequential awaits:
+const a = await fetchUser();    // 1s
+const b = await fetchPosts();   // 1s  → 2s total ✗
+// Promise.all → 1s ✓ whenever the calls do not depend on each other`,
+      output: `[ user, posts, tags ]`,
+    },
   },
   {
     question: 'What is the difference between Promise.all(), Promise.race(), Promise.any(), and Promise.allSettled()?',
@@ -5738,6 +6875,39 @@ data ready`,
         '`Promise.all`: waits for ALL to fulfil, rejects fast on the FIRST rejection. `Promise.race`: settles (fulfils or rejects) as soon as the FIRST promise settles, whatever its outcome — useful for timeouts. `Promise.any` (ES2021): resolves as soon as the FIRST promise FULFILS, ignoring rejections, and only rejects if ALL promises reject (with an AggregateError) — useful for "try multiple sources, use whichever succeeds first". `Promise.allSettled`: waits for ALL to settle (regardless of success/failure) and returns an array of `{status, value|reason}` objects for every one — never rejects, ideal when you need every result even if some failed.',
       hinglish:
         '`Promise.all`: SAARE fulfil hone ka wait karta hai, PEHLI rejection pe fast reject hota hai. `Promise.race`: PEHLA promise settle (fulfil ya reject) hote hi settle ho jaata hai, chahe outcome kuch bhi ho — timeouts ke liye useful. `Promise.any` (ES2021): PEHLA promise FULFIL hote hi resolve hota hai, rejections ignore karte hue, aur sirf tab reject hota hai jab SAARE promises reject hon (AggregateError ke saath) — "multiple sources try karo, jo pehle succeed kare wo use karo" ke liye useful. `Promise.allSettled`: SAARE settle hone ka wait karta hai (success/failure ki parwah kiye bina) aur har ek ke liye `{status, value|reason}` objects ka array return karta hai — kabhi reject nahi hota, ideal hai jab har result chahiye chahe kuch fail bhi ho jaayein.',
+    },
+    codeExample: {
+      code: `// ALL — every one must succeed. Rejects on the first failure.
+await Promise.all([a, b, c]);
+// → array of all values, or the first error
+
+// ALLSETTLED — waits for everything, never rejects.
+await Promise.allSettled([a, b, c]);
+// → [{status:'fulfilled', value}, {status:'rejected', reason}, …]
+
+// RACE — the first to SETTLE wins, success or failure.
+await Promise.race([slow, fast]);
+// → whichever finished first, even if it rejected
+
+// ANY — the first to SUCCEED wins. Ignores failures.
+await Promise.any([failing, working]);
+// → the first value; rejects only if ALL fail (AggregateError)
+
+// Choosing:
+//   need all the data           → all
+//   want a report on each       → allSettled
+//   timeout / fastest response  → race
+//   first working mirror        → any
+
+// The classic race use — adding a timeout:
+const timeout = (ms) => new Promise((_, rej) =>
+  setTimeout(() => rej(new Error('timeout')), ms));
+
+await Promise.race([fetch('/slow'), timeout(5000)]);
+
+// Note: none of these CANCEL the losers. The other requests
+// still run — you just stop caring about their results.`,
+      output: `first settled value`,
     },
   },
   {
@@ -5750,6 +6920,45 @@ data ready`,
       hinglish:
         'Macrotasks ("task queue" / "callback queue") mein `setTimeout`, `setInterval`, I/O, aur UI rendering shamil hain — event loop har loop iteration mein EK macrotask process karta hai. Microtasks ("microtask queue") mein Promise `.then/.catch/.finally` callbacks aur `queueMicrotask()` shamil hain. Crucially, poori microtask queue HAR macrotask khatam hone ke baad poori tarah drain hoti hai (draining ke dauraan schedule hue kisi bhi naye microtask ko bhi shamil karte hue), aur agle macrotask ya kisi bhi rendering se PEHLE — yahi wajah hai `Promise.resolve().then(...)` hamesha `setTimeout(..., 0)` se pehle chalta hai, chahe dono "async" hon.',
     },
+    visual: 'event-loop',
+    codeExample: {
+      code: `console.log('1');                                  // sync
+
+setTimeout(() => console.log('4'), 0);             // MACROtask
+Promise.resolve().then(() => console.log('3'));    // MICROtask
+
+console.log('2');                                  // sync
+
+// Output: 1, 2, 3, 4
+
+// The rule the event loop follows:
+//   1. finish ALL synchronous code
+//   2. drain the ENTIRE microtask queue
+//   3. run ONE macrotask
+//   4. drain microtasks again … and repeat
+
+// Microtasks (higher priority):
+//   promise .then / .catch / .finally
+//   await continuations
+//   queueMicrotask
+//   MutationObserver
+
+// Macrotasks:
+//   setTimeout, setInterval, setImmediate
+//   I/O, UI events, requestAnimationFrame
+
+// Because microtasks drain COMPLETELY before any macrotask,
+// an endless chain of them starves everything else:
+function loop() { Promise.resolve().then(loop); }
+// loop();   ✗ the page freezes — setTimeout never gets a turn
+
+// This is also why a promise created inside a setTimeout
+// still resolves before the NEXT setTimeout fires.`,
+      output: `1
+2
+3
+4`,
+    },
   },
   {
     question: 'Explain the execution order of: console.log(1); setTimeout(() => console.log(2)); Promise.resolve().then(() => console.log(3)); console.log(4);',
@@ -5760,6 +6969,43 @@ data ready`,
         'Output order is `1, 4, 3, 2`. Reasoning: `console.log(1)` and `console.log(4)` run immediately as part of the synchronous main script (the call stack). `setTimeout` schedules its callback as a MACROTASK, queued for later — even with a 0ms delay, it must wait its turn. `Promise.resolve().then(...)` schedules its callback as a MICROTASK. After the synchronous code finishes (`1` then `4`), the engine fully drains the microtask queue BEFORE picking the next macrotask — so `3` (microtask) logs before `2` (macrotask).',
       hinglish:
         'Output order hai `1, 4, 3, 2`. Reasoning: `console.log(1)` aur `console.log(4)` turant chalte hain synchronous main script (call stack) ke part ke roop mein. `setTimeout` apna callback ek MACROTASK ke roop mein schedule karta hai, baad ke liye queued — 0ms delay ke saath bhi, apni baari ka wait karna padta hai. `Promise.resolve().then(...)` apna callback ek MICROTASK ke roop mein schedule karta hai. Synchronous code khatam hone ke baad (`1` phir `4`), engine agle macrotask uthaane se PEHLE microtask queue poori tarah drain karta hai — isliye `3` (microtask) `2` (macrotask) se pehle log hota hai.',
+    },
+    visual: 'event-loop',
+    codeExample: {
+      code: `console.log(1);
+setTimeout(() => console.log(2));
+Promise.resolve().then(() => console.log(3));
+console.log(4);
+
+// Output: 1, 4, 3, 2
+
+// Walk through it:
+//
+// 1. console.log(1)   → runs immediately            → prints 1
+//
+// 2. setTimeout(…)    → hands the callback to the browser.
+//                       Even with no delay it becomes a
+//                       MACROtask, queued for later.
+//
+// 3. Promise.then(…)  → the promise is already resolved, so
+//                       the callback becomes a MICROtask.
+//
+// 4. console.log(4)   → still synchronous            → prints 4
+//
+// Call stack is now empty. The event loop:
+//   • drains ALL microtasks first  → prints 3
+//   • then takes ONE macrotask     → prints 2
+
+// The single idea being tested: microtasks always beat
+// macrotasks, and all synchronous code beats both.
+
+// Add await and the same rule applies —
+// code after await is a microtask:
+(async () => { await null; console.log('also before 2'); })();`,
+      output: `1
+4
+3
+2`,
     },
   },
 
@@ -5774,6 +7020,43 @@ data ready`,
       hinglish:
         'Ek iterator koi bhi object hai jo "iterator protocol" implement karta hai: ek `.next()` method jo `{ value, done }` return karta hai, jahan iteration complete hone pe `done` `true` ban jaata hai. Ek "iterable" koi bhi object hai jo `Symbol.iterator` implement karta hai — ek method jo ek iterator return karta hai — yahi isse `for...of`, spread (`...`), aur destructuring ke saath usable banata hai. Arrays, strings, Maps, Sets, aur generator functions sab natively iterable hain; tum apna khud ka `[Symbol.iterator]` implement karke ek custom object ko iterable bana sakte ho.',
     },
+    codeExample: {
+      code: `// An ITERABLE has a [Symbol.iterator] method.
+// An ITERATOR has a next() that returns { value, done }.
+
+const arr = [1, 2];
+const it = arr[Symbol.iterator]();
+it.next();      // { value: 1, done: false }
+it.next();      // { value: 2, done: false }
+it.next();      // { value: undefined, done: true }
+
+// This protocol is what for…of, spread and destructuring use.
+// Anything that implements it works with all of them.
+
+// Making your own iterable:
+const range = {
+  from: 1, to: 3,
+  [Symbol.iterator]() {
+    let n = this.from, last = this.to;
+    return { next: () => (n <= last ? { value: n++, done: false }
+                                    : { value: undefined, done: true }) };
+  },
+};
+
+[...range];                      // [1, 2, 3]
+for (const n of range) {}        // works
+const [a, b] = range;            // a=1, b=2
+
+// Generators write the same thing in three lines:
+function* range2(from, to) { for (let i = from; i <= to; i++) yield i; }
+[...range2(1, 3)];               // [1, 2, 3]
+
+// Built-in iterables: Array, String, Map, Set, NodeList,
+// arguments. A plain object is NOT — use Object.entries().`,
+      output: `{ value: 1, done: false }
+[ 1, 2, 3 ]
+[ 1, 2, 3 ]`,
+    },
   },
   {
     question: 'What are modules in JavaScript?',
@@ -5784,6 +7067,38 @@ data ready`,
         'Modules let you split code into separate files, each with its own scope — variables/functions are private by default unless explicitly `export`ed, and other files must `import` what they need. This solves global-scope pollution and dependency management, which used to require manual `<script>` ordering or IIFEs. JavaScript now has native ES Modules (`export`/`import`) supported by browsers and Node.js, alongside the older CommonJS system (`module.exports`/`require`) that dominated Node.js before ES Modules matured.',
       hinglish:
         'Modules code ko separate files mein split karne dete hain, har ek ka apna scope hota hai — variables/functions default se private hote hain jab tak explicitly `export` na ho, aur doosri files ko jo chahiye wo `import` karna padta hai. Ye global-scope pollution aur dependency management solve karta hai, jo pehle manual `<script>` ordering ya IIFEs se hota tha. JavaScript ke paas ab native ES Modules (`export`/`import`) hain jo browsers aur Node.js support karte hain, purane CommonJS system (`module.exports`/`require`) ke saath jo ES Modules mature hone se pehle Node.js mein dominate karta tha.',
+    },
+    codeExample: {
+      code: `// A module is a file with its own scope. Nothing leaks out
+// unless you export it.
+
+// ── math.js ──
+export const PI = 3.14;                 // named export
+export function add(a, b) { return a + b; }
+export default function multiply(a, b) { return a * b; }
+
+// ── app.js ──
+import multiply, { PI, add } from './math.js';
+import { add as sum } from './math.js';        // rename
+import * as math from './math.js';             // everything
+
+// Rules worth knowing:
+//   • one default export per file, any number of named
+//   • imports are HOISTED — they run before your code
+//   • the file is evaluated ONCE and cached, however many
+//     files import it
+//   • modules are always in strict mode
+//   • top-level \`this\` is undefined, not window
+
+// Imports are LIVE bindings, not copies:
+// counter.js: export let n = 0; export const inc = () => n++;
+import { n, inc } from './counter.js';
+inc();  // n is now 1 where you read it — but you cannot assign to it
+
+// Loading on demand returns a promise:
+const { heavy } = await import('./heavy.js');`,
+      output: `3.14
+6`,
     },
   },
   {
@@ -5796,6 +7111,40 @@ data ready`,
       hinglish:
         'CommonJS (`require`/`module.exports`) Node.js ka original module system hai — ye modules ko SYNCHRONOUSLY runtime pe load karta hai, exports require-time pe plain values ke roop mein COPY hote hain, aur bina bundler ke browsers mein natively usable nahi hai. ES Modules (`import`/`export`) official JavaScript standard hain — ye parse time pe STATICALLY analyse hote hain (bundlers ke liye tree-shaking/dead-code elimination enable karte hue), asynchronous loading support karte hain, exports LIVE BINDINGS hote hain (ek reference jo source change hone pe update hota hai), aur modern browsers aur modern Node.js dono mein natively kaam karte hain (`"type": "module"` ya `.mjs` extension ke saath).',
     },
+    codeExample: {
+      code: `// COMMONJS — Node's original system
+const fs = require('fs');
+module.exports = { add };
+// • loaded SYNCHRONOUSLY, at runtime
+// • require() can be called anywhere, even conditionally
+// • you get a COPY of the exported value
+
+// ES MODULES — the standard, works in browsers and Node
+import fs from 'fs';
+export { add };
+// • static: imports are resolved before the code runs
+// • hoisted to the top, cannot be conditional
+// • LIVE bindings — you see later updates
+
+// Why static matters: because the imports are known ahead of
+// time, bundlers can tree-shake — drop code nobody imports.
+// CommonJS cannot be analysed that way.
+
+// Telling Node which one you are using:
+//   "type": "module" in package.json  → .mjs behaviour
+//   default                           → CommonJS, use .mjs to opt in
+
+// Things ESM has that CJS does not:
+await import('./x.js');       // dynamic import
+const data = await load();    // top-level await
+
+// Things CJS has that ESM does not:
+__dirname, __filename;
+// In ESM: new URL('.', import.meta.url).pathname
+
+// You can import CJS from ESM, but not the reverse cleanly.`,
+      output: `6`,
+    },
   },
   {
     question: 'What is strict mode in JavaScript?',
@@ -5806,6 +7155,37 @@ data ready`,
         '`"use strict"` (placed at the top of a file or function) opts into a restricted variant of JavaScript that catches common mistakes and unsafe patterns: it throws errors for assigning to undeclared variables (instead of silently creating globals), disallows duplicate parameter names, makes `this` `undefined` (instead of the global object) in plain function calls, and disallows some legacy syntax like `with`. ES Modules and `class` bodies are automatically strict mode by default, which is one reason modern JS code is generally safer than old-style scripts.',
       hinglish:
         '`"use strict"` (file ya function ke top pe rakha jaata hai) JavaScript ke ek restricted variant mein opt-in karta hai jo common mistakes aur unsafe patterns pakadta hai: undeclared variables ko assign karne pe error throw karta hai (silently globals banane ke bajaye), duplicate parameter names disallow karta hai, plain function calls mein `this` ko `undefined` banata hai (global object ke bajaye), aur `with` jaise kuch legacy syntax disallow karta hai. ES Modules aur `class` bodies automatically default se strict mode mein hote hain, yahi ek wajah hai modern JS code generally old-style scripts se safer hota hai.',
+    },
+    codeExample: {
+      code: `'use strict';     // top of a file, or top of a function
+
+// It turns silent mistakes into errors.
+
+// 1. No accidental globals
+// x = 5;          ✗ ReferenceError (sloppy mode: creates a global)
+
+// 2. Assigning to read-only throws instead of failing quietly
+const frozen = Object.freeze({ a: 1 });
+// frozen.a = 2;   ✗ TypeError
+
+// 3. \`this\` is undefined in a plain function call
+function f() { return this; }
+f();               // undefined (sloppy mode: the global object)
+// This is why "losing this" gives a clear error instead of
+// silently writing properties onto window.
+
+// 4. Duplicate parameter names are a SyntaxError
+// function g(a, a) {}   ✗
+
+// 5. delete on a variable is a SyntaxError
+// 6. Octal literals like 0755 are banned
+// 7. \`eval\` cannot create variables in the surrounding scope
+
+// You usually get it for free:
+//   • ES modules are ALWAYS strict
+//   • class bodies are ALWAYS strict
+// So in modern code you rarely type 'use strict' yourself.`,
+      output: `undefined`,
     },
   },
   {
@@ -5818,6 +7198,45 @@ data ready`,
       hinglish:
         'JavaScript ek garbage collector ke through automatically memory manage karta hai, isliye developers ko manually memory allocate/free nahi karni padti. Dominant algorithm "mark-and-sweep" hai: GC periodically GC "roots" (global object, currently executing call stack) se shuru hota hai, un roots se reachable har object ko mark karta hai, phir saare UNMARKED (unreachable) objects ko sweep karta hai (free karta hai). Isne purane, flawed "reference counting" approach ki jagah li, jo ek circular reference (A B ko reference karta hai, B A ko reference karta hai) mein objects kabhi free nahi kar paata tha chahe bahar se kuch bhi kisi ko reference na kare. JS mein memory leaks usually tab hote hain jab tum accidentally ek reference ko zaroorat se zyada der tak alive rakh dete ho (jaise forgotten event listeners, closures jo bade objects hold karte hain, global variable accumulation).',
     },
+    codeExample: {
+      code: `// Memory is freed automatically. The rule is REACHABILITY:
+// if nothing can reach an object any more, it can be collected.
+
+let user = { name: 'Asha' };   // reachable through \`user\`
+user = null;                   // now unreachable → collectible
+
+// The engine starts from ROOTS (global object, the current
+// call stack, closures in use) and marks everything it can
+// reach. Whatever is left unmarked is swept away.
+// This is "mark and sweep" — and because it follows
+// reachability, circular references are NOT a problem:
+function cycle() {
+  const a = {}, b = {};
+  a.b = b; b.a = a;            // point at each other
+}
+cycle();                       // both still collected ✓
+
+// You cannot force it, and you should not try to.
+
+// What you CAN do is avoid holding on to things:
+
+// 1. a growing global cache
+const cache = {};              // never cleared → leak
+
+// 2. listeners never removed
+el.addEventListener('click', fn);
+el.removeEventListener('click', fn);      // ✓ do this
+
+// 3. timers left running
+const id = setInterval(tick, 1000);
+clearInterval(id);                        // ✓
+
+// 4. closures keeping a big object alive longer than needed
+
+// WeakMap/WeakSet do not prevent collection — use them for
+// metadata attached to objects you do not own.`,
+      output: `null`,
+    },
   },
   {
     question: 'Explain the complete JavaScript execution process from writing code to browser execution.',
@@ -5828,6 +7247,46 @@ data ready`,
         'End-to-end flow: (1) Parsing — the engine (e.g. V8) reads the source, tokenises it, and builds an Abstract Syntax Tree (AST). (2) Compilation — modern engines are JIT (Just-In-Time) compiled: the AST is first turned into bytecode by an interpreter (e.g. Ignition in V8) for fast startup, and "hot" (frequently run) code paths are later optimised into machine code by a JIT compiler (e.g. TurboFan). (3) Execution context creation — for the global scope and each function call, the engine creates an execution context with two phases: a CREATION phase (hoisting — variables/functions registered, `this` bound, scope chain set up) and an EXECUTION phase (code runs line by line). (4) Call stack — each function invocation pushes a new execution context onto the call stack, popped when it returns. (5) Web APIs / Node APIs — asynchronous operations (timers, fetch, DOM events) are handed off to the browser/Node runtime, not the JS engine itself. (6) Event loop — once the call stack is empty, the event loop pulls completed microtasks (Promises) first, fully draining them, then one macrotask (timers, I/O) at a time, pushing their callbacks back onto the call stack to run. (7) Rendering — in browsers, the engine also fits in rendering/reflow/repaint work between macrotasks. This whole pipeline is why JS feels both single-threaded (the call stack/event loop is synchronous) and capable of handling many concurrent operations (async work is delegated outside the engine).',
       hinglish:
         'End-to-end flow: (1) Parsing — engine (jaise V8) source padhta hai, tokenise karta hai, aur ek Abstract Syntax Tree (AST) banata hai. (2) Compilation — modern engines JIT (Just-In-Time) compiled hote hain: AST pehle ek interpreter (jaise V8 mein Ignition) se bytecode mein badalta hai fast startup ke liye, aur "hot" (frequently run) code paths baad mein ek JIT compiler (jaise TurboFan) se machine code mein optimise hote hain. (3) Execution context creation — global scope aur har function call ke liye, engine ek execution context banata hai do phases ke saath: ek CREATION phase (hoisting — variables/functions register hote hain, `this` bind hota hai, scope chain set up hoti hai) aur ek EXECUTION phase (code line by line chalta hai). (4) Call stack — har function invocation call stack pe ek naya execution context push karta hai, return hone pe pop hota hai. (5) Web APIs / Node APIs — asynchronous operations (timers, fetch, DOM events) browser/Node runtime ko handoff hote hain, JS engine ko khud nahi. (6) Event loop — call stack khaali hone ke baad, event loop pehle completed microtasks (Promises) pull karta hai, poori tarah drain karte hue, phir ek macrotask (timers, I/O) ek time pe, unke callbacks ko call stack pe wapas push karke chalane ke liye. (7) Rendering — browsers mein, engine macrotasks ke beech rendering/reflow/repaint kaam bhi fit karta hai. Ye poori pipeline hi wajah hai JS single-threaded bhi feel hota hai (call stack/event loop synchronous hai) aur bahut saare concurrent operations handle karne mein capable bhi (async kaam engine ke bahar delegate hota hai).',
+    },
+    visual: 'call-stack',
+    codeExample: {
+      code: `// 1. PARSING
+// The engine reads your text and builds an AST (a tree
+// describing the code). Syntax errors are caught here,
+// before anything runs.
+
+// 2. COMPILATION (JIT)
+// V8's Ignition turns the AST into bytecode. Code that runs
+// often is re-compiled by TurboFan into optimised machine
+// code. If your assumptions break (a number becomes a string)
+// it "deoptimises" and falls back — which is why keeping
+// types consistent makes code faster.
+
+// 3. EXECUTION CONTEXT
+// For every scope the engine does two passes:
+//   a) CREATION — set up scope, hoist declarations,
+//      determine \`this\`
+//   b) EXECUTION — run the lines, assign values
+
+console.log(x);   // undefined ← proof of the creation pass
+var x = 5;
+
+// 4. CALL STACK
+// Each call pushes a frame; returning pops it. One stack,
+// so one thing at a time.
+
+// 5. ASYNC WORK
+// Timers, fetch and events are handled by the BROWSER, not
+// the engine. When they finish, the callback is queued.
+
+// 6. EVENT LOOP
+// When the stack is empty: drain all microtasks (promises),
+// then run one macrotask (setTimeout), then repeat.
+
+// 7. RENDERING
+// Between macrotasks the browser may recalculate style,
+// layout and paint — which is why blocking JS freezes the UI.`,
+      output: `undefined`,
     },
   },
 ];
