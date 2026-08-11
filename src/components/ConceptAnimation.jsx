@@ -284,6 +284,107 @@ bus.emit('order', 42);`,
       { caption: { en: 'Remove listeners you no longer need — forgetting is a common memory leak.', hi: 'Jo listeners na chahiye unhe hatao — bhoolna ek aam memory leak hai.' }, listeners: ['email'], firing: -1, out: 'email for 42, invoice for 42' },
     ],
   },
+  /* What actually happens between setState and the screen changing. */
+  'react-render': {
+    title: { en: 'The render cycle', hi: 'Render cycle' },
+    code: `function Counter() {
+  const [n, setN] = useState(0);
+  return <button onClick={() => setN(n + 1)}>{n}</button>;
+}`,
+    kind: 'renderflow',
+    steps: [
+      { caption: { en: 'The component is idle. Nothing is happening.', hi: 'Component shaant hai. Kuch nahi ho raha.' }, stage: -1, note: null },
+      { caption: { en: 'You click. setN schedules an update — it does NOT change n right now.', hi: 'Tumne click kiya. setN ek update schedule karta hai — n abhi nahi badalta.' }, stage: 0, note: 'setN(1)' },
+      { caption: { en: 'RENDER: React calls your function again and gets new JSX.', hi: 'RENDER: React tumhara function dobara bulaata hai aur nayi JSX leta hai.' }, stage: 1, note: 'Counter() runs' },
+      { caption: { en: 'RECONCILE: it compares the new tree with the old one.', hi: 'RECONCILE: naye ped ko purane se compare karta hai.' }, stage: 2, note: 'only text changed' },
+      { caption: { en: 'COMMIT: only the changed bit is written to the real DOM.', hi: 'COMMIT: sirf badla hua hissa asli DOM mein likha jaata hai.' }, stage: 3, note: 'textContent = 1' },
+      { caption: { en: 'Then effects run — useLayoutEffect before paint, useEffect after.', hi: 'Phir effects chalte hain — useLayoutEffect paint se pehle, useEffect baad mein.' }, stage: 4, note: 'useEffect' },
+      { caption: { en: 'Rendering is NOT the same as touching the DOM. Most renders change nothing.', hi: 'Render karna DOM chhoona nahi hai. Zyadatar renders kuch nahi badalte.' }, stage: -1, note: null },
+    ],
+  },
+
+  /* Why a wrong key corrupts state instead of just being slow. */
+  'list-keys': {
+    title: { en: 'Why keys matter', hi: 'Keys kyun zaroori hain' },
+    code: `{items.map((item, i) => (
+  <Row key={i} item={item} />     // ❌ index as key
+))}
+
+{items.map((item) => (
+  <Row key={item.id} item={item} />   // ✅ stable id
+))}`,
+    kind: 'keys',
+    steps: [
+      { caption: { en: 'Three rows. Anna’s checkbox is ticked.', hi: 'Teen rows. Anna ka checkbox ticked hai.' }, rows: [{ id: 'a', name: 'Anna', k: 0, checked: true }, { id: 'b', name: 'Ben', k: 1, checked: false }, { id: 'c', name: 'Cara', k: 2, checked: false }], mode: 'index', bad: false },
+      { caption: { en: 'With index keys, React identifies rows by POSITION: 0, 1, 2.', hi: 'Index keys ke saath React rows ko JAGAH se pehchanta hai: 0, 1, 2.' }, rows: [{ id: 'a', name: 'Anna', k: 0, checked: true }, { id: 'b', name: 'Ben', k: 1, checked: false }, { id: 'c', name: 'Cara', k: 2, checked: false }], mode: 'index', bad: false },
+      { caption: { en: 'Now delete Anna — the first row.', hi: 'Ab Anna hatao — pehli row.' }, rows: [{ id: 'b', name: 'Ben', k: 0, checked: true }, { id: 'c', name: 'Cara', k: 1, checked: false }], mode: 'index', bad: true },
+      { caption: { en: 'Ben slid into position 0, so React reuses Anna’s state. Ben is now ticked!', hi: 'Ben jagah 0 pe aa gaya, isliye React ne Anna ki state dobara de di. Ben ab ticked hai!' }, rows: [{ id: 'b', name: 'Ben', k: 0, checked: true }, { id: 'c', name: 'Cara', k: 1, checked: false }], mode: 'index', bad: true },
+      { caption: { en: 'Start again with stable id keys.', hi: 'Phir se shuru, sthir id keys ke saath.' }, rows: [{ id: 'a', name: 'Anna', k: 'a', checked: true }, { id: 'b', name: 'Ben', k: 'b', checked: false }, { id: 'c', name: 'Cara', k: 'c', checked: false }], mode: 'id', bad: false },
+      { caption: { en: 'Delete Anna. Ben keeps key "b", so he keeps his own state.', hi: 'Anna hatao. Ben ki key "b" wahi hai, isliye uski apni state bachi rehti hai.' }, rows: [{ id: 'b', name: 'Ben', k: 'b', checked: false }, { id: 'c', name: 'Cara', k: 'c', checked: false }], mode: 'id', bad: false },
+      { caption: { en: 'A key is an IDENTITY, not a number. Index is only safe if the list never reorders.', hi: 'Key ek PEHCHAAN hai, number nahi. Index tabhi surakshit hai jab list kabhi na badle.' }, rows: [{ id: 'b', name: 'Ben', k: 'b', checked: false }, { id: 'c', name: 'Cara', k: 'c', checked: false }], mode: 'id', bad: false },
+    ],
+  },
+
+  /* Hooks are stored in an array, which is the whole reason for the rules. */
+  'hooks-order': {
+    title: { en: 'Why hook order matters', hi: 'Hook ka kram kyun matter karta hai' },
+    code: `function Form({ isLoggedIn }) {
+  const [name, setName] = useState('');
+  if (isLoggedIn) {
+    const [email, setEmail] = useState('');   // ❌ conditional
+  }
+  useEffect(() => {}, []);
+}`,
+    kind: 'hooks',
+    steps: [
+      { caption: { en: 'React stores hooks in an ARRAY, in call order. No names involved.', hi: 'React hooks ko ek ARRAY mein rakhta hai, bulaane ke kram se. Naam ka koi role nahi.' }, slots: [], reading: -1, err: false },
+      { caption: { en: 'First render, logged in. Slot 0 gets name.', hi: 'Pehla render, logged in. Slot 0 ko name mila.' }, slots: [{ h: 'useState', v: 'name' }], reading: 0, err: false },
+      { caption: { en: 'Slot 1 gets email — because the condition was true.', hi: 'Slot 1 ko email mila — kyunki shart sach thi.' }, slots: [{ h: 'useState', v: 'name' }, { h: 'useState', v: 'email' }], reading: 1, err: false },
+      { caption: { en: 'Slot 2 gets the effect. So far so good.', hi: 'Slot 2 ko effect mila. Abhi tak sab theek.' }, slots: [{ h: 'useState', v: 'name' }, { h: 'useState', v: 'email' }, { h: 'useEffect', v: '—' }], reading: 2, err: false },
+      { caption: { en: 'Now isLoggedIn turns false, so the second useState is skipped.', hi: 'Ab isLoggedIn false ho gaya, isliye doosra useState skip ho gaya.' }, slots: [{ h: 'useState', v: 'name' }, { h: 'useEffect', v: '—' }], reading: 1, err: false },
+      { caption: { en: 'React reads slot 1 expecting email’s state — and hands the EFFECT that state.', hi: 'React slot 1 se email ki state chahta hai — aur EFFECT ko wo state de deta hai.' }, slots: [{ h: 'useEffect', v: 'got email!' }, { h: '???', v: '—' }], reading: 0, err: true },
+      { caption: { en: 'That is why hooks must be top-level and unconditional — the array must line up every time.', hi: 'Isiliye hooks top-level aur bina shart hone chahiye — array har baar milna chahiye.' }, slots: [{ h: 'useState', v: 'name' }, { h: 'useState', v: 'email' }, { h: 'useEffect', v: '—' }], reading: -1, err: false },
+    ],
+  },
+
+  /* Mount, update, cleanup — and why the dependency array decides. */
+  'effect-lifecycle': {
+    title: { en: 'useEffect lifecycle', hi: 'useEffect ka jeevan chakra' },
+    code: `useEffect(() => {
+  const id = setInterval(tick, 1000);
+  return () => clearInterval(id);   // cleanup
+}, [roomId]);`,
+    kind: 'effect',
+    steps: [
+      { caption: { en: 'The component mounts and paints first — effects never block the screen.', hi: 'Component mount hota hai aur pehle paint hota hai — effects screen nahi rokte.' }, phase: 'mount', running: false, cleanup: false, deps: 'room-1' },
+      { caption: { en: 'AFTER paint, the effect runs. The interval starts.', hi: 'Paint ke BAAD effect chalta hai. Interval shuru.' }, phase: 'mount', running: true, cleanup: false, deps: 'room-1' },
+      { caption: { en: 'A re-render happens, but roomId is unchanged — the effect is SKIPPED.', hi: 'Dobara render hua, par roomId wahi hai — effect SKIP ho gaya.' }, phase: 'update', running: true, cleanup: false, deps: 'room-1', skipped: true },
+      { caption: { en: 'Now roomId changes. React runs CLEANUP for the old value first.', hi: 'Ab roomId badla. React pehle purani value ka CLEANUP chalata hai.' }, phase: 'update', running: false, cleanup: true, deps: 'room-2' },
+      { caption: { en: 'Then the effect runs again with the new roomId.', hi: 'Phir effect naye roomId ke saath dobara chalta hai.' }, phase: 'update', running: true, cleanup: false, deps: 'room-2' },
+      { caption: { en: 'On unmount, cleanup runs one last time. Forget it and you have a leak.', hi: 'Unmount pe cleanup aakhri baar chalta hai. Bhool gaye to leak.' }, phase: 'unmount', running: false, cleanup: true, deps: 'room-2' },
+    ],
+  },
+
+  /* Several setState calls, one render. */
+  'state-batching': {
+    title: { en: 'Automatic batching', hi: 'Automatic batching' },
+    code: `function handleClick() {
+  setCount(c => c + 1);
+  setFlag(true);
+  setName('Asha');
+  // How many renders? ONE.
+}`,
+    kind: 'batching',
+    steps: [
+      { caption: { en: 'Click. Three setState calls are about to run.', hi: 'Click. Teen setState calls chalne waale hain.' }, queued: [], renders: 0, note: null },
+      { caption: { en: 'setCount is queued — React does not render yet.', hi: 'setCount queue mein — React abhi render nahi karta.' }, queued: ['count'], renders: 0, note: null },
+      { caption: { en: 'setFlag joins the same queue.', hi: 'setFlag usi queue mein aa gaya.' }, queued: ['count', 'flag'], renders: 0, note: null },
+      { caption: { en: 'setName too. Still zero renders.', hi: 'setName bhi. Abhi bhi zero renders.' }, queued: ['count', 'flag', 'name'], renders: 0, note: null },
+      { caption: { en: 'The handler finishes — React flushes all three in ONE render.', hi: 'Handler khatam — React teeno ko EK render mein flush karta hai.' }, queued: [], renders: 1, note: 'one render, not three' },
+      { caption: { en: 'This is why reading state right after setting it gives the OLD value.', hi: 'Isiliye set karne ke turant baad state padhne pe PURANI value milti hai.' }, queued: [], renders: 1, note: 'count is still stale here' },
+      { caption: { en: 'React 18 batches inside promises and timeouts too — React 17 did not.', hi: 'React 18 promises aur timeouts mein bhi batch karta hai — React 17 nahi karta tha.' }, queued: [], renders: 1, note: null },
+    ],
+  },
 };
 
 export const ANIMATION_KEYS = Object.keys(SCRIPTS);
@@ -798,8 +899,218 @@ function EmitterView({ s }) {
   );
 }
 
+/* ── React-specific renderers ───────────────────────────────── */
+
+const RENDER_STAGES = ['trigger', 'render', 'reconcile', 'commit', 'effects'];
+
+function RenderFlowView({ s }) {
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-5 gap-1">
+        {RENDER_STAGES.map((st, i) => (
+          <div key={st}>
+            <div
+              className={`rounded-md border px-1 py-2 text-center text-[10px] font-semibold capitalize transition-all duration-300 ${
+                s.stage === i
+                  ? 'border-indigo-500 bg-indigo-600 text-white shadow-sm shadow-indigo-600/30'
+                  : s.stage > i
+                    ? 'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
+                    : 'border-slate-200 bg-white text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-600'
+              }`}
+            >
+              {st}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-center dark:border-slate-700 dark:bg-slate-900">
+        <p className="font-mono text-[11px] text-slate-600 dark:text-slate-300">
+          {s.note || 'idle'}
+        </p>
+      </div>
+      <p className="text-center text-[10px] text-slate-400">
+        render = call your function · commit = touch the DOM
+      </p>
+    </div>
+  );
+}
+
+function KeysView({ s }) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center gap-2">
+        <span
+          className={`rounded px-2 py-0.5 text-[10px] font-bold ${
+            s.mode === 'index'
+              ? 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300'
+              : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+          }`}
+        >
+          key = {s.mode === 'index' ? 'index' : 'item.id'}
+        </span>
+        {s.bad && (
+          <span className="text-[10px] font-semibold text-red-600 dark:text-red-400">state landed on the wrong row</span>
+        )}
+      </div>
+
+      {s.rows.map((r) => (
+        <div
+          key={r.id}
+          className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 transition-all duration-300 ${
+            s.bad && r.checked
+              ? 'border-red-400 bg-red-50 dark:border-red-700 dark:bg-red-950/40'
+              : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900'
+          }`}
+        >
+          <span
+            className={`grid h-4 w-4 flex-none place-items-center rounded border text-[10px] ${
+              r.checked
+                ? 'border-indigo-500 bg-indigo-600 text-white'
+                : 'border-slate-300 dark:border-slate-600'
+            }`}
+          >
+            {r.checked ? '✓' : ''}
+          </span>
+          <span className="text-[11.5px] text-slate-700 dark:text-slate-200">{r.name}</span>
+          <span className="ml-auto font-mono text-[10px] text-slate-400">key={String(r.k)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function HooksView({ s }) {
+  return (
+    <div className="space-y-1.5">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+        React&apos;s internal hook array
+      </p>
+      {s.slots.length === 0 ? (
+        <Empty>empty</Empty>
+      ) : (
+        s.slots.map((slot, i) => (
+          <div
+            key={i}
+            className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 transition-all duration-300 ${
+              s.err && i === 0
+                ? 'border-red-400 bg-red-50 dark:border-red-700 dark:bg-red-950/40'
+                : s.reading === i
+                  ? 'border-indigo-400 bg-indigo-50 dark:border-indigo-700 dark:bg-indigo-950/40'
+                  : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900'
+            }`}
+          >
+            <span className="font-mono text-[10px] text-slate-400">[{i}]</span>
+            <span className="font-mono text-[11px] font-semibold text-slate-700 dark:text-slate-200">{slot.h}</span>
+            <span className="ml-auto font-mono text-[10.5px] text-indigo-600 dark:text-indigo-400">{slot.v}</span>
+          </div>
+        ))
+      )}
+      {s.err && (
+        <p className="rounded-md bg-red-50 px-2 py-1.5 text-[10.5px] text-red-700 dark:bg-red-950/40 dark:text-red-300">
+          slots shifted — every hook now reads the wrong state
+        </p>
+      )}
+    </div>
+  );
+}
+
+function EffectView({ s }) {
+  const phases = ['mount', 'update', 'unmount'];
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-3 gap-1.5">
+        {phases.map((p) => (
+          <div
+            key={p}
+            className={`rounded-md border px-2 py-1.5 text-center text-[10px] font-semibold capitalize transition-all duration-300 ${
+              s.phase === p
+                ? 'border-indigo-500 bg-indigo-600 text-white'
+                : 'border-slate-200 bg-white text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-600'
+            }`}
+          >
+            {p}
+          </div>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">deps</span>
+        <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-[10.5px] text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+          [{s.deps}]
+        </span>
+        {s.skipped && <span className="text-[10px] font-semibold text-slate-400">unchanged → effect skipped</span>}
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div
+          className={`rounded-lg border px-2 py-2 text-center transition-all duration-300 ${
+            s.running
+              ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/40'
+              : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900'
+          }`}
+        >
+          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">effect</p>
+          <p className="font-mono text-[11px] text-slate-700 dark:text-slate-200">
+            {s.running ? '▶ interval running' : 'stopped'}
+          </p>
+        </div>
+        <div
+          className={`rounded-lg border px-2 py-2 text-center transition-all duration-300 ${
+            s.cleanup
+              ? 'border-amber-400 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/40'
+              : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900'
+          }`}
+        >
+          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">cleanup</p>
+          <p className="font-mono text-[11px] text-slate-700 dark:text-slate-200">
+            {s.cleanup ? '✓ clearInterval' : '—'}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BatchingView({ s }) {
+  return (
+    <div className="space-y-2">
+      <Panel label="queued updates" accent="indigo">
+        {s.queued.length === 0 ? <Empty>flushed</Empty> : s.queued.map((q, i) => <Chip key={i} tone="new">set{q}</Chip>)}
+      </Panel>
+
+      <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">renders</span>
+        <div className="flex gap-1">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <span
+              key={i}
+              className={`h-3 w-6 rounded transition-all duration-300 ${
+                i < s.renders ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'
+              }`}
+            />
+          ))}
+        </div>
+        <span className="ml-auto font-mono text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+          {s.renders}
+        </span>
+      </div>
+
+      {s.note && (
+        <p className="rounded-md bg-indigo-50 px-2 py-1.5 text-center text-[10.5px] text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300">
+          {s.note}
+        </p>
+      )}
+    </div>
+  );
+}
+
 const VIEWS = {
   stack: StackView,
+  renderflow: RenderFlowView,
+  keys: KeysView,
+  hooks: HooksView,
+  effect: EffectView,
+  batching: BatchingView,
   nodeloop: NodeLoopView,
   threads: ThreadsView,
   stream: StreamView,

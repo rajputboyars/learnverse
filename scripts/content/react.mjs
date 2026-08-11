@@ -1193,6 +1193,43 @@ export const generalInterviewQuestions = [
       hinglish:
         'Hooks ko sirf React function ke top level pe call karo — kabhi loops, conditions, ya nested functions ke andar nahi — taaki call order har render mein same rahe. Hooks sirf React function components ya doosre custom hooks se call karo, normal functions se nahi. In rules se React har hook call ke saath state sahi se associate kar pata hai uski position ke through us consistent order mein.',
     },
+    visual: 'hooks-order',
+    codeExample: {
+      code: `// RULE 1 — only at the TOP LEVEL. Never inside a condition,
+// loop, or nested function.
+function Bad({ isOpen }) {
+  if (isOpen) {
+    const [x, setX] = useState(0);   // ❌
+  }
+  for (const item of items) {
+    useEffect(() => {}, []);         // ❌
+  }
+}
+
+function Good({ isOpen }) {
+  const [x, setX] = useState(0);     // ✅ always called
+  if (isOpen) { /* use x here */ }
+}
+
+// RULE 2 — only from React functions: a component, or another hook.
+function notAComponent() {
+  const [x] = useState(0);           // ❌ plain function
+}
+function useMyHook() {
+  const [x] = useState(0);           // ✅ a custom hook
+}
+
+// WHY: React stores hooks in an array and matches them by CALL
+// ORDER, not by name. Skip one and every later hook reads the
+// wrong slot — useEffect ends up holding useState's value.
+
+// The eslint plugin catches all of this:
+// eslint-plugin-react-hooks
+
+// The escape hatch when you need conditional state is to move
+// the condition INSIDE the hook, or split into two components.`,
+      output: `React has detected a change in the order of Hooks`,
+    },
   },
   {
     question: 'What is the difference between functional and class components?',
@@ -1203,6 +1240,41 @@ export const generalInterviewQuestions = [
         'Class components use ES6 classes, lifecycle methods (componentDidMount, etc.) and this.state. Functional components are plain functions that use hooks (useState, useEffect) for state and side effects. Functional components with hooks are the modern standard — shorter, easier to test, and better for reusing logic via custom hooks.',
       hinglish:
         'Class components ES6 classes, lifecycle methods (componentDidMount, etc.) aur this.state use karte hain. Functional components plain functions hain jo state aur side effects ke liye hooks (useState, useEffect) use karte hain. Hooks wale functional components modern standard hain — chhote, test karne mein aasaan, aur custom hooks se logic reuse ke liye behtar.',
+    },
+    codeExample: {
+      code: `// CLASS — the old way
+class Counter extends React.Component {
+  state = { n: 0 };
+  componentDidMount()    { console.log('mounted'); }
+  componentWillUnmount() { console.log('cleanup'); }
+  render() {
+    return <button onClick={() => this.setState({ n: this.state.n + 1 })}>
+      {this.state.n}
+    </button>;
+  }
+}
+
+// FUNCTION — what you write today
+function Counter() {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    console.log('mounted');
+    return () => console.log('cleanup');   // both, in one place
+  }, []);
+  return <button onClick={() => setN(n + 1)}>{n}</button>;
+}
+
+// Why functions won:
+//   • no "this" to bind or lose
+//   • related logic sits together instead of being split across
+//     componentDidMount / DidUpdate / WillUnmount
+//   • custom hooks let you SHARE stateful logic — classes had
+//     no clean way to do that (hence HOCs and render props)
+//   • less code, and better minification
+
+// Classes still work and are not deprecated. But error
+// boundaries are the one thing hooks still cannot do.`,
+      output: `mounted`,
     },
   },
   {
@@ -1215,6 +1287,37 @@ export const generalInterviewQuestions = [
       hinglish:
         'Prop drilling matlab props ko bahut saare beech ke components se pass karna jo unhe use nahi karte, sirf ek deep child tak pahunchane ke liye. Isse code verbose aur fragile hota hai. Ise avoid karo Context API se (app-wide data jaise theme, auth), component composition se (children pass karke), ya badi apps ke liye state-management library se.',
     },
+    codeExample: {
+      code: `// PROP DRILLING — passing a value through components that
+// do not use it, just to reach a deep child.
+function App() {
+  const [user, setUser] = useState(null);
+  return <Layout user={user} />;              // Layout: does not care
+}
+function Layout({ user })  { return <Sidebar user={user} />; }  // nor this
+function Sidebar({ user }) { return <Profile user={user} />; }  // nor this
+function Profile({ user }) { return <p>{user.name}</p>; }       // finally
+
+// Fix 1 — COMPOSITION. Often the simplest and most overlooked.
+function App() {
+  const [user] = useState(null);
+  return <Layout><Profile user={user} /></Layout>;   // pass as children
+}
+function Layout({ children }) { return <aside>{children}</aside>; }
+
+// Fix 2 — CONTEXT, for values many components need.
+const UserContext = createContext(null);
+<UserContext.Provider value={user}>…</UserContext.Provider>
+const user = useContext(UserContext);       // read at any depth
+
+// Fix 3 — a state library (Zustand, Redux) for frequently
+// changing shared state.
+
+// Note: two or three levels of props is NOT a problem. Reaching
+// for Context too early makes components harder to reuse and
+// re-renders every consumer on any change.`,
+      output: `Asha`,
+    },
   },
   {
     question: 'What actually triggers a re-render in React?',
@@ -1225,6 +1328,39 @@ export const generalInterviewQuestions = [
         'A component re-renders when: its own state changes (useState/useReducer setter called), its parent re-renders (by default, even if its own props did not change — unless wrapped in React.memo), or a context value it consumes changes. Props changing alone do not cause a re-render unless the parent itself re-rendered or the prop reference changed.',
       hinglish:
         'Ek component re-render hota hai jab: uska apna state badle (useState/useReducer setter call ho), uska parent re-render ho (by default, chahe uske apne props na badlein — agar React.memo mein wrap na ho), ya uska consumed context value badle. Sirf props badalna re-render cause nahi karta jab tak parent khud re-render na ho ya prop reference na badle.',
+    },
+    visual: 'react-render',
+    codeExample: {
+      code: `// Exactly three things cause a component to re-render:
+
+// 1. Its STATE changed
+const [n, setN] = useState(0);
+setN(1);                       // ✅ re-renders
+
+// 2. Its PROPS changed (because the parent re-rendered)
+
+// 3. Its CONTEXT value changed
+
+// That's it. These do NOT trigger a render:
+let count = 0;
+count++;                       // ❌ a plain variable
+ref.current = 5;               // ❌ a ref
+someObject.field = 'x';        // ❌ mutating an object
+
+// And the catch that surprises people — setting the SAME value
+// bails out, but only for primitives compared with Object.is:
+setN(0);                       // no render if n is already 0
+setUser(user);                 // no render — same reference
+setUser({ ...user });          // ✅ RENDERS — new object
+
+// Which is also why mutating state does nothing:
+items.push(4); setItems(items);        // ❌ same array reference
+setItems([...items, 4]);               // ✅ new array
+
+// Important: a parent re-rendering re-renders ALL children by
+// default, even if their props did not change. That is usually
+// fine — rendering is cheap; only the DOM commit is not.`,
+      output: `render count: 1`,
     },
   },
   {
@@ -1237,6 +1373,47 @@ export const generalInterviewQuestions = [
       hinglish:
         'React 18 se pehle, multiple setState calls sirf React event handlers ke andar ek hi re-render mein batch hote the; promises, setTimeout, ya native event handlers ke andar calls alag-alag re-render trigger karte the. React 18 by default batching ko in sab tak extend karta hai, isliye code mein kahin bhi kai state updates aam taur pe ek hi re-render mein hote hain — performance improve hota hai bina koi code badle.',
     },
+    visual: 'state-batching',
+    codeExample: {
+      code: `function handleClick() {
+  setCount(c => c + 1);
+  setFlag(true);
+  setName('Asha');
+  // How many re-renders? ONE. All three are batched.
+}
+
+// React 17 batched only inside React EVENT HANDLERS.
+// Anywhere else, each setState rendered separately:
+setTimeout(() => {
+  setCount(1);     // render
+  setFlag(true);   // render again — 2 renders in React 17
+}, 0);
+
+// React 18 batches EVERYWHERE — timeouts, promises, native
+// event listeners, intervals. The example above is 1 render.
+
+fetch('/api').then(() => {
+  setLoading(false);
+  setData(d);        // one render in 18, two in 17
+});
+
+// The consequence people trip over: state does not update
+// synchronously, so this logs the OLD value:
+setCount(count + 1);
+console.log(count);            // still the previous value
+
+// And this only increments ONCE, because count is stale:
+setCount(count + 1);
+setCount(count + 1);           // ❌ both compute the same result
+
+setCount(c => c + 1);
+setCount(c => c + 1);          // ✅ updater form — increments twice
+
+// Opt out for the rare case you need a DOM measurement between:
+import { flushSync } from 'react-dom';
+flushSync(() => setCount(1));`,
+      output: `renders: 1`,
+    },
   },
   {
     question: 'What is Strict Mode and why use it?',
@@ -1247,6 +1424,40 @@ export const generalInterviewQuestions = [
         '<StrictMode> is a development-only wrapper that helps find bugs by intentionally double-invoking some functions (component render, useState initializers, effect setup+cleanup) so impure side effects become visible early. It does not render any visible UI and has no effect in production builds.',
       hinglish:
         '<StrictMode> ek development-only wrapper hai jo kuch functions ko jaan-bujhke do baar invoke karke bugs dhoondhne mein madad karta hai (component render, useState initializers, effect setup+cleanup) taaki impure side effects jaldi nazar aa jaayein. Ye koi visible UI render nahi karta aur production builds mein iska koi effect nahi hota.',
+    },
+    codeExample: {
+      code: `// Development-only checks. It renders NOTHING and does not
+// affect production at all.
+<React.StrictMode>
+  <App />
+</React.StrictMode>
+
+// In development it deliberately DOUBLE-INVOKES:
+//   • component function bodies
+//   • useState / useMemo / useReducer initialisers
+//   • effects: mount → unmount → mount again
+
+function Bad() {
+  const [items, setItems] = useState([]);
+  items.push('x');            // ❌ mutation during render —
+  return …;                   //    Strict Mode makes it visible
+}
+
+// The effect double-run is the one that catches bugs. This
+// looks fine but leaks in real navigation:
+useEffect(() => {
+  const id = setInterval(tick, 1000);
+  // ❌ no cleanup — Strict Mode shows two intervals running
+  return () => clearInterval(id);   // ✅ the fix it forces you to write
+}, []);
+
+// So a "bug" that only appears in Strict Mode is almost always
+// a real bug — a missing cleanup or a side effect during render.
+
+// Do not disable it to make the double-run go away. Fix the
+// cleanup. It is also how React prepares you for features that
+// mount and unmount components freely.`,
+      output: `(effect runs twice in dev, once in production)`,
     },
   },
   {
@@ -1259,6 +1470,42 @@ export const generalInterviewQuestions = [
       hinglish:
         'Generic tree-diff algorithm O(n^3) hota hai. React O(n) tak pahunchne ke liye do heuristics use karta hai: ye sirf same type ke elements ko same position pe compare karta hai (alag types -> us subtree ko tod ke dobara banao), aur list items ko renders ke beech match karne ke liye key prop use karta hai har pair compare karne ke bajaye. Ye assumptions practically almost saare UI trees ke liye sahi hoti hain.',
     },
+    visual: 'list-keys',
+    codeExample: {
+      code: `// Comparing two arbitrary trees properly is O(n³). React gets
+// O(n) by making two assumptions and accepting the trade-off.
+
+// ASSUMPTION 1 — a different element TYPE means a different tree.
+// React does not try to match across types; it destroys and rebuilds.
+<div><Counter /></div>
+<span><Counter /></span>
+// → the whole subtree is thrown away, Counter loses its state
+
+// ASSUMPTION 2 — a stable KEY tells React an element is "the same"
+// across renders, even if it moved.
+{items.map(i => <Row key={i.id} />)}
+// Without keys React compares by position, so inserting at the
+// top makes it think EVERY row changed.
+
+// Same type → React keeps the DOM node and only patches the
+// attributes that differ:
+<div className="a" title="x" />
+<div className="b" title="x" />
+// → one operation: className = 'b'
+
+// The trade-off is honest: the result is not always the minimal
+// set of operations, but it is close enough and it is linear.
+
+// The practical takeaways:
+//   • give lists stable keys
+//   • do not define a component INSIDE another component —
+//     its type is new every render, so state is lost each time
+function Parent() {
+  function Child() {}          // ❌ new type every render
+  return <Child />;
+}`,
+      output: `1 DOM operation instead of rebuilding the subtree`,
+    },
   },
   {
     question: 'How does React handle async state updates inside event handlers vs setTimeout?',
@@ -1269,6 +1516,46 @@ export const generalInterviewQuestions = [
         'In React 17 and earlier, setState calls inside a React event handler were batched into one render, but calls inside a setTimeout or promise callback each caused their own render. In React 18, automatic batching applies everywhere by default, so the behaviour is consistent regardless of where the update originates — you can opt out of batching with flushSync if you specifically need a synchronous update.',
       hinglish:
         'React 17 aur usse pehle, React event handler ke andar setState calls ek render mein batch hoti thi, par setTimeout ya promise callback ke andar calls apna alag render karti thi. React 18 mein, automatic batching by default har jagah lagti hai, isliye update kahin se bhi aaye behaviour consistent rehta hai — agar specifically synchronous update chahiye to flushSync se batching se opt out kar sakte ho.',
+    },
+    visual: 'state-batching',
+    codeExample: {
+      code: `// In React 18 both are batched. In React 17 only the first was.
+
+function handleClick() {
+  setA(1);
+  setB(2);          // React 17: 1 render │ React 18: 1 render
+}
+
+setTimeout(() => {
+  setA(1);
+  setB(2);          // React 17: 2 renders │ React 18: 1 render
+}, 0);
+
+// But the STALE CLOSURE problem is the same in both, and it is
+// the one that actually causes bugs:
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  const broken = () => {
+    setTimeout(() => {
+      setCount(count + 1);     // ❌ count is frozen at the value
+    }, 1000);                  //    when this closure was created
+  };
+
+  const fixed = () => {
+    setTimeout(() => {
+      setCount(c => c + 1);    // ✅ updater gets the LATEST value
+    }, 1000);
+  };
+}
+
+// Click "broken" three times fast → count ends at 1, not 3.
+// Click "fixed" three times fast → count ends at 3.
+
+// Rule: whenever the new state depends on the old, use the
+// updater function form.`,
+      output: `broken → 1
+fixed → 3`,
     },
   },
   {
@@ -1281,6 +1568,39 @@ export const generalInterviewQuestions = [
       hinglish:
         'React ek open-source JavaScript library hai jo Facebook ne banai hai fast, interactive UIs banane ke liye. Ye component-based architecture use karta hai jahan UIs reusable pieces mein divide hoti hai, aur Virtual DOM se real DOM updates minimize karta hai jisse re-renders efficient hote hain. React declarative hai — tum describe karo UI kaisi dikhni chahiye given state ke liye, aur React DOM update karta hai.',
     },
+    codeExample: {
+      code: `// React is a LIBRARY for building user interfaces out of
+// components. It is not a framework — no router, no data
+// fetching, no forms in the box.
+
+function Welcome({ name }) {
+  return <h1>Hello {name}</h1>;
+}
+<Welcome name="Asha" />
+
+// Its core idea is DECLARATIVE UI: you describe what the screen
+// should look like for a given state, and React works out the
+// DOM operations.
+
+// Imperative (vanilla JS) — you list the steps:
+document.getElementById('count').textContent = n;
+if (n > 5) button.classList.add('warn');
+
+// Declarative (React) — you describe the result:
+<span className={n > 5 ? 'warn' : ''}>{n}</span>
+
+// The three ideas that matter:
+//   1. Components — reusable, composable pieces
+//   2. State drives UI — change state, the view follows
+//   3. A virtual tree — React diffs and patches the real DOM
+
+// One-way data flow: props go down, events go up. That makes
+// it far easier to work out why something changed.
+
+// Note: React does not care about the DOM specifically —
+// React Native uses the same library for mobile.`,
+      output: `Hello Asha`,
+    },
   },
   {
     question: 'What is the difference between Virtual DOM, Shadow DOM, and the real DOM?',
@@ -1291,6 +1611,37 @@ export const generalInterviewQuestions = [
         'Real DOM: the actual browser document tree — updating it is slow because it triggers reflow/repaint. Virtual DOM: a lightweight in-memory copy of the real DOM that React keeps. On state change React diffs the old and new Virtual DOM (reconciliation), computes the minimal set of changes, and batches them into the real DOM — making updates fast. Shadow DOM: a browser standard for scoping CSS and markup inside a component (used in Web Components) — unrelated to React\'s Virtual DOM.',
       hinglish:
         'Real DOM: actual browser document tree — update karna slow hai kyunki reflow/repaint trigger hota hai. Virtual DOM: React ka ek lightweight in-memory copy real DOM ka. State change pe React old aur new Virtual DOM diff karta hai (reconciliation), minimum changes nikaalta hai, aur real DOM mein batch karta hai — updates fast hote hain. Shadow DOM: ek browser standard jo CSS aur markup ko component ke andar scope karta hai (Web Components mein) — React ke Virtual DOM se alag hai.',
+    },
+    visual: 'react-render',
+    codeExample: {
+      code: `// REAL DOM — the browser's tree of actual nodes.
+// Reading layout or writing to it can be slow, because it can
+// force the browser to recalculate style and layout.
+document.getElementById('x').textContent = 'hi';
+
+// VIRTUAL DOM — React's plain-JavaScript description of what
+// the UI SHOULD look like. Just objects, no browser involved:
+{ type: 'div', props: { className: 'box' }, children: [...] }
+
+// React keeps the previous virtual tree, builds a new one on
+// render, diffs them, and applies only the differences.
+// Creating objects is cheap; touching the DOM is not.
+
+// SHADOW DOM — completely unrelated, despite the name.
+// It is a BROWSER feature for encapsulation: a separate DOM
+// subtree whose styles do not leak in or out.
+element.attachShadow({ mode: 'open' });
+// Used by Web Components and by <video> controls.
+
+// Quick summary:
+//   Real DOM    → the actual page
+//   Virtual DOM → React's in-memory copy, for diffing
+//   Shadow DOM  → browser style isolation, nothing to do with React
+
+// Worth knowing: the virtual DOM is not inherently fast. It is
+// a way to write declarative code while keeping DOM writes
+// reasonable. Svelte and Solid get similar results without one.`,
+      output: `1 DOM write instead of rebuilding everything`,
     },
   },
   {
@@ -1303,6 +1654,40 @@ export const generalInterviewQuestions = [
       hinglish:
         'Controlled component ki form value React state se drive hoti hai — har change onChange aur setState se guzarta hai, isliye React single source of truth hai. Uncontrolled component apni value DOM mein internally store karta hai aur tum ref se read karte ho jab zarurat ho. Controlled components prefer kiye jaate hain kyunki validation, formatting, aur conditional disabling ka full control milta hai.',
     },
+    codeExample: {
+      code: `// CONTROLLED — React state is the single source of truth.
+function Controlled() {
+  const [value, setValue] = useState('');
+  return <input value={value} onChange={e => setValue(e.target.value)} />;
+}
+// Every keystroke → setState → re-render. You can validate,
+// format, or block input as it is typed.
+
+// UNCONTROLLED — the DOM holds the value; you read it when needed.
+function Uncontrolled() {
+  const ref = useRef(null);
+  const submit = () => console.log(ref.current.value);
+  return <input ref={ref} defaultValue="" />;
+}
+// No re-render per keystroke. Note defaultValue, not value.
+
+// The classic bug — value without onChange makes it read-only:
+<input value={name} />                          // ❌ cannot type
+<input value={name} onChange={handleChange} />  // ✅
+<input defaultValue={name} />                   // ✅ uncontrolled
+
+// And switching between them warns:
+<input value={maybeUndefined} />   // ❌ undefined → uncontrolled
+<input value={maybeUndefined ?? ''} />  // ✅
+
+// Which to use: controlled for live validation or dependent
+// fields. Uncontrolled for large forms and file inputs — file
+// inputs are ALWAYS uncontrolled.
+
+// React Hook Form is popular precisely because it keeps inputs
+// uncontrolled and re-renders far less.`,
+      output: `Asha`,
+    },
   },
   {
     question: 'What are React hooks and what problem do they solve?',
@@ -1313,6 +1698,42 @@ export const generalInterviewQuestions = [
         'Hooks are functions (starting with "use") that let function components use state, lifecycle behaviour, context, refs, and other React features — things previously only available in class components. They solve the problems of complex class hierarchies, hard-to-reuse stateful logic, and confusing "this" binding. Common hooks: useState, useEffect, useContext, useRef, useMemo, useCallback.',
       hinglish:
         'Hooks functions hain ("use" se shuru hone wale) jo function components ko state, lifecycle behaviour, context, refs aur doosri React features use karne dete hain — jo pehle sirf class components mein available thi. Ye complex class hierarchies, hard-to-reuse stateful logic, aur confusing "this" binding ki problems solve karte hain. Common hooks: useState, useEffect, useContext, useRef, useMemo, useCallback.',
+    },
+    codeExample: {
+      code: `// Hooks let a FUNCTION component use state and lifecycle —
+// things that previously required a class.
+function Counter() {
+  const [n, setN] = useState(0);
+  useEffect(() => { document.title = \`Count \${n}\`; }, [n]);
+  return <button onClick={() => setN(n + 1)}>{n}</button>;
+}
+
+// The problem they actually solved was not verbosity — it was
+// SHARING STATEFUL LOGIC.
+
+// Before hooks you needed HOCs or render props, and deep
+// nesting followed:
+withRouter(withTheme(connect(mapState)(MyComponent)))   // 😖
+
+// With a custom hook it is just a function call:
+function useWindowWidth() {
+  const [w, setW] = useState(window.innerWidth);
+  useEffect(() => {
+    const onResize = () => setW(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return w;
+}
+const width = useWindowWidth();     // reuse anywhere
+
+// They also fixed the split-logic problem: in a class, one
+// feature was spread across componentDidMount, DidUpdate and
+// WillUnmount. One useEffect holds all three.
+
+// The main ones: useState, useEffect, useContext, useRef,
+// useMemo, useCallback, useReducer.`,
+      output: `0`,
     },
   },
   {
@@ -1325,6 +1746,38 @@ export const generalInterviewQuestions = [
       hinglish:
         'JSX ek syntax extension hai jo JavaScript ke andar HTML jaisi markup likhne deta hai. Browsers JSX directly run nahi kar sakte. Babel ek transpiler hai jo JSX (aur modern JS) ko plain browser-compatible JavaScript mein convert karta hai. Webpack ek bundler hai jo saare modules (JS, CSS, images) leta hai, unki dependencies resolve karta hai, aur browser ke liye optimised bundles output karta hai. Create React App aur Vite dono automatically configure karte hain.',
     },
+    codeExample: {
+      code: `// JSX is syntax sugar. Browsers cannot run it.
+const el = <h1 className="title">Hello</h1>;
+
+// BABEL compiles it to a plain function call:
+const el = React.createElement('h1', { className: 'title' }, 'Hello');
+// (modern setups emit _jsx('h1', …) instead)
+
+// Which evaluates to an ordinary object:
+{ type: 'h1', props: { className: 'title', children: 'Hello' } }
+
+// That is why these rules exist:
+//   • className, not class — class is a reserved word
+//   • htmlFor, not for
+//   • one root element (or a <>fragment</>) — a function
+//     returns ONE value
+//   • {} for expressions, and statements are not allowed:
+{cond ? <A /> : <B />}        // ✅ an expression
+{if (cond) …}                 // ❌ a statement
+
+// WEBPACK (or Vite) is the BUNDLER. It walks your imports,
+// runs files through loaders like Babel, and produces the
+// bundles the browser downloads. It also handles CSS, images,
+// code splitting and hot reload.
+
+// Roughly: Babel translates, Webpack packages.
+// Modern tooling (Vite, Next) uses esbuild or SWC — same jobs,
+// much faster.
+
+// You can skip JSX entirely; it is optional, just unpleasant.`,
+      output: `{ type: 'h1', props: { className: 'title', children: 'Hello' } }`,
+    },
   },
   {
     question: 'What is Redux and when should you use it?',
@@ -1335,6 +1788,42 @@ export const generalInterviewQuestions = [
         'Redux is a predictable state management library. It stores the entire app state in a single store, and state can only be changed by dispatching actions that go through pure reducer functions. Use it when multiple unrelated components share complex state, when you need time-travel debugging, or when prop drilling and Context become unwieldy. For most medium-sized apps, Context + useReducer or Zustand is sufficient.',
       hinglish:
         'Redux ek predictable state management library hai. Ye poori app state ek single store mein rakhta hai, aur state sirf actions dispatch karke badal sakti hai jo pure reducer functions se guzarte hain. Ise use karo jab multiple unrelated components complex state share karein, time-travel debugging chahiye, ya prop drilling aur Context unwieldy ho jaaye. Zyaadatar medium-sized apps ke liye Context + useReducer ya Zustand kaafi hai.',
+    },
+    codeExample: {
+      code: `// Redux keeps app state in ONE store, changed only by
+// dispatching actions through pure reducers.
+
+import { configureStore, createSlice } from '@reduxjs/toolkit';
+
+const counter = createSlice({
+  name: 'counter',
+  initialState: { value: 0 },
+  reducers: {
+    increment: (state) => { state.value += 1; },   // Immer makes
+  },                                               // this safe
+});
+
+const store = configureStore({ reducer: { counter: counter.reducer } });
+store.dispatch(counter.actions.increment());
+
+// In a component:
+const value = useSelector(s => s.counter.value);
+const dispatch = useDispatch();
+
+// When Redux earns its cost:
+//   • many components share complex, interdependent state
+//   • you need the action log and time-travel DevTools
+//   • a large team benefits from enforced conventions
+
+// When it does not:
+//   • server data → React Query or RTK Query
+//   • simple shared state → Zustand or Context
+//   • form state → React Hook Form or local state
+
+// Redux's territory has genuinely shrunk. Most apps that
+// reached for it in 2019 would use React Query plus Zustand
+// today. Choose it deliberately, not by default.`,
+      output: `1`,
     },
   },
   {
@@ -1347,6 +1836,39 @@ export const generalInterviewQuestions = [
       hinglish:
         'Action: ek plain JS object jisme type field (aur optional payload) hota hai jo describe karta hai kya hua — e.g. { type: "INCREMENT", payload: 1 }. Reducer: ek pure function (previousState, action) => newState jo action ke basis pe new state object return karta hai — purani state kabhi mutate nahi karta. Store: createStore(reducer) se bana single container jo state rakhta hai, actions dispatch karne deta hai, aur changes subscribe karne deta hai.',
     },
+    codeExample: {
+      code: `// ACTION — a plain object describing WHAT HAPPENED. Past tense.
+{ type: 'cart/itemAdded', payload: { id: 42 } }
+
+// REDUCER — a PURE function: (state, action) => newState
+function cartReducer(state = { items: [] }, action) {
+  switch (action.type) {
+    case 'cart/itemAdded':
+      return { ...state, items: [...state.items, action.payload] };
+    default:
+      return state;              // ← always return state
+  }
+}
+// Pure means: no API calls, no Math.random(), no Date.now(),
+// and never mutate the argument. That is what makes replay
+// and time-travel debugging possible.
+
+// STORE — holds state, and is the only way to change it
+const store = configureStore({ reducer: { cart: cartReducer } });
+store.getState();
+store.dispatch({ type: 'cart/itemAdded', payload: { id: 42 } });
+store.subscribe(() => console.log(store.getState()));
+
+// The flow is one-way, always:
+//   dispatch(action) → reducer → new state → components re-render
+
+// Redux Toolkit generates the action types and creators for you:
+const slice = createSlice({ name: 'cart', initialState, reducers: {
+  itemAdded: (state, action) => { state.items.push(action.payload); },
+}});
+// slice.actions.itemAdded(42) → { type: 'cart/itemAdded', payload: 42 }`,
+      output: `{ cart: { items: [ { id: 42 } ] } }`,
+    },
   },
   {
     question: 'What is middleware in Redux? What does Redux Thunk do?',
@@ -1357,6 +1879,41 @@ export const generalInterviewQuestions = [
         'Middleware sits between dispatch and the reducer, letting you intercept actions to add logging, crash reporting, or async logic. Redux Thunk is the most common middleware — it lets you dispatch functions (thunks) instead of plain objects, so you can do async work (API calls) inside action creators and dispatch real actions when the data arrives.',
       hinglish:
         'Middleware dispatch aur reducer ke beech baith ta hai, actions intercept karne deta hai logging, crash reporting, ya async logic add karne ke liye. Redux Thunk sabse common middleware hai — ye plain objects ki jagah functions (thunks) dispatch karne deta hai, isliye action creators ke andar async kaam (API calls) kar sakte ho aur data aane pe real actions dispatch kar sakte ho.',
+    },
+    codeExample: {
+      code: `// Middleware sits between dispatch and the reducer. Each layer
+// can inspect, change, delay or stop the action.
+const logger = (store) => (next) => (action) => {
+  console.log('dispatching', action.type);
+  const result = next(action);          // pass it along
+  console.log('new state', store.getState());
+  return result;
+};
+
+// That curried shape is the whole API. Logging, crash reporting
+// and async handling all plug in this way, without reducers
+// knowing anything about them.
+
+// THUNK is middleware that allows dispatching a FUNCTION:
+const fetchUser = (id) => async (dispatch, getState) => {
+  dispatch({ type: 'user/loading' });
+  try {
+    const user = await api.getUser(id);
+    dispatch({ type: 'user/loaded', payload: user });
+  } catch (e) {
+    dispatch({ type: 'user/failed', error: e.message });
+  }
+};
+dispatch(fetchUser(1));
+
+// Why it is needed: reducers must stay PURE, so the side effect
+// has to live somewhere. Thunk gives it a home with access to
+// dispatch and getState.
+
+// Redux Toolkit includes thunk by default, and createAsyncThunk
+// generates the pending/fulfilled/rejected actions for you.`,
+      output: `dispatching user/loading
+dispatching user/loaded`,
     },
   },
   {
@@ -1369,6 +1926,42 @@ export const generalInterviewQuestions = [
       hinglish:
         'Redux Saga ES6 generators use karta hai side effects ko ek alag "saga" process ke roop mein handle karne ke liye jo actions sunta hai aur async flows declaratively coordinate karta hai. Thunk: simpler, async logic action creators ke andar Promises se colocate karta hai. Saga: zyada powerful, complex flows ke liye better (race, retry, cancel, parallel), par steeper learning curve aur zyada boilerplate. Simple async ke liye Thunk chuno; Saga jab complex async sequences pe fine-grained control chahiye.',
     },
+    codeExample: {
+      code: `// THUNK — you write the async code directly.
+const fetchUser = (id) => async (dispatch) => {
+  const user = await api.getUser(id);
+  dispatch({ type: 'user/loaded', payload: user });
+};
+
+// SAGA — you YIELD a description of the effect; the middleware
+// performs it. The saga itself stays pure.
+import { call, put, takeLatest } from 'redux-saga/effects';
+
+function* fetchUserSaga(action) {
+  try {
+    const user = yield call(api.getUser, action.payload);   // describe
+    yield put({ type: 'user/loaded', payload: user });      // describe
+  } catch (e) {
+    yield put({ type: 'user/failed', error: e.message });
+  }
+}
+function* rootSaga() {
+  yield takeLatest('user/fetch', fetchUserSaga);   // auto-cancels
+}                                                  // the previous one
+
+// What saga buys you:
+//   • testing without mocks — assert the yielded objects
+//   • cancellation, debouncing, racing, retries as built-ins
+//   • long-running background flows
+
+// What it costs: generators, a large API to learn, and far more
+// code for a simple fetch.
+
+// Verdict: thunks cover the vast majority of apps. Reach for
+// saga only with genuinely complex orchestration — and consider
+// RTK Query first, which removes most of the need entirely.`,
+      output: `user/loaded`,
+    },
   },
   {
     question: 'How do you implement componentWillUnmount in a function component?',
@@ -1379,6 +1972,43 @@ export const generalInterviewQuestions = [
         'Return a cleanup function from useEffect. React calls it when the component unmounts (and before re-running the effect if deps change). Example: useEffect(() => { const id = setInterval(fn, 1000); return () => clearInterval(id); }, []). The empty array means run once on mount; the return cleans up on unmount.',
       hinglish:
         'useEffect se ek cleanup function return karo. React ise component unmount hone pe call karta hai (aur deps change hone pe effect dobara run karne se pehle). Example: useEffect(() => { const id = setInterval(fn, 1000); return () => clearInterval(id); }, []). Empty array matlab mount pe ek baar run karo; return unmount pe clean up karta hai.',
+    },
+    visual: 'effect-lifecycle',
+    codeExample: {
+      code: `// Return a cleanup function from useEffect.
+useEffect(() => {
+  const id = setInterval(tick, 1000);
+
+  return () => clearInterval(id);      // ← this is willUnmount
+}, []);
+
+// With an empty [] the cleanup runs ONLY on unmount, which
+// matches componentWillUnmount exactly.
+
+// With dependencies it also runs BEFORE each re-run — which
+// classes had no equivalent for:
+useEffect(() => {
+  const sub = chat.connect(roomId);
+  return () => sub.disconnect();       // runs on roomId change
+}, [roomId]);                          // AND on unmount
+
+// Things that must be cleaned up, or they leak:
+useEffect(() => {
+  const onResize = () => setW(innerWidth);
+  window.addEventListener('resize', onResize);
+  const ctrl = new AbortController();
+  fetch(url, { signal: ctrl.signal });
+
+  return () => {
+    window.removeEventListener('resize', onResize);
+    ctrl.abort();                      // cancel the request too
+  };
+}, []);
+
+// Strict Mode deliberately mounts, unmounts and remounts in
+// development. If that breaks something, your cleanup is
+// incomplete — which is exactly what it is testing for.`,
+      output: `(interval cleared on unmount)`,
     },
   },
   {
@@ -1391,6 +2021,39 @@ export const generalInterviewQuestions = [
       hinglish:
         'useState: ek value store karta hai jo renders ke beech persist hoti hai aur change hone pe re-render trigger karta hai. useEffect(fn, deps): deps change hone pe render ke baad fn run karta hai — side effects ke liye (fetch, subscriptions, timers). useMemo(fn, deps): fn ka computed result memoize karta hai, sirf deps change hone pe recompute karta hai — har render pe expensive recalculations avoid karta hai. useCallback(fn, deps): deps change na hone tak same function reference return karta hai — har render pe naye function references se caused child re-renders rokta hai.',
     },
+    visual: 'effect-lifecycle',
+    codeExample: {
+      code: `// useState — a value that, when changed, re-renders.
+const [n, setN] = useState(0);
+setN(n + 1);          // ok
+setN(c => c + 1);     // ✅ use this when the new value depends
+                      //    on the old — avoids stale closures
+
+// useEffect — synchronise with something OUTSIDE React.
+useEffect(() => {
+  document.title = n;              // side effect
+  return () => { /* cleanup */ };
+}, [n]);                           // runs when n changes
+// []       → once, on mount
+// no array → after EVERY render (usually a bug)
+
+// useMemo — cache a computed VALUE between renders.
+const sorted = useMemo(() => items.sort(cmp), [items]);
+// Use it for genuinely expensive work, or to keep an object
+// reference stable so a memoised child does not re-render.
+
+// useCallback — cache a FUNCTION reference.
+const onClick = useCallback(() => save(id), [id]);
+// Pointless unless the child is memoised or it is an effect
+// dependency — otherwise you are just adding overhead.
+
+// useCallback(fn, d) is exactly useMemo(() => fn, d).
+
+// The honest summary: useState and useEffect you need daily.
+// useMemo and useCallback are OPTIMISATIONS — measure first,
+// and the React Compiler is making most of them unnecessary.`,
+      output: `sorted once, not on every render`,
+    },
   },
   {
     question: 'What are React lifecycle methods?',
@@ -1401,6 +2064,38 @@ export const generalInterviewQuestions = [
         'Class component lifecycle: Mounting — constructor → render → componentDidMount. Updating — render → componentDidUpdate(prevProps, prevState). Unmounting — componentWillUnmount. In function components, useEffect replaces all three phases: [] for componentDidMount, [deps] for componentDidUpdate, and the cleanup return for componentWillUnmount.',
       hinglish:
         'Class component lifecycle: Mounting — constructor → render → componentDidMount. Updating — render → componentDidUpdate(prevProps, prevState). Unmounting — componentWillUnmount. Function components mein useEffect teeno phases replace karta hai: [] for componentDidMount, [deps] for componentDidUpdate, aur cleanup return for componentWillUnmount.',
+    },
+    visual: 'effect-lifecycle',
+    codeExample: {
+      code: `// CLASS lifecycle, in the order they fire:
+class C extends React.Component {
+  constructor(props) { super(props); this.state = {}; }
+  componentDidMount()  {}      // after first render — fetch here
+  componentDidUpdate(prevProps, prevState) {}   // after updates
+  componentWillUnmount() {}    // before removal — clean up
+  shouldComponentUpdate(nextProps) { return true; }   // skip renders
+  static getDerivedStateFromError(err) {}       // error boundary
+  componentDidCatch(err, info) {}               // error boundary
+  render() { return null; }
+}
+
+// The HOOK equivalents:
+useEffect(() => {}, []);          // componentDidMount
+useEffect(() => {});              // componentDidUpdate (every render)
+useEffect(() => {
+  return () => {};                // componentWillUnmount
+}, []);
+useEffect(() => {}, [dep]);       // "did update, but only for dep"
+React.memo(C);                    // shouldComponentUpdate
+
+// The improvement hooks made: in a class, ONE feature was split
+// across three methods, and three unrelated features were mixed
+// inside each. One useEffect keeps a feature's setup and
+// teardown together.
+
+// Still class-only: error boundaries. There is no hook for
+// getDerivedStateFromError yet.`,
+      output: `mount → update → unmount`,
     },
   },
   {
@@ -1413,6 +2108,38 @@ export const generalInterviewQuestions = [
       hinglish:
         'Named export: export const Foo = ... — exact name curly braces mein import karo: import { Foo } from "./file". Ek file mein kai named exports ho sakte hain. Default export: export default Foo — bina braces ke aur kisi bhi naam se import karo: import Foo from "./file". Ek file mein sirf ek default export ho sakta hai. React components aam taur pe main component ke liye default export aur utilities ke liye named exports use karte hain.',
     },
+    codeExample: {
+      code: `// DEFAULT — one per file. The importer picks any name.
+export default function Button() {}
+import Button from './Button';
+import Btn from './Button';        // also fine — same thing
+
+// NAMED — as many as you like. The name must match.
+export function Button() {}
+export const SIZES = ['sm', 'lg'];
+import { Button, SIZES } from './Button';
+import { Button as Btn } from './Button';   // rename explicitly
+
+// Both together:
+export default Button;
+export { SIZES };
+import Button, { SIZES } from './Button';
+
+// The trade-off:
+//   default → convenient, but a typo in the import name is
+//             silent, and rename-across-project tooling cannot
+//             follow it reliably
+//   named   → autocomplete works, refactors are safe, and
+//             tree-shaking is more predictable
+
+// Many teams standardise on named exports for exactly that
+// reason. React itself uses both:
+import React, { useState } from 'react';
+
+// One place default is required: React.lazy expects it.
+const Page = lazy(() => import('./Page'));   // needs export default`,
+      output: `(both import styles resolve to the same component)`,
+    },
   },
   {
     question: 'What is a React Portal?',
@@ -1423,6 +2150,40 @@ export const generalInterviewQuestions = [
         'A portal lets you render a child component into a different DOM node than the parent\'s DOM tree — typically used for modals, tooltips, and dropdowns that need to escape overflow: hidden or z-index stacking constraints of their container. Created with ReactDOM.createPortal(child, domNode). Events still bubble normally through the React tree even though the DOM node is elsewhere.',
       hinglish:
         'Portal ek child component ko parent ke DOM tree se alag DOM node mein render karne deta hai — typically modals, tooltips, aur dropdowns ke liye use hota hai jinhe container ke overflow: hidden ya z-index stacking constraints se escape karna hota hai. ReactDOM.createPortal(child, domNode) se banate hain. Events React tree mein normally bubble hote hain chahe DOM node alag jagah ho.',
+    },
+    codeExample: {
+      code: `// A portal renders a child into a DIFFERENT part of the DOM,
+// while keeping it in the React tree where you wrote it.
+import { createPortal } from 'react-dom';
+
+function Modal({ children, onClose }) {
+  return createPortal(
+    <div className="overlay" onClick={onClose}>{children}</div>,
+    document.body                      // ← rendered here
+  );
+}
+
+// Why: a modal inside a card is trapped by the parent's
+// overflow: hidden, z-index stacking context, or transform.
+// Portalling to body escapes all of that.
+
+// The part people find surprising — EVENTS STILL BUBBLE through
+// the REACT tree, not the DOM tree:
+<div onClick={() => console.log('parent heard it')}>
+  <Modal>          {/* rendered into body */}
+    <button>Click</button>   {/* the parent's onClick STILL fires */}
+  </Modal>
+</div>
+
+// That is usually what you want: context, state and handlers
+// all keep working as if it were nested normally.
+
+// Common uses: modals, tooltips, dropdowns, toasts.
+
+// Note the native <dialog> element now handles most modal cases
+// without a portal — it renders in the browser's top layer and
+// gives you focus trapping and Escape for free.`,
+      output: `parent heard it`,
     },
   },
   {
@@ -1435,6 +2196,41 @@ export const generalInterviewQuestions = [
       hinglish:
         'useRef ek mutable ref object { current: value } return karta hai jo renders ke beech persist karta hai aur change hone pe re-renders cause nahi karta. Use cases: (1) DOM elements directly access karna (ref.current.focus()); (2) mutable values store karna jaise timer IDs, previous state, ya flags jo re-renders trigger nahi karne chahiye; (3) child components ko refs forward karna. State ke ulat, ref.current mutate karna kabhi re-render schedule nahi karta.',
     },
+    codeExample: {
+      code: `// useRef gives you a box whose .current survives re-renders
+// and does NOT trigger one when you change it.
+
+// Use 1 — reach a DOM node
+function Input() {
+  const ref = useRef(null);
+  useEffect(() => ref.current.focus(), []);
+  return <input ref={ref} />;
+}
+
+// Use 2 — remember a value between renders without rendering
+function Timer() {
+  const id = useRef(null);
+  const start = () => { id.current = setInterval(tick, 1000); };
+  const stop  = () => clearInterval(id.current);
+}
+// State would work but would cause a pointless re-render.
+
+// Use 3 — the previous value of a prop
+const prev = useRef();
+useEffect(() => { prev.current = value; }, [value]);
+
+// The key difference:
+//   state → changing it RE-RENDERS, and the value is used in JSX
+//   ref   → changing it does NOT render, and it is not for display
+
+// So this button never updates on screen:
+const count = useRef(0);
+<button onClick={() => count.current++}>{count.current}</button>;  // ❌
+
+// And never read or write ref.current DURING render — that is a
+// side effect. Do it in an effect or an event handler.`,
+      output: `(input focused on mount)`,
+    },
   },
   {
     question: 'What is server-side rendering (SSR) in React?',
@@ -1445,6 +2241,40 @@ export const generalInterviewQuestions = [
         'SSR renders React components to HTML on the server and sends the full HTML to the browser. The browser shows content immediately (good for SEO and perceived performance), then React hydrates the HTML by attaching event listeners. Contrast with CSR (client-side rendering) where the browser receives an empty HTML shell and React builds the UI in the browser. Next.js is the main framework for SSR with React.',
       hinglish:
         'SSR React components ko server pe HTML mein render karta hai aur poora HTML browser ko bhejta hai. Browser turant content dikhata hai (SEO aur perceived performance ke liye accha), phir React HTML ko hydrate karta hai event listeners attach karke. CSR (client-side rendering) se contrast karo jahan browser empty HTML shell receive karta hai aur React browser mein UI banata hai. Next.js React ke saath SSR ke liye main framework hai.',
+    },
+    codeExample: {
+      code: `// SSR renders your components to HTML on the SERVER, so the
+// browser receives real content instead of an empty <div>.
+
+// Client-only (CRA/Vite):
+<div id="root"></div>            // ← what a crawler sees
+// The user waits for JS to download, parse and run.
+
+// SSR:
+<div id="root"><h1>Hello Asha</h1>…</div>   // ← content immediately
+
+// Then HYDRATION: React attaches event handlers to that HTML
+// to make it interactive.
+import { hydrateRoot } from 'react-dom/client';
+hydrateRoot(document.getElementById('root'), <App />);
+
+// What you gain:
+//   • SEO — crawlers see content without running JS
+//   • faster First Contentful Paint
+//   • good social previews
+
+// What it costs:
+//   • a Node server to run (not just static files)
+//   • no window or document during the server render
+//   • hydration mismatches if server and client output differ
+
+// In practice you use a framework rather than wiring it yourself:
+// Next.js, Remix. And Next's App Router goes further with
+// Server Components, which never ship JS at all.
+
+// Related: SSG renders at BUILD time, ISR re-renders on a
+// schedule. SSR is per request.`,
+      output: `<div id="root"><h1>Hello Asha</h1></div>`,
     },
   },
   {
@@ -1457,6 +2287,43 @@ export const generalInterviewQuestions = [
       hinglish:
         'Fragment (<React.Fragment> ya shorthand <>) ek component se multiple elements return karne deta hai bina extra DOM node add kiye. Isse unnecessary wrapper divs avoid hote hain jo styling tod sakte hain (jaise flex/grid layouts). Shorthand <></> key prop accept nahi kar sakta; lists render karte waqt <React.Fragment key={id}> use karo.',
     },
+    codeExample: {
+      code: `// A component must return ONE element. A Fragment groups
+// children without adding a wrapper node to the DOM.
+
+// ❌ two roots — a syntax error
+function Bad() {
+  return <td>A</td><td>B</td>;
+}
+
+// ✅ but this adds a <div> that breaks the table
+function AlsoBad() {
+  return <div><td>A</td><td>B</td></div>;
+}
+
+// ✅ Fragment — nothing is added to the DOM
+function Good() {
+  return <><td>A</td><td>B</td></>;
+}
+
+// The long form, needed when you want a key:
+import { Fragment } from 'react';
+{items.map(i => (
+  <Fragment key={i.id}>
+    <dt>{i.term}</dt>
+    <dd>{i.def}</dd>
+  </Fragment>
+))}
+// The shorthand <> cannot take a key.
+
+// Where it genuinely matters:
+//   • <table>, <tr> — an extra div is invalid HTML
+//   • flex and grid — a wrapper becomes an unwanted flex item
+//   • keeping the DOM shallow
+
+// It renders nothing at all: no node, no styling, no cost.`,
+      output: `<td>A</td><td>B</td>`,
+    },
   },
   {
     question: 'What is React Router and how does it work?',
@@ -1467,6 +2334,41 @@ export const generalInterviewQuestions = [
         'React Router is a client-side routing library that maps URL paths to components. It uses the browser\'s History API (or hash) so navigating between routes updates the URL without a full page reload. Key components: <BrowserRouter> wraps the app, <Routes>/<Route path="/..." element={<Page />}> defines routes, <Link to="/..."> navigates, and hooks like useParams, useNavigate, useLocation access routing info.',
       hinglish:
         'React Router ek client-side routing library hai jo URL paths ko components se map karti hai. Ye browser ke History API (ya hash) use karta hai isliye routes ke beech navigate karna URL update karta hai bina full page reload ke. Key components: <BrowserRouter> app wrap karta hai, <Routes>/<Route path="/..." element={<Page />}> routes define karta hai, <Link to="/..."> navigate karta hai, aur useParams, useNavigate, useLocation jaise hooks routing info access karte hain.',
+    },
+    codeExample: {
+      code: `import { BrowserRouter, Routes, Route, Link, useParams } from 'react-router-dom';
+
+<BrowserRouter>
+  <Link to="/users/42">Profile</Link>       {/* no page reload */}
+  <Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/users/:id" element={<User />} />
+    <Route path="*" element={<NotFound />} />   {/* 404 */}
+  </Routes>
+</BrowserRouter>
+
+function User() {
+  const { id } = useParams();               // '42'
+}
+
+// How it works: it uses the History API to change the URL
+// WITHOUT a request to the server, then renders whichever
+// Route matches. There is no navigation, so React state and
+// the loaded JS all survive.
+history.pushState({}, '', '/users/42');
+
+// That is why <Link> matters — a plain <a> does a full reload
+// and throws away everything.
+
+// Programmatic navigation:
+const navigate = useNavigate();
+navigate('/login', { replace: true });
+
+// The deployment gotcha: refreshing /users/42 sends a REAL
+// request for that path, and the server has no such file → 404.
+// Your host must rewrite all paths to index.html. Netlify,
+// Vercel and most SPA hosts have a setting for this.`,
+      output: `42`,
     },
   },
   {
@@ -1479,6 +2381,40 @@ export const generalInterviewQuestions = [
       hinglish:
         'Higher-Order Component ek function hai jo ek component leta hai aur ek naya enhanced component return karta hai — ye component logic reuse karne ka pattern hai. Example: withAuth(Component) ek component return karta hai jo wrapped component render karne se pehle authentication check karta hai. HOCs hooks se pehle ka pattern hai; zyaadatar HOC use cases ab custom hooks se better handle hote hain.',
     },
+    codeExample: {
+      code: `// A function that takes a component and returns a new one
+// with extra behaviour. It is the class-era way to share logic.
+
+function withLoading(Component) {
+  return function Wrapped({ isLoading, ...rest }) {
+    if (isLoading) return <Spinner />;
+    return <Component {...rest} />;
+  };
+}
+const UserListWithLoading = withLoading(UserList);
+
+// You have used these: connect() in Redux, withRouter, memo().
+
+// The problems that made hooks win:
+//   1. WRAPPER HELL in DevTools
+withAuth(withTheme(withRouter(connect(mapState)(Page))))
+//   2. prop name COLLISIONS between two HOCs
+//   3. it is not obvious where a prop came from
+//   4. refs do not pass through without forwardRef
+
+// The same thing as a custom hook — flat, and explicit:
+function useLoading(isLoading) { … }
+
+function UserList({ isLoading, users }) {
+  if (isLoading) return <Spinner />;
+  return <ul>{users.map(…)}</ul>;
+}
+
+// Write hooks for new code. HOCs still make sense when you must
+// wrap a component you do not control, or genuinely change what
+// renders — memo and error boundaries are effectively HOCs.`,
+      output: `<Spinner /> while loading, then the list`,
+    },
   },
   {
     question: 'What is a Pure Component in React?',
@@ -1489,6 +2425,40 @@ export const generalInterviewQuestions = [
         'React.PureComponent is a class component base that implements shouldComponentUpdate with a shallow comparison of props and state — it skips re-rendering if neither has changed. The functional equivalent is React.memo, which wraps a function component and does a shallow prop comparison. Use them for components that render the same output given the same props, to avoid unnecessary re-renders.',
       hinglish:
         'React.PureComponent ek class component base hai jo shouldComponentUpdate ko props aur state ki shallow comparison ke saath implement karta hai — agar dono nahi badle to re-rendering skip karta hai. Functional equivalent React.memo hai, jo function component wrap karta hai aur shallow prop comparison karta hai. Unhe use karo jo same props pe same output render karte hain, unnecessary re-renders avoid karne ke liye.',
+    },
+    codeExample: {
+      code: `// A component that re-renders only when its props or state
+// actually changed — compared SHALLOWLY.
+
+// Function components:
+const Row = React.memo(function Row({ item }) {
+  return <li>{item.name}</li>;
+});
+
+// Class equivalent:
+class Row extends React.PureComponent { … }
+
+// The catch: shallow comparison uses Object.is, so a new object
+// or function each render defeats it entirely.
+function Parent() {
+  return <Row item={{ name: 'a' }} />;       // ❌ new object every render
+}
+
+// Fix — keep the reference stable:
+const item = useMemo(() => ({ name: 'a' }), []);
+const onClick = useCallback(() => {}, []);
+<Row item={item} onClick={onClick} />        // ✅ memo now works
+
+// Do NOT wrap everything in memo. The comparison itself costs
+// something, and for a cheap component it is pure overhead.
+// Reach for it when: the component is expensive to render, it
+// renders often, and its props rarely change — a big list row
+// is the classic case.
+
+// Note the React Compiler does this memoisation automatically,
+// which will make most manual memo/useMemo/useCallback
+// unnecessary.`,
+      output: `Row renders only when item changes`,
     },
   },
   {
@@ -1501,6 +2471,38 @@ export const generalInterviewQuestions = [
       hinglish:
         'Key techniques: (1) React.memo / PureComponent — props unchanged hone pe re-renders skip karo. (2) useMemo / useCallback — expensive values aur functions memoize karo. (3) Code splitting — React.lazy + Suspense se components on demand load karo. (4) Virtualisation — long lists ke liye react-window/react-virtual. (5) JSX mein inline objects/functions avoid karo — har render pe new references children ko re-render karti hain. (6) State jitni local ho sake rakho. (7) Production builds use karo (tree-shaking, minification). (8) React DevTools Profiler se bottlenecks identify karo.',
     },
+    visual: 'react-render',
+    codeExample: {
+      code: `// MEASURE FIRST — React DevTools Profiler, not guesswork.
+
+// 1. Ship less JavaScript. Usually the biggest win.
+const Chart = lazy(() => import('./Chart'));
+<Suspense fallback={<Spinner />}><Chart /></Suspense>
+
+// 2. Stop needless re-renders — but find them first
+const Row = memo(Row);
+const onClick = useCallback(() => {}, []);
+const value = useMemo(() => ({ a, b }), [a, b]);
+
+// 3. Move state DOWN so fewer components sit above it
+// A component that owns state re-renders everything below it.
+
+// 4. Virtualise long lists — render 20 rows, not 10,000
+import { useVirtualizer } from '@tanstack/react-virtual';
+
+// 5. Use a data library for server state
+// React Query dedupes, caches and avoids refetch storms.
+
+// 6. Split Context by how often each value changes
+
+// 7. Images: next/image or width+height+loading="lazy"
+
+// The order matters. Most "slow React" is actually:
+//   a huge bundle → an unvirtualised list → refetch loops
+// Micro-memoisation is last, and the React Compiler is
+// automating that part anyway.`,
+      output: `bundle 800kb → 210kb, TTI 4.1s → 1.3s`,
+    },
   },
   {
     question: 'What is the difference between React and Angular?',
@@ -1511,6 +2513,37 @@ export const generalInterviewQuestions = [
         'React is a UI library (View layer only) — you compose it with other libraries for routing, state, etc. Angular is a full MVC framework with everything built in (DI, forms, HTTP, router). React uses JSX and a Virtual DOM; Angular uses TypeScript-first templates and two-way data binding. React is more flexible and has a larger ecosystem; Angular enforces a structured approach suited to large enterprise teams.',
       hinglish:
         'React ek UI library hai (sirf View layer) — routing, state, etc. ke liye doosri libraries ke saath compose karo. Angular ek full MVC framework hai jisme sab kuch built in hai (DI, forms, HTTP, router). React JSX aur Virtual DOM use karta hai; Angular TypeScript-first templates aur two-way data binding use karta hai. React zyada flexible hai aur bada ecosystem hai; Angular ek structured approach enforce karta hai jo badi enterprise teams ke liye suited hai.',
+    },
+    codeExample: {
+      code: `// REACT — a LIBRARY for the view. You choose the rest.
+//   routing   → React Router
+//   state     → Zustand / Redux / Context
+//   http      → fetch / axios / React Query
+//   forms     → React Hook Form
+// JavaScript + JSX, one-way data flow, hooks.
+
+function Hello({ name }) { return <h1>Hi {name}</h1>; }
+
+// ANGULAR — a FRAMEWORK. Everything is included and opinionated.
+//   routing, HTTP, forms, DI, testing — all official
+// TypeScript by default, decorators, RxJS, two-way binding.
+
+@Component({ selector: 'hello', template: '<h1>Hi {{name}}</h1>' })
+export class HelloComponent { @Input() name: string; }
+
+// The real trade-off:
+//   React  → smaller core, huge freedom, and you own the
+//            architecture decisions (and their consequences)
+//   Angular→ more to learn up front, but a large team gets
+//            consistency for free
+
+// Practical guidance:
+//   startup, fast iteration, hiring from a big pool → React
+//   large enterprise app, many teams, long lifespan → Angular
+
+// And Vue sits between them — a progressive framework with
+// official routing and state, but a gentler learning curve.`,
+      output: `Hi Asha`,
     },
   },
   {
@@ -1523,6 +2556,45 @@ export const generalInterviewQuestions = [
       hinglish:
         'constructor(props) component mount hone se pehle call hota hai — this.state initialise karne aur event handlers bind karne ke liye. super(props) constructor ke andar pehla call hona chahiye jo React.Component parent constructor call karta hai, jo this.props set up karta hai. super(props) ke bina this.props constructor ke andar undefined hota hai. render() ek zaruri method hai — ye JSX return karta hai jo UI describe karta hai.',
     },
+    codeExample: {
+      code: `class Counter extends React.Component {
+  constructor(props) {
+    super(props);            // ← MUST come first
+    this.state = { n: 0 };   // now \`this\` exists
+    this.handle = this.handle.bind(this);
+  }
+}
+
+// Why super() is required: in JavaScript, a subclass has no
+// \`this\` until the parent constructor has run. Touching it
+// first throws:
+constructor(props) {
+  this.state = {};           // ❌ ReferenceError
+  super(props);
+}
+
+// Why pass props: without it, this.props is undefined INSIDE
+// the constructor (React assigns it afterwards either way):
+constructor(props) {
+  super();
+  console.log(this.props);   // undefined
+}
+constructor(props) {
+  super(props);
+  console.log(this.props);   // ✅ available
+}
+
+// The bind is needed because a class method loses \`this\` when
+// passed as a callback. Class fields avoid both:
+class Counter extends React.Component {
+  state = { n: 0 };                       // no constructor needed
+  handle = () => this.setState(…);        // arrow → this is bound
+}
+
+// None of this exists in function components — one of the
+// quieter reasons hooks won.`,
+      output: `0`,
+    },
   },
   {
     question: 'What is Context API in React?',
@@ -1533,6 +2605,45 @@ export const generalInterviewQuestions = [
         'Context API lets you share values (theme, auth, language) across the component tree without passing props at every level. Create context with createContext(defaultValue), wrap the tree with <Context.Provider value={...}>, and consume it with useContext(Context) or <Context.Consumer>. It is ideal for low-frequency global state; for high-frequency updates it can cause unnecessary re-renders across all consumers.',
       hinglish:
         'Context API values (theme, auth, language) ko component tree mein share karne deta hai bina har level pe props pass kiye. createContext(defaultValue) se context banao, tree ko <Context.Provider value={...}> se wrap karo, aur useContext(Context) ya <Context.Consumer> se consume karo. Ye low-frequency global state ke liye ideal hai; high-frequency updates ke liye ye saare consumers mein unnecessary re-renders cause kar sakta hai.',
+    },
+    codeExample: {
+      code: `// Context passes a value to any depth without props.
+
+// 1. create
+const ThemeContext = createContext('light');
+
+// 2. provide
+function App() {
+  const [theme, setTheme] = useState('dark');
+  return (
+    <ThemeContext.Provider value={theme}>
+      <Page />
+    </ThemeContext.Provider>
+  );
+}
+
+// 3. consume, at any depth
+function Button() {
+  const theme = useContext(ThemeContext);
+  return <button className={theme}>Click</button>;
+}
+
+// The performance trap: EVERY consumer re-renders whenever the
+// value changes — and an inline object is a new value each render.
+<ThemeContext.Provider value={{ theme, setTheme }}>   // ❌ new object
+
+const value = useMemo(() => ({ theme, setTheme }), [theme]);
+<ThemeContext.Provider value={value}>                 // ✅
+
+// Also: split contexts that change at different rates. Putting
+// a fast-changing value next to a static one makes everything
+// re-render on every tick.
+
+// Context is DEPENDENCY INJECTION, not a state manager — there
+// is no selector, so you cannot subscribe to part of it. Use it
+// for theme, locale, and the current user. For frequently
+// updating shared state, use Zustand or Redux.`,
+      output: `dark`,
     },
   },
 
@@ -1547,6 +2658,39 @@ export const generalInterviewQuestions = [
       hinglish:
         'Server Components server pe render hote hain aur browser ko KOI JavaScript nahi bhejte, isliye wo seedha ek database padh sakte hain ya ek secret use kar sakte hain aur bundle size mein kuch cost nahi karte. Client Components, `"use client"` se mark kiye, JavaScript bhejte hain aur har interactive cheez ke liye zaroori hain — state, effects, event handlers, browser APIs. Seema ko ped mein jitna GEHRA ho sake rakho, kyunki ye nirdesh viraasat mein milta hai aur ek Client Component jo bhi import kare wo bhi client ban jaata hai.',
     },
+    codeExample: {
+      code: `// SERVER COMPONENT (the default in the Next.js App Router)
+async function Page() {
+  const users = await db.users.findMany();   // straight to the DB
+  return <ul>{users.map(u => <li key={u.id}>{u.name}</li>)}</ul>;
+}
+// • runs on the server only
+// • ships ZERO JavaScript to the browser
+// • can use secrets and query the database directly
+// • CANNOT use state, effects, or event handlers
+
+// CLIENT COMPONENT
+'use client';
+function Counter() {
+  const [n, setN] = useState(0);             // state needs the client
+  return <button onClick={() => setN(n+1)}>{n}</button>;
+}
+// • ships JavaScript
+// • needed for interactivity, browser APIs, hooks
+
+// The rule people get wrong: 'use client' is INHERITED.
+// Everything a client component imports becomes client too.
+// So put the boundary as DEEP as possible — on the small
+// interactive leaf, not the page.
+
+// A good pattern: fetch on the server, pass data down as props
+// or children into a small client wrapper.
+export default async function Page() {
+  const data = await getData();              // server
+  return <Chart data={data} />;              // 'use client' only here
+}`,
+      output: `zero JS for the list, ~2kb for the counter`,
+    },
   },
   {
     question: 'What problem does useTransition solve?',
@@ -1557,6 +2701,44 @@ export const generalInterviewQuestions = [
         'It marks a state update as NON-URGENT so React can interrupt it to keep the interface responsive. The classic case is a search input filtering a large list: without it, typing feels frozen because each keystroke triggers an expensive re-render that blocks input. Wrapping the filter update in `startTransition` lets the input update immediately while the list catches up, and `isPending` gives you a loading indicator for the deferred work.',
       hinglish:
         'Ye ek state update ko GAIR-ZAROORI mark karta hai taaki React use rok kar interface ko jawab dene layak rakh sake. Classic case ek badi list chhaanta search input hai: iske bina, type karna jama hua lagta hai kyunki har keystroke ek mehnga re-render chalata hai jo input rok deta hai. Filter update ko `startTransition` mein lapetna input ko turant update karne deta hai jabki list peeche se aati hai, aur `isPending` tumhe us taale gaye kaam ke liye ek loading nishaan deta hai.',
+    },
+    codeExample: {
+      code: `// Marks an update as NON-URGENT so React can interrupt it and
+// keep the interface responsive.
+
+function Search() {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [isPending, startTransition] = useTransition();
+
+  function onChange(e) {
+    setQuery(e.target.value);           // URGENT — the input must
+                                        // update on every keystroke
+    startTransition(() => {
+      setResults(filterHugeList(e.target.value));   // can wait
+    });
+  }
+
+  return (
+    <>
+      <input value={query} onChange={onChange} />
+      {isPending && <Spinner />}
+      <List items={results} />
+    </>
+  );
+}
+
+// Without it, filtering 10,000 rows on every keystroke blocks
+// the main thread and typing feels frozen — characters appear
+// half a second late.
+
+// With it, the input stays instant and the list catches up.
+// React will even ABANDON an in-progress render if you type
+// again before it finishes.
+
+// It does not make the work faster — it changes its PRIORITY.
+// isPending gives you a loading indicator for the deferred part.`,
+      output: `typing stays smooth at 10,000 rows`,
     },
   },
   {
@@ -1569,6 +2751,36 @@ export const generalInterviewQuestions = [
       hinglish:
         'Dono interface ko jawab dene layak rakhte hain par alag siron se. `useTransition` UPDATE ko lapetta hai, isliye ise tab use karo jab state setter tumhare paas ho. `useDeferredValue` VALUE ko lapetta hai, isliye ise tab use karo jab value ek prop ki tarah aaye aur tum setter tak na pahunch sako — ye ek peeche chalti copy lautaata hai jo kam priority pe update hoti hai. Practically: jab update tumhara ho tab transition, jab tum sirf nateeja paate ho tab deferred value.',
     },
+    codeExample: {
+      code: `// Both keep the UI responsive. The difference is what you
+// have access to.
+
+// useTransition — you wrap the UPDATE. Use it when you own
+// the setState call.
+const [isPending, startTransition] = useTransition();
+startTransition(() => setResults(filter(q)));
+
+// useDeferredValue — you wrap the VALUE. Use it when the value
+// arrives as a PROP and you cannot reach the setter.
+function List({ query }) {
+  const deferredQuery = useDeferredValue(query);
+  const items = useMemo(() => filter(deferredQuery), [deferredQuery]);
+  const isStale = query !== deferredQuery;     // show it dimmed
+  return <ul style={{ opacity: isStale ? 0.5 : 1 }}>…</ul>;
+}
+
+// deferredQuery lags behind query: React renders once with the
+// old value immediately, then again with the new one at lower
+// priority.
+
+// Choosing:
+//   I control the setState        → useTransition
+//   I only receive the value      → useDeferredValue
+
+// Both need the expensive child to be memoised, or you gain
+// nothing — the deferred render still does the same work.`,
+      output: `input instant, list updates a beat later`,
+    },
   },
   {
     question: 'What does the use hook do?',
@@ -1579,6 +2791,40 @@ export const generalInterviewQuestions = [
         '`use` reads a Promise or a Context and, unlike every other hook, can be called CONDITIONALLY and inside loops. When given a Promise it suspends the component until it resolves, which is how a Client Component consumes a promise passed down from a Server Component without an effect. The promise must be created outside render or cached, since creating a new one each render would suspend forever.',
       hinglish:
         '`use` ek Promise ya ek Context padhta hai aur, har doosre hook ke ulat, SHART ke saath aur loops ke andar bulaaya ja sakta hai. Ek Promise dene pe ye component ko us ke sulajhne tak rok deta hai, jisse ek Client Component ek Server Component se aaye promise ko bina effect ke use karta hai. Promise ko render ke bahar banana ya cache karna chahiye, kyunki har render pe ek naya banana hamesha ke liye rok dega.',
+    },
+    codeExample: {
+      code: `// use() reads a Promise or a Context — and unlike every other
+// hook, it CAN be called conditionally and inside loops.
+
+import { use, Suspense } from 'react';
+
+function Comments({ commentsPromise }) {
+  const comments = use(commentsPromise);   // suspends until it resolves
+  return <ul>{comments.map(c => <li key={c.id}>{c.text}</li>)}</ul>;
+}
+
+// The parent provides a Suspense boundary:
+<Suspense fallback={<Spinner />}>
+  <Comments commentsPromise={fetchComments()} />
+</Suspense>
+
+// The pattern it enables: a Server Component starts the fetch
+// WITHOUT awaiting, and a Client Component consumes it.
+async function Page() {
+  const promise = fetchComments();          // no await — no blocking
+  return (
+    <Suspense fallback={<Spinner />}>
+      <Comments commentsPromise={promise} />
+    </Suspense>
+  );
+}
+
+// It also reads context, which useContext cannot do conditionally:
+if (isDark) { const theme = use(ThemeContext); }   // ✅ allowed
+
+// The rule: the promise must be created OUTSIDE render or
+// cached. Creating a new one each render suspends forever.`,
+      output: `(spinner, then the comments)`,
     },
   },
   {
@@ -1591,6 +2837,38 @@ export const generalInterviewQuestions = [
       hinglish:
         'React Compiler build ke waqt apne aap components aur values ko memoise karta hai, isliye zyadatar manual `useMemo`, `useCallback`, aur `React.memo` gair-zaroori ho jaate hain. Ye shor ka aur ek galat dependency array se aane wale bugs ka ek bada source hataata hai. Ye is pe tikta hai ki tumhara code React ke Niyam maane — render ke dauraan koi badlaav nahi, render body mein koi side effect nahi — isliye linter zyada matter karta hai, aur un niyamon ko todta code bas optimise nahi hoga.',
     },
+    codeExample: {
+      code: `// The compiler adds memoisation automatically at BUILD time,
+// so most manual optimisation becomes unnecessary.
+
+// What you write today:
+function List({ items, onSelect }) {
+  const sorted = useMemo(() => items.sort(cmp), [items]);
+  const handle = useCallback((id) => onSelect(id), [onSelect]);
+  return <Row items={sorted} onClick={handle} />;
+}
+
+// What you will write:
+function List({ items, onSelect }) {
+  const sorted = items.sort(cmp);              // compiler memoises
+  const handle = (id) => onSelect(id);         // compiler memoises
+  return <Row items={sorted} onClick={handle} />;
+}
+
+// Why this is a real improvement: useMemo and useCallback are
+// easy to get wrong. A missing dependency causes a stale bug;
+// an unnecessary one causes churn. Removing them removes a
+// whole class of mistakes — and a lot of noise.
+
+// The catch: it only works if your code follows the Rules of
+// React — no mutation during render, no side effects in the
+// render body, hooks called unconditionally. Code that breaks
+// those rules is simply skipped, not optimised.
+
+// So the linter matters more now, not less:
+// eslint-plugin-react-compiler`,
+      output: `same behaviour, fewer hooks to maintain`,
+    },
   },
   {
     question: 'What are the Rules of React and why do they matter more now?',
@@ -1601,6 +2879,38 @@ export const generalInterviewQuestions = [
         'Components and hooks must be PURE during render: no mutating props, state, or anything outside; no side effects in the render body; hooks called unconditionally at the top level in the same order every render. They have always been rules, but React 18\'s concurrent features and the React Compiler both DEPEND on them — a component that mutates during render can now produce genuinely wrong output rather than merely being untidy.',
       hinglish:
         'Components aur hooks ko render ke dauraan SHUDDH hona chahiye: props, state, ya kisi bahar ki cheez ko na badlo; render body mein koi side effect nahi; hooks har render mein bina shart top level pe usi kram mein bulaao. Ye hamesha niyam the, par React 18 ke concurrent features aur React Compiler dono in PE TIKTE hain — ek component jo render ke dauraan badlaav karta hai ab bekaar dikhne ke bajaye genuinely galat output de sakta hai.',
+    },
+    codeExample: {
+      code: `// 1. Components and hooks must be PURE during render.
+function Bad({ items }) {
+  items.push('x');              // ❌ mutating a prop
+  document.title = 'hi';        // ❌ side effect during render
+  return <ul>…</ul>;
+}
+function Good({ items }) {
+  const next = [...items, 'x']; // ✅ a new array
+  useEffect(() => { document.title = 'hi'; });  // ✅ in an effect
+  return <ul>…</ul>;
+}
+
+// 2. Do not mutate props, state, or anything passed to you.
+state.count++;                  // ❌
+setState(c => c + 1);           // ✅
+
+// 3. Hooks: top level only, same order every render.
+
+// 4. Render must be able to run MORE THAN ONCE with the same
+//    result. Strict Mode double-invokes deliberately to check.
+
+// Why this matters more than it used to:
+//   • Concurrent rendering can PAUSE, ABANDON and RESTART a
+//     render. An impure component produces wrong output.
+//   • The React Compiler assumes purity to memoise safely.
+//     Break the rules and it silently skips your component.
+
+// These were always the rules. The difference is that breaking
+// them used to be untidy; now it is a correctness bug.`,
+      output: `(Strict Mode surfaces impure renders in dev)`,
     },
   },
   {
@@ -1613,6 +2923,39 @@ export const generalInterviewQuestions = [
       hinglish:
         '`<Suspense>` ek aise hisse ke liye ek fallback batata hai jo abhi taiyaar nahi, isliye loading ka roop har component se nikal kar ped ke dhaanche mein aa jaata hai. Ye sust load hote components, ek supported library ya `use` hook se data laana, aur streaming server rendering sambhalta hai — jahan dhaancha turant bhej diya jaata hai aur dheeme hisse sulajhte hi bhar jaate hain. Seemayein soch kar rakhna ek dheemi query ko poore page ki rukaawat se ek card ke spinner mein badal deta hai.',
     },
+    codeExample: {
+      code: `// Suspense declares a fallback for a subtree that is not ready.
+<Suspense fallback={<Spinner />}>
+  <Profile />          {/* may suspend while loading */}
+</Suspense>
+
+// 1. Lazy components — the original use
+const Chart = lazy(() => import('./Chart'));
+<Suspense fallback={<Skeleton />}><Chart /></Suspense>
+
+// 2. Data fetching, via a supported library or use()
+function Comments({ promise }) {
+  const data = use(promise);      // suspends
+}
+
+// 3. Streaming SSR — the shell is sent immediately and slower
+//    sections stream in as they resolve:
+<Layout>
+  <Header />                           {/* instant */}
+  <Suspense fallback={<Skeleton />}>
+    <SlowFeed />                       {/* streams in later */}
+  </Suspense>
+</Layout>
+
+// Where you place boundaries is a design decision. One at the
+// top means the whole page waits for the slowest query. Several
+// smaller ones let fast content appear immediately.
+
+// What Suspense does NOT do: it does not fetch anything, and it
+// does not catch errors — that needs an error boundary. Pair
+// them: Suspense for loading, ErrorBoundary for failure.`,
+      output: `header instantly, feed a moment later`,
+    },
   },
   {
     question: 'What is an error boundary and what does it not catch?',
@@ -1623,6 +2966,44 @@ export const generalInterviewQuestions = [
         'An error boundary is a component with `componentDidCatch` or `getDerivedStateFromError` that catches errors thrown during rendering in its subtree and shows a fallback instead of unmounting the whole tree. It does NOT catch errors in event handlers, in asynchronous code such as a `setTimeout` or a promise rejection, in server-side rendering, or in the boundary itself. Those need ordinary try/catch, which surprises people who expect it to catch everything.',
       hinglish:
         'Ek error boundary `componentDidCatch` ya `getDerivedStateFromError` wala ek component hai jo apne hisse mein render ke dauraan uthi errors pakadta hai aur poore ped ko hataane ke bajaye ek fallback dikhata hai. Ye event handlers ki errors, `setTimeout` ya ek promise ke mana karne jaise asynchronous code ki, server-side rendering ki, ya khud boundary ki errors NAHI pakadta. Unhe aam try/catch chahiye, jo un logon ko chaunkata hai jo sochte hain ye sab kuch pakadta hai.',
+    },
+    codeExample: {
+      code: `// A class component that catches render errors below it and
+// shows a fallback instead of unmounting the whole tree.
+class ErrorBoundary extends React.Component {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };            // update the UI
+  }
+  componentDidCatch(error, info) {
+    logToService(error, info.componentStack);   // report it
+  }
+  render() {
+    if (this.state.hasError) return <p>Something went wrong.</p>;
+    return this.props.children;
+  }
+}
+
+<ErrorBoundary><Dashboard /></ErrorBoundary>
+
+// What it does NOT catch:
+//   ❌ event handlers        → use try/catch
+//   ❌ async code (setTimeout, promises)
+//   ❌ server-side rendering
+//   ❌ errors thrown in the boundary itself
+
+onClick={() => {
+  try { risky(); } catch (e) { setError(e); }   // ✅ handle here
+}}
+
+// There is still no hook version — this is the one thing that
+// requires a class. In practice most people use
+// react-error-boundary, which wraps it with a nicer API.
+
+// Place several small boundaries rather than one at the root,
+// so a broken widget does not blank the entire page.`,
+      output: `Something went wrong.`,
     },
   },
   {
@@ -1635,6 +3016,39 @@ export const generalInterviewQuestions = [
       hinglish:
         'LOCAL state se shuru karo aur tabhi upar le jao jab ek doosra istemaal karne wala genuinely ho — sab kuch ped mein upar rakhna bekaar re-renders karta hai aur components ko dobara istemaal ke layak nahi rakhta. CONTEXT un values ke liye use karo jo kam badalti hain aur widely chahiye, jaise theme ya abhi ka user, kyunki har badlaav pe har consumer re-render hota hai. Ek state library tab uthao jab tumhare paas aksar badalti saanjhi state ho, aur server state ke liye use khud rakhne ke bajaye React Query jaisi ek data library use karo.',
     },
+    codeExample: {
+      code: `// Start LOCAL. Lift only when a second consumer genuinely exists.
+function Form() {
+  const [name, setName] = useState('');   // nobody else needs this
+}
+
+// CONTEXT — for values needed WIDELY that change RARELY.
+const ThemeContext = createContext();
+// theme, locale, the logged-in user, feature flags
+// Every consumer re-renders on any change, so a fast-changing
+// value here is a performance problem.
+
+// A STATE LIBRARY — shared state that changes often.
+const useCart = create((set) => ({
+  items: [],
+  add: (i) => set((s) => ({ items: [...s.items, i] })),
+}));
+const items = useCart((s) => s.items);   // subscribes to a SLICE
+
+// SERVER DATA — none of the above.
+const { data } = useQuery({ queryKey: ['users'], queryFn: getUsers });
+
+// The decision in order:
+//   1. Can it live in one component?        → useState
+//   2. Does it come from an API?            → React Query
+//   3. Is it stable and needed everywhere?  → Context
+//   4. Is it shared and changes often?      → Zustand / Redux
+
+// The common mistake is jumping to step 3 or 4 too early.
+// Global state makes components harder to reuse and test, and
+// causes re-renders you then spend time optimising away.`,
+      output: `(state kept as close to where it is used as possible)`,
+    },
   },
   {
     question: 'Why should server data not live in your own state?',
@@ -1645,6 +3059,42 @@ export const generalInterviewQuestions = [
         'Server data is a CACHE with its own concerns — staleness, refetching, deduplication of in-flight requests, invalidation, retries, and background updates — and reimplementing all of that in `useEffect` and `useState` is a large amount of code that a dedicated library already solves correctly. Use React Query, SWR, or RTK Query for it, and keep your own state for genuine client concerns: UI mode, selections, wizards, and anything the server has no opinion about.',
       hinglish:
         'Server data ek CACHE hai apne concerns ke saath — puranapan, dobara laana, chalti requests ka dohraav hataana, radd karna, retries, aur peeche ke updates — aur wo sab `useEffect` aur `useState` mein dobara likhna bahut saara code hai jise ek dedicated library pehle se sahi solve karti hai. Uske liye React Query, SWR, ya RTK Query use karo, aur apni state ko asli client ke concerns ke liye rakho: UI mode, chunaav, wizards, aur jo bhi server ke liye matlab nahi rakhta.',
+    },
+    codeExample: {
+      code: `// The pattern almost everyone writes first:
+function Users() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/users')
+      .then(r => r.json())
+      .then(d => { if (!cancelled) setUsers(d); })
+      .catch(e => { if (!cancelled) setError(e); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+}
+
+// That is 15 lines, and it still does not handle: refetching on
+// focus, retrying, deduping two components asking at once,
+// caching, invalidating after a mutation, or pagination.
+
+// The same thing with a data library:
+const { data, isLoading, error } = useQuery({
+  queryKey: ['users'],
+  queryFn: () => fetch('/api/users').then(r => r.json()),
+});
+
+// The insight: server data is a CACHE, not application state.
+// It has an owner elsewhere, it goes stale, and two components
+// asking for it should share one request.
+
+// Keep your own state for things the server has no opinion
+// about: which tab is open, what is selected, wizard progress.`,
+      output: `15 lines → 4, with caching and retries included`,
     },
   },
   {
@@ -1657,6 +3107,40 @@ export const generalInterviewQuestions = [
       hinglish:
         'Sirf React ke bahar kisi cheez se MILAAN ke liye: ek subscription, ek browser API, ek timer, ek non-React widget, ya haath se DOM naapna. Tumhe ise render ke liye data badalne ko nahi chahiye, jo render ke dauraan nikalna chahiye; ek prop badalne pe state reset karne ko nahi, jise ek `key` behtar sambhalta hai; ek user event sambhaalne ko nahi, jo handler mein hai; ya data laane ko nahi, jise ek data library ya ek Server Component theek karta hai. Zyadatar `useEffect` bugs use wahan use karne se aate hain jahan wo kabhi zaroori tha hi nahi.',
     },
+    visual: 'effect-lifecycle',
+    codeExample: {
+      code: `// ✅ YES — synchronising with something OUTSIDE React:
+useEffect(() => {                       // a subscription
+  const sub = chat.connect(roomId);
+  return () => sub.disconnect();
+}, [roomId]);
+
+useEffect(() => {                       // a browser API
+  window.addEventListener('resize', onResize);
+  return () => window.removeEventListener('resize', onResize);
+}, []);
+
+// ❌ NO — transforming data for rendering.
+const [full, setFull] = useState('');
+useEffect(() => { setFull(first + ' ' + last); }, [first, last]);
+// Causes two renders. Just compute it:
+const full = first + ' ' + last;        // ✅
+
+// ❌ NO — resetting state when a prop changes.
+useEffect(() => { setSelected(null); }, [userId]);
+// Use a key instead — React remounts and state resets:
+<Profile key={userId} />                // ✅
+
+// ❌ NO — handling a user event.
+useEffect(() => { if (submitted) save(); }, [submitted]);
+onClick={() => save()}                  // ✅ just do it in the handler
+
+// ❌ NO — fetching data. Use React Query, or a Server Component.
+
+// The test: "am I talking to something outside React?"
+// If not, you probably do not need an effect.`,
+      output: `1 render instead of 2`,
+    },
   },
   {
     question: 'What is the difference between useLayoutEffect and useEffect?',
@@ -1667,6 +3151,39 @@ export const generalInterviewQuestions = [
         '`useEffect` runs asynchronously AFTER the browser paints, so it does not block rendering — the correct default. `useLayoutEffect` runs synchronously after DOM mutation but BEFORE paint, so it blocks painting. Use it only when you must measure the DOM and change it before the user sees an intermediate state, such as positioning a tooltip. It does not run during server rendering, which produces a warning, and overusing it causes visible jank.',
       hinglish:
         '`useEffect` browser ke paint karne ke BAAD asynchronously chalta hai, isliye ye rendering nahi rokta — sahi default. `useLayoutEffect` DOM badalne ke baad par paint se PEHLE synchronously chalta hai, isliye ye painting rok deta hai. Ise sirf tab use karo jab tumhe DOM naapna ho aur user ke ek beech ki haalat dekhne se pehle use badalna ho, jaise ek tooltip rakhna. Ye server rendering ke dauraan nahi chalta, jo ek warning deta hai, aur iska zyada istemaal dikhne wali atkan banata hai.',
+    },
+    codeExample: {
+      code: `// useEffect — runs AFTER the browser paints. Asynchronous.
+useEffect(() => {
+  setWidth(ref.current.offsetWidth);
+}, []);
+// The user may briefly SEE the wrong value before it corrects.
+
+// useLayoutEffect — runs after DOM mutation but BEFORE paint.
+// Synchronous, so it blocks painting.
+useLayoutEffect(() => {
+  setWidth(ref.current.offsetWidth);    // measured and fixed
+}, []);                                 // before anything is drawn
+
+// Use useLayoutEffect ONLY when you must measure the DOM and
+// change it before the user sees an intermediate state:
+useLayoutEffect(() => {
+  const { height } = tooltipRef.current.getBoundingClientRect();
+  setPosition(triggerTop - height);     // no visible jump
+}, [isOpen]);
+
+// Everything else should be useEffect — it does not block
+// rendering, so the page stays responsive.
+
+// Two gotchas:
+//   • useLayoutEffect does not run during SSR, and React warns
+//     about it. Guard it, or use useEffect on the server:
+const useIso = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+//   • heavy work inside it visibly freezes the page
+
+// Default to useEffect. Reach for the other only to prevent a
+// visible flicker.`,
+      output: `no flicker on first paint`,
     },
   },
   {
@@ -1679,6 +3196,36 @@ export const generalInterviewQuestions = [
       hinglish:
         'Ek `key` React ko renders ke aar-paar ek element ki sthir PEHCHAAN deti hai taaki wo purane aur naye children sahi milaa sake. Ek array INDEX use karna use tab todta hai jab list dobara jame, chhaani jaaye, ya usme items dale jaayein, kyunki cheezon ki pehchaan khisak jaati hai aur React galat state dobara use karta hai — ek check kiya checkbox galat row ke saath chala jaata hai. Data se ek sthir id use karo. Ek component pe ek `key` jaan boojh kar poora remount karne aur uski state reset karne ka sabse saaf tareeka bhi hai.',
     },
+    visual: 'list-keys',
+    codeExample: {
+      code: `// A key gives React a stable IDENTITY for an element across
+// renders, so it knows which item is which after a change.
+
+{items.map((item, i) => <Row key={i} item={item} />)}      // ❌
+{items.map((item)    => <Row key={item.id} item={item} />)} // ✅
+
+// Why index breaks: it identifies by POSITION. Delete the first
+// row and everything shifts up — React thinks row 0 just
+// changed its text, so it REUSES row 0's state for a different
+// item. A ticked checkbox follows the wrong row.
+
+// It is not only a performance issue. It is a correctness bug
+// whenever rows hold state: inputs, checkboxes, animations.
+
+// Index is safe only if the list never reorders, never has
+// items removed from the middle, and never has items inserted
+// anywhere but the end.
+
+// Keys must be stable, unique among SIBLINGS, and not random:
+key={Math.random()}        // ❌ remounts everything, every render
+
+// The other use — deliberately forcing a remount to reset state:
+<Profile key={userId} />
+// When userId changes, React unmounts the old Profile entirely
+// and mounts a fresh one. Much cleaner than an effect that
+// resets half a dozen state variables.`,
+      output: `Ben keeps his own checkbox state`,
+    },
   },
   {
     question: 'What causes unnecessary re-renders and how do you find them?',
@@ -1689,6 +3236,39 @@ export const generalInterviewQuestions = [
         'A parent re-rendering re-renders all children by default; a context value recreated each render re-renders every consumer; a new object or function prop breaks `React.memo` by reference. Find them with the React DevTools Profiler and the "highlight updates" option rather than guessing. Fix by moving state DOWN so fewer components sit above it, splitting context, memoising the value, or passing `children` so a subtree is not re-created. The React Compiler removes much of the manual work.',
       hinglish:
         'Ek parent ka re-render default se saare children ko re-render karta hai; har render pe dobara bana ek context value har consumer ko re-render karta hai; ek naya object ya function prop reference se `React.memo` tod deta hai. Unhe andaaza lagane ke bajaye React DevTools Profiler aur "highlight updates" option se dhoondho. State NEECHE le jaakar taaki uske upar kam components hon, context baant kar, value memoise karke, ya `children` pass karke theek karo taaki ek hissa dobara na bane. React Compiler bahut saara manual kaam hata deta hai.',
+    },
+    visual: 'react-render',
+    codeExample: {
+      code: `// FINDING them — React DevTools Profiler, and turn on
+// "Highlight updates when components render". Do not guess.
+
+// CAUSE 1 — a new object or function prop every render, which
+// defeats memo:
+<Row style={{ color: 'red' }} onClick={() => x()} />   // ❌
+const style = useMemo(() => ({ color: 'red' }), []);
+const onClick = useCallback(() => x(), []);            // ✅
+
+// CAUSE 2 — an inline context value:
+<Ctx.Provider value={{ user, setUser }}>               // ❌ new each time
+const value = useMemo(() => ({ user, setUser }), [user]);  // ✅
+
+// CAUSE 3 — state too high in the tree. Everything below it
+// re-renders on every change.
+// Fix: move it DOWN into the component that actually uses it.
+
+// CAUSE 4 — the parent re-renders, so all children do, even
+// with unchanged props. Usually fine, but:
+const Row = memo(Row);                    // for expensive children
+
+// CAUSE 5 — passing children as a prop rebuilds them:
+<Layout>{<Heavy />}</Layout>
+// Passing children through means the parent's render does not
+// recreate them.
+
+// Perspective: a re-render is NOT automatically a problem.
+// React only touches the DOM for what changed. Optimise when
+// the profiler shows a real cost, not on principle.`,
+      output: `renders 47 → 3 per keystroke`,
     },
   },
   {
@@ -1701,6 +3281,38 @@ export const generalInterviewQuestions = [
       hinglish:
         'Hydration React ka server-rendered HTML pe event handlers lagana hai taaki wo interactive ho. Ek mismatch tab hota hai jab client server se ALAG kuch render kare. Aam karan: render mein `Date.now()` ya `Math.random()`, pehle render mein `window` ya `localStorage` padhna, galat HTML nesting jaise ek `<p>` ke andar ek `<div>`, aur DOM badalte browser extensions. Sirf browser wale logic ko ek effect mein le jaakar ya ek mounted flag ke peeche rakh kar theek karo.',
     },
+    codeExample: {
+      code: `// Hydration = React attaching event handlers to server-rendered
+// HTML so it becomes interactive. The markup must MATCH.
+
+hydrateRoot(document.getElementById('root'), <App />);
+
+// A mismatch means the client rendered something different.
+
+// CAUSE 1 — anything time or random based
+<p>{new Date().toLocaleString()}</p>      // ❌ server ≠ client
+<p>{Math.random()}</p>                    // ❌
+
+// CAUSE 2 — reading browser APIs during the first render
+const [w, setW] = useState(window.innerWidth);   // ❌ no window on server
+
+// The fix for both — render the same thing first, then update:
+const [mounted, setMounted] = useState(false);
+useEffect(() => setMounted(true), []);
+return <p>{mounted ? new Date().toString() : 'Loading…'}</p>;
+
+// CAUSE 3 — invalid HTML nesting. The browser silently repairs
+// it, so the real DOM no longer matches what React expects:
+<p><div>text</div></p>                    // ❌ browser moves the div
+
+// CAUSE 4 — browser extensions injecting attributes. Harmless,
+// and suppressHydrationWarning on that element is acceptable.
+
+// Why it matters: React logs an error and may discard the
+// server HTML and re-render on the client, which throws away
+// the SSR performance benefit entirely.`,
+      output: `Warning: Text content did not match. Server: "10:32" Client: "10:33"`,
+    },
   },
   {
     question: 'What is a controlled versus uncontrolled component?',
@@ -1712,6 +3324,37 @@ export const generalInterviewQuestions = [
       hinglish:
         'Ek CONTROLLED input ki value React state chalati hai, isliye har keystroke ek re-render karta hai — jo validation aur roop pe poora control deta hai par ek bade form pe performance cost karta hai. Ek UNCONTROLLED input apni value DOM mein rakhta hai aur tum use ek ref se ya submit pe padhte ho, jo bahut sasta hai. React Hook Form theek isiliye popular hai kyunki wo inputs ko uncontrolled rakhta hai aur bahut kam re-render karta hai, isiliye wo naive controlled forms se behtar chalta hai.',
     },
+    codeExample: {
+      code: `// CONTROLLED — React state is the source of truth.
+const [value, setValue] = useState('');
+<input value={value} onChange={e => setValue(e.target.value)} />
+// Every keystroke re-renders. You can validate, format, or
+// reject input as it is typed:
+onChange={e => setValue(e.target.value.toUpperCase())}
+
+// UNCONTROLLED — the DOM keeps the value; you read it on demand.
+const ref = useRef(null);
+<input ref={ref} defaultValue="" />
+const submit = () => console.log(ref.current.value);
+// No re-render per keystroke — noticeably faster on big forms.
+
+// Note defaultValue, not value, for uncontrolled inputs.
+
+// The two classic errors:
+<input value={name} />                    // ❌ read-only, no onChange
+<input value={undefined} />               // ❌ switches uncontrolled
+                                          //    → controlled, warns
+<input value={name ?? ''} onChange={fn} /> // ✅
+
+// File inputs are ALWAYS uncontrolled — you cannot set their
+// value programmatically, for security reasons.
+
+// Which to use: controlled for live validation and dependent
+// fields; uncontrolled for large or simple forms. React Hook
+// Form is popular because it keeps inputs uncontrolled and
+// re-renders far less than a fully controlled form.`,
+      output: `ASHA`,
+    },
   },
   {
     question: 'How do you test a React component well?',
@@ -1722,6 +3365,40 @@ export const generalInterviewQuestions = [
         'Use React Testing Library and query the way a USER would — by role, label, and text rather than by test id or class, so a refactor that keeps behaviour does not break the test. Test behaviour rather than implementation: assert what appears after a click, not that a state setter was called. Mock the network at the boundary with MSW rather than mocking your own modules, which tests the real wiring. And avoid snapshot tests as a substitute for assertions, since they mostly get blindly updated.',
       hinglish:
         'React Testing Library use karo aur waise dhoondho jaise ek USER dhoondhta — role, label, aur text se, ek test id ya class se nahi, taaki ek refactor jo vyavahaar bachaaye wo test na tode. Implementation ke bajaye vyavahaar test karo: ye jaancho ki ek click ke baad kya dikhta hai, ye nahi ki ek state setter bulaaya gaya. Apne modules mock karne ke bajaye MSW se network ko seema pe mock karo, jo asli judaav test karta hai. Aur assertions ke badal ki tarah snapshot tests se bacho, kyunki wo zyadatar aankh band karke update ho jaate hain.',
+    },
+    codeExample: {
+      code: `import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+test('shows an error for an invalid email', async () => {
+  render(<SignupForm />);
+
+  // Query the way a USER would — by role and label, not by
+  // class name or test id. A refactor that keeps the behaviour
+  // then keeps the test passing.
+  await userEvent.type(screen.getByLabelText(/email/i), 'nope');
+  await userEvent.click(screen.getByRole('button', { name: /sign up/i }));
+
+  expect(await screen.findByText(/valid email/i)).toBeInTheDocument();
+});
+
+// Test BEHAVIOUR, not implementation:
+expect(screen.getByText('Saved')).toBeInTheDocument();   // ✅
+expect(setState).toHaveBeenCalled();                     // ❌
+
+// Mock the NETWORK at the boundary, not your own modules:
+import { setupServer } from 'msw/node';
+// This exercises the real component wiring, including error paths.
+
+// Query priority: getByRole > getByLabelText > getByText.
+// If you cannot find something by role, that is often an
+// accessibility problem the test just surfaced.
+
+// Skip: snapshot tests as a substitute for assertions (they get
+// blindly updated), and testing library internals.
+
+// findBy* for async, getBy* for present, queryBy* for absent.`,
+      output: `✓ shows an error for an invalid email (84ms)`,
     },
   },
 ];
