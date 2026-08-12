@@ -468,6 +468,87 @@ first(['a', 'b']);         // T = string`,
       { caption: { en: 'Compare any[]: it would accept everything and lose the type on the way out.', hi: 'any[] se tulna karo: wo sab kuch le leta aur nikalte waqt type kho deta.' }, t: 'any', arg: 'any[]', ret: 'any', bad: true },
     ],
   },
+  /* next() or respond — the whole Express mental model. */
+  'middleware-chain': {
+    title: { en: 'The middleware chain', hi: 'Middleware chain' },
+    code: `app.use(logger);           // 1
+app.use(express.json());   // 2
+app.use(authenticate);     // 3
+app.get('/users', handler);// 4
+app.use(errorHandler);     // 5 — errors only`,
+    kind: 'middleware',
+    steps: [
+      { caption: { en: 'A request arrives and enters the stack at the top.', hi: 'Ek request aati hai aur stack mein sabse upar se ghusti hai.' }, at: -1, done: [], res: null, err: false },
+      { caption: { en: 'logger runs, then calls next() to pass it along.', hi: 'logger chalta hai, phir next() bulaa kar aage bhejta hai.' }, at: 0, done: [], res: null, err: false },
+      { caption: { en: 'express.json() parses the body onto req.body, then next().', hi: 'express.json() body ko req.body pe parse karta hai, phir next().' }, at: 1, done: [0], res: null, err: false },
+      { caption: { en: 'authenticate checks the token and attaches req.user.', hi: 'authenticate token jaanchta hai aur req.user lagata hai.' }, at: 2, done: [0, 1], res: null, err: false },
+      { caption: { en: 'The route handler matches and SENDS a response.', hi: 'Route handler match hota hai aur ek response BHEJTA hai.' }, at: 3, done: [0, 1, 2], res: '200 OK', err: false },
+      { caption: { en: 'The cycle ENDS. Nothing below runs — the error handler is skipped.', hi: 'Cycle KHATAM. Neeche kuch nahi chalta — error handler skip ho gaya.' }, at: -2, done: [0, 1, 2, 3], res: '200 OK', err: false },
+      { caption: { en: 'Now suppose authenticate calls next(err) instead.', hi: 'Ab maano authenticate ne next(err) bulaya.' }, at: 2, done: [0, 1], res: null, err: true },
+      { caption: { en: 'Express SKIPS every normal layer and jumps to the error handler.', hi: 'Express har normal layer SKIP karke error handler pe koodta hai.' }, at: 4, done: [0, 1], res: '401', err: true },
+    ],
+  },
+
+  /* Why a query with no index reads the whole collection. */
+  'mongo-index': {
+    title: { en: 'How an index helps', hi: 'Index kaise madad karta hai' },
+    code: `db.users.find({ email: 'asha@x.com' })
+
+// without an index → COLLSCAN
+// with one        → IXSCAN
+db.users.createIndex({ email: 1 })`,
+    kind: 'mongoindex',
+    steps: [
+      { caption: { en: 'One million documents, and no index on email.', hi: 'Das lakh documents, aur email pe koi index nahi.' }, indexed: false, scanned: 0, found: false, plan: null },
+      { caption: { en: 'MongoDB must check every document one by one.', hi: 'MongoDB ko har document ek-ek karke jaanchna padta hai.' }, indexed: false, scanned: 3, found: false, plan: 'COLLSCAN' },
+      { caption: { en: 'Still scanning. It cannot stop early — a match could be anywhere.', hi: 'Abhi bhi scan. Wo jaldi ruk nahi sakta — match kahin bhi ho sakta hai.' }, indexed: false, scanned: 7, found: false, plan: 'COLLSCAN' },
+      { caption: { en: 'Found it after reading 1,000,000 documents.', hi: '10,00,000 documents padhne ke baad mil gaya.' }, indexed: false, scanned: 10, found: true, plan: 'COLLSCAN' },
+      { caption: { en: 'Now create an index. It is a sorted B-tree of email values.', hi: 'Ab ek index banao. Ye email values ka ek sorted B-tree hai.' }, indexed: true, scanned: 0, found: false, plan: null },
+      { caption: { en: 'The query walks the tree instead — a handful of comparisons.', hi: 'Query ab tree pe chalti hai — muthhi bhar comparisons.' }, indexed: true, scanned: 2, found: false, plan: 'IXSCAN' },
+      { caption: { en: 'Found after examining 1 document. That is the whole point.', hi: '1 document dekh kar mil gaya. Yahi poori baat hai.' }, indexed: true, scanned: 3, found: true, plan: 'IXSCAN' },
+      { caption: { en: 'The cost: every index must be updated on each insert and update.', hi: 'Cost: har insert aur update pe har index update karna padta hai.' }, indexed: true, scanned: 3, found: true, plan: 'IXSCAN', cost: true },
+    ],
+  },
+
+  /* Documents flowing through stages, and why $match goes first. */
+  'agg-pipeline': {
+    title: { en: 'Aggregation pipeline', hi: 'Aggregation pipeline' },
+    code: `db.orders.aggregate([
+  { $match:  { status: 'paid' } },
+  { $group:  { _id: '$userId', total: { $sum: '$amount' } } },
+  { $sort:   { total: -1 } },
+  { $limit:  3 },
+])`,
+    kind: 'pipeline',
+    steps: [
+      { caption: { en: '10,000 order documents go in at the top.', hi: '10,000 order documents upar se andar jaate hain.' }, stage: -1, count: 10000, shape: 'orders' },
+      { caption: { en: '$match filters first — only paid orders continue.', hi: 'Pehle $match chhaanta hai — sirf paid orders aage jaate hain.' }, stage: 0, count: 2400, shape: 'orders' },
+      { caption: { en: 'Putting $match first is the single biggest optimisation — later stages now handle far less.', hi: '$match ko pehle rakhna sabse badi optimisation hai — aage ke stages ab bahut kam sambhalte hain.' }, stage: 0, count: 2400, shape: 'orders', note: 'and it can use an index' },
+      { caption: { en: '$group collapses them per user, summing the amounts.', hi: '$group unhe per user samet-ta hai, amounts jodte hue.' }, stage: 1, count: 310, shape: 'totals' },
+      { caption: { en: '$sort orders by total, highest first.', hi: '$sort total se jamata hai, sabse zyada pehle.' }, stage: 2, count: 310, shape: 'totals' },
+      { caption: { en: '$limit keeps the top 3. Each stage feeds the next, like Unix pipes.', hi: '$limit upar ke 3 rakhta hai. Har stage agle ko khilaata hai, Unix pipes ki tarah.' }, stage: 3, count: 3, shape: 'totals' },
+      { caption: { en: 'Put $match last instead and you group 10,000 documents for nothing.', hi: '$match ko aakhir mein rakho to tum 10,000 documents bekaar group karte ho.' }, stage: 3, count: 3, shape: 'totals', bad: true },
+    ],
+  },
+
+  /* One primary, several secondaries, and what happens when it dies. */
+  'replica-set': {
+    title: { en: 'Replica set failover', hi: 'Replica set failover' },
+    code: `// A replica set: one primary, two secondaries.
+// Writes go to the primary; the oplog replicates to the rest.
+
+mongodb://host1,host2,host3/?replicaSet=rs0`,
+    kind: 'replica',
+    steps: [
+      { caption: { en: 'Three members. One is PRIMARY and takes every write.', hi: 'Teen members. Ek PRIMARY hai aur har write leta hai.' }, roles: ['primary', 'secondary', 'secondary'], writing: 0, lag: [0, 0, 0], election: false },
+      { caption: { en: 'A write lands on the primary and is recorded in its oplog.', hi: 'Ek write primary pe aata hai aur uske oplog mein likha jaata hai.' }, roles: ['primary', 'secondary', 'secondary'], writing: 0, lag: [0, 1, 1], election: false },
+      { caption: { en: 'The secondaries tail that oplog and replay it — usually milliseconds behind.', hi: 'Secondaries us oplog ko padhte aur dohraate hain — usually millisecond peeche.' }, roles: ['primary', 'secondary', 'secondary'], writing: 0, lag: [0, 0, 0], election: false },
+      { caption: { en: 'The primary goes down.', hi: 'Primary gir gaya.' }, roles: ['down', 'secondary', 'secondary'], writing: null, lag: [0, 0, 0], election: false },
+      { caption: { en: 'The remaining members hold an ELECTION. This is why an odd number matters.', hi: 'Bache members ek CHUNAAV karte hain. Isiliye vishham sankhya matter karti hai.' }, roles: ['down', 'secondary', 'secondary'], writing: null, lag: [0, 0, 0], election: true },
+      { caption: { en: 'A secondary is promoted. The driver finds it automatically.', hi: 'Ek secondary promote hua. Driver use apne aap dhoondh leta hai.' }, roles: ['down', 'primary', 'secondary'], writing: 1, lag: [0, 0, 0], election: false },
+      { caption: { en: 'Reads from a secondary can be STALE — that is replication lag.', hi: 'Secondary se reads PURANE ho sakte hain — yahi replication lag hai.' }, roles: ['down', 'primary', 'secondary'], writing: 1, lag: [0, 0, 2], election: false, stale: true },
+    ],
+  },
 };
 
 export const ANIMATION_KEYS = Object.keys(SCRIPTS);
@@ -1385,8 +1466,201 @@ function GenericView({ s }) {
   );
 }
 
+/* ── Express / MongoDB renderers ────────────────────────────── */
+
+const MW_LAYERS = ['logger', 'express.json()', 'authenticate', 'GET /users', 'errorHandler'];
+
+function MiddlewareView({ s }) {
+  return (
+    <div className="space-y-1.5">
+      {MW_LAYERS.map((m, i) => {
+        const isErrLayer = i === 4;
+        const active = s.at === i;
+        const passed = s.done.includes(i);
+        const skipped = s.err && !isErrLayer && i > s.at && s.at !== -2;
+        return (
+          <div key={m}>
+            <div
+              className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 transition-all duration-300 ${
+                active
+                  ? s.err && isErrLayer
+                    ? 'border-red-400 bg-red-50 dark:border-red-700 dark:bg-red-950/40'
+                    : 'border-indigo-500 bg-indigo-600 text-white'
+                  : passed
+                    ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/40'
+                    : skipped
+                      ? 'border-slate-200 bg-white opacity-40 dark:border-slate-800 dark:bg-slate-900'
+                      : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900'
+              }`}
+            >
+              <span className={`font-mono text-[10px] ${active ? 'text-white/70' : 'text-slate-400'}`}>{i + 1}</span>
+              <span className={`font-mono text-[11px] ${active ? 'font-semibold' : 'text-slate-700 dark:text-slate-200'}`}>
+                {m}
+              </span>
+              {isErrLayer && !active && (
+                <span className="ml-auto text-[9px] uppercase tracking-wider text-slate-400">errors only</span>
+              )}
+              {passed && <span className="ml-auto text-[10px] text-emerald-600 dark:text-emerald-400">next() ✓</span>}
+              {skipped && <span className="ml-auto text-[10px] text-slate-400">skipped</span>}
+            </div>
+            {i < MW_LAYERS.length - 1 && (
+              <p className="py-0.5 text-center text-[10px] text-slate-300">↓</p>
+            )}
+          </div>
+        );
+      })}
+      {s.res && (
+        <p
+          className={`rounded-lg py-1.5 text-center font-mono text-[11px] font-bold ${
+            s.err
+              ? 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300'
+              : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+          }`}
+        >
+          response sent · {s.res}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function MongoIndexView({ s }) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <span
+          className={`rounded px-2 py-0.5 text-[10px] font-bold ${
+            s.indexed
+              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+              : 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300'
+          }`}
+        >
+          {s.indexed ? 'index on email' : 'no index'}
+        </span>
+        {s.plan && (
+          <span className="font-mono text-[10.5px] text-slate-500 dark:text-slate-400">{s.plan}</span>
+        )}
+      </div>
+
+      <div className="grid grid-cols-10 gap-1">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div
+            key={i}
+            className={`h-6 rounded transition-all duration-300 ${
+              s.found && i === s.scanned - 1
+                ? 'bg-emerald-500'
+                : i < s.scanned
+                  ? s.indexed
+                    ? 'bg-indigo-400'
+                    : 'bg-amber-400'
+                  : 'bg-slate-200 dark:bg-slate-700'
+            }`}
+          />
+        ))}
+      </div>
+
+      <p className="text-center text-[11px] text-slate-500 dark:text-slate-400">
+        documents examined:{' '}
+        <span className="font-mono font-bold text-slate-800 dark:text-slate-100">
+          {s.indexed ? (s.found ? '1' : '…') : s.found ? '1,000,000' : (s.scanned * 100000).toLocaleString()}
+        </span>
+      </p>
+
+      {s.cost && (
+        <p className="rounded-md bg-amber-50 px-2 py-1.5 text-center text-[10.5px] text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+          every index costs storage and slows writes — do not add them blindly
+        </p>
+      )}
+    </div>
+  );
+}
+
+const AGG_STAGES = ['$match', '$group', '$sort', '$limit'];
+
+function PipelineView({ s }) {
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-4 gap-1.5">
+        {AGG_STAGES.map((st, i) => (
+          <div
+            key={st}
+            className={`rounded-md border px-1 py-1.5 text-center font-mono text-[10.5px] font-semibold transition-all duration-300 ${
+              s.stage === i
+                ? 'border-indigo-500 bg-indigo-600 text-white'
+                : s.stage > i
+                  ? 'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
+                  : 'border-slate-200 bg-white text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-600'
+            }`}
+          >
+            {st}
+          </div>
+        ))}
+      </div>
+
+      <div className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-center dark:border-slate-700 dark:bg-slate-900">
+        <p className="font-mono text-[18px] font-bold text-indigo-600 dark:text-indigo-400">
+          {s.count.toLocaleString()}
+        </p>
+        <p className="text-[10px] uppercase tracking-wider text-slate-400">
+          {s.shape === 'orders' ? 'order documents' : 'grouped totals'}
+        </p>
+      </div>
+
+      {s.note && (
+        <p className="text-center text-[10.5px] text-emerald-600 dark:text-emerald-400">{s.note}</p>
+      )}
+      {s.bad && (
+        <p className="rounded-md bg-red-50 px-2 py-1.5 text-center text-[10.5px] text-red-700 dark:bg-red-950/40 dark:text-red-300">
+          $match last → $group would process all 10,000
+        </p>
+      )}
+    </div>
+  );
+}
+
+function ReplicaView({ s }) {
+  const tone = {
+    primary: 'border-indigo-500 bg-indigo-600 text-white',
+    secondary: 'border-slate-200 bg-white text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300',
+    down: 'border-red-400 bg-red-50 text-red-700 line-through dark:border-red-700 dark:bg-red-950/40 dark:text-red-300',
+  };
+  return (
+    <div className="space-y-2">
+      {s.election && (
+        <p className="rounded-md bg-amber-50 px-2 py-1 text-center text-[10.5px] font-semibold text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+          election in progress…
+        </p>
+      )}
+      <div className="grid grid-cols-3 gap-1.5">
+        {s.roles.map((role, i) => (
+          <div
+            key={i}
+            className={`rounded-lg border px-1 py-2 text-center transition-all duration-300 ${tone[role]}`}
+          >
+            <p className="text-[10px] font-bold uppercase tracking-wider opacity-80">{role}</p>
+            <p className="font-mono text-[10.5px]">host{i + 1}</p>
+            {s.writing === i && <p className="mt-0.5 text-[9px]">← writes</p>}
+            {s.lag[i] > 0 && role !== 'down' && (
+              <p className="mt-0.5 text-[9px] text-amber-500">lag {s.lag[i]}s</p>
+            )}
+          </div>
+        ))}
+      </div>
+      {s.stale && (
+        <p className="rounded-md bg-amber-50 px-2 py-1.5 text-center text-[10.5px] text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+          read-after-write from a secondary may miss your own change
+        </p>
+      )}
+    </div>
+  );
+}
+
 const VIEWS = {
   stack: StackView,
+  middleware: MiddlewareView,
+  mongoindex: MongoIndexView,
+  pipeline: PipelineView,
+  replica: ReplicaView,
   narrow: NarrowView,
   erasure: ErasureView,
   structural: StructuralView,
