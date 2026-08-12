@@ -385,6 +385,89 @@ bus.emit('order', 42);`,
       { caption: { en: 'React 18 batches inside promises and timeouts too — React 17 did not.', hi: 'React 18 promises aur timeouts mein bhi batch karta hai — React 17 nahi karta tha.' }, queued: [], renders: 1, note: null },
     ],
   },
+  /* Watching a union shrink as checks rule members out. */
+  'type-narrowing': {
+    title: { en: 'Type narrowing', hi: 'Type narrowing' },
+    code: `function format(v: string | number | null) {
+  if (v === null) return 'none';
+  if (typeof v === 'string') return v.trim();
+  return v.toFixed(2);
+}`,
+    kind: 'narrow',
+    steps: [
+      { caption: { en: 'The parameter starts as a union of three possible types.', hi: 'Parameter teen sambhav types ke union se shuru hota hai.' }, members: ['string', 'number', 'null'], active: null, check: null, can: [] },
+      { caption: { en: 'The first check tests for null.', hi: 'Pehli jaanch null ke liye hai.' }, members: ['string', 'number', 'null'], active: 'null', check: 'v === null', can: [] },
+      { caption: { en: 'Inside that branch v is only null. After it, null is removed.', hi: 'Us branch ke andar v sirf null hai. Uske baad null hat jaata hai.' }, members: ['string', 'number'], active: null, check: null, can: [] },
+      { caption: { en: 'typeof narrows again — this branch is string only.', hi: 'typeof phir se saankra karta hai — ye branch sirf string hai.' }, members: ['string', 'number'], active: 'string', check: "typeof v === 'string'", can: ['.trim()', '.toUpperCase()'] },
+      { caption: { en: 'So .trim() is allowed here, though it would fail on a number.', hi: 'Isliye yahan .trim() chalta hai, chahe number pe fail hota.' }, members: ['string', 'number'], active: 'string', check: "typeof v === 'string'", can: ['.trim()', '.toUpperCase()'] },
+      { caption: { en: 'Everything else has been ruled out, so v must be a number.', hi: 'Baaki sab hat gaya, isliye v zaroor number hai.' }, members: ['number'], active: 'number', check: 'else', can: ['.toFixed()', '.toString()'] },
+      { caption: { en: 'TypeScript follows your control flow. You did not write a single type annotation inside.', hi: 'TypeScript tumhare control flow ko follow karta hai. Tumne andar ek bhi type nahi likha.' }, members: ['number'], active: 'number', check: 'else', can: ['.toFixed()', '.toString()'] },
+    ],
+  },
+
+  /* The single biggest TypeScript misconception. */
+  'type-erasure': {
+    title: { en: 'Compile time vs runtime', hi: 'Compile time vs runtime' },
+    code: `interface User { id: number; name: string }
+
+function greet(u: User): string {
+  return 'Hi ' + u.name;
+}
+
+// After compiling, ALL of the types are gone.`,
+    kind: 'erasure',
+    steps: [
+      { caption: { en: 'You write TypeScript. The types are right there in the source.', hi: 'Tum TypeScript likhte ho. Types source mein saaf dikhte hain.' }, stage: 'source', checked: false },
+      { caption: { en: 'tsc checks everything: does u really have a name? Is the return a string?', hi: 'tsc sab jaanchta hai: kya u ke paas sach mein name hai? Kya return string hai?' }, stage: 'check', checked: true },
+      { caption: { en: 'Then it ERASES every type and emits plain JavaScript.', hi: 'Phir ye har type MITA deta hai aur saada JavaScript nikaalta hai.' }, stage: 'emit', checked: true },
+      { caption: { en: 'This is what actually runs. No interface, no annotations, nothing.', hi: 'Yahi actually chalta hai. Na interface, na annotations, kuch nahi.' }, stage: 'runtime', checked: true },
+      { caption: { en: 'So types CANNOT validate data that arrives at runtime.', hi: 'Isliye types un data ko jaanch NAHI sakte jo chalte waqt aata hai.' }, stage: 'runtime', checked: true, danger: true },
+      { caption: { en: 'An API can send anything. TypeScript believed you and checked nothing.', hi: 'Ek API kuch bhi bhej sakta hai. TypeScript ne tum pe bharosa kiya aur kuch nahi jaancha.' }, stage: 'runtime', checked: true, danger: true },
+      { caption: { en: 'For real data you need a runtime validator — Zod, Valibot — not a type.', hi: 'Asli data ke liye ek runtime validator chahiye — Zod, Valibot — type nahi.' }, stage: 'runtime', checked: true, fixed: true },
+    ],
+  },
+
+  /* Shapes match, names do not matter. */
+  'structural-typing': {
+    title: { en: 'Structural typing', hi: 'Structural typing' },
+    code: `interface Point { x: number; y: number }
+
+function draw(p: Point) { /* … */ }
+
+const dot = { x: 1, y: 2 };            // never mentions Point
+draw(dot);                             // ✅ accepted`,
+    kind: 'structural',
+    steps: [
+      { caption: { en: 'Point requires two members: x and y, both numbers.', hi: 'Point ko do member chahiye: x aur y, dono number.' }, need: ['x: number', 'y: number'], have: [], verdict: null },
+      { caption: { en: 'dot never declares that it implements Point.', hi: 'dot kabhi nahi kehta ki wo Point implement karta hai.' }, need: ['x: number', 'y: number'], have: ['x: number', 'y: number'], verdict: null },
+      { caption: { en: 'TypeScript compares SHAPES, not names. Both members are present.', hi: 'TypeScript AAKAAR compare karta hai, naam nahi. Dono member maujood hain.' }, need: ['x: number', 'y: number'], have: ['x: number', 'y: number'], verdict: 'ok' },
+      { caption: { en: 'Extra members are fine too — it only needs to have AT LEAST the required ones.', hi: 'Extra member bhi theek hain — use bas KAM SE KAM zaroori wale chahiye.' }, need: ['x: number', 'y: number'], have: ['x: number', 'y: number', 'z: number'], verdict: 'ok' },
+      { caption: { en: 'A missing member fails, whatever the object is called.', hi: 'Ek gayab member fail karta hai, object ka naam chahe kuch bhi ho.' }, need: ['x: number', 'y: number'], have: ['x: number'], verdict: 'fail' },
+      { caption: { en: 'The one exception: an object LITERAL passed directly gets excess property checking.', hi: 'Ek apwaad: seedha diya gaya object LITERAL extra property jaanch se guzarta hai.' }, need: ['x: number', 'y: number'], have: ['x: number', 'y: number', 'colour'], verdict: 'literal' },
+      { caption: { en: 'Java and C# use NOMINAL typing — there you must declare "implements Point".', hi: 'Java aur C# NOMINAL typing use karte hain — wahan "implements Point" likhna padta hai.' }, need: ['x: number', 'y: number'], have: ['x: number', 'y: number'], verdict: 'ok' },
+    ],
+  },
+
+  /* Where T actually comes from. */
+  'generics-flow': {
+    title: { en: 'How generics infer', hi: 'Generics kaise samajhte hain' },
+    code: `function first<T>(items: T[]): T | undefined {
+  return items[0];
+}
+
+first([1, 2, 3]);          // T = number
+first(['a', 'b']);         // T = string`,
+    kind: 'generic',
+    steps: [
+      { caption: { en: 'T is a placeholder. It has no value until the function is called.', hi: 'T ek khaali jagah hai. Function call hone tak iski koi value nahi.' }, t: null, arg: null, ret: null },
+      { caption: { en: 'You call it with number[]. TypeScript looks at the argument.', hi: 'Tum ise number[] ke saath call karte ho. TypeScript argument dekhta hai.' }, t: null, arg: 'number[]', ret: null },
+      { caption: { en: 'The parameter is T[], the argument is number[], so T must be number.', hi: 'Parameter T[] hai, argument number[] hai, isliye T zaroor number hai.' }, t: 'number', arg: 'number[]', ret: null },
+      { caption: { en: 'T flows into the return type: number | undefined.', hi: 'T return type mein behta hai: number | undefined.' }, t: 'number', arg: 'number[]', ret: 'number | undefined' },
+      { caption: { en: 'Call it with strings and the whole thing re-infers.', hi: 'Strings ke saath call karo aur poora dobara samjha jaata hai.' }, t: 'string', arg: 'string[]', ret: 'string | undefined' },
+      { caption: { en: 'That is the point: ONE function, and the types stay exact for every caller.', hi: 'Yahi baat hai: EK function, aur har caller ke liye types theek rehte hain.' }, t: 'string', arg: 'string[]', ret: 'string | undefined' },
+      { caption: { en: 'Compare any[]: it would accept everything and lose the type on the way out.', hi: 'any[] se tulna karo: wo sab kuch le leta aur nikalte waqt type kho deta.' }, t: 'any', arg: 'any[]', ret: 'any', bad: true },
+    ],
+  },
 };
 
 export const ANIMATION_KEYS = Object.keys(SCRIPTS);
@@ -1104,8 +1187,210 @@ function BatchingView({ s }) {
   );
 }
 
+/* ── TypeScript-specific renderers ──────────────────────────── */
+
+function NarrowView({ s }) {
+  const all = ['string', 'number', 'null'];
+  return (
+    <div className="space-y-2">
+      {s.check && (
+        <p className="text-center font-mono text-[11px] text-indigo-600 dark:text-indigo-400">
+          {s.check}
+        </p>
+      )}
+      <div className="flex justify-center gap-1.5">
+        {all.map((t) => {
+          const gone = !s.members.includes(t);
+          const on = s.active === t;
+          return (
+            <div
+              key={t}
+              className={`rounded-md border px-2.5 py-1.5 font-mono text-[11px] transition-all duration-300 ${
+                gone
+                  ? 'border-slate-200 bg-white text-slate-300 line-through dark:border-slate-800 dark:bg-slate-900 dark:text-slate-700'
+                  : on
+                    ? 'border-indigo-500 bg-indigo-600 font-semibold text-white'
+                    : 'border-slate-200 bg-white text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+              }`}
+            >
+              {t}
+            </div>
+          );
+        })}
+      </div>
+      <p className="text-center text-[10px] text-slate-400">
+        v is {s.active ? s.active : s.members.join(' | ')}
+      </p>
+      {s.can.length > 0 && (
+        <div className="flex justify-center gap-1.5">
+          {s.can.map((c) => (
+            <span
+              key={c}
+              className="rounded bg-emerald-50 px-2 py-0.5 font-mono text-[10.5px] text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
+            >
+              ✓ {c}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ErasureView({ s }) {
+  const stages = ['source', 'check', 'emit', 'runtime'];
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-4 gap-1.5">
+        {stages.map((st) => (
+          <div
+            key={st}
+            className={`rounded-md border px-1 py-1.5 text-center text-[10px] font-semibold capitalize transition-all duration-300 ${
+              s.stage === st
+                ? 'border-indigo-500 bg-indigo-600 text-white'
+                : 'border-slate-200 bg-white text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-600'
+            }`}
+          >
+            {st}
+          </div>
+        ))}
+      </div>
+
+      <pre className="overflow-x-auto rounded-lg bg-slate-900 px-3 py-2 font-mono text-[11px] leading-relaxed text-slate-200">
+        <code>
+          {s.stage === 'source' || s.stage === 'check'
+            ? 'interface User { id: number; name: string }\n\nfunction greet(u: User): string {\n  return \'Hi \' + u.name;\n}'
+            : 'function greet(u) {\n  return \'Hi \' + u.name;\n}'}
+        </code>
+      </pre>
+
+      {s.stage === 'emit' && (
+        <p className="text-center text-[10.5px] text-amber-600 dark:text-amber-400">
+          the interface and every annotation are gone
+        </p>
+      )}
+
+      {s.danger && (
+        <div className="rounded-lg border border-red-300 bg-red-50 px-2.5 py-2 dark:border-red-800 dark:bg-red-950/40">
+          <p className="font-mono text-[10.5px] text-red-700 dark:text-red-300">
+            const u = await res.json();   // typed User, actually {'{}'}
+          </p>
+          <p className="mt-0.5 font-mono text-[10.5px] text-red-700 dark:text-red-300">
+            greet(u) → &quot;Hi undefined&quot;
+          </p>
+        </div>
+      )}
+
+      {s.fixed && (
+        <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-2.5 py-2 dark:border-emerald-800 dark:bg-emerald-950/40">
+          <p className="font-mono text-[10.5px] text-emerald-700 dark:text-emerald-300">
+            const u = UserSchema.parse(await res.json());  ✓
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StructuralView({ s }) {
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="rounded-lg border border-indigo-300 bg-indigo-50 p-2 dark:border-indigo-800 dark:bg-indigo-950/40">
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-indigo-500">Point needs</p>
+          {s.need.map((n) => (
+            <p key={n} className="font-mono text-[10.5px] text-indigo-700 dark:text-indigo-300">{n}</p>
+          ))}
+        </div>
+        <div className="rounded-lg border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-900">
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">dot has</p>
+          {s.have.length === 0 ? (
+            <p className="text-[10.5px] text-slate-300">—</p>
+          ) : (
+            s.have.map((h) => {
+              const extra = !s.need.includes(h);
+              return (
+                <p
+                  key={h}
+                  className={`font-mono text-[10.5px] ${
+                    extra ? 'text-amber-600 dark:text-amber-400' : 'text-slate-700 dark:text-slate-200'
+                  }`}
+                >
+                  {h}{extra && ' ←extra'}
+                </p>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {s.verdict && (
+        <p
+          className={`rounded-lg py-1.5 text-center font-mono text-[11px] font-bold ${
+            s.verdict === 'ok'
+              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+              : s.verdict === 'literal'
+                ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
+                : 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300'
+          }`}
+        >
+          {s.verdict === 'ok'
+            ? '✓ assignable'
+            : s.verdict === 'literal'
+              ? '⚠ object literal → excess property error'
+              : '✗ missing y'}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function GenericView({ s }) {
+  return (
+    <div className="space-y-2">
+      <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-center dark:border-slate-700 dark:bg-slate-900">
+        <span className="font-mono text-[11px] text-slate-500">T = </span>
+        <span
+          className={`font-mono text-[13px] font-bold ${
+            s.bad
+              ? 'text-red-600 dark:text-red-400'
+              : s.t
+                ? 'text-indigo-600 dark:text-indigo-400'
+                : 'text-slate-300'
+          }`}
+        >
+          {s.t || '?'}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div className="rounded-lg border border-slate-200 bg-white p-2 text-center dark:border-slate-700 dark:bg-slate-900">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">argument</p>
+          <p className="font-mono text-[11px] text-slate-700 dark:text-slate-200">{s.arg || '—'}</p>
+        </div>
+        <div className="rounded-lg border border-slate-200 bg-white p-2 text-center dark:border-slate-700 dark:bg-slate-900">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">returns</p>
+          <p className={`font-mono text-[11px] ${s.bad ? 'text-red-600 dark:text-red-400' : 'text-slate-700 dark:text-slate-200'}`}>
+            {s.ret || '—'}
+          </p>
+        </div>
+      </div>
+
+      {s.bad && (
+        <p className="rounded-md bg-red-50 px-2 py-1.5 text-center text-[10.5px] text-red-700 dark:bg-red-950/40 dark:text-red-300">
+          any throws the type away — no autocomplete, no safety
+        </p>
+      )}
+    </div>
+  );
+}
+
 const VIEWS = {
   stack: StackView,
+  narrow: NarrowView,
+  erasure: ErasureView,
+  structural: StructuralView,
+  generic: GenericView,
   renderflow: RenderFlowView,
   keys: KeysView,
   hooks: HooksView,
