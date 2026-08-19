@@ -3478,4 +3478,2525 @@ o[u] = 'x';
 o;            // { 'user-7': 'x' }`,
     },
   ],
+
+  /* ─── Types, values and coercion ──────────────────────────── */
+
+  'What is JavaScript?': [
+    {
+      heading: { en: 'The one-line definition', hi: 'Ek line ki definition' },
+      body: {
+        en: 'JavaScript is a high-level, dynamically typed, interpreted-and-JIT-compiled language that follows the ECMAScript standard. It is single-threaded, supports objects through prototypes, and treats functions as first-class values. Every word there is worth being able to defend.',
+        hi: 'JavaScript ek high-level, dynamically typed, interpreted-aur-JIT-compiled language hai jo ECMAScript standard follow karti hai. Ye single-threaded hai, objects prototypes se sambhaalti hai, aur functions ko first-class values maanti hai. Har shabd ka bachaav kar paana zaroori hai.',
+      },
+    },
+    {
+      heading: { en: 'Dynamically typed, not untyped', hi: 'Dynamically typed, untyped nahi' },
+      body: {
+        en: 'Values have types; variables do not. A name can hold a number now and a string a line later, and the type is checked when the code runs rather than before. That is flexibility and it is also why a typo surfaces at runtime instead of at compile time.',
+        hi: 'Values ke types hote hain; variables ke nahi. Ek naam abhi number rakh sakta hai aur agli line pe string, aur type code chalte waqt check hota hai, pehle nahi. Ye lachak hai aur isiliye koi typo compile time ki jagah runtime pe saamne aata hai.',
+      },
+      code: `let x = 42;      typeof x;   // 'number'
+x = 'hello';     typeof x;   // 'string'  — no error`,
+    },
+    {
+      heading: { en: 'Not interpreted line by line any more', hi: 'Ab line-by-line interpreted nahi' },
+      body: {
+        en: 'The old description is out of date. A modern engine parses the source into an AST, compiles it to bytecode, runs that, watches which functions run often, and recompiles those into optimised machine code. Calling it "just interpreted" in an interview is a small red flag.',
+        hi: 'Purana varnan ab sahi nahi hai. Modern engine source ko AST mein parse karta hai, bytecode mein compile karta hai, use chalata hai, dekhta hai kaunse functions zyada chalte hain, aur unhe optimised machine code mein dobara compile karta hai. Interview mein isse "bas interpreted" kehna chhota sa red flag hai.',
+      },
+      diagram: `source → parser → AST → bytecode → run
+                              │
+                        hot code found
+                              ▼
+                      optimised machine code`,
+    },
+    {
+      heading: { en: 'It runs far more than browsers now', hi: 'Ab ye browsers se kahin zyada jagah chalti hai' },
+      body: {
+        en: 'The language is separate from where it runs. Browsers give it the DOM and fetch; Node and Deno give it files and sockets; it also runs on servers, in mobile apps through React Native, on the desktop through Electron, and at the edge in Cloudflare Workers.',
+        hi: 'Language uss jagah se alag hai jahan wo chalti hai. Browsers usse DOM aur fetch dete hain; Node aur Deno files aur sockets; ye servers pe bhi chalti hai, React Native se mobile apps mein, Electron se desktop pe, aur Cloudflare Workers mein edge pe.',
+      },
+    },
+    {
+      heading: { en: 'Nothing to do with Java', hi: 'Java se koi lena-dena nahi' },
+      body: {
+        en: 'The name was a marketing decision in 1995. The two languages differ in typing, in their object model, in threading and in how they compile. Being asked about the relationship is common, and the answer is simply that there is none.',
+        hi: '1995 mein naam ek marketing faisla tha. Dono languages typing mein, object model mein, threading mein aur compile hone ke tareeke mein alag hain. Rishte ke baare mein poochha jaana aam hai, aur jawab bas itna hai ki koi rishta hai hi nahi.',
+      },
+    },
+  ],
+
+  'What are the data types in JavaScript?': [
+    {
+      heading: { en: 'Seven primitives and one object type', hi: 'Saat primitives aur ek object type' },
+      body: {
+        en: 'The primitives are string, number, boolean, undefined, null, symbol and bigint. Everything else — arrays, functions, dates, regexes, Maps — is an object. That is the entire type system, and being able to list all eight is half the question.',
+        hi: 'Primitives hain string, number, boolean, undefined, null, symbol aur bigint. Baaki sab kuch — arrays, functions, dates, regexes, Maps — object hai. Yahi poora type system hai, aur aathon gina dena aadha sawaal hai.',
+      },
+      diagram: `PRIMITIVES (7)              OBJECTS (1 type, many forms)
+string                      Object
+number                      Array
+boolean                     Function
+undefined                   Date, RegExp
+null                        Map, Set, WeakMap, WeakSet
+symbol                      Promise, Error
+bigint                      …`,
+    },
+    {
+      heading: { en: 'Primitives are immutable and copied by value', hi: 'Primitives immutable hain aur value se copy hote hain' },
+      body: {
+        en: 'You cannot change a primitive; you can only replace it. String methods look like mutation but always return a new string. And assigning a primitive copies the value, so the two names are fully independent afterwards.',
+        hi: 'Primitive ko badal nahi sakte; sirf badal kar naya rakh sakte ho. String methods mutation jaise dikhte hain par hamesha nayi string dete hain. Aur primitive assign karne se value copy hoti hai, toh dono naam uske baad poori tarah alag hain.',
+      },
+      code: `let s = 'hi';
+s.toUpperCase();   // 'HI'
+s;                 // 'hi' — unchanged
+
+let a = 1, b = a;
+b = 2;
+a;                 // 1 — independent`,
+    },
+    {
+      heading: { en: 'One number type, and what that costs', hi: 'Ek hi number type, aur uski keemat' },
+      body: {
+        en: 'There is no separate int and float — every number is a 64-bit IEEE-754 double. That gives exact integers only up to 2^53-1, and makes 0.1 + 0.2 famously not 0.3. bigint exists for integers beyond that range.',
+        hi: 'Alag int aur float nahi hain — har number 64-bit IEEE-754 double hai. Isse theek integers sirf 2^53-1 tak milte hain, aur isi wajah se 0.1 + 0.2 mashhoor taur pe 0.3 nahi hota. Us range se aage ke integers ke liye bigint hai.',
+      },
+      code: `0.1 + 0.2;                    // 0.30000000000000004
+Number.MAX_SAFE_INTEGER;      // 9007199254740991
+9007199254740993;             // 9007199254740992  ✗ lost precision
+
+9007199254740993n;            // ✓ exact, as a bigint
+1n + 1;                       // ✗ TypeError — cannot mix with number`,
+    },
+    {
+      heading: { en: 'typeof lies twice', hi: 'typeof do jagah jhooth bolta hai' },
+      body: {
+        en: 'typeof null returns "object" — a bug from the first implementation, kept for compatibility. And typeof a function returns "function" even though functions are objects. Know both, because they are asked constantly.',
+        hi: 'typeof null "object" deta hai — pehle implementation ka bug, compatibility ke liye rakha gaya. Aur function pe typeof "function" deta hai, jabki functions objects hi hain. Dono jaano, kyunki ye lagataar poochhe jaate hain.',
+      },
+      code: `typeof null;         // 'object'    ✗ the famous bug
+typeof function(){}; // 'function'  — a special case
+typeof [];           // 'object'    — use Array.isArray
+typeof NaN;          // 'number'    — it IS a number`,
+    },
+    {
+      heading: { en: 'Why primitives seem to have methods', hi: 'Primitives ke paas methods kaise dikhte hain' },
+      body: {
+        en: 'A primitive has no properties. When you write "hi".length, the engine temporarily wraps it in a String object, reads the property, and throws the wrapper away. That is autoboxing, and it explains why assigning a property to a primitive silently does nothing.',
+        hi: 'Primitive ke paas properties nahi hoti. Jab tum "hi".length likhte ho, engine usse thodi der ke liye String object mein lapetta hai, property padhta hai, aur wrapper phenk deta hai. Yahi autoboxing hai, aur isi se pata chalta hai ki primitive pe property assign karna chup-chaap kuch kyun nahi karta.',
+      },
+      code: `'hi'.length;        // 2 — a temporary String wrapper
+
+let s = 'hi';
+s.custom = 1;
+s.custom;           // undefined — the wrapper was discarded`,
+    },
+    {
+      heading: { en: 'Symbol and bigint in one line each', hi: 'Symbol aur bigint, ek-ek line mein' },
+      body: {
+        en: 'A symbol is a guaranteed-unique value used as a non-colliding property key — two symbols with the same description are still different. A bigint is an arbitrary-precision integer, written with an n suffix, and it never mixes with regular numbers in arithmetic.',
+        hi: 'Symbol ek guaranteed-unique value hai jo bina takraav wali property key ki tarah use hoti hai — same description wale do symbols bhi alag hain. Bigint ek arbitrary-precision integer hai, n suffix ke saath likha jaata hai, aur arithmetic mein aam numbers ke saath kabhi nahi milta.',
+      },
+      code: `Symbol('id') === Symbol('id');   // false — always unique
+typeof 10n;                      // 'bigint'`,
+    },
+  ],
+
+  'What is the difference between == and ===?': [
+    {
+      heading: { en: 'One converts, the other does not', hi: 'Ek convert karta hai, doosra nahi' },
+      body: {
+        en: '=== compares type and value with no conversion: different types means false, immediately. == will convert one or both operands to a common type first, and only then compare. That single extra step is the entire difference.',
+        hi: '=== type aur value dono compare karta hai, bina kisi conversion ke: types alag hue toh turant false. == pehle ek ya dono operands ko ek common type mein badal deta hai, aur tabhi compare karta hai. Bas wahi ek extra kadam poora farq hai.',
+      },
+      code: `5 === '5';   // false — number vs string, done
+5 ==  '5';   // true  — '5' becomes 5, then 5 === 5`,
+    },
+    {
+      heading: { en: 'The conversion rules, in the order they apply', hi: 'Conversion ke rules, jis kram mein lagte hain' },
+      body: {
+        en: 'Same type falls through to ===. null == undefined is true and neither equals anything else. Number versus string converts the string to a number. Boolean is converted to a number first. And object versus primitive converts the object with valueOf then toString.',
+        hi: 'Same type ho toh seedha === chalta hai. null == undefined true hai aur ye kisi aur ke barabar nahi. Number aur string ho toh string number ban jaati hai. Boolean pehle number banta hai. Aur object aur primitive ho toh object valueOf phir toString se convert hota hai.',
+      },
+      diagram: `x == y
+
+same type?          → use ===
+null vs undefined?  → true
+number vs string?   → ToNumber(string)
+boolean involved?   → ToNumber(boolean) first
+object vs primitive?→ ToPrimitive(object), then retry
+otherwise           → false`,
+    },
+    {
+      heading: { en: 'The results people cannot predict', hi: 'Wo nateeje jo log guess nahi kar paate' },
+      body: {
+        en: 'Every one of these follows the rules above, and every one of them looks wrong. This is the concrete argument for banning ==: the rules are learnable but nobody applies them correctly under pressure.',
+        hi: 'In sabme upar wale rules hi lagte hain, aur ye sab galat dikhte hain. == band karne ki thos wajah yahi hai: rules seekhe ja sakte hain par dabaav mein koi bhi unhe theek se nahi lagata.',
+      },
+      code: `0 == '';           // true   '' → 0
+0 == '0';          // true   '0' → 0
+'' == '0';         // false  both strings, not equal
+false == '0';      // true   both → 0
+null == 0;         // false  null only equals undefined
+[] == false;       // true   [] → '' → 0
+[] == ![];         // true   ![] is false → 0, [] → 0`,
+    },
+    {
+      heading: { en: 'The one place == earns its keep', hi: 'Ek jagah jahan == apni jagah banata hai' },
+      body: {
+        en: 'x == null is true for exactly null and undefined and nothing else. It is a genuinely useful shorthand, and most lint configs allow it explicitly while banning == everywhere else.',
+        hi: 'x == null theek null aur undefined ke liye true hai, aur kisi aur ke liye nahi. Ye sach mein kaam ka shortcut hai, aur zyadatar lint configs isse chhoot dete hain jabki baaki har jagah == band kar dete hain.',
+      },
+      code: `if (value == null) { /* null or undefined */ }
+// same as: value === null || value === undefined
+
+// eslint: eqeqeq with { null: 'ignore' }`,
+    },
+    {
+      heading: { en: 'Where === also surprises you', hi: 'Jahan === bhi chaunkata hai' },
+      body: {
+        en: 'Strict equality has two quirks of its own. NaN is not equal to itself, and 0 === -0 is true. Object.is fixes both, and Number.isNaN is the right test for NaN.',
+        hi: 'Strict equality ki apni do ajeeb baatein hain. NaN khud ke barabar nahi hai, aur 0 === -0 true hai. Object.is dono theek karta hai, aur NaN ke liye sahi test Number.isNaN hai.',
+      },
+      code: `NaN === NaN;          // false
+Number.isNaN(NaN);    // true  ✓
+
+0 === -0;             // true
+Object.is(0, -0);     // false
+Object.is(NaN, NaN);  // true`,
+    },
+    {
+      heading: { en: 'Objects compare by reference either way', hi: 'Objects dono tarah reference se compare hote hain' },
+      body: {
+        en: 'Neither operator looks inside an object. Two identical-looking literals are never equal, because they are two different references. Comparing contents needs your own check or a deep-equal helper.',
+        hi: 'Koi bhi operator object ke andar nahi jhaankta. Dikhne mein same do literals kabhi barabar nahi, kyunki wo do alag references hain. Content compare karne ke liye apna check ya deep-equal helper chahiye.',
+      },
+      code: `{ a: 1 } === { a: 1 };   // false
+[1] === [1];             // false
+
+const x = { a: 1 };
+x === x;                 // true — same reference`,
+    },
+  ],
+
+  'What are truthy and falsy values?': [
+    {
+      heading: { en: 'Every value answers yes or no', hi: 'Har value haan ya na kehti hai' },
+      body: {
+        en: 'Wherever JavaScript needs a boolean — an if, a while, ||, &&, ! — it runs an internal ToBoolean conversion on whatever you gave it. Values that convert to false are falsy; everything else is truthy. There is no third option.',
+        hi: 'Jahan bhi JavaScript ko boolean chahiye — if, while, ||, &&, ! — wo tumhari di hui cheez pe andar hi andar ToBoolean conversion chalata hai. Jo false banti hain wo falsy hain; baaki sab truthy. Teesra option hai hi nahi.',
+      },
+      code: `if (value)        { }    // ToBoolean(value)
+while (value)     { }
+value ? a : b;
+!value;
+Boolean(value);          // the same conversion, explicit`,
+    },
+    {
+      heading: { en: 'The falsy list is short and closed', hi: 'Falsy ki list chhoti aur band hai' },
+      body: {
+        en: 'Eight values: false, 0, -0, 0n, "", null, undefined, NaN. Memorise them, because the truthy set is defined as "everything else" — you cannot learn it by listing.',
+        hi: 'Aath values: false, 0, -0, 0n, "", null, undefined, NaN. Inhe yaad karo, kyunki truthy ka matlab hi "baaki sab" hai — usse gina kar nahi seekha ja sakta.',
+      },
+      diagram: `FALSY (exactly 8)        TRUTHY (everything else)
+false                    true
+0   -0   0n              any non-zero number
+""                       any non-empty string, incl "0" "false"
+null                     []   {}   function(){}
+undefined                new Boolean(false)
+NaN                      Infinity, -Infinity`,
+    },
+    {
+      heading: { en: 'The truthy values that catch people', hi: 'Wo truthy values jo logon ko pakadti hain' },
+      body: {
+        en: 'Empty arrays and empty objects are truthy — they are objects, and every object is truthy without exception. The strings "0" and "false" are truthy because they are non-empty. So is a Boolean object wrapping false.',
+        hi: 'Khaali arrays aur khaali objects truthy hain — wo objects hain, aur har object bina apvaad truthy hai. Strings "0" aur "false" truthy hain kyunki wo non-empty hain. false ko lapetne wala Boolean object bhi truthy hai.',
+      },
+      code: `if ([])                {}   // ✓ runs
+if ({})                {}   // ✓ runs
+if ('false')           {}   // ✓ runs
+if (new Boolean(false)){}   // ✓ runs — it is an object
+
+// So test what you mean:
+if (arr.length)        {}   // ✓ non-empty array
+if (Object.keys(o).length) {}`,
+    },
+    {
+      heading: { en: 'Logical operators return values, not booleans', hi: 'Logical operators values dete hain, booleans nahi' },
+      body: {
+        en: 'This is the part most people only half know. || returns the first truthy operand, or the last one. && returns the first falsy operand, or the last one. Neither converts the result to a boolean — that is why they work as defaults and guards.',
+        hi: 'Yahi wo hissa hai jo zyadatar log aadha hi jaante hain. || pehla truthy operand deta hai, ya aakhri. && pehla falsy operand deta hai, ya aakhri. Koi bhi result ko boolean nahi banata — isiliye ye defaults aur guards ki tarah kaam karte hain.',
+      },
+      code: `'a' || 'b';      // 'a'
+''  || 'b';      // 'b'
+0   || 'b';      // 'b'
+
+'a' && 'b';      // 'b'
+''  && 'b';      // ''
+null && 'b';     // null`,
+    },
+    {
+      heading: { en: 'Why ?? exists', hi: '?? kyun hai' },
+      body: {
+        en: '|| falls back on ANY falsy value, so a real 0 or an empty string gets replaced by your default. ?? only falls back on null and undefined. For defaults, ?? is almost always what you actually meant.',
+        hi: '|| KISI BHI falsy value pe fallback le leta hai, toh asli 0 ya khaali string tumhare default se badal jaati hai. ?? sirf null aur undefined pe fallback leta hai. Defaults ke liye lagbhag hamesha ?? hi tumhara matlab tha.',
+      },
+      code: `const qty = 0;
+qty || 1;     // 1  ✗ zero was meaningful
+qty ?? 1;     // 0  ✓
+
+// ??= is the assignment form
+options.retries ??= 3;`,
+    },
+    {
+      heading: { en: 'Converting on purpose', hi: 'Jaan-boojh kar convert karna' },
+      body: {
+        en: 'Boolean(x) and !!x are identical; !! is just two negations and is idiomatic in JSX and in return statements. In readable code, prefer a check that states the condition rather than relying on truthiness.',
+        hi: 'Boolean(x) aur !!x bilkul ek hain; !! bas do negations hain aur JSX aur return statements mein aam hai. Padhne laayak code mein truthiness pe bharosa karne ki jagah aisa check likho jo shart saaf bataye.',
+      },
+      code: `!!'a';                 // true
+Boolean('a');          // true
+
+{items.length > 0 && <List />}   // ✓ in JSX
+{items.length && <List />}       // ✗ renders a literal 0`,
+    },
+  ],
+
+  'What is undefined?': [
+    {
+      heading: { en: 'The absence the language produces', hi: 'Wo khaalipan jo language khud banati hai' },
+      body: {
+        en: 'undefined is a primitive type with exactly one value, also called undefined. It means "no value was ever supplied here" — and crucially, it is what JAVASCRIPT hands you, not something you are meant to write yourself.',
+        hi: 'undefined ek primitive type hai jiski bilkul ek value hai, jise undefined hi kehte hain. Iska matlab hai "yahan koi value di hi nahi gayi" — aur asli baat ye hai ki ye JAVASCRIPT deta hai, ye kuch aisa nahi jo tumhe khud likhna ho.',
+      },
+      code: `typeof undefined;   // 'undefined'
+undefined === undefined;   // true — a single value`,
+    },
+    {
+      heading: { en: 'The exact places it appears', hi: 'Ye bilkul kahan-kahan aata hai' },
+      body: {
+        en: 'Six of them, and knowing the list means you will never be surprised by one: an unassigned variable, a missing parameter, a missing property, a function with no return, a void expression, and an array hole.',
+        hi: 'Chhah jagah, aur ye list pata ho toh kabhi surprise nahi hoga: bina assign kiya variable, na diya gaya parameter, na milne wali property, bina return wala function, void expression, aur array ka hole.',
+      },
+      code: `let a;                          // 1
+function f(p) { return p; } f();// 2
+({}).nope;                      // 3
+function g() {} g();            // 4
+void 0;                         // 5
+[1, , 3][1];                    // 6`,
+    },
+    {
+      heading: { en: 'Testing for it safely', hi: 'Isse safely test karna' },
+      body: {
+        en: 'Use === undefined, or typeof x === "undefined" when the variable might not be declared at all — typeof is the only form that will not throw on an undeclared name. Note that typeof does throw for a let or const still in its temporal dead zone.',
+        hi: 'x === undefined use karo, ya typeof x === "undefined" jab variable declare hi na hua ho — undeclared naam pe sirf typeof error nahi deta. Dhyaan raho, TDZ mein pade let ya const pe typeof error deta hai.',
+      },
+      code: `x === undefined;              // ✓ when x is declared
+typeof x === 'undefined';     // ✓ even when x does not exist
+
+value == null;                // ✓ catches null AND undefined`,
+    },
+    {
+      heading: { en: 'It used to be assignable', hi: 'Pehle isse assign kiya ja sakta tha' },
+      body: {
+        en: 'Before ES5, undefined was a writable global, so code could break it and old libraries used the void 0 trick or an unnamed parameter for safety. Today the global is read-only — but you can still shadow the name locally, which is why linters flag it.',
+        hi: 'ES5 se pehle undefined ek writable global tha, toh code usse tod sakta tha aur purani libraries safety ke liye void 0 ya bina naam ka parameter use karti thi. Aaj global read-only hai — par local scope mein naam abhi bhi dhaka ja sakta hai, isiliye linters isse pakadte hain.',
+      },
+      code: `undefined = 5;      // ignored — the global is read-only
+function f(undefined) { return undefined; }
+f(1);               // 1 ✗ the name is shadowed`,
+    },
+    {
+      heading: { en: 'JSON drops it', hi: 'JSON isse gira deta hai' },
+      body: {
+        en: 'JSON has no undefined. Stringify removes any object key whose value is undefined, and turns it into null inside arrays. If a field must survive the network, send null.',
+        hi: 'JSON mein undefined hota hi nahi. Stringify har us object key ko hata deta hai jiski value undefined hai, aur arrays ke andar usse null bana deta hai. Agar koi field network paar karni hai toh null bhejo.',
+      },
+      code: `JSON.stringify({ a: 1, b: undefined });   // '{"a":1}'
+JSON.stringify([undefined]);              // '[null]'`,
+    },
+  ],
+
+  'What is null?': [
+    {
+      heading: { en: 'Deliberate emptiness', hi: 'Jaan-boojh kar rakha khaalipan' },
+      body: {
+        en: 'null is a primitive with a single value, meaning "there is intentionally nothing here". Unlike undefined, JavaScript almost never produces it on its own — it appears because a developer or an API chose to put it there.',
+        hi: 'null ek primitive hai jiski ek hi value hai, matlab "yahan jaan-boojh kar kuch nahi hai". undefined ke ulat, JavaScript isse lagbhag kabhi khud nahi banata — ye isliye aata hai kyunki kisi developer ya API ne isse rakhne ka faisla kiya.',
+      },
+      code: `let selected = null;      // "nothing is selected yet"
+user.deletedAt = null;    // "not deleted"`,
+    },
+    {
+      heading: { en: 'typeof null is "object" — and why', hi: 'typeof null "object" hai — aur kyun' },
+      body: {
+        en: 'In the original 1995 implementation every value carried a small type tag, and objects used tag 000. The null pointer was all zero bits, so it matched the object tag. Fixing it was proposed and rejected because it would break existing sites.',
+        hi: '1995 ke asli implementation mein har value ke saath ek chhota type tag hota tha, aur objects ka tag 000 tha. Null pointer poora zero bits tha, toh wo object tag se mil gaya. Isse theek karne ka prastaav aaya tha par thukra diya gaya kyunki isse maujooda sites toot jaati.',
+      },
+      code: `typeof null;          // 'object'  ✗
+null instanceof Object;  // false — it is NOT an object
+
+// the correct test:
+value === null;`,
+    },
+    {
+      heading: { en: 'It coerces in two different ways', hi: 'Ye do alag tareeke se coerce hota hai' },
+      body: {
+        en: 'This inconsistency is a favourite interview trap. For equality, null equals only undefined and is not converted to a number. But relational operators DO convert it, and null becomes 0. That is how null >= 0 is true while null == 0 is false.',
+        hi: 'Ye asangati interview ka pasandeeda jaal hai. Equality mein null sirf undefined ke barabar hai aur number mein nahi badalta. Par relational operators isse BADALTE hain, aur null 0 ban jaata hai. Isi liye null >= 0 true hai jabki null == 0 false.',
+      },
+      code: `null == 0;    // false — equality does not convert null
+null >= 0;    // true  — relational does: Number(null) is 0
+null > 0;     // false
+Number(null); // 0     (Number(undefined) is NaN)`,
+    },
+    {
+      heading: { en: 'Defaults treat it as a real value', hi: 'Defaults isse asli value maante hain' },
+      body: {
+        en: 'A default parameter fires only for undefined, so passing null keeps the null. Optional chaining and ?? do treat null as empty. Mixing these up is a common source of "why is this null in production".',
+        hi: 'Default parameter sirf undefined pe chalta hai, toh null dene se null hi rehta hai. Optional chaining aur ?? null ko khaali maante hain. Inhe aapas mein mila dena "production mein ye null kyun hai" ka aam karan hai.',
+      },
+      code: `function f(x = 5) { return x; }
+f(null);          // null  ✗ the default did not fire
+f(undefined);     // 5
+
+null ?? 'x';      // 'x'  ✓
+obj?.a;           // undefined when obj is null — no throw`,
+    },
+    {
+      heading: { en: 'When to actually use it', hi: 'Isse asal mein kab use karein' },
+      body: {
+        en: 'Use null to say "empty on purpose": clearing a selection, representing a database NULL, marking a field the user explicitly blanked. Never assign undefined by hand — keeping the two meanings distinct is the whole benefit.',
+        hi: 'null tab use karo jab kehna ho "jaan-boojh kar khaali": selection clear karna, database NULL represent karna, wo field mark karna jo user ne khud khaali kiya. undefined kabhi haath se assign mat karo — dono matlab alag rakhna hi poora fayda hai.',
+      },
+    },
+  ],
+
+  'What is NaN?': [
+    {
+      heading: { en: 'A number that means "not a valid number"', hi: 'Ek number jiska matlab hai "sahi number nahi"' },
+      body: {
+        en: 'NaN stands for Not-a-Number, and confusingly its type IS number. It is the IEEE-754 result for an arithmetic operation that has no meaningful numeric answer.',
+        hi: 'NaN ka matlab hai Not-a-Number, aur uljhan ki baat ye hai ki iska type number HI hai. Ye IEEE-754 ka wo nateeja hai jo aise arithmetic operation se aata hai jiska koi matlab wala numeric jawab nahi.',
+      },
+      code: `typeof NaN;        // 'number'
+
+0 / 0;             // NaN
+Math.sqrt(-1);     // NaN
+parseInt('abc');   // NaN
+Number('12px');    // NaN
+undefined + 1;     // NaN`,
+    },
+    {
+      heading: { en: 'It is not equal to itself', hi: 'Ye khud ke barabar nahi hai' },
+      body: {
+        en: 'NaN is the only value in JavaScript for which x === x is false. That is mandated by IEEE-754: two computations that both failed are not thereby the same result. It also means every comparison involving NaN returns false.',
+        hi: 'JavaScript mein NaN hi ek aisi value hai jiske liye x === x false hai. Ye IEEE-754 ka niyam hai: do computations jo dono fail hue, isse ek jaise nateeje nahi ban jaate. Iska matlab ye bhi hai ki NaN wali har comparison false deti hai.',
+      },
+      code: `NaN === NaN;   // false
+NaN !== NaN;   // true   ← the only value where this holds
+NaN > 1;       // false
+NaN < 1;       // false
+NaN >= NaN;    // false`,
+    },
+    {
+      heading: { en: 'Testing for it — use Number.isNaN', hi: 'Isse test karna — Number.isNaN lo' },
+      body: {
+        en: 'The global isNaN coerces its argument first, so it says true for anything that is merely not numeric — including the string "abc" and undefined. Number.isNaN does no conversion and answers the question you actually asked.',
+        hi: 'Global isNaN pehle apne argument ko coerce karta hai, toh ye har us cheez pe true kehta hai jo bas numeric nahi hai — string "abc" aur undefined samet. Number.isNaN koi conversion nahi karta aur wahi sawaal ka jawab deta hai jo tumne poochha.',
+      },
+      code: `isNaN('abc');            // true  ✗ misleading — it coerced first
+Number.isNaN('abc');     // false ✓ the string is not NaN
+
+isNaN(NaN);              // true
+Number.isNaN(NaN);       // true  ✓ use this one
+
+Object.is(x, NaN);       // also correct`,
+    },
+    {
+      heading: { en: 'It spreads through a calculation', hi: 'Ye poori calculation mein phail jaata hai' },
+      body: {
+        en: 'Almost any arithmetic involving NaN produces NaN, so one bad value silently poisons everything downstream. This is why a total shows as NaN and the actual cause is fifty lines earlier — validate inputs at the boundary.',
+        hi: 'NaN wali lagbhag har arithmetic NaN hi deti hai, toh ek kharaab value chup-chaap aage sab kuch zeher kar deti hai. Isiliye total NaN dikhta hai aur asli wajah pachaas line pehle hoti hai — inputs boundary pe hi jaancho.',
+      },
+      code: `[1, 2, undefined].reduce((a, b) => a + b, 0);   // NaN
+
+// guard at the edge:
+const n = Number(input);
+if (Number.isNaN(n)) throw new Error('not a number');`,
+    },
+    {
+      heading: { en: 'The two places it behaves like itself', hi: 'Do jagah jahan ye khud jaisa vyavhaar karta hai' },
+      body: {
+        en: 'includes and Set both use SameValueZero rather than ===, and under that rule NaN does equal NaN. indexOf still uses strict equality, so it cannot find NaN. Expect this as a follow-up.',
+        hi: 'includes aur Set dono === ki jagah SameValueZero use karte hain, aur us rule ke tahat NaN, NaN ke barabar hai. indexOf abhi bhi strict equality use karta hai, isliye wo NaN dhoondh nahi paata. Ye follow-up ke roop mein aayega.',
+      },
+      code: `[NaN].includes(NaN);        // true  ✓
+[NaN].indexOf(NaN);         // -1    ✗ uses ===
+new Set([NaN, NaN]).size;   // 1`,
+    },
+  ],
+
+  'What is the difference between primitive and reference data types?': [
+    {
+      heading: { en: 'What the variable actually holds', hi: 'Variable asal mein kya rakhta hai' },
+      body: {
+        en: 'A primitive variable holds the value itself. A reference variable holds an address pointing at an object stored elsewhere. Every difference between the two categories follows from this one fact.',
+        hi: 'Primitive variable value khud rakhta hai. Reference variable ek address rakhta hai jo kahin aur pade object ko point karta hai. Dono categories ke saare farq isi ek baat se nikalte hain.',
+      },
+      diagram: `PRIMITIVE                 REFERENCE
+let a = 5                 let o = { n: 5 }
+
+  a │ 5 │                   o │ ●─┼──► { n: 5 }
+    the value                 an address`,
+    },
+    {
+      heading: { en: 'Copying: value versus address', hi: 'Copy: value vs address' },
+      body: {
+        en: 'Assigning a primitive duplicates the value, so the two names are independent afterwards. Assigning an object duplicates the ADDRESS, so both names point at one object and a change through either is visible through both.',
+        hi: 'Primitive assign karne se value duplicate hoti hai, toh dono naam uske baad alag hain. Object assign karne se ADDRESS duplicate hota hai, toh dono naam ek hi object pe point karte hain aur kisi se bhi badlo dono ko dikhta hai.',
+      },
+      code: `let a = 1, b = a;
+b = 2;  a;              // 1 — independent
+
+let x = { n: 1 }, y = x;
+y.n = 2;  x.n;          // 2 — same object`,
+    },
+    {
+      heading: { en: 'Equality compares what is stored', hi: 'Barabari wahi compare karti hai jo rakha hai' },
+      body: {
+        en: 'Two primitives are equal when their values match. Two objects are equal only when they are the same reference, so identical-looking literals are never equal. Comparing contents needs your own logic.',
+        hi: 'Do primitives tab barabar hain jab unki values milein. Do objects tabhi barabar hain jab wo ek hi reference hon, toh dikhne mein same literals kabhi barabar nahi. Content compare karne ke liye apna logic chahiye.',
+      },
+      code: `'a' === 'a';           // true
+1 === 1;               // true
+
+{} === {};             // false
+[1] === [1];           // false
+const o = {}; o === o; // true`,
+    },
+    {
+      heading: { en: 'Passing to a function', hi: 'Function ko dena' },
+      body: {
+        en: 'JavaScript always passes by value — but for an object, the value being passed is the reference. So the function can mutate the object you gave it, yet reassigning the parameter does nothing outside. Both halves of that sentence matter.',
+        hi: 'JavaScript hamesha value se pass karta hai — par object ke liye jo value pass hoti hai wo reference hai. Toh function tumhare diye object ko badal sakta hai, phir bhi parameter ko dobara assign karna bahar kuch nahi karta. Is vaakya ke dono hisse maayne rakhte hain.',
+      },
+      code: `function mutate(o) { o.n = 99; }      // ✓ visible outside
+function reassign(o) { o = { n: 0 }; } // ✗ local only
+
+const obj = { n: 1 };
+mutate(obj);    obj.n;   // 99
+reassign(obj);  obj.n;   // 99 — unchanged by the reassign`,
+    },
+    {
+      heading: { en: 'Immutability', hi: 'Immutability' },
+      body: {
+        en: 'Primitives cannot be changed, only replaced — string methods always return a new string. Objects are mutable by default, and const does not change that: it locks the binding, not the contents.',
+        hi: 'Primitives badle nahi ja sakte, sirf badal kar naye rakhe ja sakte hain — string methods hamesha nayi string dete hain. Objects default se mutable hain, aur const usse nahi badalta: wo binding lock karta hai, andar ka saamaan nahi.',
+      },
+      code: `let s = 'hi'; s.toUpperCase(); s;   // 'hi' — unchanged
+
+const arr = [1];
+arr.push(2);   // ✓ allowed — mutating
+arr = [];      // ✗ TypeError — rebinding`,
+    },
+    {
+      heading: { en: 'Where they live, and why it is a detail', hi: 'Ye kahan rehte hain, aur ye chhoti baat kyun hai' },
+      body: {
+        en: 'Textbooks say primitives go on the stack and objects on the heap. That is a useful mental model, but modern engines do escape analysis and may keep short-lived objects on the stack anyway. Give the model, then say it is an implementation detail — that reads as depth, not pedantry.',
+        hi: 'Kitaabein kehti hain primitives stack pe aur objects heap pe jaate hain. Ye kaam ka mental model hai, par modern engines escape analysis karte hain aur kam umar wale objects stack pe bhi rakh sakte hain. Model batao, phir keh do ki ye implementation detail hai — ye gehrai lagti hai, chhichli baat nahi.',
+      },
+    },
+  ],
+
+  'What is type coercion?': [
+    {
+      heading: { en: 'Automatic conversion between types', hi: 'Types ke beech apne aap conversion' },
+      body: {
+        en: 'Coercion is JavaScript silently converting a value to the type an operation needs. It happens because operators are defined only for certain types, so the spec converts the operands first rather than throwing.',
+        hi: 'Coercion matlab JavaScript ka chup-chaap kisi value ko us type mein badalna jo operation ko chahiye. Ye isliye hota hai kyunki operators sirf kuch types ke liye define hain, toh spec error dene ki jagah pehle operands convert kar deta hai.',
+      },
+      code: `'5' - 2;      // 3    — string becomes a number
+'5' + 2;      // '52'  — number becomes a string
+true + 1;     // 2     — true becomes 1
+[] + {};      // '[object Object]'`,
+    },
+    {
+      heading: { en: 'There are only three targets', hi: 'Sirf teen manzilein hain' },
+      body: {
+        en: 'Every coercion converts to string, to number, or to boolean. Nothing else. Once you know which one an operator asks for, the result stops being mysterious.',
+        hi: 'Har coercion string, number ya boolean mein badalta hai. Aur kuch nahi. Ek baar pata chal jaaye ki operator kya maang raha hai, nateeja rahasya nahi rehta.',
+      },
+      diagram: `to STRING    +  with a string operand, template literals, String()
+to NUMBER    -  *  /  %  **, unary +, <  >, Number()
+to BOOLEAN   if, while, !, &&, ||, ternary, Boolean()`,
+    },
+    {
+      heading: { en: 'Why + is the confusing one', hi: '+ hi uljhan wala kyun hai' },
+      body: {
+        en: '+ is the only operator with two jobs: numeric addition and string concatenation. Its rule is simple — if either operand becomes a string after ToPrimitive, it concatenates; otherwise it adds. Every other arithmetic operator always goes to number.',
+        hi: '+ hi ek aisa operator hai jiske do kaam hain: number jodna aur strings jodna. Iska rule simple hai — ToPrimitive ke baad koi bhi operand string ban jaaye toh ye jodkar string banata hai; warna add karta hai. Baaki har arithmetic operator hamesha number pe jaata hai.',
+      },
+      code: `1 + '2';     // '12'  concatenation
+1 - '2';     // -1    subtraction — no string option
+'6' / '2';   // 3
++'5';        // 5     unary + is pure ToNumber`,
+    },
+    {
+      heading: { en: 'Objects convert via ToPrimitive', hi: 'Objects ToPrimitive se convert hote hain' },
+      body: {
+        en: 'An object is first reduced to a primitive by calling valueOf and toString — valueOf first for a number hint, toString first for a string hint. This explains the famous array results: an empty array becomes an empty string, and [1,2] becomes "1,2".',
+        hi: 'Object pehle valueOf aur toString bula kar primitive banaya jaata hai — number hint pe valueOf pehle, string hint pe toString pehle. Isse array ke mashhoor nateeje samajh aate hain: khaali array khaali string ban jaata hai, aur [1,2] "1,2".',
+      },
+      code: `[] + [];        // ''             both → ''
+[] + {};        // '[object Object]'
+[1,2] + '';     // '1,2'
++[];            // 0              '' → 0
++[1];           // 1
++[1,2];         // NaN            '1,2' is not numeric`,
+    },
+    {
+      heading: { en: 'The famous puzzles, decoded', hi: 'Mashhoor pahelis, khol kar' },
+      body: {
+        en: 'These circulate as jokes, but each follows the rules step by step. Being able to walk through one calmly is worth more than knowing the answer.',
+        hi: 'Ye mazaak ki tarah ghoomte hain, par har ek rules ko kadam-dar-kadam follow karta hai. Ek ko shaanti se samjha dena, jawab yaad rakhne se zyada keemti hai.',
+      },
+      code: `[] == false;
+// [] → '' → 0 ;  false → 0 ;  0 == 0  → true
+
+'5' - - '2';
+// unary minus on '2' → -2 ;  5 - (-2) → 7
+
+null + 1;      // 1   Number(null) is 0
+undefined + 1; // NaN Number(undefined) is NaN`,
+    },
+    {
+      heading: { en: 'How to keep it out of your code', hi: 'Isse apne code se kaise door rakhein' },
+      body: {
+        en: 'Use === everywhere except the == null idiom. Convert explicitly with Number, String and Boolean so the intent is visible. And validate at the boundary — coercion is only dangerous when a value of unknown type gets deep into your logic.',
+        hi: '== null wale idiom ke alawa har jagah === use karo. Number, String aur Boolean se saaf-saaf convert karo taaki mansha dikhe. Aur boundary pe validate karo — coercion tabhi khatarnak hai jab anjaan type ki value tumhare logic mein gehre chali jaaye.',
+      },
+    },
+  ],
+
+  'What is implicit and explicit conversion?': [
+    {
+      heading: { en: 'Who asked for the conversion', hi: 'Conversion kisne maanga' },
+      body: {
+        en: 'Explicit conversion is you calling Number, String or Boolean — the intent is written down. Implicit conversion is the engine doing it because an operator needed a different type. Same conversion rules underneath; the only difference is whether a reader can see it.',
+        hi: 'Explicit conversion matlab tum Number, String ya Boolean bula rahe ho — mansha likhi hui hai. Implicit conversion matlab engine ne kiya kyunki operator ko doosra type chahiye tha. Andar rules wahi hain; farq sirf itna hai ki padhne wale ko dikhta hai ya nahi.',
+      },
+      code: `Number('42');    // explicit
+'42' * 1;        // implicit — same result, hidden intent`,
+    },
+    {
+      heading: { en: 'Converting to number', hi: 'Number mein badalna' },
+      body: {
+        en: 'Number() is strict: the whole string must be numeric or you get NaN, and an empty string becomes 0. parseInt is lenient and reads as far as it can. Choose deliberately — they disagree on exactly the inputs you care about.',
+        hi: 'Number() sakht hai: poori string numeric honi chahiye warna NaN, aur khaali string 0 ban jaati hai. parseInt narm hai aur jitna padh sake padh leta hai. Soch kar chuno — jin inputs ki tumhe fikr hai, unhi pe dono ka jawab alag hai.',
+      },
+      code: `Number('42');      // 42
+Number('42px');    // NaN
+Number('');        // 0
+Number(' 42 ');    // 42  — whitespace trimmed
+
+parseInt('42px');  // 42  — stops at the first non-digit
+parseInt('px42');  // NaN
+parseFloat('3.9m');// 3.9
+parseInt('08');    // 8   — always pass a radix in old code`,
+    },
+    {
+      heading: { en: 'Converting to string', hi: 'String mein badalna' },
+      body: {
+        en: 'String(x) is the safe form because it handles null and undefined. x.toString() throws on both. Template literals and concatenating with an empty string are the common implicit routes.',
+        hi: 'String(x) safe roop hai kyunki ye null aur undefined dono sambhaal leta hai. x.toString() dono pe error deta hai. Template literals aur khaali string se jodna aam implicit raaste hain.',
+      },
+      code: `String(null);        // 'null'
+null.toString();     // ✗ TypeError
+
+String(123);         // '123'
+123 + '';            // '123'  implicit
+String([1,2]);       // '1,2'
+String({});          // '[object Object]'`,
+    },
+    {
+      heading: { en: 'Converting to boolean', hi: 'Boolean mein badalna' },
+      body: {
+        en: 'Boolean(x) and !!x are the same ToBoolean conversion. The implicit form happens every time a value lands in an if, a while, a ternary or a logical operator.',
+        hi: 'Boolean(x) aur !!x ek hi ToBoolean conversion hain. Implicit roop tab hota hai jab koi value if, while, ternary ya logical operator mein pahunchti hai.',
+      },
+      code: `Boolean('');     // false
+!!'a';           // true
+if (value) {}    // implicit — the same conversion`,
+    },
+    {
+      heading: { en: 'Prefer explicit, with one honest exception', hi: 'Explicit behtar, ek imaandaar apvaad ke saath' },
+      body: {
+        en: 'Explicit conversion documents intent and survives refactoring. The exception most teams accept is truthiness in a condition — if (list.length) reads fine. Everywhere a value crosses a boundary, from a form, an API or a URL, convert it explicitly and validate the result.',
+        hi: 'Explicit conversion mansha likh deta hai aur refactor ke baad bhi tikta hai. Zyadatar teams ek apvaad maante hain: condition mein truthiness — if (list.length) theek padha jaata hai. Jahan bhi value kisi boundary se aaye, form, API ya URL se, usse explicitly convert karo aur nateeja validate karo.',
+      },
+      code: `const age = Number(form.age);
+if (Number.isNaN(age)) return error('age must be a number');`,
+    },
+  ],
+
+  'What is the typeof operator?': [
+    {
+      heading: { en: 'A string naming the value\'s type', hi: 'Ek string jo value ka type batati hai' },
+      body: {
+        en: 'typeof returns one of a fixed set of strings: "undefined", "boolean", "number", "bigint", "string", "symbol", "function" or "object". It is an operator, not a function, so the parentheses you often see are optional.',
+        hi: 'typeof ek tay set mein se ek string deta hai: "undefined", "boolean", "number", "bigint", "string", "symbol", "function" ya "object". Ye operator hai, function nahi, isliye jo brackets aksar dikhte hain wo optional hain.',
+      },
+      code: `typeof 42;           // 'number'
+typeof 'hi';         // 'string'
+typeof true;         // 'boolean'
+typeof undefined;    // 'undefined'
+typeof Symbol();     // 'symbol'
+typeof 10n;          // 'bigint'
+typeof {};           // 'object'
+typeof function(){}; // 'function'`,
+    },
+    {
+      heading: { en: 'Two results that are not what you expect', hi: 'Do nateeje jo tumhari ummeed se alag hain' },
+      body: {
+        en: 'typeof null is "object", a bug preserved for compatibility. And "function" is not really a separate type — functions are objects, but they get their own typeof result because being callable is worth knowing.',
+        hi: 'typeof null "object" hai, ek bug jo compatibility ke liye rakha gaya. Aur "function" sach mein alag type nahi hai — functions objects hi hain, par unhe apna typeof nateeja milta hai kyunki callable hona jaanna kaam ka hai.',
+      },
+      code: `typeof null;   // 'object'  ✗
+null === null; // ✓ the correct test`,
+    },
+    {
+      heading: { en: 'It cannot distinguish object kinds', hi: 'Ye object ke prakaar alag nahi bata sakta' },
+      body: {
+        en: 'Arrays, dates, regexes, Maps and plain objects all report "object". For arrays use Array.isArray. For anything else, Object.prototype.toString.call gives a precise tag and is the standard trick.',
+        hi: 'Arrays, dates, regexes, Maps aur plain objects sab "object" batate hain. Arrays ke liye Array.isArray lo. Baaki kisi bhi cheez ke liye Object.prototype.toString.call sahi tag deta hai aur yahi standard jugaad hai.',
+      },
+      code: `typeof [];        typeof new Date();   // both 'object'
+
+Array.isArray([]);                          // true ✓
+
+const kind = (v) => Object.prototype.toString.call(v).slice(8, -1);
+kind([]);          // 'Array'
+kind(new Date());  // 'Date'
+kind(null);        // 'Null'`,
+    },
+    {
+      heading: { en: 'The one safe use: undeclared variables', hi: 'Ek safe upyog: undeclared variables' },
+      body: {
+        en: 'typeof is the only operator that does not throw on a name that was never declared. That made it the standard feature-detection idiom before modern module systems.',
+        hi: 'typeof hi ek aisa operator hai jo kabhi declare na hue naam pe error nahi deta. Modern module systems se pehle yahi feature-detection ka standard idiom tha.',
+      },
+      code: `typeof neverDeclared;              // 'undefined' — no error
+neverDeclared;                     // ✗ ReferenceError
+
+if (typeof window !== 'undefined') { /* browser only */ }`,
+    },
+    {
+      heading: { en: 'But it throws in the temporal dead zone', hi: 'Par TDZ mein ye error deta hai' },
+      body: {
+        en: 'ES6 broke the old guarantee. A let or const that has been hoisted but not yet initialised will throw on typeof, exactly like any other access. So typeof is safe for undeclared names, not for early ones.',
+        hi: 'ES6 ne purani guarantee tod di. Jo let ya const hoist ho chuka hai par abhi initialise nahi hua, uspe typeof error dega, baaki kisi bhi access ki tarah. Toh typeof undeclared naamon ke liye safe hai, jaldi wale ke liye nahi.',
+      },
+      code: `typeof x;      // ✗ ReferenceError: Cannot access 'x' before…
+let x = 1;`,
+    },
+  ],
+
+  'What is the instanceof operator?': [
+    {
+      heading: { en: 'It walks the prototype chain', hi: 'Ye prototype chain pe chalta hai' },
+      body: {
+        en: 'a instanceof B asks whether B.prototype appears anywhere in a\'s prototype chain. It is not comparing constructors and it is not checking a type tag — it is a chain search, which is why inheritance works.',
+        hi: 'a instanceof B poochta hai ki B.prototype, a ki prototype chain mein kahin bhi hai ya nahi. Ye constructors compare nahi karta aur na hi koi type tag dekhta hai — ye chain mein khoj hai, isiliye inheritance chalti hai.',
+      },
+      diagram: `d instanceof Animal
+
+  d ──► Dog.prototype ──► Animal.prototype ──► Object.prototype ──► null
+                                  ▲
+                          found here → true`,
+    },
+    {
+      heading: { en: 'What it is good for', hi: 'Ye kis kaam ka hai' },
+      body: {
+        en: 'Distinguishing object kinds that typeof flattens into "object", and checking class hierarchies. The most common real use is narrowing an error type in a catch block.',
+        hi: 'Un objects ke prakaar alag karna jinhe typeof "object" mein chapta kar deta hai, aur class hierarchies check karna. Sabse aam asli upyog catch block mein error ka type pata karna hai.',
+      },
+      code: `class Animal {} class Dog extends Animal {}
+const d = new Dog();
+d instanceof Dog;      // true
+d instanceof Animal;   // true ✓ inheritance
+d instanceof Object;   // true
+
+try { risky(); } catch (e) {
+  if (e instanceof TypeError) handleType(e);
+  else throw e;
+}`,
+    },
+    {
+      heading: { en: 'It fails on primitives', hi: 'Ye primitives pe fail hota hai' },
+      body: {
+        en: 'Primitives have no prototype chain of their own, so instanceof always returns false for them — even against their obvious wrapper. Use typeof for primitives; instanceof is only for objects.',
+        hi: 'Primitives ki apni prototype chain hoti hi nahi, toh unke liye instanceof hamesha false deta hai — apne saaf wrapper ke against bhi. Primitives ke liye typeof lo; instanceof sirf objects ke liye hai.',
+      },
+      code: `'hi' instanceof String;          // false ✗
+new String('hi') instanceof String;  // true
+
+typeof 'hi' === 'string';        // ✓ the right check`,
+    },
+    {
+      heading: { en: 'The realm problem', hi: 'Realm wali problem' },
+      body: {
+        en: 'Each iframe, worker or Node vm context has its OWN Array, Object and Error constructors. An array created in an iframe is not instanceof the parent page\'s Array, because the two Array.prototype objects are different. This is a real bug in libraries and in tests.',
+        hi: 'Har iframe, worker ya Node vm context ke APNE Array, Object aur Error constructors hote hain. Iframe mein bana array parent page ke Array ka instanceof nahi hai, kyunki dono Array.prototype objects alag hain. Libraries aur tests mein ye asli bug hai.',
+      },
+      code: `const iframeArray = iframe.contentWindow.eval('[]');
+iframeArray instanceof Array;   // false ✗
+Array.isArray(iframeArray);     // true  ✓ works across realms`,
+    },
+    {
+      heading: { en: 'It can be faked', hi: 'Isse nakli banaya ja sakta hai' },
+      body: {
+        en: 'Two things make instanceof unreliable as a guarantee. Reassigning a constructor\'s prototype changes the answer for existing objects, and Symbol.hasInstance lets a class define whatever answer it likes. Treat it as a hint, not proof.',
+        hi: 'Do cheezein instanceof ko guarantee ke roop mein bharosemand nahi rehne deti. Constructor ka prototype badalne se maujooda objects ka jawab badal jaata hai, aur Symbol.hasInstance kisi bhi class ko manchaha jawab dene deta hai. Isse suraag maano, saboot nahi.',
+      },
+      code: `class Even {
+  static [Symbol.hasInstance](n) { return n % 2 === 0; }
+}
+4 instanceof Even;   // true — nothing to do with prototypes`,
+    },
+    {
+      heading: { en: 'Choosing a type check', hi: 'Type check chunna' },
+      body: {
+        en: 'typeof for primitives and functions. Array.isArray for arrays, always. instanceof for your own classes and for error types. Object.prototype.toString.call for a precise built-in tag. And duck typing — checking for the method you need — when you just want to know if something will work.',
+        hi: 'Primitives aur functions ke liye typeof. Arrays ke liye hamesha Array.isArray. Apni classes aur error types ke liye instanceof. Built-in ka theek tag chahiye toh Object.prototype.toString.call. Aur duck typing — jo method chahiye wahi check karna — jab bas ye jaanna ho ki cheez chalegi ya nahi.',
+      },
+      code: `typeof v === 'function';
+Array.isArray(v);
+v instanceof MyError;
+typeof v?.then === 'function';   // is it thenable?`,
+    },
+  ],
+
+  /* ─── Collections, iteration and array methods ────────────── */
+
+  'What is the difference between Object and Map?': [
+    {
+      heading: { en: 'Keys: strings only versus anything', hi: 'Keys: sirf strings vs kuch bhi' },
+      body: {
+        en: 'A plain object accepts only string and symbol keys — anything else is silently converted with ToString, so 1 and "1" become the same key and every object becomes "[object Object]". A Map stores keys exactly as given, of any type.',
+        hi: 'Plain object sirf string aur symbol keys leta hai — baaki sab chup-chaap ToString se badal jaata hai, toh 1 aur "1" ek hi key ban jaate hain aur har object "[object Object]". Map keys bilkul waise rakhta hai jaise di gayi, kisi bhi type ki.',
+      },
+      code: `const o = {};
+o[1] = 'a'; o['1'] = 'b';
+Object.keys(o);        // ['1'] — collapsed into one
+
+const m = new Map();
+m.set(1, 'a').set('1', 'b');
+m.size;                // 2 ✓ genuinely distinct`,
+    },
+    {
+      heading: { en: 'Order is guaranteed only for one of them', hi: 'Order sirf ek mein guarantee hai' },
+      body: {
+        en: 'A Map iterates in insertion order, always. An object mostly does too, but integer-like keys are pulled to the front and sorted ascending — which surprises people using numeric ids as keys.',
+        hi: 'Map hamesha insertion order mein iterate karta hai. Object bhi zyadatar karta hai, par integer-jaisi keys aage khinch kar badhte kram mein lag jaati hain — jo numeric ids ko keys banane walon ko chaunkata hai.',
+      },
+      code: `const o = { b: 1, 2: 2, a: 3, 1: 4 };
+Object.keys(o);        // ['1', '2', 'b', 'a']  ← integers first
+
+const m = new Map([['b',1],[2,2],['a',3],[1,4]]);
+[...m.keys()];         // ['b', 2, 'a', 1]  ✓ as inserted`,
+    },
+    {
+      heading: { en: 'Size, and the prototype', hi: 'Size, aur prototype' },
+      body: {
+        en: 'Map.size is a property and O(1). For an object you must build a key array first, which is O(n) and allocates. An object also inherits from Object.prototype, so keys like "constructor" and "toString" already appear to exist — a real bug source for user-supplied keys.',
+        hi: 'Map.size ek property hai aur O(1). Object ke liye pehle keys ka array banana padta hai, jo O(n) hai aur memory leta hai. Object Object.prototype se inherit bhi karta hai, toh "constructor" aur "toString" jaisi keys pehle se maujood lagti hain — user ki di hui keys ke liye asli bug.',
+      },
+      code: `m.size;                        // O(1)
+Object.keys(o).length;         // O(n)
+
+const o = {};
+o['toString'];                 // inherited function, not undefined ✗
+'toString' in o;               // true ✗
+
+Object.create(null);           // ✓ safe dictionary, no prototype`,
+    },
+    {
+      heading: { en: 'Iterating', hi: 'Iterate karna' },
+      body: {
+        en: 'A Map is directly iterable, so for...of and spread just work and give you [key, value] pairs. An object is not iterable at all — you go through Object.keys, values or entries.',
+        hi: 'Map seedha iterable hai, toh for...of aur spread chal jaate hain aur [key, value] jodiyan dete hain. Object iterable hai hi nahi — Object.keys, values ya entries se jaana padta hai.',
+      },
+      code: `for (const [k, v] of map) {}          // ✓ directly
+for (const [k, v] of Object.entries(o)) {}   // object needs entries
+
+[...map];                              // [[k,v], …]
+JSON.stringify(map);                   // '{}'  ✗ not serialisable`,
+    },
+    {
+      heading: { en: 'Performance for frequent changes', hi: 'Baar-baar badlaav pe performance' },
+      body: {
+        en: 'Maps are built as hash tables and are optimised for adding and deleting keys at runtime. Objects are optimised for a fixed, known shape — engines build hidden classes around that, and repeatedly adding or deleting keys forces them into a slower dictionary mode.',
+        hi: 'Maps hash tables ki tarah bane hain aur runtime pe keys jodne-hataane ke liye optimised hain. Objects tay, maloom shape ke liye optimised hain — engines uske aas-paas hidden classes banate hain, aur baar-baar keys jodna ya hataana unhe dheeme dictionary mode mein dhakel deta hai.',
+      },
+    },
+    {
+      heading: { en: 'The rule for choosing', hi: 'Chunne ka rule' },
+      body: {
+        en: 'Use an object for a record with known fields, for anything that must become JSON, and for config. Use a Map for a dynamic dictionary, non-string keys, frequent insertion and deletion, or when order and size matter. If in doubt and the keys come from user data, Map.',
+        hi: 'Maloom fields wale record ke liye, JSON banne wali har cheez ke liye, aur config ke liye object. Dynamic dictionary, non-string keys, baar-baar add-delete, ya jab order aur size maayne rakhein tab Map. Shak ho aur keys user data se aa rahi hon toh Map.',
+      },
+    },
+  ],
+
+  'What is the difference between Array and Object?': [
+    {
+      heading: { en: 'An array IS an object', hi: 'Array ek object HI hai' },
+      body: {
+        en: 'Start here, because it explains everything else. Arrays are objects with integer-like string keys, a special length property that updates itself, and Array.prototype for methods. typeof [] returning "object" is not a bug — it is the truth.',
+        hi: 'Yahin se shuru karo, kyunki isse baaki sab samajh aata hai. Arrays wo objects hain jinki keys integer-jaisi strings hain, ek khaas length property hai jo khud update hoti hai, aur methods ke liye Array.prototype. typeof [] ka "object" dena bug nahi — sach hai.',
+      },
+      code: `typeof [];              // 'object'
+[] instanceof Object;   // true
+
+const a = ['x'];
+Object.keys(a);         // ['0'] — string keys, as always
+a.length;               // 1 — maintained by the engine`,
+    },
+    {
+      heading: { en: 'Ordered positions versus named fields', hi: 'Kramwar jagah vs naam wale fields' },
+      body: {
+        en: 'That is the real design difference. An array models a sequence where position carries meaning and order is guaranteed. An object models a record where each value is reached by a meaningful name.',
+        hi: 'Asli design ka farq yahi hai. Array ek sequence banata hai jahan jagah ka matlab hota hai aur order guarantee hai. Object ek record banata hai jahan har value ek matlab wale naam se milti hai.',
+      },
+      code: `const scores = [90, 85, 70];         // "the first, second, third"
+const user = { name: 'Asha', age: 30 };  // "the name, the age"`,
+    },
+    {
+      heading: { en: 'length is live, and writable', hi: 'length zinda hai, aur likhi ja sakti hai' },
+      body: {
+        en: 'An array\'s length always tracks the highest index plus one, and assigning to it truncates or extends the array. This is unique to arrays and is worth demonstrating.',
+        hi: 'Array ki length hamesha sabse bade index plus ek ke barabar rehti hai, aur usme assign karne se array kat ya badh jaata hai. Ye sirf arrays mein hota hai aur dikhane laayak hai.',
+      },
+      code: `const a = [1, 2, 3];
+a[9] = 10;   a.length;    // 10 — grew, with holes between
+a.length = 1;  a;         // [1] — truncated, data gone
+a.length = 0;             // the fastest way to empty in place`,
+    },
+    {
+      heading: { en: 'Methods you get, and lose', hi: 'Jo methods milte hain, aur jo khote hain' },
+      body: {
+        en: 'Arrays bring map, filter, reduce, sort, slice, splice, find and the rest. Objects have almost nothing on the instance — you work through the static helpers Object.keys, values, entries, assign and fromEntries.',
+        hi: 'Arrays map, filter, reduce, sort, slice, splice, find waghera laate hain. Objects ke instance pe lagbhag kuch nahi hota — kaam static helpers Object.keys, values, entries, assign aur fromEntries se chalta hai.',
+      },
+      code: `[1,2,3].map((n) => n * 2);
+Object.entries(o).map(([k, v]) => [k, v * 2]);   // the object route`,
+    },
+    {
+      heading: { en: 'Lookup cost', hi: 'Dhoondhne ki keemat' },
+      body: {
+        en: 'Finding a value by key in an object is O(1). Finding it in an array by scanning is O(n). If you look items up by id in a loop, build an object or Map first — this is one of the most common real performance fixes.',
+        hi: 'Object mein key se value dhoondhna O(1) hai. Array mein scan karke dhoondhna O(n). Agar loop ke andar id se items dhoondh rahe ho toh pehle object ya Map bana lo — ye sabse aam asli performance fix mein se ek hai.',
+      },
+      code: `users.find((u) => u.id === id);     // O(n) each time
+
+const byId = Object.fromEntries(users.map((u) => [u.id, u]));
+byId[id];                            // O(1)`,
+    },
+    {
+      heading: { en: 'Never use an object where you meant an array', hi: 'Jahan array chahiye tha wahan object mat lo' },
+      body: {
+        en: 'Adding numeric keys to an object gives you no length, no array methods, and no guaranteed order beyond the integer-key rule. And do not add named properties to an array either — they do not count towards length and are skipped by every array method.',
+        hi: 'Object mein numeric keys daalne se na length milti hai, na array methods, aur integer-key rule ke aage koi guarantee order nahi. Aur array mein naam wali properties bhi mat jodo — wo length mein nahi ginti aur har array method unhe chhod deta hai.',
+      },
+      code: `const a = [1, 2];
+a.total = 3;
+a.length;        // 2 — total is invisible to length
+a.map(f);        // ignores total
+JSON.stringify(a);   // '[1,2]' — total is lost`,
+    },
+  ],
+
+  'How do you check if a value is an array?': [
+    {
+      heading: { en: 'Array.isArray, and nothing else', hi: 'Array.isArray, aur kuch nahi' },
+      body: {
+        en: 'It is a single call, it is correct for every input, and it works across realms. Every other method has a failure case. This is one of the few questions with a genuinely one-line answer.',
+        hi: 'Ek call hai, har input pe sahi hai, aur realms ke paar bhi chalta hai. Baaki har tareeke ka koi na koi failure case hai. Ye un gine-chune sawaalon mein hai jinka jawab sach mein ek line hai.',
+      },
+      code: `Array.isArray([]);        // true
+Array.isArray({});        // false
+Array.isArray('abc');     // false
+Array.isArray(null);      // false
+Array.isArray(arguments); // false — array-LIKE, not an array`,
+    },
+    {
+      heading: { en: 'Why typeof cannot do it', hi: 'typeof ye kyun nahi kar sakta' },
+      body: {
+        en: 'Arrays are objects, so typeof reports "object" for arrays, plain objects, dates, null and everything else. It cannot distinguish among them, which is the whole reason isArray exists.',
+        hi: 'Arrays objects hain, toh typeof arrays, plain objects, dates, null aur baaki sab pe "object" hi kehta hai. Ye unme farq nahi kar sakta, aur isArray ke hone ki poori wajah yahi hai.',
+      },
+      code: `typeof [];       // 'object'
+typeof {};       // 'object'
+typeof null;     // 'object'  — all the same`,
+    },
+    {
+      heading: { en: 'Why instanceof fails across realms', hi: 'instanceof realms ke paar kyun fail hota hai' },
+      body: {
+        en: 'Each iframe, worker or Node vm context has its own Array constructor and its own Array.prototype. An array made in one is not instanceof the Array of another, so the check silently returns false on perfectly good data. Array.isArray checks the internal slot instead and is immune.',
+        hi: 'Har iframe, worker ya Node vm context ka apna Array constructor aur apna Array.prototype hota hai. Ek mein bana array doosre ke Array ka instanceof nahi hai, toh check bilkul sahi data pe chup-chaap false de deta hai. Array.isArray internal slot dekhta hai aur isse bacha rehta hai.',
+      },
+      code: `const other = iframe.contentWindow.eval('[1,2]');
+other instanceof Array;   // false ✗
+Array.isArray(other);     // true  ✓`,
+    },
+    {
+      heading: { en: 'The old pre-ES5 trick', hi: 'ES5 se pehle wala purana jugaad' },
+      body: {
+        en: 'Object.prototype.toString.call gives an exact internal tag and was the standard test before isArray existed. Worth knowing because it still works for Date, RegExp, Map and anything else typeof flattens.',
+        hi: 'Object.prototype.toString.call theek internal tag deta hai aur isArray se pehle yahi standard test tha. Ye jaanna kaam ka hai kyunki Date, RegExp, Map aur har us cheez pe chalta hai jise typeof chapta kar deta hai.',
+      },
+      code: `Object.prototype.toString.call([]);   // '[object Array]'
+Object.prototype.toString.call({});   // '[object Object]'
+
+const kind = (v) => Object.prototype.toString.call(v).slice(8, -1);`,
+    },
+    {
+      heading: { en: 'Array-like is a different question', hi: 'Array-like alag sawaal hai' },
+      body: {
+        en: 'A NodeList, the arguments object and a string all have a length and indexes but are not arrays. If what you actually need is "can I iterate or index this", test for that instead — and convert with Array.from when you want real array methods.',
+        hi: 'NodeList, arguments object aur string sabme length aur indexes hain par ye arrays nahi hain. Agar tumhe sach mein ye jaanna hai ki "isse iterate ya index kar sakta hoon", toh wahi test karo — aur asli array methods chahiye toh Array.from se convert karo.',
+      },
+      code: `const isArrayLike = (v) =>
+  v != null && typeof v !== 'function' && Number.isInteger(v.length);
+
+Array.from(document.querySelectorAll('li'));   // ✓ a real array
+[...arguments];`,
+    },
+  ],
+
+  'What is the difference between slice() and splice()?': [
+    {
+      heading: { en: 'One reads, the other rewrites', hi: 'Ek padhta hai, doosra likhta hai' },
+      body: {
+        en: 'slice returns a copy of a section and leaves the original alone. splice changes the array in place — removing, inserting, or both — and returns the removed elements. That mutation difference is the whole answer.',
+        hi: 'slice ek hisse ki copy deta hai aur original ko chhod deta hai. splice array ko wahin badal deta hai — hata kar, jod kar, ya dono — aur hataye gaye elements return karta hai. Wahi mutation ka farq poora jawab hai.',
+      },
+      code: `const a = [1, 2, 3, 4, 5];
+
+a.slice(1, 3);    // [2, 3]   returned
+a;                // [1,2,3,4,5]  ← untouched
+
+a.splice(1, 2);   // [2, 3]   returned (the REMOVED items)
+a;                // [1, 4, 5]    ← changed`,
+    },
+    {
+      heading: { en: 'Their arguments mean different things', hi: 'Inke arguments ka matlab alag hai' },
+      body: {
+        en: 'This is the part people mix up. slice takes start and END index, and the end is exclusive. splice takes start and a COUNT of how many to delete. Same-looking call, completely different result.',
+        hi: 'Yahi wo hissa hai jahan log gadbada jaate hain. slice start aur END index leta hai, aur end shaamil nahi hota. splice start aur kitne delete karne hain uski GINTI leta hai. Dikhne mein same call, bilkul alag nateeja.',
+      },
+      diagram: `slice(1, 3)   →  indexes 1 and 2      (end exclusive)
+splice(1, 3)  →  3 items from index 1`,
+    },
+    {
+      heading: { en: 'splice can insert too', hi: 'splice jod bhi sakta hai' },
+      body: {
+        en: 'Anything after the delete count is inserted at that position. Delete zero and you have a pure insertion; delete some and add some and you have a replacement. This is the only built-in that inserts into the middle of an array.',
+        hi: 'Delete count ke baad jo bhi do wo us jagah jod diya jaata hai. Zero delete karo toh sirf insertion; kuch hatao aur kuch jodo toh replacement. Array ke beech mein jodne wala yahi ek built-in hai.',
+      },
+      code: `const a = [1, 2, 5];
+a.splice(2, 0, 3, 4);    // insert only — deletes nothing
+a;                       // [1, 2, 3, 4, 5]
+
+a.splice(0, 1, 'x');     // replace
+a;                       // ['x', 2, 3, 4, 5]`,
+    },
+    {
+      heading: { en: 'Negative indexes and omitted arguments', hi: 'Negative indexes aur chhode gaye arguments' },
+      body: {
+        en: 'Both count negatives from the end. slice with no arguments is the idiomatic shallow copy. splice with only a start removes everything from there to the end — which is easy to do by accident.',
+        hi: 'Dono negatives ko aakhir se ginte hain. Bina arguments ke slice hi shallow copy ka aam tareeka hai. Sirf start ke saath splice wahan se aakhir tak sab hata deta hai — jo galti se ho jaana aasaan hai.',
+      },
+      code: `a.slice(-2);       // last two items
+a.slice();         // a full shallow copy
+
+a.splice(1);       // ✗ removes EVERYTHING from index 1 onward
+a.splice(1, 0);    // removes nothing`,
+    },
+    {
+      heading: { en: 'Both copies are shallow', hi: 'Dono ki copy shallow hai' },
+      body: {
+        en: 'slice gives you a new array, but for objects the elements are the same references. Changing a nested object through the copy still affects the original. Worth stating — it is the follow-up question.',
+        hi: 'slice naya array deta hai, par objects ke liye elements wahi references hain. Copy ke through nested object badlo toh original pe bhi asar hota hai. Ye batana chahiye — yahi agla sawaal hai.',
+      },
+      code: `const copy = users.slice();
+copy[0].name = 'X';
+users[0].name;      // 'X' — same object`,
+    },
+    {
+      heading: { en: 'Prefer the non-mutating options', hi: 'Bina mutate wale options behtar hain' },
+      body: {
+        en: 'Mutation is a bug source in React and anywhere state is shared. toSpliced is the modern immutable twin of splice, and slice with spread covers the rest. Reach for splice only when in-place change is genuinely what you want.',
+        hi: 'React mein aur jahan bhi state share hoti hai wahan mutation bug ki jad hai. toSpliced splice ka modern immutable joda hai, aur baaki kaam slice plus spread se ho jaata hai. splice tabhi lo jab wahin par badalna hi sach mein maqsad ho.',
+      },
+      code: `a.toSpliced(1, 2);            // ✓ returns a new array
+[...a.slice(0, i), x, ...a.slice(i)];   // insert, immutably`,
+    },
+  ],
+
+  'What is the difference between for, for...of, and for...in?': [
+    {
+      heading: { en: 'Index, value, key', hi: 'Index, value, key' },
+      body: {
+        en: 'The classic for gives you a counter you control. for...of gives you each VALUE of an iterable. for...in gives you each enumerable KEY of an object, including inherited ones. Pick by which of the three you actually need.',
+        hi: 'Classic for tumhe ek counter deta hai jispe tumhara control hai. for...of kisi iterable ki har VALUE deta hai. for...in kisi object ki har enumerable KEY deta hai, inherited samet. Teeno mein se jo chahiye uske hisaab se chuno.',
+      },
+      code: `for (let i = 0; i < a.length; i++) a[i];   // index
+for (const v of a) v;                      // value
+for (const k in o) o[k];                   // key`,
+    },
+    {
+      heading: { en: 'The rule: of for arrays, in for objects', hi: 'Rule: arrays pe of, objects pe in' },
+      body: {
+        en: 'Using for...in on an array is the classic mistake. It gives you string indexes, walks the prototype chain, includes any named properties someone added, and does not guarantee numeric order.',
+        hi: 'Array pe for...in use karna classic galti hai. Ye string indexes deta hai, prototype chain pe chalta hai, kisi ki jodi hui naam wali properties bhi laata hai, aur numeric order guarantee nahi karta.',
+      },
+      code: `const a = ['x', 'y'];
+a.extra = 'oops';
+
+for (const i in a) console.log(i);   // '0', '1', 'extra'  ✗
+                                     // and they are STRINGS
+for (const v of a) console.log(v);   // 'x', 'y'  ✓`,
+    },
+    {
+      heading: { en: 'for...of needs an iterable', hi: 'for...of ko iterable chahiye' },
+      body: {
+        en: 'It works on anything with a Symbol.iterator: arrays, strings, Map, Set, NodeList, arguments, generators. Plain objects have none, so for...of throws on them — use Object.entries.',
+        hi: 'Ye har us cheez pe chalta hai jisme Symbol.iterator ho: arrays, strings, Map, Set, NodeList, arguments, generators. Plain objects mein ye hota hi nahi, toh for...of unpe error deta hai — Object.entries lo.',
+      },
+      code: `for (const c of 'hi') {}              // ✓ 'h', 'i'
+for (const [k, v] of map) {}          // ✓
+for (const x of { a: 1 }) {}          // ✗ not iterable
+
+for (const [k, v] of Object.entries(o)) {}   // ✓ the object route`,
+    },
+    {
+      heading: { en: 'Control flow: break, continue, await', hi: 'Control flow: break, continue, await' },
+      body: {
+        en: 'All three real loops support break and continue and can await inside. forEach supports none of them — you cannot break out of it, and it will not wait for an async callback. That is the main reason to prefer for...of for anything asynchronous.',
+        hi: 'Teeno asli loops break aur continue sambhaalte hain aur andar await kar sakte hain. forEach inme se kuch nahi karta — usse break nahi kar sakte, aur wo async callback ka intezaar nahi karega. Kisi bhi async kaam ke liye for...of chunne ki asli wajah yahi hai.',
+      },
+      code: `for (const id of ids) {
+  const r = await fetchOne(id);       // ✓ actually waits
+  if (r.done) break;                  // ✓
+}
+
+ids.forEach(async (id) => { await fetchOne(id); });
+// ✗ returns immediately; nothing is awaited`,
+    },
+    {
+      heading: { en: 'When the classic for still wins', hi: 'Classic for kab abhi bhi jeetta hai' },
+      body: {
+        en: 'When you need the index, when you step by something other than one, when you iterate backwards, or when you are mutating the array as you go. It is also the fastest, though that rarely matters outside hot loops.',
+        hi: 'Jab index chahiye, jab ek se alag step lena ho, jab ulta iterate karna ho, ya jab chalte-chalte array badal rahe ho. Ye sabse tez bhi hai, waise hot loops ke bahar ye kam hi maayne rakhta hai.',
+      },
+      code: `for (let i = a.length - 1; i >= 0; i--) {
+  if (shouldRemove(a[i])) a.splice(i, 1);   // safe: going backwards
+}
+
+for (const [i, v] of a.entries()) {}   // if you want both, modern way`,
+    },
+    {
+      heading: { en: 'Guarding for...in', hi: 'for...in ko sambhalna' },
+      body: {
+        en: 'If you must use it, filter to own properties. In practice Object.keys or Object.entries is clearer and does the same job, so for...in is rarely the right choice at all.',
+        hi: 'Agar use karna hi hai toh sirf own properties chhaano. Asal mein Object.keys ya Object.entries saaf hai aur wahi kaam karta hai, toh for...in shaayad hi kabhi sahi chunav hota hai.',
+      },
+      code: `for (const k in o) {
+  if (!Object.hasOwn(o, k)) continue;   // skip inherited
+}
+Object.keys(o).forEach((k) => {});      // ✓ simpler`,
+    },
+  ],
+
+  'What is the difference between includes() and indexOf()?': [
+    {
+      heading: { en: 'A boolean versus a position', hi: 'Boolean vs jagah' },
+      body: {
+        en: 'includes answers "is it there?" with true or false. indexOf answers "where is it?" with the index, or -1 when it is missing. If you only care about presence, includes says so directly.',
+        hi: 'includes "hai kya?" ka jawab true ya false mein deta hai. indexOf "kahan hai?" ka jawab index se deta hai, ya na mile toh -1. Sirf maujoodgi ki fikr ho toh includes seedha yahi kehta hai.',
+      },
+      code: `[1,2,3].includes(2);   // true
+[1,2,3].indexOf(2);    // 1
+[1,2,3].indexOf(9);    // -1
+
+if (arr.indexOf(x) !== -1) {}   // the old idiom
+if (arr.includes(x)) {}         // ✓ says what it means`,
+    },
+    {
+      heading: { en: 'NaN is the behavioural difference', hi: 'Vyavhaar ka farq NaN hai' },
+      body: {
+        en: 'indexOf uses strict equality, and NaN !== NaN, so it can never find a NaN. includes uses SameValueZero, under which NaN does match itself. This is the reason includes was added and the answer interviewers want.',
+        hi: 'indexOf strict equality use karta hai, aur NaN !== NaN, toh wo NaN kabhi dhoondh hi nahi sakta. includes SameValueZero use karta hai, jisme NaN khud se match karta hai. includes isiliye joda gaya tha aur interviewers yahi jawab chahte hain.',
+      },
+      code: `[NaN].indexOf(NaN);     // -1    ✗
+[NaN].includes(NaN);    // true  ✓
+
+[0].includes(-0);       // true — both treat 0 and -0 as equal
+[0].indexOf(-0);        // 0`,
+    },
+    {
+      heading: { en: 'Holes in sparse arrays', hi: 'Sparse arrays ke holes' },
+      body: {
+        en: 'A second, smaller difference. indexOf skips holes entirely; includes treats a hole as undefined and will find it. Rare in practice, but it is the kind of detail a thorough interviewer probes.',
+        hi: 'Doosra, chhota farq. indexOf holes ko poori tarah chhod deta hai; includes hole ko undefined maan kar dhoondh leta hai. Asal mein ye kam aata hai, par gehra interviewer isi tarah ki bareeki kuredta hai.',
+      },
+      code: `[1, , 3].includes(undefined);   // true
+[1, , 3].indexOf(undefined);    // -1`,
+    },
+    {
+      heading: { en: 'Both compare by reference for objects', hi: 'Objects ke liye dono reference se compare karte hain' },
+      body: {
+        en: 'Neither looks inside an object, so a freshly written literal will never be found. To search by content you need find or some with your own predicate.',
+        hi: 'Koi bhi object ke andar nahi jhaankta, toh abhi likha hua literal kabhi nahi milega. Content se dhoondhna ho toh apne predicate ke saath find ya some chahiye.',
+      },
+      code: `users.includes({ id: 1 });              // false ✗
+users.some((u) => u.id === 1);          // true  ✓
+users.findIndex((u) => u.id === 1);     // the index`,
+    },
+    {
+      heading: { en: 'Both exist on strings too', hi: 'Dono strings pe bhi hain' },
+      body: {
+        en: 'String.includes checks for a substring and reads far better than the old indexOf comparison. Strings also have startsWith and endsWith, which are clearer still when that is what you mean.',
+        hi: 'String.includes substring dhoondhta hai aur purane indexOf wale comparison se kahin behtar padha jaata hai. Strings pe startsWith aur endsWith bhi hain, jo aur bhi saaf hain jab wahi matlab ho.',
+      },
+      code: `'hello'.includes('ell');     // true
+'hello'.indexOf('ell');      // 1
+'hello'.startsWith('he');    // true`,
+    },
+    {
+      heading: { en: 'Both are O(n)', hi: 'Dono O(n) hain' },
+      body: {
+        en: 'Each scans the array. Inside a loop that makes the whole thing O(n²). When you are testing membership repeatedly, build a Set once and use has — that is the answer to the performance follow-up.',
+        hi: 'Dono array scan karte hain. Loop ke andar isse poora kaam O(n²) ho jaata hai. Jab baar-baar membership check karni ho toh ek baar Set banao aur has use karo — performance wale follow-up ka jawab yahi hai.',
+      },
+      code: `// ✗ O(n × m)
+const dupes = a.filter((x) => b.includes(x));
+
+// ✓ O(n + m)
+const setB = new Set(b);
+const dupes = a.filter((x) => setB.has(x));`,
+    },
+  ],
+
+  'What is a function declaration?': [
+    {
+      heading: { en: 'The form and the rule', hi: 'Roop aur rule' },
+      body: {
+        en: 'A function declaration starts a statement with the function keyword and has a name. Because it is a statement rather than an expression, the engine registers it — name and full body — during the creation phase of the scope.',
+        hi: 'Function declaration wo hai jo statement ki shuruaat function keyword se karta hai aur uska naam hota hai. Ye expression nahi statement hai, isliye engine usse scope ke creation phase mein register kar leta hai — naam aur poori body dono.',
+      },
+      code: `function greet(name) {
+  return 'hello ' + name;
+}`,
+    },
+    {
+      heading: { en: 'Fully hoisted — you can call it first', hi: 'Poora hoisted — pehle call kar sakte ho' },
+      body: {
+        en: 'This is the property that distinguishes it. Both the name and the body are available before the definition line runs, which is why helper functions can sit at the bottom of a file and the main logic at the top.',
+        hi: 'Yahi wo baat hai jo isse alag karti hai. Naam aur body dono definition line chalne se pehle available hote hain, isiliye helper functions file ke neeche baith sakte hain aur main logic upar.',
+      },
+      code: `console.log(add(2, 3));   // 5 ✓ works
+function add(a, b) { return a + b; }`,
+    },
+    {
+      heading: { en: 'It creates a binding in its scope', hi: 'Ye apne scope mein ek binding banata hai' },
+      body: {
+        en: 'The name becomes a variable in the enclosing scope, so it can be reassigned or shadowed like any other. At the top level of a classic script it also becomes a property of the global object, which modules do not do.',
+        hi: 'Naam aas-paas ke scope mein ek variable ban jaata hai, toh usse kisi aur ki tarah reassign ya shadow kiya ja sakta hai. Classic script ke top level pe ye global object ki property bhi ban jaata hai, jo modules nahi karte.',
+      },
+      code: `function f() { return 1; }
+f = 2;          // ✓ allowed — it is just a binding
+typeof f;       // 'number'`,
+    },
+    {
+      heading: { en: 'The name is visible inside itself', hi: 'Naam apne andar dikhta hai' },
+      body: {
+        en: 'A declaration can call itself by name, which is what makes plain recursion straightforward. Note that reassigning the outer binding breaks that, which is one argument for a named function expression in library code.',
+        hi: 'Declaration khud ko naam se call kar sakta hai, isi se saadi recursion aasaan hoti hai. Dhyaan do bahar wali binding badal do toh ye toot jaata hai, aur library code mein named function expression chunne ki ek wajah yahi hai.',
+      },
+      code: `function fact(n) { return n <= 1 ? 1 : n * fact(n - 1); }`,
+    },
+    {
+      heading: { en: 'Inside a block, behaviour gets murky', hi: 'Block ke andar vyavhaar dhundhla ho jaata hai' },
+      body: {
+        en: 'In strict mode a declaration inside a block is scoped to that block. In sloppy mode engines apply legacy web-compatibility rules that differ. Do not declare functions inside if statements — assign a const instead.',
+        hi: 'Strict mode mein block ke andar ka declaration usi block tak seemit hai. Sloppy mode mein engines purane web-compatibility rules lagate hain jo alag hain. if ke andar functions declare mat karo — uski jagah const assign karo.',
+      },
+      code: `if (x) {
+  function f() {}      // ✗ avoid — behaviour varies
+}
+const f = x ? () => 1 : () => 2;   // ✓ predictable`,
+    },
+  ],
+
+  'What is a function expression?': [
+    {
+      heading: { en: 'A function used as a value', hi: 'Function jo value ki tarah use ho' },
+      body: {
+        en: 'A function expression appears where a value is expected — on the right of an assignment, as an argument, inside an object. The name is optional, and if you omit it the function is anonymous.',
+        hi: 'Function expression wahan aata hai jahan value ki ummeed ho — assignment ke daayein, argument ke roop mein, object ke andar. Naam optional hai, aur na do toh function anonymous ho jaata hai.',
+      },
+      code: `const greet = function (name) { return 'hi ' + name; };
+setTimeout(function () {}, 0);
+const o = { run: function () {} };`,
+    },
+    {
+      heading: { en: 'Hoisting follows the variable, not the function', hi: 'Hoisting variable ke peeche chalti hai, function ke nahi' },
+      body: {
+        en: 'The function itself is not hoisted — only the variable it is assigned to. With const you get a temporal dead zone error before the line; with var you get "is not a function", because the name exists but holds undefined.',
+        hi: 'Function khud hoist nahi hota — sirf wo variable jisme wo assign hua. const ke saath line se pehle temporal dead zone error milta hai; var ke saath "is not a function", kyunki naam hai par usme undefined pada hai.',
+      },
+      code: `f();                     // ✗ TypeError: f is not a function
+var f = function () {};
+
+g();                     // ✗ ReferenceError (TDZ)
+const g = function () {};`,
+    },
+    {
+      heading: { en: 'Named function expressions', hi: 'Named function expressions' },
+      body: {
+        en: 'You can give an expression a name. That name is visible ONLY inside the function, which gives you safe recursion and a useful label in stack traces. It does not leak into the surrounding scope.',
+        hi: 'Expression ko naam de sakte ho. Wo naam SIRF function ke andar dikhta hai, jisse safe recursion milti hai aur stack traces mein ek kaam ka label. Wo bahar wale scope mein nahi jaata.',
+      },
+      code: `const fact = function inner(n) {
+  return n <= 1 ? 1 : n * inner(n - 1);   // ✓ safe self-reference
+};
+inner;    // ✗ ReferenceError — not visible outside`,
+    },
+    {
+      heading: { en: 'Why this is the form to prefer', hi: 'Yahi roop kyun chunna chahiye' },
+      body: {
+        en: 'With const, a function cannot be used before it is defined and cannot be reassigned later. That turns two classes of mistake into immediate errors, and it forces a file to read top to bottom in dependency order.',
+        hi: 'const ke saath function apni definition se pehle use nahi ho sakta aur baad mein badla nahi ja sakta. Isse do tarah ki galtiyan turant error ban jaati hain, aur file upar se neeche dependency ke kram mein padhni padti hai.',
+      },
+      code: `const handler = () => {};
+handler = somethingElse;   // ✗ TypeError — caught immediately`,
+    },
+    {
+      heading: { en: 'Where an expression is the only option', hi: 'Jahan expression hi ek option hai' },
+      body: {
+        en: 'Passing a function as an argument, returning one, storing one in an object or array, and IIFEs all require an expression. A declaration is a statement and cannot appear in those positions.',
+        hi: 'Function ko argument dena, return karna, object ya array mein rakhna, aur IIFEs — in sabme expression hi chahiye. Declaration statement hai aur in jagahon pe aa hi nahi sakta.',
+      },
+      code: `arr.map(function (x) { return x * 2; });
+return function () {};
+(function () {})();`,
+    },
+  ],
+
+  'What is a callback function?': [
+    {
+      heading: { en: 'A function you hand over to be called', hi: 'Ek function jo tum bulane ke liye de dete ho' },
+      body: {
+        en: 'A callback is simply a function passed as an argument, so that other code can invoke it at the right moment. It exists because functions are first-class values in JavaScript — nothing more exotic than that.',
+        hi: 'Callback bas ek function hai jo argument ki tarah diya jaata hai, taaki doosra code usse sahi waqt pe chala sake. Ye isliye mumkin hai kyunki JavaScript mein functions first-class values hain — isse zyada kuch nahi.',
+      },
+      code: `[1,2,3].map((n) => n * 2);              // called per element
+btn.addEventListener('click', handle);   // called on click
+setTimeout(done, 1000);                  // called after a delay`,
+    },
+    {
+      heading: { en: 'Synchronous and asynchronous callbacks', hi: 'Synchronous aur asynchronous callbacks' },
+      body: {
+        en: 'People assume callback means async. It does not. Array callbacks run immediately, in the same tick, before the method returns. Timer and I/O callbacks are queued and run later. Knowing which kind you have decides whether code after the call has run yet.',
+        hi: 'Log maan lete hain callback matlab async. Aisa nahi hai. Array ke callbacks turant chalte hain, usi tick mein, method ke return hone se pehle. Timer aur I/O ke callbacks queue mein jaate hain aur baad mein chalte hain. Kaunsa hai ye jaan kar hi pata chalta hai ki call ke baad ka code chala ya nahi.',
+      },
+      code: `[1,2].forEach(() => console.log('a'));
+console.log('b');
+// a a b   ← synchronous
+
+setTimeout(() => console.log('a'));
+console.log('b');
+// b a     ← asynchronous`,
+    },
+    {
+      heading: { en: 'Pass the function, do not call it', hi: 'Function do, usse call mat karo' },
+      body: {
+        en: 'This is the most common beginner bug. Adding parentheses runs the function immediately and passes its return value — usually undefined. Pass the reference, or wrap the call in an arrow when you need to supply arguments.',
+        hi: 'Ye sabse aam beginner bug hai. Brackets lagate hi function turant chal jaata hai aur uski return value chali jaati hai — aam taur pe undefined. Reference do, ya arguments dene hon toh call ko arrow mein lapet do.',
+      },
+      code: `setTimeout(greet, 1000);        // ✓
+setTimeout(greet(), 1000);      // ✗ runs now
+
+btn.onclick = () => greet('Asha');   // ✓ arguments, deferred`,
+    },
+    {
+      heading: { en: 'The error-first convention', hi: 'Error-first convention' },
+      body: {
+        en: 'Node standardised on passing the error as the first argument and the result after it. It exists because try/catch cannot cross an async boundary, so the error has to travel as data instead.',
+        hi: 'Node ne ye standard banaya ki error pehla argument ho aur result uske baad. Ye isliye hai kyunki try/catch async boundary paar nahi kar sakta, toh error ko data ki tarah safar karna padta hai.',
+      },
+      code: `fs.readFile('a.txt', (err, data) => {
+  if (err) return handle(err);
+  use(data);
+});
+
+try {
+  setTimeout(() => { throw new Error('x'); });
+} catch (e) {}      // ✗ never catches it`,
+    },
+    {
+      heading: { en: 'Losing this', hi: 'this kho jaana' },
+      body: {
+        en: 'Passing a method detaches it from its object, so this is undefined when the callback finally runs. Bind it or wrap it in an arrow — this is behind a large share of "cannot read property of undefined" errors.',
+        hi: 'Method pass karne se wo apne object se alag ho jaata hai, toh callback chalte waqt this undefined hota hai. Usse bind karo ya arrow mein lapet do — "cannot read property of undefined" ka bada hissa isi se aata hai.',
+      },
+      code: `btn.addEventListener('click', user.greet);             // ✗
+btn.addEventListener('click', user.greet.bind(user));   // ✓
+btn.addEventListener('click', () => user.greet());      // ✓`,
+    },
+    {
+      heading: { en: 'When to move past callbacks', hi: 'Callbacks se aage kab badhein' },
+      body: {
+        en: 'For a one-shot async result, a promise is better: it guarantees a single settlement, chains without nesting, and works with try/catch through await. Callbacks remain the right shape for repeating events, where a promise simply does not fit.',
+        hi: 'Ek baar aane wale async result ke liye promise behtar hai: wo ek hi settlement guarantee karta hai, bina nesting chain hota hai, aur await se try/catch ke saath chalta hai. Baar-baar hone wale events ke liye callbacks hi sahi shape hain, jahan promise fit hi nahi hota.',
+      },
+    },
+  ],
+
+  'What are first-class functions?': [
+    {
+      heading: { en: 'Functions are values like any other', hi: 'Functions baaki values jaise hi hain' },
+      body: {
+        en: 'A language has first-class functions when functions can be stored in variables, passed as arguments, returned from other functions, and kept in data structures. JavaScript can do all four, which is why so much of the language works the way it does.',
+        hi: 'Kisi language mein first-class functions tab hote hain jab functions ko variables mein rakha ja sake, arguments ki tarah bheja ja sake, doosre functions se return kiya ja sake, aur data structures mein rakha ja sake. JavaScript chaaron kar sakti hai, aur isiliye language ka itna hissa aise chalta hai.',
+      },
+      code: `const f = function () {};        // stored
+arr.map(f);                       // passed
+const g = () => f;                // returned
+const handlers = { click: f };    // in a data structure`,
+    },
+    {
+      heading: { en: 'Functions are objects', hi: 'Functions objects hain' },
+      body: {
+        en: 'A function is a callable object, so it has properties and can be given more. That is how name and length work, and how libraries hang metadata on functions.',
+        hi: 'Function ek callable object hai, toh uske paas properties hoti hain aur aur bhi di ja sakti hain. Isi se name aur length chalte hain, aur libraries functions pe metadata tangti hain.',
+      },
+      code: `function add(a, b) { return a + b; }
+
+add.name;        // 'add'
+add.length;      // 2 — declared parameters
+add.cache = {};  // ✓ you can add your own
+typeof add;      // 'function'`,
+    },
+    {
+      heading: { en: 'This is what makes higher-order functions possible', hi: 'Isi se higher-order functions mumkin hain' },
+      body: {
+        en: 'A higher-order function takes or returns a function. Without first-class functions there is no map, no filter, no addEventListener, no promises. The concept is the foundation; higher-order functions are what you build on it.',
+        hi: 'Higher-order function ek function leta ya deta hai. First-class functions ke bina na map hai, na filter, na addEventListener, na promises. Ye concept neev hai; higher-order functions uspe bani cheez hain.',
+      },
+      code: `const twice = (fn) => (x) => fn(fn(x));
+twice((n) => n + 1)(5);   // 7`,
+    },
+    {
+      heading: { en: 'Returning functions gives you closures', hi: 'Function return karne se closures milte hain' },
+      body: {
+        en: 'A returned function keeps access to the scope it was created in. That combination — first-class functions plus closures — is what makes factories, memoisation, currying, debounce and the module pattern possible.',
+        hi: 'Return kiya gaya function us scope tak pahunch rakhta hai jisme wo bana tha. Yahi jodi — first-class functions aur closures — factories, memoisation, currying, debounce aur module pattern ko mumkin banati hai.',
+      },
+      code: `const counter = () => { let n = 0; return () => ++n; };
+const next = counter();
+next(); next();   // 1, 2`,
+    },
+    {
+      heading: { en: 'The related terms, briefly', hi: 'Jude hue shabd, sankshep mein' },
+      body: {
+        en: 'First-class function means functions are values. Higher-order function means a function that takes or returns one. First-class citizen is the general term for any value with no restrictions. Interviewers often ask you to separate the first two.',
+        hi: 'First-class function matlab functions values hain. Higher-order function matlab wo function jo function leta ya deta hai. First-class citizen har us value ke liye aam shabd hai jispe koi rok nahi. Interviewers aksar pehle do ko alag karne ko kehte hain.',
+      },
+    },
+  ],
+
+  'What is an IIFE?': [
+    {
+      heading: { en: 'Define and run in one go', hi: 'Ek saath define karo aur chalao' },
+      body: {
+        en: 'An Immediately Invoked Function Expression is a function that runs the moment it is defined. Wrap the function in parentheses to make it an expression, then call it. Nothing more to it.',
+        hi: 'Immediately Invoked Function Expression wo function hai jo define hote hi chal jaata hai. Function ko brackets mein lapet kar expression banao, phir usse call kar do. Bas itni si baat hai.',
+      },
+      code: `(function () {
+  console.log('runs now');
+})();
+
+(() => { console.log('arrow form'); })();
+
+(async () => { await main(); })();   // the common modern use`,
+    },
+    {
+      heading: { en: 'Why the wrapping parentheses are needed', hi: 'Lapetne wale brackets kyun chahiye' },
+      body: {
+        en: 'A statement beginning with the function keyword is parsed as a declaration, and a declaration cannot be invoked. The parentheses force the parser into expression position. Any operator that does the same works — a leading ! or + is sometimes used.',
+        hi: 'Jo statement function keyword se shuru ho use declaration padha jaata hai, aur declaration ko invoke nahi kar sakte. Brackets parser ko expression position mein le aate hain. Wahi kaam karne wala koi bhi operator chalta hai — kabhi-kabhi shuruaat mein ! ya + use hota hai.',
+      },
+      code: `function () {}();      // ✗ SyntaxError
+(function () {})();     // ✓
+!function () {}();      // ✓ also works
+void function () {}();  // ✓`,
+    },
+    {
+      heading: { en: 'What it was for: a private scope', hi: 'Ye kis liye tha: ek private scope' },
+      body: {
+        en: 'Before ES6 there was no block scope, so var leaked out of every if and for. An IIFE was the only way to create a scope that did not pollute the global namespace. Library code was wrapped in one as a matter of course.',
+        hi: 'ES6 se pehle block scope tha hi nahi, toh var har if aur for se bahar nikal jaata tha. IIFE hi ek aisa tareeka tha jisse aisa scope bane jo global namespace ganda na kare. Library code aadat ke taur pe isme lapet diya jaata tha.',
+      },
+      code: `var counter = (function () {
+  var count = 0;                    // private
+  return { inc: function () { return ++count; } };
+})();
+counter.count;   // undefined ✓ hidden`,
+    },
+    {
+      heading: { en: 'Mostly obsolete now — say so', hi: 'Ab zyadatar bekaar — ye bata do' },
+      body: {
+        en: 'let and const give you block scope, and ES modules already have their own scope with nothing leaking to the global object. Reaching for an IIFE for isolation in modern code is a sign of dated habits.',
+        hi: 'let aur const block scope dete hain, aur ES modules ka apna scope hota hai jisme se kuch bhi global object pe nahi jaata. Modern code mein isolation ke liye IIFE uthana purani aadat ka nishaan hai.',
+      },
+      code: `{ const secret = 1; }      // ✓ a block is enough
+// and every ES module is already private by default`,
+    },
+    {
+      heading: { en: 'Where it is still the right tool', hi: 'Ye ab bhi kahan sahi auzaar hai' },
+      body: {
+        en: 'Top-level await in a CommonJS file, where an async IIFE is the standard workaround. Running setup code exactly once for its side effects. And computing a value that needs several statements, without leaking the intermediates.',
+        hi: 'CommonJS file mein top-level await, jahan async IIFE standard hal hai. Setup code ko side effects ke liye theek ek baar chalana. Aur aisi value banana jisme kai statements lagein, bina beech ke variables bahar bhejay.',
+      },
+      code: `const config = (() => {
+  const raw = readFile();
+  const parsed = JSON.parse(raw);
+  return normalise(parsed);        // raw and parsed stay hidden
+})();`,
+    },
+    {
+      heading: { en: 'The semicolon trap', hi: 'Semicolon ka jaal' },
+      body: {
+        en: 'A missing semicolon on the previous line makes the parser read your parentheses as a function call on whatever came before. This is the classic argument for starting an IIFE line with a leading semicolon in code without a formatter.',
+        hi: 'Pichhli line pe semicolon na ho toh parser tumhare brackets ko pehle wale par function call samajh leta hai. Formatter ke bina wale code mein IIFE ki line semicolon se shuru karne ki classic wajah yahi hai.',
+      },
+      code: `const a = 1
+(function () {})()      // ✗ parsed as 1(function…) → TypeError
+
+;(function () {})()     // ✓ defensive leading semicolon`,
+    },
+  ],
+
+  'What is recursion?': [
+    {
+      heading: { en: 'A function that calls itself', hi: 'Aisa function jo khud ko bulaye' },
+      body: {
+        en: 'Recursion solves a problem by solving a smaller version of the same problem. Two parts are mandatory: a base case that stops, and a recursive case that moves strictly closer to it. Miss either and you get a stack overflow.',
+        hi: 'Recursion kisi problem ko usi problem ke chhote roop ko hal karke sulajhata hai. Do hisse zaroori hain: ek base case jo rokta hai, aur ek recursive case jo uske aur kareeb le jaata hai. Ek bhi chhoot jaaye toh stack overflow milta hai.',
+      },
+      code: `function factorial(n) {
+  if (n <= 1) return 1;              // base case
+  return n * factorial(n - 1);       // recursive case
+}
+factorial(5);   // 120`,
+    },
+    {
+      heading: { en: 'Watch it on the call stack', hi: 'Call stack pe isse dekho' },
+      body: {
+        en: 'Each call pushes a frame and waits. Nothing multiplies until the base case returns and the stack unwinds. Seeing this makes both the memory cost and the ordering obvious.',
+        hi: 'Har call ek frame push karti hai aur intezaar karti hai. Kuch bhi guna nahi hota jab tak base case return na kare aur stack wapas na khule. Ye dekh lo toh memory ki keemat aur kram dono saaf ho jaate hain.',
+      },
+      diagram: `factorial(3)
+  └ 3 * factorial(2)
+        └ 2 * factorial(1)
+              └ 1            ← base case returns
+        └ 2 * 1 = 2
+  └ 3 * 2 = 6`,
+    },
+    {
+      heading: { en: 'The stack limit is real', hi: 'Stack ki seema asli hai' },
+      body: {
+        en: 'Every frame costs memory, and browsers cap the depth at roughly ten thousand. A recursive function over a large list will throw RangeError. Any recursion can be rewritten as a loop with an explicit stack, and for deep data you should.',
+        hi: 'Har frame memory leta hai, aur browsers depth ko lagbhag das hazaar tak seemit karte hain. Badi list pe recursive function RangeError dega. Har recursion ko explicit stack wale loop mein badla ja sakta hai, aur gehre data ke liye badalna hi chahiye.',
+      },
+      code: `function count(n) { return n === 0 ? 0 : count(n - 1); }
+count(100000);   // ✗ RangeError: Maximum call stack size exceeded`,
+    },
+    {
+      heading: { en: 'Tail calls are not optimised in practice', hi: 'Tail calls asal mein optimise nahi hote' },
+      body: {
+        en: 'ES6 specified tail-call optimisation, which would reuse the frame when the recursive call is the last thing a function does. Only Safari ever shipped it. Do not rely on it — say this in an interview and it will land.',
+        hi: 'ES6 ne tail-call optimisation specify ki thi, jo tab frame dobara use karti jab recursive call function ka aakhri kaam ho. Sirf Safari ne isse ship kiya. Ispe bharosa mat karo — interview mein ye keh doge toh asar padega.',
+      },
+      code: `function sum(n, acc = 0) {
+  if (n === 0) return acc;
+  return sum(n - 1, acc + n);   // a tail call — still overflows in V8
+}`,
+    },
+    {
+      heading: { en: 'Where recursion genuinely wins', hi: 'Recursion sach mein kahan jeetta hai' },
+      body: {
+        en: 'Anything tree-shaped: the DOM, a file system, nested JSON, a comment thread. A loop over a tree needs you to manage a stack by hand; recursion lets the call stack do it. That readability is the reason to choose it.',
+        hi: 'Har wo cheez jo tree jaisi ho: DOM, file system, nested JSON, comment thread. Tree pe loop chalane ke liye stack khud sambhalna padta hai; recursion mein call stack wo kaam kar deta hai. Padhne mein aasaani hi isse chunne ki wajah hai.',
+      },
+      code: `function flatten(arr) {
+  return arr.reduce(
+    (out, v) => out.concat(Array.isArray(v) ? flatten(v) : v),
+    []
+  );
+}
+flatten([1, [2, [3, [4]]]]);   // [1,2,3,4]`,
+    },
+    {
+      heading: { en: 'Memoise when subproblems repeat', hi: 'Jab subproblems dohraayein toh memoise karo' },
+      body: {
+        en: 'Naive fibonacci recomputes the same values exponentially. Caching results by input collapses it to linear time. This is the bridge between recursion and dynamic programming, and it is a very common follow-up.',
+        hi: 'Saada fibonacci wahi values exponentially dobara nikalta hai. Input pe results cache karo toh ye linear time ho jaata hai. Yahi recursion aur dynamic programming ka pul hai, aur ye bahut aam follow-up hai.',
+      },
+      code: `const memo = new Map();
+function fib(n) {
+  if (n < 2) return n;
+  if (memo.has(n)) return memo.get(n);
+  const v = fib(n - 1) + fib(n - 2);
+  memo.set(n, v);
+  return v;
+}
+fib(50);   // instant; without the memo, effectively never`,
+    },
+  ],
+
+  /* ─── Parameters, scope and closures ──────────────────────── */
+
+  'What are default parameters?': [
+    {
+      heading: { en: 'A fallback written in the signature', hi: 'Signature mein likha hua fallback' },
+      body: {
+        en: 'Assign a value in the parameter list and it is used when that argument is undefined. Before ES6 you did this by hand with || inside the body, which broke on 0 and empty strings.',
+        hi: 'Parameter list mein value assign kar do aur jab wo argument undefined ho tab wahi use hoti hai. ES6 se pehle ye body ke andar || se haath se hota tha, jo 0 aur khaali strings pe toot jaata tha.',
+      },
+      code: `function greet(name = 'guest') { return 'hi ' + name; }
+greet();          // 'hi guest'
+greet('Asha');    // 'hi Asha'
+
+// the old way, and its bug:
+function old(n) { n = n || 10; return n; }
+old(0);           // 10 ✗ zero was a real value`,
+    },
+    {
+      heading: { en: 'Only undefined triggers it', hi: 'Sirf undefined isse chalata hai' },
+      body: {
+        en: 'Not null, not 0, not "", not false, not NaN. Those are real values and are passed through. This is the single most-tested detail about defaults.',
+        hi: 'Na null, na 0, na "", na false, na NaN. Ye asli values hain aur waise hi aage jaati hain. Defaults ke baare mein sabse zyada test kiya jaane wala detail yahi hai.',
+      },
+      code: `function f(x = 10) { return x; }
+f();            // 10
+f(undefined);   // 10  ← explicit undefined still triggers it
+f(null);        // null
+f(0);           // 0
+f('');          // ''
+f(NaN);         // NaN`,
+    },
+    {
+      heading: { en: 'Evaluated at call time, every time', hi: 'Har call pe, call ke waqt evaluate hote hain' },
+      body: {
+        en: 'The default expression runs afresh on each invocation that needs it — not once when the function is defined. So a default of [] or {} gives you a brand new one per call, which is exactly the behaviour Python programmers expect and do not get.',
+        hi: 'Default expression har us call pe naye sire se chalta hai jise uski zaroorat ho — function define hote waqt ek baar nahi. Toh [] ya {} ka default har call pe bilkul naya deta hai, jo Python walon ki ummeed hai par unhe milta nahi.',
+      },
+      code: `function push(item, list = []) { list.push(item); return list; }
+push(1);   // [1]
+push(2);   // [2]  ✓ a fresh array each time`,
+    },
+    {
+      heading: { en: 'Later defaults can use earlier parameters', hi: 'Baad ke defaults pehle wale parameters use kar sakte hain' },
+      body: {
+        en: 'Parameters initialise left to right, so a default may reference anything already initialised. Referencing something to its right throws, because that parameter is still in its temporal dead zone.',
+        hi: 'Parameters left se right initialise hote hain, toh koi bhi default un cheezon ko use kar sakta hai jo pehle initialise ho chuki hain. Apne right wali cheez use karo toh error aata hai, kyunki wo parameter abhi TDZ mein hai.',
+      },
+      code: `function area(w, h = w) { return w * h; }
+area(5);                  // 25 ✓
+
+function bad(a = b, b = 2) { return a; }
+bad();                    // ✗ ReferenceError`,
+    },
+    {
+      heading: { en: 'Two side effects worth knowing', hi: 'Do side effects jo jaanne laayak hain' },
+      body: {
+        en: 'A default makes that parameter and everything after it stop counting towards fn.length, which breaks naive currying. And a function with defaults gets its own parameter scope, so it cannot be in strict-mode-with-"use strict"-in-body form.',
+        hi: 'Default lagate hi wo parameter aur uske baad ke sab fn.length mein ginna band ho jaate hain, jisse saadi currying toot jaati hai. Aur defaults wale function ko apna parameter scope milta hai, isliye body mein "use strict" wala roop uspe nahi chalta.',
+      },
+      code: `((a, b) => 0).length;         // 2
+((a, b = 1) => 0).length;     // 1
+((a = 1, b) => 0).length;     // 0`,
+    },
+    {
+      heading: { en: 'Defaults on a destructured object', hi: 'Destructured object pe defaults' },
+      body: {
+        en: 'The common real-world pattern for options. Note you need TWO levels: a default for each property, and a default for the whole object so that calling with no argument at all still works.',
+        hi: 'Options ke liye asli duniya ka aam pattern. Dhyaan do DO level chahiye: har property ka default, aur poore object ka default taaki bina kisi argument ke call karna bhi chale.',
+      },
+      code: `function init({ retries = 3, delay = 100 } = {}) {
+  return [retries, delay];
+}
+init();                  // [3, 100] ✓ works thanks to the = {}
+init({ retries: 5 });    // [5, 100]`,
+    },
+  ],
+
+  'What are rest parameters?': [
+    {
+      heading: { en: 'Collect the leftovers into a real array', hi: 'Bache hue ko ek asli array mein ikattha karo' },
+      body: {
+        en: 'Three dots in a parameter list gather every remaining argument into an Array. Named parameters take their share first; rest takes whatever is left, and it is empty rather than undefined when there is nothing.',
+        hi: 'Parameter list mein teen dots baaki saare arguments ko ek Array mein ikattha kar lete hain. Naam wale parameters pehle apna hissa lete hain; rest jo bache wo leta hai, aur kuch na ho toh wo khaali hota hai, undefined nahi.',
+      },
+      code: `function sum(first, ...rest) { return [first, rest]; }
+
+sum(1, 2, 3);   // [1, [2, 3]]
+sum(1);         // [1, []]   ← empty array, not undefined`,
+    },
+    {
+      heading: { en: 'Why it replaced arguments', hi: 'Isne arguments ki jagah kyun li' },
+      body: {
+        en: 'The arguments object is array-LIKE: it has length and indexes but none of the array methods, so you had to convert it first. It also does not exist in arrow functions. Rest gives you a genuine Array with none of that friction.',
+        hi: 'arguments object array-JAISA hai: usme length aur indexes hain par array methods koi nahi, toh pehle convert karna padta tha. Aur arrow functions mein wo hota hi nahi. Rest ek asli Array deta hai, bina kisi jhanjhat ke.',
+      },
+      code: `function old() {
+  return Array.prototype.slice.call(arguments).map(f);   // ✗ clumsy
+}
+function modern(...args) { return args.map(f); }         // ✓
+
+const arrow = (...args) => args;      // ✓ rest works in arrows
+const bad = () => arguments;          // ✗ no arguments object`,
+    },
+    {
+      heading: { en: 'It must come last, and there is only one', hi: 'Ye aakhri hona chahiye, aur ek hi ho sakta hai' },
+      body: {
+        en: 'Both rules are enforced at parse time, so you get a SyntaxError rather than a runtime surprise. It also cannot have a default value — an empty array already is the default.',
+        hi: 'Dono rules parse ke waqt hi lagte hain, toh runtime surprise ki jagah SyntaxError milta hai. Iski default value bhi nahi ho sakti — khaali array pehle se hi default hai.',
+      },
+      code: `function a(...x, y) {}       // ✗ SyntaxError — must be last
+function b(...x, ...y) {}    // ✗ only one
+function c(...x = []) {}     // ✗ no default needed or allowed`,
+    },
+    {
+      heading: { en: 'It does not count towards length', hi: 'Ye length mein nahi ginta' },
+      body: {
+        en: 'fn.length reports only the parameters before the first default or rest. This is why a generic curry implementation based on fn.length silently breaks on variadic functions — a good detail to mention.',
+        hi: 'fn.length sirf pehle default ya rest se pehle wale parameters ginta hai. Isiliye fn.length pe bana generic curry variadic functions pe chup-chaap toot jaata hai — ye zikr karne laayak detail hai.',
+      },
+      code: `function f(a, b, ...rest) {}
+f.length;    // 2`,
+    },
+    {
+      heading: { en: 'Rest in destructuring', hi: 'Destructuring mein rest' },
+      body: {
+        en: 'The same collecting behaviour when pulling values apart. For objects it is the cleanest way to omit a key without mutating the original — very common for stripping a password or pulling props apart in React.',
+        hi: 'Values alag karte waqt wahi ikattha karne wala behaviour. Objects mein bina original badle koi key hataane ka sabse saaf tareeka yahi hai — password nikalne ya React mein props alag karne mein bahut aam.',
+      },
+      code: `const [head, ...tail] = [1, 2, 3];          // 1, [2,3]
+const { password, ...safe } = user;         // user is untouched
+function Btn({ variant, ...domProps }) {}   // React idiom`,
+    },
+  ],
+
+  'What is the spread operator?': [
+    {
+      heading: { en: 'Unpack an iterable into individual items', hi: 'Iterable ko alag-alag items mein kholo' },
+      body: {
+        en: 'Three dots in an expression position expand something into its parts: elements into an array literal, arguments into a call, properties into an object literal. Same syntax as rest, opposite direction.',
+        hi: 'Expression ki jagah teen dots kisi cheez ko uske hisson mein khol dete hain: elements array literal mein, arguments call mein, properties object literal mein. Syntax rest jaisa hi, disha ulti.',
+      },
+      code: `Math.max(...[1, 5, 3]);   // 5
+[...'abc'];               // ['a','b','c']
+[...new Set([1,1,2])];    // [1,2]
+{ ...{ a: 1 } };          // { a: 1 }`,
+    },
+    {
+      heading: { en: 'In arrays: copy and concatenate', hi: 'Arrays mein: copy aur jodna' },
+      body: {
+        en: 'It reads better than concat and slice, and it works at any position — you can insert in the middle, which concat cannot do in one expression.',
+        hi: 'Ye concat aur slice se behtar padha jaata hai, aur kisi bhi jagah chalta hai — beech mein daal sakte ho, jo concat ek expression mein nahi kar sakta.',
+      },
+      code: `const copy = [...a];
+const joined = [...a, ...b];
+const inserted = [...a.slice(0, 2), 'x', ...a.slice(2)];`,
+    },
+    {
+      heading: { en: 'In objects: merge, with last one winning', hi: 'Objects mein: merge, aakhri jeetta hai' },
+      body: {
+        en: 'Object spread copies own enumerable properties. On a key collision the later spread overwrites the earlier. Put your overrides last and your defaults first — or reverse it, depending on which should win.',
+        hi: 'Object spread own enumerable properties copy karta hai. Key takraaye toh baad wala spread pehle wale ko dhak deta hai. Overrides aakhir mein rakho aur defaults pehle — ya ulta, ye dekh kar ki kaun jeetna chahiye.',
+      },
+      code: `{ ...defaults, ...userOptions }     // user wins
+{ ...userOptions, ...forced }       // forced wins
+{ ...user, name: 'new' }            // override a single key`,
+    },
+    {
+      heading: { en: 'It is always shallow', hi: 'Ye hamesha shallow hai' },
+      body: {
+        en: 'Only the top level is duplicated. Nested objects and arrays are copied as references and remain shared, which is the single most common bug when people use spread to make state "safe" to edit.',
+        hi: 'Sirf top level duplicate hota hai. Nested objects aur arrays reference ke roop mein copy hote hain aur share hi rehte hain, aur jab log state ko "safe" banane ke liye spread use karte hain tab yahi sabse aam bug hai.',
+      },
+      code: `const copy = { ...state };
+copy.user.name = 'X';
+state.user.name;      // 'X' ✗ nested object is shared
+
+const next = { ...state, user: { ...state.user, name: 'X' } };  // ✓`,
+    },
+    {
+      heading: { en: 'What it can and cannot spread', hi: 'Ye kya spread kar sakta hai aur kya nahi' },
+      body: {
+        en: 'Array spread needs an ITERABLE, so a plain object throws. Object spread needs only an object-like value and simply copies own enumerable keys, so it works on arrays and strings too — giving you index keys.',
+        hi: 'Array spread ko ITERABLE chahiye, toh plain object pe error aata hai. Object spread ko bas object-jaisi value chahiye aur wo own enumerable keys copy kar deta hai, toh ye arrays aur strings pe bhi chalta hai — index keys deta hua.',
+      },
+      code: `[...{ a: 1 }];        // ✗ TypeError: not iterable
+{ ...[1, 2] };        // { 0: 1, 1: 2 }  ✓ index keys
+{ ...'ab' };          // { 0: 'a', 1: 'b' }`,
+    },
+    {
+      heading: { en: 'Two performance notes', hi: 'Performance pe do baatein' },
+      body: {
+        en: 'Spreading inside a reduce builds a new array every iteration, turning an O(n) fold into O(n²) — push instead. And spreading a very large array into a call can exceed the argument limit and throw.',
+        hi: 'Reduce ke andar spread har iteration mein naya array banata hai, jisse O(n) fold O(n²) ban jaata hai — uski jagah push karo. Aur bahut bade array ko call mein spread karna argument limit paar kar ke error de sakta hai.',
+      },
+      code: `arr.reduce((out, v) => [...out, v], []);   // ✗ O(n²)
+arr.reduce((out, v) => (out.push(v), out), []);   // ✓ O(n)
+
+Math.max(...hugeArray);   // ✗ can throw on ~100k+ elements`,
+    },
+  ],
+
+  'What is the difference between rest and spread?': [
+    {
+      heading: { en: 'Same three dots, opposite jobs', hi: 'Wahi teen dots, ulta kaam' },
+      body: {
+        en: 'Rest COLLECTS many things into one. Spread EXPANDS one thing into many. The syntax is identical, so the only way to tell them apart is where they appear.',
+        hi: 'Rest bahut si cheezein EK mein ikattha karta hai. Spread ek cheez ko BAHUT SI mein khol deta hai. Syntax bilkul same hai, toh pehchanne ka ek hi tareeka hai — wo kahan aaya hai.',
+      },
+      diagram: `REST — collecting, on the LEFT
+  function f(...args)
+  const [a, ...rest] = arr
+  const { x, ...others } = obj
+
+SPREAD — expanding, on the RIGHT
+  f(...args)
+  [...arr]
+  { ...obj }`,
+    },
+    {
+      heading: { en: 'The positional rule, stated simply', hi: 'Jagah ka rule, saaf-saaf' },
+      body: {
+        en: 'If the dots are in a place that RECEIVES values — a parameter list or a destructuring pattern — it is rest. If they are in a place that PRODUCES values — a call, an array literal, an object literal — it is spread.',
+        hi: 'Agar dots aisi jagah hain jo values LETI hai — parameter list ya destructuring pattern — toh wo rest hai. Agar aisi jagah hain jo values BANATI hai — call, array literal, object literal — toh wo spread hai.',
+      },
+      code: `function f(...args) {}    // rest: receiving
+f(...args);                // spread: producing
+
+const [a, ...b] = arr;     // rest
+const c = [...arr];        // spread`,
+    },
+    {
+      heading: { en: 'Both in one line', hi: 'Ek hi line mein dono' },
+      body: {
+        en: 'A wrapper function is the clearest demonstration: rest gathers whatever the caller passed, spread hands the same list on to the inner function. Being able to point at both in one example is a strong answer.',
+        hi: 'Wrapper function sabse saaf misaal hai: rest wo sab ikattha karta hai jo caller ne diya, spread wahi list andar wale function ko de deta hai. Ek hi example mein dono dikha dena mazboot jawab hai.',
+      },
+      code: `const logged = (fn) => (...args) => {   // rest — collect
+  console.log(args);
+  return fn(...args);                    // spread — expand
+};`,
+    },
+    {
+      heading: { en: 'Rest has restrictions, spread does not', hi: 'Rest pe rok hai, spread pe nahi' },
+      body: {
+        en: 'Rest must be last, and there can be only one per list. Spread can appear anywhere, any number of times. That asymmetry follows from what they do — collecting needs an unambiguous endpoint.',
+        hi: 'Rest aakhri hona chahiye, aur ek list mein ek hi ho sakta hai. Spread kahin bhi, kitni bhi baar aa sakta hai. Ye asantulan unke kaam se hi aata hai — ikattha karne ke liye ek saaf ant chahiye.',
+      },
+      code: `function a(...x, y) {}        // ✗ SyntaxError
+const b = [...x, 'mid', ...y, ...z];   // ✓ spread anywhere`,
+    },
+    {
+      heading: { en: 'Rest always gives an array; spread gives whatever fits', hi: 'Rest hamesha array deta hai; spread jo fit ho wo' },
+      body: {
+        en: 'Rest in a parameter list or array pattern produces an Array; in an object pattern it produces an Object. Spread has no type of its own — it just pours values into the surrounding literal or call.',
+        hi: 'Parameter list ya array pattern mein rest ek Array banata hai; object pattern mein ek Object. Spread ka apna koi type nahi — wo bas values ko aas-paas ke literal ya call mein undel deta hai.',
+      },
+      code: `function f(...a) { Array.isArray(a); }   // true, always
+const { x, ...rest } = o;                 // rest is an object`,
+    },
+  ],
+
+  'What is function composition?': [
+    {
+      heading: { en: 'Feed the output of one into the next', hi: 'Ek ka output agle mein daalo' },
+      body: {
+        en: 'Composition builds a new function by chaining existing ones, so the result of each becomes the argument of the next. Instead of nesting calls by hand, you describe the pipeline once.',
+        hi: 'Composition maujooda functions ko jod kar naya function banata hai, jisme har ek ka nateeja agle ka argument ban jaata hai. Haath se calls nest karne ki jagah tum pipeline ek baar likh dete ho.',
+      },
+      code: `const double = (n) => n * 2;
+const inc    = (n) => n + 1;
+
+inc(double(5));                 // 11 — nested by hand
+const f = compose(inc, double); // same thing, named
+f(5);                           // 11`,
+    },
+    {
+      heading: { en: 'compose runs right to left, pipe runs left to right', hi: 'compose daayein se baayein, pipe baayein se daayein' },
+      body: {
+        en: 'compose matches mathematical notation, where f(g(x)) is written compose(f, g). pipe matches reading order and is usually easier to follow. Knowing which is which is the detail interviewers check.',
+        hi: 'compose ganit ke notation se milta hai, jahan f(g(x)) ko compose(f, g) likhte hain. pipe padhne ke kram se milta hai aur aam taur pe samajhna aasaan hota hai. Kaun kaunsa hai, interviewers yahi detail dekhte hain.',
+      },
+      diagram: `compose(inc, double)(5)
+        └────────┘ double first, then inc → 11
+
+pipe(inc, double)(5)
+     └───────┘ inc first, then double → 12`,
+    },
+    {
+      heading: { en: 'Both are three lines of reduce', hi: 'Dono reduce ki teen lines hain' },
+      body: {
+        en: 'This is a standard whiteboard question. compose folds from the right, pipe folds from the left, and each step wraps the accumulated function. Write both and explain that they differ only in direction.',
+        hi: 'Ye standard whiteboard sawaal hai. compose daayein se fold karta hai, pipe baayein se, aur har step jama function ko lapetta hai. Dono likho aur samjhao ki farq sirf disha ka hai.',
+      },
+      code: `const compose = (...fns) => (x) => fns.reduceRight((v, f) => f(v), x);
+const pipe    = (...fns) => (x) => fns.reduce((v, f) => f(v), x);
+
+pipe(trim, toLower, slugify)('  Hello World  ');   // 'hello-world'`,
+    },
+    {
+      heading: { en: 'Each function should take and return one value', hi: 'Har function ek value le aur ek de' },
+      body: {
+        en: 'Composition only works cleanly when every stage is unary — one argument in, one value out. Multi-argument functions need currying or partial application first, which is the practical reason functional libraries curry everything.',
+        hi: 'Composition tabhi saaf chalta hai jab har stage unary ho — ek argument andar, ek value bahar. Multi-argument functions ko pehle currying ya partial application chahiye, aur functional libraries sab kuch curry isiliye karti hain.',
+      },
+      code: `const add = (a) => (b) => a + b;    // curried
+pipe(add(1), double)(5);            // 12`,
+    },
+    {
+      heading: { en: 'Why it is worth doing', hi: 'Ye karne laayak kyun hai' },
+      body: {
+        en: 'Each step is small, named, independently testable and reusable. The pipeline reads as a list of transformations rather than nested parentheses, and adding or removing a step is a one-line change.',
+        hi: 'Har step chhota, naam wala, alag se test hone laayak aur dobara use hone laayak hai. Pipeline nested brackets ki jagah transformations ki list jaisi padhi jaati hai, aur ek step jodna ya hataana ek line ka kaam hai.',
+      },
+    },
+    {
+      heading: { en: 'The limits to acknowledge', hi: 'Maan lene laayak seemayein' },
+      body: {
+        en: 'Debugging is harder because there is no obvious place to put a breakpoint — a tap helper that logs and passes the value through solves that. Composition also does not handle async out of the box; for promises you need an async pipe that awaits each step.',
+        hi: 'Debug karna mushkil hai kyunki breakpoint lagane ki koi saaf jagah nahi — ek tap helper jo log kare aur value aage bhej de, ye theek kar deta hai. Composition async bhi apne aap nahi sambhaalta; promises ke liye aisa async pipe chahiye jo har step await kare.',
+      },
+      code: `const tap = (label) => (v) => (console.log(label, v), v);
+pipe(trim, tap('after trim'), toLower)(input);
+
+const pipeAsync = (...fns) => (x) =>
+  fns.reduce((p, f) => p.then(f), Promise.resolve(x));`,
+    },
+  ],
+
+  'What is scope?': [
+    {
+      heading: { en: 'Where a name is visible', hi: 'Kahan ek naam dikhta hai' },
+      body: {
+        en: 'Scope is the region of code in which a binding can be reached by name. It exists so that two functions can both use a variable called i without interfering, and so that internal details stay internal.',
+        hi: 'Scope code ka wo hissa hai jisme kisi binding tak naam se pahuncha ja sakta hai. Ye isliye hai taaki do functions dono i naam ka variable use kar sakein bina takraaye, aur andar ki cheezein andar rahein.',
+      },
+      code: `function f() {
+  const inside = 1;
+  return inside;      // ✓ visible here
+}
+inside;               // ✗ ReferenceError — not visible here`,
+    },
+    {
+      heading: { en: 'Three kinds, nested inside each other', hi: 'Teen prakaar, ek doosre ke andar' },
+      body: {
+        en: 'Global scope is everything outside any function or block. Function scope is created by every function call. Block scope is created by any pair of braces, but only for let, const and class — var ignores it.',
+        hi: 'Global scope wo sab hai jo kisi function ya block ke bahar hai. Function scope har function call se banta hai. Block scope kisi bhi curly braces se banta hai, par sirf let, const aur class ke liye — var usse nahi maanta.',
+      },
+      diagram: `┌ global ─────────────────────────┐
+│  const a = 1                    │
+│  ┌ function ──────────────────┐ │
+│  │  const b = 2               │ │
+│  │  ┌ block ────────────────┐ │ │
+│  │  │  const c = 3          │ │ │
+│  │  │  sees a, b, c         │ │ │
+│  │  └───────────────────────┘ │ │
+│  │  sees a, b — not c         │ │
+│  └────────────────────────────┘ │
+│  sees a only                    │
+└─────────────────────────────────┘`,
+    },
+    {
+      heading: { en: 'Lookup goes outward, never inward', hi: 'Lookup bahar ki taraf jaata hai, andar kabhi nahi' },
+      body: {
+        en: 'When a name is used, the engine checks the current scope, then the one enclosing it, and so on to global. If it is never found you get a ReferenceError. An outer scope can never see into an inner one — that direction simply does not exist.',
+        hi: 'Jab koi naam use hota hai, engine maujooda scope dekhta hai, phir uske bahar wala, aise global tak. Na mile toh ReferenceError. Bahar wala scope andar kabhi nahi dekh sakta — wo disha hoti hi nahi.',
+      },
+      code: `const a = 1;
+function f() {
+  const b = 2;
+  return a + b;    // a found by walking outward ✓
+}
+b;                 // ✗ the outer scope cannot see in`,
+    },
+    {
+      heading: { en: 'Scope is decided by where code is written', hi: 'Scope isse tay hota hai ki code kahan likha hai' },
+      body: {
+        en: 'JavaScript uses lexical (static) scope: a function\'s scope chain is fixed by its position in the source, not by where it is called from. This is why closures work and why moving a function changes what it can see.',
+        hi: 'JavaScript lexical (static) scope use karti hai: function ki scope chain uski source mein jagah se tay hoti hai, ye nahi ki usse kahan se call kiya gaya. Isi wajah se closures chalte hain aur function ki jagah badalne se uski nazar badal jaati hai.',
+      },
+      code: `const x = 'outer';
+function show() { return x; }
+function run() { const x = 'inner'; return show(); }
+run();     // 'outer' ✓ — where it was WRITTEN, not called`,
+    },
+    {
+      heading: { en: 'The global scope is a hazard', hi: 'Global scope ek khatra hai' },
+      body: {
+        en: 'Anything global is reachable and overwritable by every script on the page, and it never gets garbage collected. In sloppy mode, assigning to an undeclared name creates a global by accident — which is one of the main things strict mode prevents.',
+        hi: 'Global cheez page ke har script ke liye pahunch aur badalne laayak hoti hai, aur wo kabhi garbage collect nahi hoti. Sloppy mode mein undeclared naam pe assign karna galti se global bana deta hai — strict mode jinhe rokta hai unme ye mukhya hai.',
+      },
+      code: `function f() { leaked = 1; }   // ✗ creates a global
+f(); window.leaked;             // 1
+
+'use strict';
+function g() { leaked = 1; }    // ✗ ReferenceError ✓ caught`,
+    },
+  ],
+
+  'What are Global, Function, and Block scope?': [
+    {
+      heading: { en: 'Global — the outermost level', hi: 'Global — sabse bahar ka level' },
+      body: {
+        en: 'Anything declared outside every function and block. In a classic script, a top-level var or function declaration also becomes a property of window; let, const and class do not. In an ES module nothing goes to the global object at all.',
+        hi: 'Wo sab jo har function aur block ke bahar declare ho. Classic script mein top-level var ya function declaration window ki property bhi ban jaata hai; let, const aur class nahi. ES module mein kuch bhi global object pe nahi jaata.',
+      },
+      code: `var a = 1;  let b = 2;
+window.a;   // 1
+window.b;   // undefined
+
+// in a module, neither reaches window`,
+    },
+    {
+      heading: { en: 'Function — created by every call', hi: 'Function — har call se banta hai' },
+      body: {
+        en: 'Each invocation gets a fresh scope containing its parameters and its local declarations. This is the only scope var respects: a var inside a function is invisible outside it, no matter how many blocks it sits in.',
+        hi: 'Har invocation ko ek naya scope milta hai jisme uske parameters aur local declarations hote hain. var sirf isi scope ko maanta hai: function ke andar ka var bahar nahi dikhta, chahe wo kitne bhi blocks ke andar ho.',
+      },
+      code: `function f() {
+  if (true) { var v = 1; let l = 2; }
+  console.log(v);   // 1 ✓ var ignored the block
+  console.log(l);   // ✗ ReferenceError
+}
+v;                  // ✗ but var is still trapped by the function`,
+    },
+    {
+      heading: { en: 'Block — any pair of braces', hi: 'Block — koi bhi curly braces ki jodi' },
+      body: {
+        en: 'An if, a for, a while, a try, or a bare block all create a block scope for let, const and class. Introduced in ES6, this is what finally made loop variables behave the way people always expected.',
+        hi: 'if, for, while, try, ya bas ek khaali block — sab let, const aur class ke liye block scope banate hain. ES6 mein aaya, aur isi ne aakhirkaar loop variables ko waise chalaya jaisa log hamesha se ummeed karte the.',
+      },
+      code: `{ const secret = 1; }
+secret;              // ✗ ReferenceError ✓ contained
+
+for (let i = 0; i < 3; i++) {}
+i;                   // ✗ not leaked
+
+for (var j = 0; j < 3; j++) {}
+j;                   // 3 ✗ leaked`,
+    },
+    {
+      heading: { en: 'Where each one lives, side by side', hi: 'Teeno ek saath, aamne-saamne' },
+      body: {
+        en: 'The table below is the whole answer in compressed form. The only surprising row is var, which skips block scope entirely — everything else behaves as you would guess.',
+        hi: 'Neeche wali table poora jawab sanchipt roop mein hai. Sirf var wali line chaunkati hai, jo block scope ko poori tarah chhod deti hai — baaki sab waisa hi hai jaisa tum socho.',
+      },
+      diagram: `                global   function   block
+var               yes      yes        NO
+let / const       yes      yes        yes
+function decl     yes      yes        yes (strict mode)
+class             yes      yes        yes`,
+    },
+    {
+      heading: { en: 'Module scope, the fourth one', hi: 'Module scope, chautha' },
+      body: {
+        en: 'Worth mentioning because it comes up constantly in modern code. Every ES module has its own top-level scope: nothing leaks to the global object, and a name is shared only through export and import.',
+        hi: 'Zikr karne laayak hai kyunki modern code mein ye lagataar aata hai. Har ES module ka apna top-level scope hota hai: kuch bhi global object pe nahi jaata, aur naam sirf export aur import se share hota hai.',
+      },
+      code: `// a.js
+var x = 1;          // NOT on window
+export const y = 2; // shared only via import`,
+    },
+  ],
+
+  'What is lexical scope?': [
+    {
+      heading: { en: 'Scope determined by position in the source', hi: 'Source mein jagah se tay hone wala scope' },
+      body: {
+        en: 'Lexical means "as written". A function\'s scope chain is fixed when the code is authored, based on where the function physically sits — not on where it is later called from. This is also called static scope.',
+        hi: 'Lexical matlab "jaisa likha hai". Function ki scope chain code likhte waqt tay ho jaati hai, is aadhaar pe ki function kahan padha hai — na ki baad mein usse kahan se call kiya gaya. Isse static scope bhi kehte hain.',
+      },
+      code: `const name = 'outer';
+
+function show() { return name; }          // captures the outer scope
+
+function run() {
+  const name = 'inner';
+  return show();
+}
+run();    // 'outer' ✓ — position, not call site`,
+    },
+    {
+      heading: { en: 'The alternative that JavaScript does not use', hi: 'Wo vikalp jo JavaScript use nahi karti' },
+      body: {
+        en: 'Under dynamic scope, show() would look at whoever called it and return "inner". A few languages work that way; JavaScript does not, for variables. Saying this out loud shows you know why the answer is "outer".',
+        hi: 'Dynamic scope mein show() dekhta ki usse kisne bulaya aur "inner" deta. Kuch languages aise chalti hain; JavaScript variables ke liye nahi. Ye bol dena dikhata hai ki tumhe pata hai jawab "outer" kyun hai.',
+      },
+      diagram: `lexical (JS)     look OUTWARD through the source
+dynamic          look BACKWARD through the call stack`,
+    },
+    {
+      heading: { en: 'The one thing that IS dynamic: this', hi: 'Ek cheez jo dynamic HAI: this' },
+      body: {
+        en: 'Variables are lexical; this is not. In a regular function this is decided by how the call is made. Arrow functions opt out and take this lexically, which is exactly why they fixed the old self = this pattern.',
+        hi: 'Variables lexical hain; this nahi. Aam function mein this isse tay hota hai ki call kaise hua. Arrow functions isse bahar nikal jaate hain aur this lexically lete hain, aur isiliye unhone purana self = this pattern theek kar diya.',
+      },
+      code: `const o = {
+  n: 1,
+  reg() { return this.n; },        // dynamic — depends on the call
+  arr: () => this?.n,              // lexical — the enclosing this
+};
+o.reg();                 // 1
+const f = o.reg; f();    // ✗ this is lost`,
+    },
+    {
+      heading: { en: 'This is what makes closures possible', hi: 'Isi se closures mumkin hote hain' },
+      body: {
+        en: 'Because the scope chain is fixed at creation, a function that outlives its parent still has a working link to that parent\'s variables. Closures are lexical scope plus the garbage collector keeping the captured scope alive.',
+        hi: 'Scope chain banne ke waqt tay ho jaati hai, isliye jo function apne parent se zyada jeeta hai uska link phir bhi kaam karta hai. Closures matlab lexical scope aur garbage collector ka pakde hue scope ko zinda rakhna.',
+      },
+      code: `function outer() {
+  const secret = 42;
+  return () => secret;     // the link is fixed here, at creation
+}
+outer()();                 // 42 — long after outer returned`,
+    },
+    {
+      heading: { en: 'A practical consequence', hi: 'Ek vyavharik nateeja' },
+      body: {
+        en: 'Moving a function to a different file or a different nesting level changes what it can see, even if every call site stays the same. That is why extracting a helper sometimes breaks it — and why the fix is to pass the value in as an argument.',
+        hi: 'Function ko doosri file ya doosre nesting level pe le jaana badal deta hai ki wo kya dekh sakta hai, chahe har call site waisa hi rahe. Isiliye helper alag karne pe kabhi-kabhi wo toot jaata hai — aur ilaaj yahi hai ki value ko argument bana kar bhejo.',
+      },
+    },
+  ],
+
+  'Give a real-world use case of closures.': [
+    {
+      heading: { en: 'Answer with a concrete case, not the definition', hi: 'Definition nahi, thos misaal se jawab do' },
+      body: {
+        en: 'The interviewer already knows what a closure is — they want to hear that you have used one. Pick a case, show ten lines, and point at the captured variable. Four cases below cover almost every real use.',
+        hi: 'Interviewer ko pata hai closure kya hai — wo sunna chahta hai ki tumne use kiya hai. Ek misaal chuno, das line dikhao, aur pakde hue variable pe ungli rakho. Neeche ke chaar cases lagbhag har asli upyog cover karte hain.',
+      },
+    },
+    {
+      heading: { en: 'One: private state in a module or factory', hi: 'Ek: module ya factory mein private state' },
+      body: {
+        en: 'A variable inside the closure has no syntax to reach it from outside. This was the standard way to build encapsulation before #private fields, and it is still how factory functions work.',
+        hi: 'Closure ke andar ke variable tak bahar se pahunchne ka koi syntax hi nahi hai. #private fields se pehle encapsulation banane ka yahi standard tareeka tha, aur factory functions aaj bhi aise hi chalte hain.',
+      },
+      code: `function createAccount(initial) {
+  let balance = initial;                    // unreachable outside
+  return {
+    deposit: (n) => (balance += n),
+    getBalance: () => balance,
+  };
+}
+const acc = createAccount(100);
+acc.balance;        // undefined ✓
+acc.getBalance();   // 100`,
+    },
+    {
+      heading: { en: 'Two: debounce, throttle, once', hi: 'Do: debounce, throttle, once' },
+      body: {
+        en: 'Every rate limiter needs to remember something between calls — a timer id, a flag, a timestamp. The closure is where that state lives, and this is the case most interviewers are hoping you name.',
+        hi: 'Har rate limiter ko calls ke beech kuch yaad rakhna padta hai — timer id, flag, timestamp. Wo state closure mein rehti hai, aur zyadatar interviewers yahi misaal sunna chahte hain.',
+      },
+      code: `function debounce(fn, delay) {
+  let id;                             // remembered across calls
+  return (...args) => {
+    clearTimeout(id);
+    id = setTimeout(() => fn(...args), delay);
+  };
+}
+input.oninput = debounce(search, 300);`,
+    },
+    {
+      heading: { en: 'Three: a memo cache', hi: 'Teen: ek memo cache' },
+      body: {
+        en: 'The cache belongs to the wrapped function and to nothing else. No global, no cleanup, no chance of another module reading or corrupting it.',
+        hi: 'Cache sirf lapete gaye function ka hai aur kisi ka nahi. Na global, na cleanup, na kisi doosre module ke padhne ya bigaadne ka mauka.',
+      },
+      code: `function memoize(fn) {
+  const cache = new Map();            // private to this wrapper
+  return (x) => {
+    if (!cache.has(x)) cache.set(x, fn(x));
+    return cache.get(x);
+  };
+}`,
+    },
+    {
+      heading: { en: 'Four: a configured function', hi: 'Chaar: configure kiya hua function' },
+      body: {
+        en: 'Capture configuration once and return a specialised function. This is how loggers, API clients and event handlers with a fixed id are built, and it removes the same argument from every call site.',
+        hi: 'Configuration ek baar pakdo aur ek khaas function return karo. Loggers, API clients aur tay id wale event handlers aise hi bante hain, aur isse har call jagah se wahi argument hat jaata hai.',
+      },
+      code: `const makeLogger = (prefix) => (msg) => console.log(prefix, msg);
+const authLog = makeLogger('[auth]');
+authLog('token expired');
+
+btn.onclick = ((id) => () => remove(id))(row.id);   // captured id`,
+    },
+    {
+      heading: { en: 'Mention the cost', hi: 'Keemat ka zikr karo' },
+      body: {
+        en: 'A closure keeps its captured scope alive for as long as the function exists. A handler that closes over a large object holds that object in memory until the listener is removed. Naming this trade-off is what turns a good answer into a senior one.',
+        hi: 'Closure apne pakde hue scope ko tab tak zinda rakhta hai jab tak function hai. Bade object pe close karne wala handler us object ko tab tak memory mein rakhta hai jab tak listener hata na diya jaaye. Is sauda ka naam lena hi achhe jawab ko senior jawab bana deta hai.',
+      },
+    },
+  ],
+
+  'What is variable shadowing?': [
+    {
+      heading: { en: 'An inner name hides an outer one', hi: 'Andar ka naam bahar wale ko chhupa deta hai' },
+      body: {
+        en: 'Declare a variable with the same name in a nested scope and the inner one wins for the whole of that scope. The outer variable still exists and is unchanged — it is simply unreachable by that name from inside.',
+        hi: 'Kisi nested scope mein wahi naam declare karo aur us poore scope mein andar wala jeet jaata hai. Bahar wala variable maujood rehta hai aur badalta nahi — bas us naam se andar se pahuncha nahi ja sakta.',
+      },
+      code: `const name = 'outer';
+function f() {
+  const name = 'inner';    // shadows
+  return name;
+}
+f();      // 'inner'
+name;     // 'outer' ✓ untouched`,
+    },
+    {
+      heading: { en: 'It is not the same as reassignment', hi: 'Ye reassignment nahi hai' },
+      body: {
+        en: 'Shadowing creates a NEW binding; reassignment changes the existing one. Miss the declaration keyword and you get the second, which mutates the outer variable — a common and hard-to-spot bug.',
+        hi: 'Shadowing NAYI binding banata hai; reassignment maujooda ko badalta hai. Declaration keyword chhoot jaaye toh doosra ho jaata hai, jo bahar wale variable ko badal deta hai — aam aur mushkil se dikhne wala bug.',
+      },
+      code: `let n = 1;
+function shadow()   { let n = 2; }   // new binding
+function reassign() { n = 2; }       // changes the outer one
+
+shadow();   n;   // 1
+reassign(); n;   // 2`,
+    },
+    {
+      heading: { en: 'Shadowing with let hits the TDZ', hi: 'let se shadowing TDZ mein takraati hai' },
+      body: {
+        en: 'This is the trap. Once a block declares a name with let, that name is in its temporal dead zone from the top of the block — so reading it before the declaration throws instead of finding the outer value.',
+        hi: 'Yahi jaal hai. Jaise hi koi block let se naam declare karta hai, wo naam block ke shuru se hi apne TDZ mein aa jaata hai — toh declaration se pehle padho toh bahar wali value milne ki jagah error aata hai.',
+      },
+      code: `const x = 'outer';
+{
+  console.log(x);   // ✗ ReferenceError — NOT 'outer'
+  let x = 'inner';
+}`,
+    },
+    {
+      heading: { en: 'var behaves differently in a block', hi: 'Block mein var alag chalta hai' },
+      body: {
+        en: 'Because var ignores block scope, a var inside a block does not shadow an outer var — it IS the same variable, and assigning to it overwrites the outer value. This is one of the clearest reasons to stop using var.',
+        hi: 'var block scope nahi maanta, isliye block ke andar ka var bahar wale var ko shadow nahi karta — wo wahi variable HAI, aur usme assign karna bahar wali value badal deta hai. var chhodne ki sabse saaf wajahon mein se ek yahi hai.',
+      },
+      code: `var v = 'outer';
+{ var v = 'inner'; }
+v;      // 'inner' ✗ overwritten, not shadowed
+
+let l = 'outer';
+{ let l = 'inner'; }
+l;      // 'outer' ✓ genuinely shadowed`,
+    },
+    {
+      heading: { en: 'Parameters shadow too', hi: 'Parameters bhi shadow karte hain' },
+      body: {
+        en: 'A parameter name shadows an outer variable for the whole function body. This is the most common accidental shadowing in real code, and it is why linters warn about it.',
+        hi: 'Parameter ka naam poore function body ke liye bahar wale variable ko shadow karta hai. Asli code mein galti se hone wali shadowing yahi sabse aam hai, aur isiliye linters iski chetavni dete hain.',
+      },
+      code: `const data = [1, 2, 3];
+function process(data) {     // shadows the outer data
+  return data.length;        // whichever was passed in
+}`,
+    },
+    {
+      heading: { en: 'When it is fine, and when it is not', hi: 'Ye kab theek hai, kab nahi' },
+      body: {
+        en: 'Short, obvious shadowing inside a small callback is normal and harmless. Shadowing across a long function, or shadowing an import or a well-known global, makes code genuinely hard to follow. Turn on no-shadow in eslint and rename instead.',
+        hi: 'Chhote callback ke andar chhoti, saaf shadowing normal aur bekhatar hai. Lambe function mein shadowing, ya kisi import ya jaane-maane global ko shadow karna, code ko sach mein samajhna mushkil bana deta hai. eslint mein no-shadow chaalu karo aur naam badal do.',
+      },
+    },
+  ],
+
+  'What gets hoisted in JavaScript?': [
+    {
+      heading: { en: 'Declarations, never assignments', hi: 'Declarations, assignments kabhi nahi' },
+      body: {
+        en: 'This is the one-sentence answer. Before running a scope, the engine registers every declaration in it. The values you assign stay exactly where you wrote them and are applied when execution reaches that line.',
+        hi: 'Ek line ka jawab yahi hai. Scope chalane se pehle engine usme har declaration register kar leta hai. Jo values tum assign karte ho wo wahin rehti hain jahan likhi hain aur tab lagti hain jab execution us line tak pahunche.',
+      },
+      code: `console.log(a);   // undefined — the declaration was registered
+var a = 5;        // the assignment happens here`,
+    },
+    {
+      heading: { en: 'The full table', hi: 'Poori table' },
+      body: {
+        en: 'Everything is registered; the difference is what value the binding starts with. Function declarations get their whole body, var gets undefined, and let, const and class get nothing at all — which is the temporal dead zone.',
+        hi: 'Sab kuch register hota hai; farq itna hai ki binding kis value se shuru hoti hai. Function declarations ko poori body milti hai, var ko undefined, aur let, const aur class ko kuch nahi — yahi temporal dead zone hai.',
+      },
+      diagram: `                     registered   initial value
+function declaration    yes        the whole function
+var                     yes        undefined
+let / const             yes        <uninitialised> → TDZ
+class                   yes        <uninitialised> → TDZ
+import                  yes        fully hoisted, live binding
+function expression     as var/let/const, per its keyword`,
+    },
+    {
+      heading: { en: 'Function declarations win over var', hi: 'Function declarations var se jeet jaate hain' },
+      body: {
+        en: 'When both declare the same name, the function is what the binding holds after the creation phase. A later assignment still overwrites it at runtime, because assignments are not hoisted.',
+        hi: 'Jab dono wahi naam declare karein, creation phase ke baad binding mein function hi hota hai. Baad ka assignment runtime pe usse phir bhi badal deta hai, kyunki assignments hoist nahi hote.',
+      },
+      code: `console.log(typeof a);   // 'function'
+var a = 1;
+function a() {}
+console.log(typeof a);   // 'number'`,
+    },
+    {
+      heading: { en: 'Imports are hoisted completely', hi: 'Imports poore hoist hote hain' },
+      body: {
+        en: 'An ES module import is resolved and bound before any of the module body runs, so you can use an imported name above the import statement. It is also a live binding — if the exporting module reassigns it, you see the new value.',
+        hi: 'ES module ka import module body chalne se pehle resolve aur bind ho jaata hai, toh import statement ke upar bhi imported naam use kar sakte ho. Ye live binding bhi hai — export karne wala module usse badle toh tumhe nayi value dikhti hai.',
+      },
+      code: `greet();                    // ✓ works
+import { greet } from './a.js';`,
+    },
+    {
+      heading: { en: 'What is NOT hoisted', hi: 'Kya hoist NAHI hota' },
+      body: {
+        en: 'Assignments of any kind, function expressions and arrow functions as values, and class expressions. In each case the name may be registered, but the function or class itself does not exist until that line runs.',
+        hi: 'Kisi bhi tarah ke assignments, function expressions aur arrow functions as values, aur class expressions. Har case mein naam register ho sakta hai, par function ya class khud tab tak nahi hota jab tak wo line na chale.',
+      },
+      code: `f();   // ✗ TypeError: f is not a function
+var f = () => {};
+
+new C();  // ✗ ReferenceError (TDZ)
+class C {}`,
+    },
+    {
+      heading: { en: 'Say it precisely in the interview', hi: 'Interview mein isse theek se kaho' },
+      body: {
+        en: '"Nothing physically moves. Entering a scope, the engine registers all declarations first: functions with their bodies, var as undefined, and let, const and class uninitialised so that early access throws. Assignments always run in place."',
+        hi: '"Kuch bhi jagah se hilta nahi. Scope mein ghuste hi engine pehle saare declarations register karta hai: functions apni body ke saath, var undefined ke roop mein, aur let, const aur class uninitialised taaki jaldi access pe error aaye. Assignments hamesha apni jagah chalte hain."',
+      },
+    },
+  ],
+
+  'Can let and const be hoisted?': [
+    {
+      heading: { en: 'Yes — and that is the whole point of the question', hi: 'Haan — aur sawaal ka poora maqsad yahi hai' },
+      body: {
+        en: 'The expected wrong answer is "no". They ARE hoisted: the binding is created when the scope is entered, exactly like var. What differs is initialisation, not registration.',
+        hi: 'Ummeed ka galat jawab "nahi" hai. Ye hoist HOTE hain: scope mein ghuste hi binding ban jaati hai, bilkul var ki tarah. Farq initialisation ka hai, register hone ka nahi.',
+      },
+      code: `let a = 'outer';
+{
+  console.log(a);   // ✗ ReferenceError — NOT 'outer'
+  let a = 'inner';
+}
+// If the inner a were not hoisted, the outer one would be found.`,
+    },
+    {
+      heading: { en: 'The proof: shadowing', hi: 'Saboot: shadowing' },
+      body: {
+        en: 'That example is the strongest evidence. If the inner let were not registered at the top of the block, the lookup would walk outward and find the outer a. Instead it finds the inner binding, uninitialised, and throws. Registration must therefore have happened.',
+        hi: 'Wahi example sabse mazboot saboot hai. Agar andar wala let block ke shuru mein register na hota, toh lookup bahar jaakar bahar wala a dhoondh leta. Uski jagah usse andar wali binding milti hai, uninitialised, aur error aata hai. Matlab registration hua zaroor.',
+      },
+    },
+    {
+      heading: { en: 'var is initialised, let and const are not', hi: 'var initialise hota hai, let aur const nahi' },
+      body: {
+        en: 'A var binding starts holding undefined, so reading it early is allowed and quietly wrong. A let or const binding starts in the "uninitialised" state, and any access throws until the declaration line assigns it.',
+        hi: 'var binding undefined le kar shuru hoti hai, toh jaldi padhna allowed hai aur chup-chaap galat. let ya const binding "uninitialised" state mein shuru hoti hai, aur jab tak declaration line usse assign na kare, har access error deta hai.',
+      },
+      diagram: `scope entered
+  var x   → [ undefined ]      readable
+  let y   → [ uninitialised ]  reading throws  ← the TDZ
+  const z → [ uninitialised ]  reading throws`,
+    },
+    {
+      heading: { en: 'Read the error message', hi: 'Error message padho' },
+      body: {
+        en: 'The wording proves it. "Cannot access before initialization" means the binding exists and you are early. "is not defined" means there is no binding at all. Two different errors for two different situations.',
+        hi: 'Shabd hi saabit karte hain. "Cannot access before initialization" matlab binding hai aur tum jaldi aa gaye. "is not defined" matlab binding hai hi nahi. Do alag halaat ke liye do alag errors.',
+      },
+      code: `console.log(x); let x;    // Cannot access 'x' before initialization
+console.log(q);           // q is not defined`,
+    },
+    {
+      heading: { en: 'How to phrase the answer', hi: 'Jawab kaise kehna hai' },
+      body: {
+        en: '"Yes, they are hoisted — the binding is created when the scope is entered. Unlike var, it is not initialised, so it sits in the temporal dead zone and any access before the declaration throws a ReferenceError. That makes early use a loud error instead of a silent undefined."',
+        hi: '"Haan, ye hoist hote hain — scope mein ghuste hi binding ban jaati hai. var ke ulat ye initialise nahi hoti, toh wo temporal dead zone mein rehti hai aur declaration se pehle koi bhi access ReferenceError deta hai. Isse jaldi use karna chup-chaap undefined ki jagah zor se bolne wala error ban jaata hai."',
+      },
+    },
+  ],
+
+  'What is an object in JavaScript?': [
+    {
+      heading: { en: 'A collection of key-value pairs', hi: 'Key-value jodiyon ka ek sangrah' },
+      body: {
+        en: 'An object maps keys to values. Keys are strings or symbols; values can be anything, including other objects and functions. A value that is a function is called a method, but there is nothing structurally special about it.',
+        hi: 'Object keys ko values se jodta hai. Keys strings ya symbols hoti hain; values kuch bhi ho sakti hain, doosre objects aur functions samet. Jo value function ho use method kehte hain, par dhaanche mein usme kuch khaas nahi hai.',
+      },
+      code: `const user = {
+  name: 'Asha',                 // string value
+  address: { city: 'Pune' },    // nested object
+  greet() { return this.name; } // method
+};`,
+    },
+    {
+      heading: { en: 'Almost everything is one', hi: 'Lagbhag sab kuch object hai' },
+      body: {
+        en: 'Arrays, functions, dates, regexes, Maps, Sets, promises and errors are all objects. Only the seven primitives are not. That is why typeof reports "object" so often, and why arrays can hold named properties.',
+        hi: 'Arrays, functions, dates, regexes, Maps, Sets, promises aur errors — sab objects hain. Sirf saat primitives nahi hain. Isiliye typeof itni baar "object" kehta hai, aur isiliye arrays naam wali properties rakh sakte hain.',
+      },
+      code: `typeof [];            // 'object'
+typeof new Date();    // 'object'
+typeof function(){};  // 'function' — but still an object
+[] instanceof Object; // true`,
+    },
+    {
+      heading: { en: 'Two ways to reach a property', hi: 'Property tak pahunchne ke do tareeke' },
+      body: {
+        en: 'Dot notation for fixed, valid identifier names. Bracket notation when the key is in a variable, has spaces or dashes, or is a number. Brackets are also what you need for computed keys.',
+        hi: 'Tay, valid identifier naamon ke liye dot notation. Jab key kisi variable mein ho, usme spaces ya dashes hon, ya wo number ho tab bracket notation. Computed keys ke liye bhi brackets hi chahiye.',
+      },
+      code: `user.name;
+user['first name'];
+const key = 'name'; user[key];      // ✓ dynamic
+user.key;                            // ✗ looks for a literal 'key'`,
+    },
+    {
+      heading: { en: 'Held by reference', hi: 'Reference se pakde jaate hain' },
+      body: {
+        en: 'A variable holds an address, not the object. Copying the variable copies the address, so both names point at one object, and equality compares identity rather than contents.',
+        hi: 'Variable ek address rakhta hai, object nahi. Variable copy karne se address copy hota hai, toh dono naam ek hi object pe point karte hain, aur barabari content ki jagah pehchaan compare karti hai.',
+      },
+      code: `const a = { n: 1 }, b = a;
+b.n = 2;  a.n;        // 2 — same object
+{ n: 1 } === { n: 1 };  // false — different references`,
+    },
+    {
+      heading: { en: 'Every object has a prototype', hi: 'Har object ka ek prototype hota hai' },
+      body: {
+        en: 'A hidden link to another object, from which it inherits properties. That is why an empty object already has toString and hasOwnProperty. Object.create(null) is the way to opt out and get a clean dictionary.',
+        hi: 'Ek chhupi hui link doosre object tak, jisse ye properties inherit karta hai. Isiliye khaali object ke paas pehle se toString aur hasOwnProperty hote hain. Object.create(null) se isse chhod kar saaf dictionary milti hai.',
+      },
+      code: `({}).toString;               // inherited from Object.prototype
+Object.create(null).toString;  // undefined ✓ nothing inherited`,
+    },
+    {
+      heading: { en: 'The syntax worth knowing', hi: 'Jaanne laayak syntax' },
+      body: {
+        en: 'Shorthand properties, computed keys, method shorthand, spread, destructuring and optional chaining cover almost everything you do with objects day to day.',
+        hi: 'Shorthand properties, computed keys, method shorthand, spread, destructuring aur optional chaining — roz-marra ke lagbhag saare object ke kaam inhi se ho jaate hain.',
+      },
+      code: `const name = 'Asha', key = 'role';
+const o = { name, [key]: 'admin', greet() {} };
+
+const { name: n = 'guest', ...rest } = o;
+const merged = { ...defaults, ...o };
+o?.address?.city;`,
+    },
+  ],
+
+  'What is object destructuring?': [
+    {
+      heading: { en: 'Pull properties out by name', hi: 'Properties ko naam se bahar nikalo' },
+      body: {
+        en: 'Destructuring lets you name the properties you want on the left of an assignment and bind them to variables in one statement. The pattern mirrors the shape of the object.',
+        hi: 'Destructuring se tum assignment ke baayein taraf wo properties naam se likh sakte ho jo chahiye, aur ek hi statement mein unhe variables se bandh sakte ho. Pattern object ki shakal ki nakal karta hai.',
+      },
+      code: `const user = { name: 'Asha', age: 30, city: 'Pune' };
+
+const { name, age } = user;
+// instead of: const name = user.name; const age = user.age;`,
+    },
+    {
+      heading: { en: 'Renaming and defaults', hi: 'Naam badalna aur defaults' },
+      body: {
+        en: 'A colon renames the binding; an equals sign supplies a default when the property is undefined. They combine, and the order reads as "take this property, call it that, or use this".',
+        hi: 'Colon binding ka naam badalta hai; equals sign tab default deta hai jab property undefined ho. Dono saath chalte hain, aur kram aise padha jaata hai "ye property lo, use wo naam do, ya phir ye use karo".',
+      },
+      code: `const { name: userName } = user;          // rename
+const { role = 'user' } = user;            // default
+const { role: r = 'user' } = user;         // both
+
+// defaults fire on undefined only — not on null:
+const { x = 1 } = { x: null };             // null`,
+    },
+    {
+      heading: { en: 'Nested patterns, and their trap', hi: 'Nested patterns, aur unka jaal' },
+      body: {
+        en: 'You can descend into nested objects, but the intermediate name is a PATH, not a binding — you do not get a variable for it. And if the intermediate is missing, destructuring throws, so give it a default.',
+        hi: 'Nested objects ke andar ja sakte ho, par beech ka naam ek RAASTA hai, binding nahi — uska variable nahi milta. Aur beech wala na ho toh destructuring error deta hai, isliye usse default do.',
+      },
+      code: `const { address: { city } } = user;
+city;       // 'Pune' ✓
+address;    // ✗ ReferenceError — it was only a path
+
+const { address: { city } = {} } = {};   // ✓ safe`,
+    },
+    {
+      heading: { en: 'Rest collects what is left', hi: 'Rest bacha hua ikattha karta hai' },
+      body: {
+        en: 'This is the cleanest way to omit a key without mutating the original — take out what you want to drop, keep the rest. Very common for stripping a password or splitting props in React.',
+        hi: 'Bina original badle koi key hataane ka sabse saaf tareeka yahi hai — jo hataana hai wo nikaal lo, baaki rakh lo. Password nikalne ya React mein props baantne mein bahut aam.',
+      },
+      code: `const { password, ...safeUser } = user;
+function Button({ variant, ...domProps }) {}`,
+    },
+    {
+      heading: { en: 'In parameters — the options pattern', hi: 'Parameters mein — options pattern' },
+      body: {
+        en: 'Destructuring in the parameter list gives you named arguments. Remember the trailing = {} so that calling with no argument does not throw — that is the detail people forget.',
+        hi: 'Parameter list mein destructuring naam wale arguments deta hai. Aakhir mein = {} yaad rakho taaki bina argument ke call karne pe error na aaye — yahi detail log bhool jaate hain.',
+      },
+      code: `function init({ retries = 3, delay = 100 } = {}) {}
+init();                         // ✓ works because of the = {}
+
+function bad({ a }) {}
+bad();                          // ✗ TypeError`,
+    },
+    {
+      heading: { en: 'Two syntax gotchas', hi: 'Do syntax ke jhatke' },
+      body: {
+        en: 'Destructuring into already-declared variables needs the whole statement wrapped in parentheses, or the braces are parsed as a block. And swapping variables with array destructuring needs a semicolon on the previous line.',
+        hi: 'Pehle se declare kiye variables mein destructure karna ho toh poore statement ko brackets mein lapetna padta hai, warna curly braces block padhe jaate hain. Aur array destructuring se variables swap karne ke liye pichhli line pe semicolon chahiye.',
+      },
+      code: `let a, b;
+{ a, b } = obj;      // ✗ SyntaxError
+({ a, b } = obj);    // ✓
+
+let x = 1, y = 2;
+[x, y] = [y, x];     // ✓ swap — needs a ; on the line before`,
+    },
+  ],
 };
