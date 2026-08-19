@@ -20,6 +20,26 @@ const InterviewQuestionSchema = new mongoose.Schema(
       language: { type: String, default: 'javascript' },
     },
 
+    // Long-form, sectioned walkthrough shown under the short answer.
+    // Each section is a step in the explanation: a heading, a paragraph,
+    // and optionally a snippet and/or an ASCII diagram. Questions that
+    // only need the short answer simply leave this empty.
+    deepDive: [
+      {
+        _id: false,
+        heading: {
+          en: { type: String, default: '' },
+          hi: { type: String, default: '' },
+        },
+        body: {
+          en: { type: String, default: '' },
+          hi: { type: String, default: '' },
+        },
+        code: { type: String, default: '' },
+        diagram: { type: String, default: '' },
+      },
+    ],
+
     // Key of an animated explainer component (call-stack, event-loop,
     // hoisting, closure, prototype-chain, promise-states, this-binding,
     // coercion, …). Empty means the question has no animation.
