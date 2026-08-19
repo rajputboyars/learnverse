@@ -65,6 +65,14 @@ async function getData(courseSlug, difficulty) {
           ? { code: q.codeExample.code, output: q.codeExample.output || '' }
           : null,
         visual: q.visual || '',
+        deepDive: (q.deepDive || [])
+          .filter((d) => d?.body?.en || d?.body?.hi || d?.code || d?.diagram)
+          .map((d) => ({
+            heading: { en: d.heading?.en || '', hi: d.heading?.hi || '' },
+            body: { en: d.body?.en || '', hi: d.body?.hi || '' },
+            code: d.code || '',
+            diagram: d.diagram || '',
+          })),
       }));
 
     return { courses, questions, courseById, countMap, activeCourse };

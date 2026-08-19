@@ -2,6 +2,8 @@
 // Consumed by scripts/seed.mjs. Each concept is fully bilingual with a
 // daily-life example, code, key points, quiz, and (some) linked interview Qs.
 
+import { deepDives } from './javascript-deep-dives.mjs';
+
 export function slugify(text) {
   return String(text)
     .toLowerCase()
@@ -7290,6 +7292,23 @@ var x = 5;
     },
   },
 ];
+
+// Attach the step-by-step walkthroughs, which live in their own file so this
+// one stays navigable. Keys are matched on the exact question text; anything
+// left over is a typo we want to hear about rather than silently lose.
+const unmatched = new Set(Object.keys(deepDives));
+for (const q of generalInterviewQuestions) {
+  const sections = deepDives[q.question];
+  if (!sections) continue;
+  q.deepDive = sections;
+  unmatched.delete(q.question);
+}
+if (unmatched.size > 0) {
+  console.warn(
+    `[javascript] ${unmatched.size} deep-dive key(s) match no question:`
+  );
+  for (const key of unmatched) console.warn(`  ${key}`);
+}
 
 // Final ordered curriculum
 export const curriculum = [...beginner, ...intermediate, ...advanced];

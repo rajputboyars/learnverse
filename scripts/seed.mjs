@@ -232,6 +232,7 @@ async function processCourse(mod, totals) {
           difficulty: iq.difficulty || 'medium',
           frequency: iq.frequency || 'common',
           codeExample: iq.codeExample || undefined,
+          deepDive: iq.deepDive || [],
           visual: iq.visual || '',
           tags: c.tags || [],
           status: 'published',
@@ -251,6 +252,7 @@ async function processCourse(mod, totals) {
       difficulty: iq.difficulty || 'medium',
       frequency: iq.frequency || 'common',
       codeExample: iq.codeExample || undefined,
+      deepDive: iq.deepDive || [],
       visual: iq.visual || '',
       status: 'published',
     });

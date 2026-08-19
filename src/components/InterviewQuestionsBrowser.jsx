@@ -64,6 +64,74 @@ function CodeExample({ example, label, outputLabel }) {
   );
 }
 
+/* Long-form walkthrough: the short answer tells you WHAT, this tells you
+   HOW, one step at a time. Collapsed by default so the pane stays scannable. */
+function DeepDive({ sections, pick }) {
+  const [open, setOpen] = useState(false);
+  if (!sections?.length) return null;
+
+  return (
+    <div className="mt-5">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50/60 px-4 py-2.5 text-left text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100 dark:border-indigo-900/50 dark:bg-indigo-950/30 dark:text-indigo-300 dark:hover:bg-indigo-950/60"
+      >
+        <span className="text-base leading-none">🔍</span>
+        <span>
+          {pick(
+            `Step by step samjho — ${sections.length} steps`,
+            `Step-by-step breakdown — ${sections.length} steps`
+          )}
+        </span>
+        <span className={`ml-auto flex-none transition-transform ${open ? 'rotate-180' : ''}`}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </span>
+      </button>
+
+      {open && (
+        <ol className="mt-3 space-y-4 border-l-2 border-indigo-100 pl-4 dark:border-indigo-900/50">
+          {sections.map((sec, i) => (
+            <li key={i} className="relative">
+              {/* Step marker sitting on the timeline */}
+              <span className="absolute -left-[25px] top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-[9px] font-bold text-white">
+                {i + 1}
+              </span>
+
+              {(sec.heading?.en || sec.heading?.hi) && (
+                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                  {pick(sec.heading.hi || sec.heading.en, sec.heading.en || sec.heading.hi)}
+                </h3>
+              )}
+
+              {(sec.body?.en || sec.body?.hi) && (
+                <p className="mt-1 whitespace-pre-line text-[14px] leading-relaxed text-slate-700 dark:text-slate-300">
+                  {pick(sec.body.hi || sec.body.en, sec.body.en || sec.body.hi)}
+                </p>
+              )}
+
+              {sec.diagram && (
+                <pre className="mt-2.5 overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 font-mono text-[11.5px] leading-[1.55] text-slate-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400">
+                  <code>{sec.diagram}</code>
+                </pre>
+              )}
+
+              {sec.code && (
+                <pre className="mt-2.5 overflow-x-auto rounded-lg bg-slate-900 px-3 py-2.5 font-mono text-[12px] leading-relaxed text-slate-200">
+                  <code>{sec.code}</code>
+                </pre>
+              )}
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+}
+
 export default function InterviewQuestionsBrowser({ questions }) {
   const { pick } = useLang();
 
@@ -271,6 +339,8 @@ export default function InterviewQuestionsBrowser({ questions }) {
                     outputLabel={pick('output', 'output')}
                   />
 
+                  <DeepDive key={selected.id} sections={selected.deepDive} pick={pick} />
+
                   {selected.visual && <ConceptAnimation type={selected.visual} />}
 
                   <p className="mt-6 border-t border-slate-200 pt-3 text-xs text-slate-400 dark:border-slate-800">
@@ -338,6 +408,7 @@ export default function InterviewQuestionsBrowser({ questions }) {
                               label={pick('Example', 'Example')}
                               outputLabel={pick('output', 'output')}
                             />
+                            <DeepDive sections={q.deepDive} pick={pick} />
                             {q.visual && <ConceptAnimation type={q.visual} />}
                           </div>
                         )}
