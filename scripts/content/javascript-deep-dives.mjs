@@ -5999,4 +5999,2206 @@ let x = 1, y = 2;
 [x, y] = [y, x];     // ✓ swap — needs a ; on the line before`,
     },
   ],
+
+  /* ─── Objects, this and prototypes ────────────────────────── */
+
+  'What is optional chaining (?.)?': [
+    {
+      heading: { en: 'Stop reading if the left side is nullish', hi: 'Baayin taraf nullish ho toh rukk jao' },
+      body: {
+        en: '?. checks whether the value to its left is null or undefined. If it is, the whole expression short-circuits to undefined instead of throwing. If it is not, the access proceeds normally.',
+        hi: '?. dekhta hai ki uske baayein wali value null ya undefined hai kya. Agar hai, toh poora expression error dene ki jagah undefined pe simat jaata hai. Nahi hai toh access aam tareeke se aage badhta hai.',
+      },
+      code: `const user = { address: { city: 'Pune' } };
+
+user.address.city;         // 'Pune'
+user.profile.city;         // ✗ TypeError: Cannot read properties
+                           //   of undefined
+user.profile?.city;        // undefined ✓ no throw`,
+    },
+    {
+      heading: { en: 'Three forms, not one', hi: 'Teen roop, ek nahi' },
+      body: {
+        en: 'It works for property access, for computed access, and for calls. The call form is genuinely useful — it invokes the function only if it exists, which replaces a whole family of typeof checks.',
+        hi: 'Ye property access, computed access, aur calls — teeno pe chalta hai. Call wala roop sach mein kaam ka hai — wo function tabhi chalata hai jab wo maujood ho, jisse typeof checks ka poora kunba khatam ho jaata hai.',
+      },
+      code: `obj?.prop        // property
+obj?.[key]       // computed — note the dot before the bracket
+fn?.()           // call only if fn exists
+arr?.[0]?.name   // chained`,
+    },
+    {
+      heading: { en: 'It short-circuits the whole chain', hi: 'Ye poori chain ko rok deta hai' },
+      body: {
+        en: 'Once a ?. hits a nullish value, everything to its right is skipped entirely — including function calls and index lookups. Nothing after it is evaluated, so there are no side effects.',
+        hi: 'Jaise hi koi ?. nullish value se takraaya, uske daayein ka sab kuch poori tarah chhod diya jaata hai — function calls aur index lookups samet. Uske baad kuch evaluate hi nahi hota, toh koi side effect nahi.',
+      },
+      code: `a?.b.c.d;      // if a is nullish → undefined, and b.c.d is never touched
+a?.b().c();    // the calls do not happen either`,
+    },
+    {
+      heading: { en: 'Only null and undefined trigger it', hi: 'Sirf null aur undefined isse chalate hain' },
+      body: {
+        en: 'Not 0, not "", not false. Those are real values and the access continues — which is correct, because 0.toFixed is a perfectly valid call.',
+        hi: 'Na 0, na "", na false. Wo asli values hain aur access aage badhta hai — jo sahi hai, kyunki 0.toFixed bilkul valid call hai.',
+      },
+      code: `(0)?.toFixed(2);    // '0.00' — 0 is not nullish
+''?.length;         // 0
+null?.length;       // undefined`,
+    },
+    {
+      heading: { en: 'What it cannot do', hi: 'Ye kya nahi kar sakta' },
+      body: {
+        en: 'You cannot assign through it, and you cannot use it with new or as a template-literal tag. It also does not protect against an undeclared variable — that is still a ReferenceError, because the variable itself does not exist.',
+        hi: 'Iske through assign nahi kar sakte, aur na hi isse new ke saath ya template-literal tag ki tarah use kar sakte ho. Ye undeclared variable se bhi nahi bachaata — wo ab bhi ReferenceError hai, kyunki variable khud hai hi nahi.',
+      },
+      code: `a?.b = 1;           // ✗ SyntaxError — invalid assignment target
+new a?.();          // ✗ SyntaxError
+
+undeclared?.x;      // ✗ ReferenceError — the name does not exist
+typeof undeclared;  // ✓ 'undefined'`,
+    },
+    {
+      heading: { en: 'Do not scatter it everywhere', hi: 'Isse har jagah mat bikhero' },
+      body: {
+        en: 'A chain full of ?. hides genuine bugs: if user should always exist, user?.name silently returns undefined instead of telling you the data is wrong. Use it where a value is legitimately optional, and let real mistakes throw.',
+        hi: '?. se bhari chain asli bugs chhupa deti hai: agar user hamesha hona chahiye, toh user?.name chup-chaap undefined de dega bajaye ye batane ke ki data galat hai. Isse wahan use karo jahan value sach mein optional ho, aur asli galtiyon ko error dene do.',
+      },
+      code: `// ✗ hides a bug — user must exist here
+const name = user?.profile?.name ?? 'unknown';
+
+// ✓ user is required, profile genuinely optional
+const name = user.profile?.name ?? 'unknown';`,
+    },
+  ],
+
+  'What is nullish coalescing (??)?': [
+    {
+      heading: { en: 'A default for null and undefined only', hi: 'Sirf null aur undefined ke liye default' },
+      body: {
+        en: '?? returns its right side when the left is null or undefined, and the left side otherwise. That narrow trigger is the entire reason it exists alongside ||.',
+        hi: '?? tab daayin taraf deta hai jab baayin null ya undefined ho, warna baayin hi. Yahi tang trigger || ke saath iske hone ki poori wajah hai.',
+      },
+      code: `null ?? 'x';        // 'x'
+undefined ?? 'x';   // 'x'
+0 ?? 'x';           // 0
+'' ?? 'x';          // ''
+false ?? 'x';       // false`,
+    },
+    {
+      heading: { en: 'Compared with ||', hi: '|| se tulna' },
+      body: {
+        en: '|| falls back on ANY falsy value, so a meaningful 0, empty string or false gets silently replaced by the default. That bug is common enough that ?? was added to the language specifically to fix it.',
+        hi: '|| KISI BHI falsy value pe fallback le leta hai, toh matlab wala 0, khaali string ya false chup-chaap default se badal jaata hai. Ye bug itna aam tha ki ?? language mein khaas isi ko theek karne ke liye joda gaya.',
+      },
+      diagram: `value        ||  gives     ??  gives
+null         default       default
+undefined    default       default
+0            default ✗     0       ✓
+''           default ✗     ''      ✓
+false        default ✗     false   ✓
+'a'          'a'           'a'`,
+    },
+    {
+      heading: { en: 'The concrete bug it prevents', hi: 'Ye kaunsa thos bug rokta hai' },
+      body: {
+        en: 'Any setting where zero, empty or false is a legitimate choice: a quantity of 0, a volume of 0, an empty search string, a disabled flag. With || the user\'s deliberate choice is thrown away.',
+        hi: 'Har wo setting jahan zero, khaali ya false ek jaayaz chunav hai: 0 ki quantity, 0 volume, khaali search string, band kiya hua flag. || ke saath user ka jaan-boojh kar kiya chunav phenk diya jaata hai.',
+      },
+      code: `const volume = settings.volume ?? 50;
+// user muted to 0 → stays 0  ✓
+// with || it would jump back to 50  ✗`,
+    },
+    {
+      heading: { en: 'It cannot be mixed with && or || unparenthesised', hi: 'Isse && ya || ke saath bina brackets nahi mila sakte' },
+      body: {
+        en: 'This is a deliberate SyntaxError. The precedence would be ambiguous to a reader, so the language forces you to add parentheses and say which grouping you meant.',
+        hi: 'Ye jaan-boojh kar SyntaxError hai. Precedence padhne wale ke liye uljhan bhari hoti, isliye language tumse brackets lagwaati hai taaki tum batao kaunsi grouping chahiye thi.',
+      },
+      code: `a || b ?? c;       // ✗ SyntaxError
+(a || b) ?? c;     // ✓
+a || (b ?? c);     // ✓`,
+    },
+    {
+      heading: { en: 'The assignment form', hi: 'Assignment wala roop' },
+      body: {
+        en: '??= assigns only when the target is nullish, and it short-circuits — the right side is not even evaluated otherwise. That matters when the default is expensive to compute.',
+        hi: '??= tabhi assign karta hai jab target nullish ho, aur ye short-circuit karta hai — warna daayin taraf evaluate hi nahi hoti. Jab default banana mehnga ho tab ye maayne rakhta hai.',
+      },
+      code: `options.retries ??= 3;
+cache[key] ??= expensiveCompute();   // computed at most once`,
+    },
+    {
+      heading: { en: 'It pairs naturally with ?.', hi: 'Ye ?. ke saath swabhavik roop se jodta hai' },
+      body: {
+        en: 'Optional chaining produces undefined when a path is missing, and ?? turns that undefined into a default. Together they replace a whole nest of if statements with one readable line.',
+        hi: 'Optional chaining raasta na milne pe undefined deta hai, aur ?? us undefined ko default bana deta hai. Dono milkar if statements ke poore jaal ki jagah ek padhne laayak line de dete hain.',
+      },
+      code: `const city = user?.address?.city ?? 'unknown';`,
+    },
+  ],
+
+  'What is the difference between Object.keys(), Object.values(), and Object.entries()?': [
+    {
+      heading: { en: 'Three views of the same data', hi: 'Ek hi data ke teen nazariye' },
+      body: {
+        en: 'All three take an object and return an array. keys gives the property names, values gives the property values, entries gives [key, value] pairs. Same traversal, different projection.',
+        hi: 'Teeno ek object lete hain aur array dete hain. keys property ke naam deta hai, values unki values, entries [key, value] jodiyaan. Ghoomna wahi, dikhaane ka tareeka alag.',
+      },
+      code: `const o = { a: 1, b: 2 };
+
+Object.keys(o);      // ['a', 'b']
+Object.values(o);    // [1, 2]
+Object.entries(o);   // [['a', 1], ['b', 2]]`,
+    },
+    {
+      heading: { en: 'All three: own, enumerable, string-keyed', hi: 'Teeno: own, enumerable, string-keyed' },
+      body: {
+        en: 'Those three words define exactly what is included. Inherited properties are excluded, non-enumerable properties are excluded, and symbol keys are excluded. This is why they are safer than for...in.',
+        hi: 'Ye teen shabd bilkul batate hain kya shaamil hai. Inherited properties bahar, non-enumerable properties bahar, aur symbol keys bahar. Isiliye ye for...in se safe hain.',
+      },
+      code: `const proto = { inherited: 1 };
+const o = Object.create(proto);
+o.own = 2;
+o[Symbol('s')] = 3;
+Object.defineProperty(o, 'hidden', { value: 4, enumerable: false });
+
+Object.keys(o);      // ['own'] — only one of the four`,
+    },
+    {
+      heading: { en: 'Order: integer keys first', hi: 'Order: integer keys pehle' },
+      body: {
+        en: 'The specification orders integer-like keys ascending first, then string keys in insertion order. It surprises people using numeric ids as object keys — a Map preserves true insertion order instead.',
+        hi: 'Specification pehle integer-jaisi keys ko badhte kram mein rakhti hai, phir string keys insertion order mein. Numeric ids ko object keys banane walon ko ye chaunkata hai — Map asli insertion order bachaata hai.',
+      },
+      code: `Object.keys({ b: 1, 2: 2, a: 3, 1: 4 });
+// ['1', '2', 'b', 'a']  ← integers sorted and hoisted to the front`,
+    },
+    {
+      heading: { en: 'entries is what makes objects iterable-ish', hi: 'entries hi objects ko iterable-jaisa banata hai' },
+      body: {
+        en: 'A plain object has no Symbol.iterator, so for...of throws on it. Object.entries is the standard bridge — and destructuring the pair in the loop head reads well.',
+        hi: 'Plain object mein Symbol.iterator hota hi nahi, toh for...of uspe error deta hai. Object.entries hi standard pul hai — aur loop ke shuru mein jodi ko destructure karna achha padha jaata hai.',
+      },
+      code: `for (const [key, value] of Object.entries(o)) {
+  console.log(key, value);
+}`,
+    },
+    {
+      heading: { en: 'The transform round trip', hi: 'Badalne ka poora chakkar' },
+      body: {
+        en: 'entries plus map plus fromEntries is the idiomatic way to transform an object, because objects have no map of their own. Filtering works the same way.',
+        hi: 'entries plus map plus fromEntries hi object badalne ka aam tareeka hai, kyunki objects ka apna map hota hi nahi. Filter bhi aise hi hota hai.',
+      },
+      code: `Object.fromEntries(
+  Object.entries(o).map(([k, v]) => [k, v * 2])
+);   // { a: 2, b: 4 }
+
+Object.fromEntries(
+  Object.entries(o).filter(([, v]) => v > 1)
+);   // { b: 2 }`,
+    },
+    {
+      heading: { en: 'They work on arrays and strings too', hi: 'Ye arrays aur strings pe bhi chalte hain' },
+      body: {
+        en: 'Arrays are objects with index keys, so keys gives you string indexes and entries gives index-value pairs. Note that Array.prototype.entries gives real numbers instead — a difference worth knowing.',
+        hi: 'Arrays index keys wale objects hain, toh keys string indexes deta hai aur entries index-value jodiyaan. Dhyaan do Array.prototype.entries asli numbers deta hai — ye farq jaanne laayak hai.',
+      },
+      code: `Object.keys(['a', 'b']);       // ['0', '1']  strings
+[...['a','b'].entries()];       // [[0,'a'], [1,'b']]  numbers`,
+    },
+  ],
+
+  'What is Object.freeze()?': [
+    {
+      heading: { en: 'Make every own property read-only', hi: 'Har own property ko sirf-padho banao' },
+      body: {
+        en: 'Freezing prevents adding, deleting and modifying properties, and makes the object non-extensible. Internally each own property becomes non-writable and non-configurable. It returns the same object, not a copy.',
+        hi: 'Freeze karne se properties jodna, hataana aur badalna ruk jaata hai, aur object non-extensible ho jaata hai. Andar se har own property non-writable aur non-configurable ho jaati hai. Ye wahi object return karta hai, copy nahi.',
+      },
+      code: `const o = Object.freeze({ a: 1 });
+o.a = 2;        // no effect
+o.b = 3;        // no effect
+delete o.a;     // no effect
+Object.isFrozen(o);   // true`,
+    },
+    {
+      heading: { en: 'Silent in sloppy mode, throwing in strict', hi: 'Sloppy mode mein chup, strict mein error' },
+      body: {
+        en: 'This catches people. A failed write is silently ignored in sloppy mode, which makes the bug invisible. In strict mode it throws a TypeError — and modules and class bodies are always strict, so in modern code it throws.',
+        hi: 'Yahan log phasate hain. Fail hone wali write sloppy mode mein chup-chaap ignore hoti hai, jisse bug dikhta hi nahi. Strict mode mein TypeError aata hai — aur modules aur class bodies hamesha strict hain, toh modern code mein error hi aata hai.',
+      },
+      code: `'use strict';
+const o = Object.freeze({ a: 1 });
+o.a = 2;    // ✗ TypeError: Cannot assign to read only property 'a'`,
+    },
+    {
+      heading: { en: 'It is shallow', hi: 'Ye shallow hai' },
+      body: {
+        en: 'Only the object\'s own properties are frozen. Anything they point at is untouched and stays fully mutable. This is the single most common misunderstanding about freeze.',
+        hi: 'Sirf object ki apni properties freeze hoti hain. Wo jinpe point karti hain wo achhoote rehte hain aur poori tarah mutable. Freeze ke baare mein sabse aam galatfehmi yahi hai.',
+      },
+      code: `const o = Object.freeze({ nested: { a: 1 } });
+o.nested.a = 99;    // ✓ works — nested was never frozen
+
+function deepFreeze(obj) {
+  Object.values(obj).forEach((v) => {
+    if (v && typeof v === 'object') deepFreeze(v);
+  });
+  return Object.freeze(obj);
+}`,
+    },
+    {
+      heading: { en: 'freeze is not const', hi: 'freeze const nahi hai' },
+      body: {
+        en: 'They lock different things. const locks the variable binding so you cannot point the name elsewhere. freeze locks the object contents. They are orthogonal, and for a true constant you want both.',
+        hi: 'Dono alag cheezein lock karte hain. const variable binding lock karta hai taaki naam kisi aur cheez pe na jaaye. freeze object ke andar ka saamaan lock karta hai. Ye alag hain, aur asli constant ke liye dono chahiye.',
+      },
+      code: `let o = Object.freeze({ a: 1 });
+o = { a: 2 };      // ✓ the binding was never const
+
+const p = Object.freeze({ a: 1 });   // ✓ both locked`,
+    },
+    {
+      heading: { en: 'Arrays freeze too', hi: 'Arrays bhi freeze hote hain' },
+      body: {
+        en: 'Freezing an array blocks push, pop, sort and index assignment, because length becomes non-writable. Every mutating method throws in strict mode; the non-mutating ones like map and slice still work fine.',
+        hi: 'Array freeze karne se push, pop, sort aur index assignment ruk jaate hain, kyunki length non-writable ho jaati hai. Har mutate karne wala method strict mode mein error deta hai; map aur slice jaise non-mutating methods theek chalte hain.',
+      },
+      code: `const a = Object.freeze([1, 2]);
+a.push(3);      // ✗ TypeError
+a.map((x) => x * 2);   // ✓ [2, 4] — returns a new array`,
+    },
+    {
+      heading: { en: 'Where to actually use it', hi: 'Isse asal mein kahan use karein' },
+      body: {
+        en: 'Enums, configuration objects and lookup tables — anything that should never change, where an accidental write is a bug you want to hear about. Do not freeze large state trees in hot paths; changing property descriptors is not free.',
+        hi: 'Enums, configuration objects aur lookup tables — har wo cheez jo kabhi badalni hi nahi chahiye, jahan galti se write karna aisa bug hai jiske baare mein tum sunna chahte ho. Hot path mein bade state trees freeze mat karo; property descriptors badalna muft nahi hai.',
+      },
+      code: `export const ROLES = Object.freeze({ ADMIN: 'admin', USER: 'user' });`,
+    },
+  ],
+
+  'What is Object.seal()?': [
+    {
+      heading: { en: 'Lock the shape, keep the values editable', hi: 'Dhaancha lock karo, values editable rakho' },
+      body: {
+        en: 'Sealing prevents adding and deleting properties but still allows you to change the value of existing ones. Internally each own property becomes non-configurable, while writability is left alone.',
+        hi: 'Seal karne se properties jodna aur hataana ruk jaata hai par maujooda properties ki value badalna abhi bhi chalta hai. Andar se har own property non-configurable ho jaati hai, jabki writability waisi hi rehti hai.',
+      },
+      code: `const o = Object.seal({ a: 1 });
+o.a = 99;       // ✓ allowed
+o.b = 2;        // ✗ ignored / throws in strict mode
+delete o.a;     // ✗ ignored
+Object.isSealed(o);   // true`,
+    },
+    {
+      heading: { en: 'Where it sits between the three', hi: 'Teeno ke beech ye kahan baithta hai' },
+      body: {
+        en: 'preventExtensions blocks adding only. seal blocks adding and deleting. freeze blocks adding, deleting and modifying. Each is strictly stronger than the one before it.',
+        hi: 'preventExtensions sirf jodna rokta hai. seal jodna aur hataana. freeze jodna, hataana aur badalna. Har ek pehle wale se sakht hai.',
+      },
+      diagram: `                    add   delete   modify
+preventExtensions    ✗      ✓        ✓
+seal                 ✗      ✗        ✓
+freeze               ✗      ✗        ✗`,
+    },
+    {
+      heading: { en: 'Also shallow', hi: 'Ye bhi shallow hai' },
+      body: {
+        en: 'Like freeze, seal applies only to the object\'s own properties. A nested object can still gain and lose keys freely.',
+        hi: 'Freeze ki tarah, seal sirf object ki apni properties pe lagta hai. Nested object abhi bhi jitni chaahe keys jod aur hata sakta hai.',
+      },
+      code: `const o = Object.seal({ nested: {} });
+o.nested.anything = 1;   // ✓ works`,
+    },
+    {
+      heading: { en: 'On arrays it is oddly specific', hi: 'Arrays pe ye ajeeb tareeke se khaas hai' },
+      body: {
+        en: 'A sealed array lets you overwrite existing elements but not change its length, so push and pop throw while an index assignment works. Worth demonstrating — it makes the "shape versus value" distinction concrete.',
+        hi: 'Sealed array maujooda elements overwrite karne deta hai par length badalne nahi deta, toh push aur pop error dete hain jabki index assignment chalta hai. Ye dikhane laayak hai — isse "dhaancha vs value" ka farq thos ho jaata hai.',
+      },
+      code: `const a = Object.seal([1, 2]);
+a[0] = 9;       // ✓
+a.push(3);      // ✗ TypeError — cannot grow
+a.pop();        // ✗ TypeError — cannot shrink`,
+    },
+    {
+      heading: { en: 'Why you rarely see it', hi: 'Ye kam kyun dikhta hai' },
+      body: {
+        en: 'Be honest about this in an interview. Most real cases want either full immutability, which is freeze, or nothing at all. seal fits the narrow case of a fixed-schema record whose fields must stay editable — and even there, TypeScript usually covers it at compile time instead.',
+        hi: 'Interview mein ye imaandaari se kaho. Zyadatar asli cases mein ya toh poori immutability chahiye, matlab freeze, ya kuch bhi nahi. seal us tang case mein fit hota hai jahan record ka schema tay ho par fields editable rehni chahiye — aur wahan bhi TypeScript aam taur pe compile time pe hi ye kaam kar deta hai.',
+      },
+    },
+  ],
+
+  'What is the "this" keyword in JavaScript?': [
+    {
+      heading: { en: 'Decided by the call, not the definition', hi: 'Call se tay hota hai, definition se nahi' },
+      body: {
+        en: 'This is the entire idea. In a regular function, this is not fixed when you write the function — it is bound freshly on every invocation, based on HOW that invocation was made. The same function can see a different this each time.',
+        hi: 'Poora idea yahi hai. Aam function mein this tab tay nahi hota jab tum function likhte ho — wo har invocation pe naye sire se bindta hai, is aadhaar pe ki wo call KAISE hui. Wahi function har baar alag this dekh sakta hai.',
+      },
+      code: `function show() { return this; }
+
+const a = { show }, b = { show };
+a.show();      // a
+b.show();      // b — same function, different this`,
+    },
+    {
+      heading: { en: 'The four binding rules, in priority order', hi: 'Chaar binding rules, priority ke kram mein' },
+      body: {
+        en: 'Check them from the top down and you can answer any this question. new wins over explicit binding, which wins over the object before the dot, which wins over the default.',
+        hi: 'Inhe upar se neeche jaancho aur this ka koi bhi sawaal hal ho jaayega. new explicit binding se jeetta hai, wo dot se pehle wale object se, aur wo default se.',
+      },
+      diagram: `1  new Fn()        → the brand-new object
+2  fn.call(obj)    → obj  (also apply, bind)
+3  obj.fn()        → obj  (the thing before the dot)
+4  fn()            → undefined in strict mode,
+                     globalThis in sloppy mode`,
+    },
+    {
+      heading: { en: 'Only the last dot matters', hi: 'Sirf aakhri dot maayne rakhta hai' },
+      body: {
+        en: 'In a chain like a.b.c(), this is b — not a. The rule is the object immediately before the final call, and nothing further left.',
+        hi: 'a.b.c() jaisi chain mein this b hai — a nahi. Rule yahi hai: aakhri call se theek pehle wala object, usse baayein kuch nahi.',
+      },
+      code: `const a = { b: { c() { return this; } } };
+a.b.c();      // a.b — not a`,
+    },
+    {
+      heading: { en: 'Detaching a method loses it', hi: 'Method ko alag karna isse kho deta hai' },
+      body: {
+        en: 'A function reference carries no memory of the dot it was fetched through. Assigning a method to a variable, passing it as a callback, or destructuring it all break this. That is the origin of most "cannot read property of undefined" errors.',
+        hi: 'Function reference ko us dot ki koi yaad nahi hoti jisse wo liya gaya. Method ko variable mein rakhna, callback ki tarah bhejna, ya destructure karna — sab this tod dete hain. Zyadatar "cannot read property of undefined" errors yahin se aate hain.',
+      },
+      code: `const user = { name: 'Asha', greet() { return this.name; } };
+
+const f = user.greet;
+f();                       // ✗ this is undefined
+
+setTimeout(user.greet, 0);           // ✗
+setTimeout(() => user.greet(), 0);   // ✓
+setTimeout(user.greet.bind(user), 0);// ✓`,
+    },
+    {
+      heading: { en: 'Arrow functions have no this at all', hi: 'Arrow functions ka this hota hi nahi' },
+      body: {
+        en: 'An arrow takes this from the scope it was written in, and none of the four rules apply to it — call, apply and bind cannot change it. That makes it perfect for callbacks and wrong for object methods.',
+        hi: 'Arrow this us scope se leta hai jisme wo likha gaya, aur chaaron rules usme lagte hi nahi — call, apply aur bind usse badal nahi sakte. Isse wo callbacks ke liye bilkul sahi aur object methods ke liye galat ho jaata hai.',
+      },
+      code: `const timer = {
+  n: 0,
+  start() {
+    setInterval(() => this.n++, 1000);   // ✓ this is timer
+    setInterval(function () { this.n++ }, 1000);  // ✗ not timer
+  },
+};`,
+    },
+    {
+      heading: { en: 'In the DOM and in classes', hi: 'DOM mein aur classes mein' },
+      body: {
+        en: 'In a regular event handler this is the element the listener is attached to — the same as event.currentTarget. In a class, method bodies are always strict, so a detached method gets undefined rather than the global object. A class field arrow is the standard fix.',
+        hi: 'Aam event handler mein this wo element hai jispe listener laga hai — bilkul event.currentTarget jaisa. Class mein method bodies hamesha strict hoti hain, toh alag kiya gaya method global object ki jagah undefined paata hai. Class field arrow standard ilaaj hai.',
+      },
+      code: `class Btn {
+  label = 'ok';
+  handle = () => this.label;   // bound to the instance forever
+}
+const { handle } = new Btn();
+handle();     // 'ok' ✓`,
+    },
+  ],
+
+  'How does "this" work in arrow functions?': [
+    {
+      heading: { en: 'They do not have one', hi: 'Unke paas hota hi nahi' },
+      body: {
+        en: 'An arrow function has no this binding of its own. When you write this inside one, the engine resolves it the same way it resolves any other variable — by looking outward through the enclosing scopes until it finds one.',
+        hi: 'Arrow function ka apna this binding hota hi nahi. Jab tum uske andar this likhte ho, engine usse waise hi resolve karta hai jaise kisi aur variable ko — bahar ke scopes mein tab tak dekhta hai jab tak mil na jaaye.',
+      },
+      code: `const o = {
+  n: 1,
+  reg() { return this.n; },      // its own this → o
+  arr: () => this?.n,            // no own this → the outer one
+};
+o.reg();   // 1
+o.arr();   // undefined — the module or global this`,
+    },
+    {
+      heading: { en: 'Fixed at definition, forever', hi: 'Definition pe tay, hamesha ke liye' },
+      body: {
+        en: 'Because it comes from the surrounding scope, the value is decided when the arrow is created and can never change afterwards. How you call it is irrelevant.',
+        hi: 'Ye aas-paas ke scope se aata hai, isliye value arrow banate waqt tay ho jaati hai aur uske baad kabhi badal nahi sakti. Tum usse kaise call karte ho, isse koi farq nahi padta.',
+      },
+      code: `const arrow = () => this;
+const obj = { arrow };
+obj.arrow();          // NOT obj — the outer this
+arrow.call({ a: 1 }); // NOT { a: 1 } — still the outer this`,
+    },
+    {
+      heading: { en: 'call, apply and bind are ignored', hi: 'call, apply aur bind ignore ho jaate hain' },
+      body: {
+        en: 'They do not throw — they simply have nothing to set. The arguments are accepted and the this value is discarded. Interviewers like this question because the silent no-op surprises people.',
+        hi: 'Ye error nahi dete — inke paas set karne ko kuch hota hi nahi. Arguments le liye jaate hain aur this value phenk di jaati hai. Interviewers ko ye sawaal pasand hai kyunki chup-chaap kuch na karna logon ko chaunkata hai.',
+      },
+      code: `const arrow = () => this;
+arrow.call({ a: 1 });    // outer this, no error
+arrow.bind({ a: 1 })();  // outer this again`,
+    },
+    {
+      heading: { en: 'This is what makes them right for callbacks', hi: 'Isi se ye callbacks ke liye sahi hote hain' },
+      body: {
+        en: 'A callback is invoked by someone else, who has no idea what this should be. An arrow sidesteps the problem entirely by keeping the this of the code that created it — which replaced the old self = this and .bind(this) patterns.',
+        hi: 'Callback ko koi aur bulata hai, jise pata hi nahi ki this kya hona chahiye. Arrow us code ka this rakh kar problem hi khatam kar deta hai jisne usse banaya — jisne purane self = this aur .bind(this) patterns ki jagah le li.',
+      },
+      code: `// before
+const self = this;
+list.forEach(function (i) { self.add(i); });
+
+// now
+list.forEach((i) => this.add(i));`,
+    },
+    {
+      heading: { en: 'Three places they are wrong', hi: 'Teen jagah jahan ye galat hain' },
+      body: {
+        en: 'Object methods that need this. Prototype methods, for the same reason. And DOM handlers where you rely on this being the element — though currentTarget works either way. Also remember: an arrow cannot be used with new.',
+        hi: 'Object methods jinhe this chahiye. Prototype methods, wahi wajah. Aur DOM handlers jahan tum this ko element maan rahe ho — waise currentTarget dono mein chalta hai. Aur yaad rakho: arrow ko new ke saath use nahi kar sakte.',
+      },
+      code: `Btn.prototype.click = () => this.label;   // ✗ never the instance
+const A = () => {}; new A();              // ✗ not a constructor`,
+    },
+    {
+      heading: { en: 'The class field exception', hi: 'Class field wala apvaad' },
+      body: {
+        en: 'An arrow assigned as a class field is created per instance, inside the constructor\'s scope, so its this IS the instance. That gives you a permanently bound method with no bind call — the standard React pattern.',
+        hi: 'Class field ki tarah assign kiya gaya arrow har instance ke liye banta hai, constructor ke scope ke andar, toh uska this instance HI hai. Isse bina bind call ke hamesha bandha hua method mil jaata hai — standard React pattern.',
+      },
+      code: `class Btn {
+  label = 'ok';
+  handle = () => this.label;   // ✓ this is the instance
+}
+const { handle } = new Btn();
+handle();   // 'ok' — survives detaching`,
+    },
+  ],
+
+  'What is a prototype in JavaScript?': [
+    {
+      heading: { en: 'A hidden link to another object', hi: 'Doosre object tak ek chhupi hui link' },
+      body: {
+        en: 'Every object carries an internal reference, written [[Prototype]], to another object. When a property is not found on the object itself, the engine follows that link and looks there. That is the whole mechanism.',
+        hi: 'Har object ke andar ek reference hota hai, jise [[Prototype]] likhte hain, doosre object tak. Jab koi property object pe khud na mile, engine us link pe chal kar wahan dekhta hai. Poori machinery bas itni hai.',
+      },
+      diagram: `dog  ──►  Dog.prototype  ──►  Animal.prototype  ──►  Object.prototype  ──►  null
+
+property lookup walks right until it finds the key, or hits null`,
+    },
+    {
+      heading: { en: 'Three names, two different things', hi: 'Teen naam, do alag cheezein' },
+      body: {
+        en: 'This is where people get lost. [[Prototype]] is the internal link on every object. __proto__ is the deprecated accessor for it. But .prototype is unrelated: it is a property on CONSTRUCTOR FUNCTIONS holding the object that new will use.',
+        hi: 'Yahin log kho jaate hain. [[Prototype]] har object pe wo internal link hai. __proto__ uska purana accessor hai. Par .prototype alag cheez hai: ye CONSTRUCTOR FUNCTIONS pe ek property hai jisme wo object hai jise new use karega.',
+      },
+      code: `function User() {}
+const u = new User();
+
+Object.getPrototypeOf(u) === User.prototype;   // true
+u.prototype;      // undefined — instances have no .prototype
+User.prototype;   // { constructor: User }`,
+    },
+    {
+      heading: { en: 'Reading walks the chain, writing does not', hi: 'Padhna chain pe chalta hai, likhna nahi' },
+      body: {
+        en: 'A read searches up the chain. A write always creates or updates an OWN property on the object itself, shadowing whatever was above. This asymmetry is the single most useful fact about prototypes.',
+        hi: 'Padhna chain mein upar dhoondhta hai. Likhna hamesha object pe hi OWN property banata ya badalta hai, upar wali ko dhakte hue. Prototypes ke baare mein sabse kaam ki baat yahi asantulan hai.',
+      },
+      code: `const proto = { greet: 'hi' };
+const o = Object.create(proto);
+
+o.greet;              // 'hi'  — from proto
+o.greet = 'hello';    // creates an own property on o
+proto.greet;          // 'hi'  — untouched
+Object.hasOwn(o, 'greet');   // true`,
+    },
+    {
+      heading: { en: 'Why methods live there', hi: 'Methods wahan kyun rehte hain' },
+      body: {
+        en: 'Memory. If a method sits on the prototype there is exactly one copy, shared by every instance through lookup. Put it in the constructor and every instance carries its own function object.',
+        hi: 'Memory. Method prototype pe ho toh bilkul ek copy hoti hai, jise har instance lookup se share karta hai. Constructor mein rakho toh har instance apna function object rakhta hai.',
+      },
+      code: `function A(n) { this.n = n; this.hi = () => 'hi'; }   // ✗ per instance
+new A(1).hi === new A(2).hi;    // false
+
+function B(n) { this.n = n; }
+B.prototype.hi = () => 'hi';                          // ✓ one copy
+new B(1).hi === new B(2).hi;    // true`,
+    },
+    {
+      heading: { en: 'class is the same thing with better syntax', hi: 'class wahi cheez hai, behtar syntax ke saath' },
+      body: {
+        en: 'Class methods go on Constructor.prototype, and extends links the two prototype objects together. Nothing about the underlying model changes — which is why JavaScript is called prototype-based even when you write classes.',
+        hi: 'Class ke methods Constructor.prototype pe jaate hain, aur extends dono prototype objects ko jodta hai. Andar ke model mein kuch nahi badalta — isiliye JavaScript ko prototype-based kehte hain, chahe tum classes likho.',
+      },
+      code: `class Animal { eat() {} }
+class Dog extends Animal { bark() {} }
+
+Object.getPrototypeOf(Dog.prototype) === Animal.prototype;  // true`,
+    },
+    {
+      heading: { en: 'Two practical cautions', hi: 'Do vyavharik chetavniyaan' },
+      body: {
+        en: 'Never modify built-in prototypes — adding to Array.prototype breaks for...in across the whole program and can collide with a future standard method. And never change an object\'s prototype at runtime; setPrototypeOf forces a severe deoptimisation.',
+        hi: 'Built-in prototypes kabhi mat badlo — Array.prototype mein jodna poore program mein for...in tod deta hai aur aage aane wale standard method se takra sakta hai. Aur runtime pe object ka prototype kabhi mat badlo; setPrototypeOf gambhir deoptimisation karta hai.',
+      },
+      code: `Array.prototype.last = function () {};   // ✗ never
+Object.setPrototypeOf(o, p);             // ✗ slow
+const o = Object.create(p);              // ✓ same result, fast`,
+    },
+  ],
+
+  /* ─── Array methods in detail ─────────────────────────────── */
+
+  'What is the difference between map() and forEach()?': [
+    {
+      heading: { en: 'One returns, the other does not', hi: 'Ek deta hai, doosra nahi' },
+      body: {
+        en: 'map builds and returns a new array of the same length from whatever the callback returns. forEach returns undefined and exists purely for side effects. That is the whole difference, and everything else follows from it.',
+        hi: 'map callback jo return kare usse usi length ka naya array banata aur deta hai. forEach undefined deta hai aur sirf side effects ke liye hai. Poora farq yahi hai, aur baaki sab isi se nikalta hai.',
+      },
+      code: `[1,2,3].map((n) => n * 2);       // [2, 4, 6]
+[1,2,3].forEach((n) => n * 2);   // undefined — the values are discarded`,
+    },
+    {
+      heading: { en: 'Choose by intent', hi: 'Mansha se chuno' },
+      body: {
+        en: 'Transforming data into a new shape is map. Doing something with each item — logging, appending to the DOM, pushing to an external store — is forEach. Using map and ignoring the result allocates an array for nothing, and it misleads whoever reads it next.',
+        hi: 'Data ko naye roop mein badalna map hai. Har item ke saath kuch karna — log karna, DOM mein jodna, kisi bahar ke store mein daalna — forEach hai. map use karke result chhod dena bekaar mein array banata hai, aur agle padhne wale ko gumraah karta hai.',
+      },
+      code: `items.map((i) => console.log(i));   // ✗ builds [undefined, …]
+items.forEach((i) => console.log(i));   // ✓ says what it means`,
+    },
+    {
+      heading: { en: 'Only map chains', hi: 'Sirf map chain hota hai' },
+      body: {
+        en: 'Because map returns an array, you can carry on with filter, reduce or another map. forEach returns undefined, so the chain stops dead there.',
+        hi: 'map array deta hai, isliye uske baad filter, reduce ya ek aur map chala sakte ho. forEach undefined deta hai, toh chain wahin ruk jaati hai.',
+      },
+      code: `users.map((u) => u.age).filter((a) => a > 18);   // ✓
+users.forEach((u) => u.age).filter(f);           // ✗ TypeError`,
+    },
+    {
+      heading: { en: 'Neither can break', hi: 'Dono break nahi kar sakte' },
+      body: {
+        en: 'break and continue are statements and do not work inside a callback. return only exits the current callback invocation, acting like continue. If you need to stop early, use for...of, or some, every or find depending on what you actually want.',
+        hi: 'break aur continue statements hain aur callback ke andar nahi chalte. return sirf maujooda callback invocation se nikalta hai, continue jaisa. Jaldi rukna ho toh for...of use karo, ya some, every, find — jo tumhe sach mein chahiye.',
+      },
+      code: `[1,2,3].forEach((n) => { if (n === 2) return; });   // acts as continue
+for (const n of [1,2,3]) { if (n === 2) break; }    // ✓ real break
+[1,2,3].some((n) => n === 2);                        // ✓ stops at 2`,
+    },
+    {
+      heading: { en: 'Neither awaits', hi: 'Dono await nahi karte' },
+      body: {
+        en: 'An async callback returns a promise, and both methods ignore it. forEach fires them all and returns immediately; map gives you an array of promises. Use Promise.all with map for parallel work, or for...of for sequential.',
+        hi: 'Async callback promise return karta hai, aur dono methods usse ignore kar dete hain. forEach sabko chala kar turant lautta hai; map promises ka array de deta hai. Parallel kaam ke liye map ke saath Promise.all lo, ya sequential ke liye for...of.',
+      },
+      code: `ids.forEach(async (id) => await save(id));   // ✗ nothing is awaited
+
+await Promise.all(ids.map(save));            // ✓ parallel
+for (const id of ids) await save(id);        // ✓ sequential`,
+    },
+    {
+      heading: { en: 'Everything else is identical', hi: 'Baaki sab kuch ek jaisa hai' },
+      body: {
+        en: 'Both call back with (element, index, array), accept a thisArg, skip holes in sparse arrays, read length once before starting, and neither mutates the original — although your callback certainly can.',
+        hi: 'Dono callback ko (element, index, array) dete hain, thisArg lete hain, sparse arrays ke holes chhodte hain, shuru se pehle length ek baar padhte hain, aur koi bhi original ko nahi badalta — haan tumhara callback zaroor badal sakta hai.',
+      },
+    },
+  ],
+
+  'What is the difference between filter() and find()?': [
+    {
+      heading: { en: 'All matches versus the first match', hi: 'Saare match vs pehla match' },
+      body: {
+        en: 'filter returns an ARRAY of every element that passes the test, and an empty array when nothing does. find returns the ELEMENT itself for the first pass, and undefined when nothing does. Different return types, different questions.',
+        hi: 'filter har us element ka ARRAY deta hai jo test paas kare, aur kuch na mile toh khaali array. find pehle paas hone wale ka ELEMENT khud deta hai, aur kuch na mile toh undefined. Alag return types, alag sawaal.',
+      },
+      code: `const users = [{ id: 1, active: true }, { id: 2, active: true }];
+
+users.filter((u) => u.active);   // [{id:1…}, {id:2…}]  array
+users.find((u) => u.active);     // {id:1…}              element
+
+users.filter((u) => u.id === 9); // []          empty array
+users.find((u) => u.id === 9);   // undefined`,
+    },
+    {
+      heading: { en: 'find stops early', hi: 'find jaldi ruk jaata hai' },
+      body: {
+        en: 'find returns the moment the predicate is truthy and never touches the rest. filter always walks the entire array. For a unique lookup by id on a long list, that difference is real.',
+        hi: 'Predicate truthy hote hi find laut jaata hai aur baaki ko chhoota tak nahi. filter hamesha poora array chalta hai. Lambi list mein id se unique lookup ke liye ye farq asli hai.',
+      },
+      code: `users.filter((u) => u.id === id)[0];   // ✗ scans everything
+users.find((u) => u.id === id);        // ✓ stops at the match`,
+    },
+    {
+      heading: { en: 'The falsy-result trap', hi: 'Falsy result ka jaal' },
+      body: {
+        en: 'find returns the element, so if the element itself is falsy — 0, "", false — you cannot distinguish "found a falsy value" from "found nothing". Use findIndex and compare against -1 when the array may hold falsy values.',
+        hi: 'find element khud deta hai, toh agar element hi falsy ho — 0, "", false — toh "falsy value mili" aur "kuch nahi mila" mein farq nahi kar sakte. Jab array mein falsy values ho sakti hon tab findIndex use karo aur -1 se compare karo.',
+      },
+      code: `const nums = [0, 1, 2];
+const found = nums.find((n) => n === 0);
+if (found) {}                      // ✗ never runs — 0 is falsy
+
+nums.findIndex((n) => n === 0) !== -1;   // ✓ correct`,
+    },
+    {
+      heading: { en: 'The related family', hi: 'Isse juda kunba' },
+      body: {
+        en: 'findIndex gives the position, findLast and findLastIndex search from the end, some tells you whether any match exists, and includes checks for a value rather than running a predicate. Pick the one that names your actual question.',
+        hi: 'findIndex jagah deta hai, findLast aur findLastIndex aakhir se dhoondhte hain, some batata hai koi match hai ya nahi, aur includes predicate chalane ki jagah value dhoondhta hai. Wahi chuno jo tumhare asli sawaal ka naam ho.',
+      },
+      code: `arr.findIndex(fn);       // where
+arr.findLast(fn);        // last match
+arr.some(fn);            // does any match?
+arr.includes(v);         // is this value present?`,
+    },
+    {
+      heading: { en: 'Both return references, not copies', hi: 'Dono references dete hain, copies nahi' },
+      body: {
+        en: 'For objects, the element you get back is the same object that is in the array. Mutating it changes the array\'s contents too. filter gives you a new array holding the same references — a shallow subset.',
+        hi: 'Objects ke liye jo element milta hai wo wahi object hai jo array mein hai. Usse badlo toh array ka saamaan bhi badal jaata hai. filter naya array deta hai jisme wahi references hain — ek shallow subset.',
+      },
+      code: `const u = users.find((u) => u.id === 1);
+u.name = 'X';
+users[0].name;    // 'X' — the same object`,
+    },
+  ],
+
+  'What is the difference between some() and every()?': [
+    {
+      heading: { en: 'Any versus all', hi: 'Koi ek vs sabhi' },
+      body: {
+        en: 'some returns true if at least ONE element passes the test. every returns true only if EVERY element passes. Both return a boolean and never build an array.',
+        hi: 'some tab true deta hai jab kam se kam EK element test paas kare. every tabhi true deta hai jab HAR element paas kare. Dono boolean dete hain aur kabhi array nahi banate.',
+      },
+      code: `[1, 2, 3].some((n) => n > 2);    // true  — 3 passes
+[1, 2, 3].every((n) => n > 2);   // false — 1 and 2 fail`,
+    },
+    {
+      heading: { en: 'Both short-circuit', hi: 'Dono short-circuit karte hain' },
+      body: {
+        en: 'some stops at the first pass; every stops at the first failure. Neither walks the rest of the array, which makes them the efficient choice over filter followed by a length check.',
+        hi: 'some pehle paas pe rukta hai; every pehle fail pe. Koi bhi baaki array nahi chalta, jisse ye filter-phir-length check se behtar chunav ban jaate hain.',
+      },
+      code: `arr.filter(fn).length > 0;    // ✗ walks everything
+arr.some(fn);                  // ✓ stops early
+
+arr.filter(fn).length === arr.length;   // ✗
+arr.every(fn);                          // ✓`,
+    },
+    {
+      heading: { en: 'The empty-array results', hi: 'Khaali array ke nateeje' },
+      body: {
+        en: 'some on an empty array is false; every on an empty array is TRUE. That second one surprises people, but it is correct — "all zero elements pass" is vacuously true, and it matches how mathematics defines it. Watch for it in validation code.',
+        hi: 'Khaali array pe some false hai; khaali array pe every TRUE hai. Doosra logon ko chaunkata hai, par ye sahi hai — "zero elements sab paas hain" khaali taur pe sach hai, aur ganit bhi aise hi define karta hai. Validation code mein iska dhyaan rakho.',
+      },
+      code: `[].some(() => true);    // false
+[].every(() => false);  // true  ← vacuous truth
+
+// so guard when empty should mean invalid:
+items.length > 0 && items.every(isValid);`,
+    },
+    {
+      heading: { en: 'They are logical opposites', hi: 'Ye tark mein ek doosre ke ulat hain' },
+      body: {
+        en: 'De Morgan\'s laws apply: "not every" equals "some not", and "not some" equals "every not". Knowing this lets you pick whichever reads more naturally.',
+        hi: 'De Morgan ke niyam lagte hain: "har nahi" barabar hai "koi nahi hai", aur "koi nahi" barabar hai "har ek nahi". Ye jaan kar tum wo chun sakte ho jo zyada swabhavik padha jaaye.',
+      },
+      code: `!arr.every(fn)  ===  arr.some((x) => !fn(x));
+!arr.some(fn)   ===  arr.every((x) => !fn(x));`,
+    },
+    {
+      heading: { en: 'Common real uses', hi: 'Aam asli upyog' },
+      body: {
+        en: 'every is the natural shape for form validation and permission checks. some is the natural shape for "is anything selected", "has any error", or intersecting two lists.',
+        hi: 'Form validation aur permission checks ke liye every swabhavik shape hai. "Kuch select hai kya", "koi error hai kya", ya do lists ka milaan — inke liye some.',
+      },
+      code: `const valid = fields.every((f) => f.value !== '');
+const dirty = fields.some((f) => f.touched);
+const overlaps = a.some((x) => b.includes(x));`,
+    },
+  ],
+
+  'What is reduce() and how does it work?': [
+    {
+      heading: { en: 'Fold an array into a single value', hi: 'Array ko ek value mein modo' },
+      body: {
+        en: 'reduce carries an accumulator across the array. For each element it calls your function with the accumulator so far and the current item, and whatever you RETURN becomes the accumulator for the next step. The final accumulator is the result.',
+        hi: 'reduce poore array mein ek accumulator saath le kar chalta hai. Har element pe wo tumhara function bulata hai ab tak ke accumulator aur maujooda item ke saath, aur tum jo RETURN karo wahi agle step ka accumulator ban jaata hai. Aakhri accumulator hi nateeja hai.',
+      },
+      code: `[1, 2, 3, 4].reduce((acc, n) => acc + n, 0);   // 10
+//               ↑acc  ↑item              ↑initial`,
+    },
+    {
+      heading: { en: 'Trace one to make it click', hi: 'Ek trace karo toh baith jayega' },
+      body: {
+        en: 'The mechanics are simple once you see the accumulator moving from one call to the next. Forgetting to return is the number one mistake — the accumulator becomes undefined immediately.',
+        hi: 'Accumulator ko ek call se agle tak jaate dekh lo toh machinery simple hai. Return bhool jaana sabse badi galti hai — accumulator turant undefined ban jaata hai.',
+      },
+      diagram: `[1, 2, 3, 4]  with initial 0
+
+acc=0  item=1  →  1
+acc=1  item=2  →  3
+acc=3  item=3  →  6
+acc=6  item=4  →  10   ← result`,
+    },
+    {
+      heading: { en: 'Always pass the initial value', hi: 'Initial value hamesha do' },
+      body: {
+        en: 'Without it, reduce uses the first element as the seed and starts from index 1 — and on an empty array it throws. Passing an initial value fixes the accumulator type, avoids the throw, and makes the code readable.',
+        hi: 'Bina uske reduce pehle element ko seed bana leta hai aur index 1 se shuru karta hai — aur khaali array pe error deta hai. Initial value dene se accumulator ka type tay ho jaata hai, error nahi aata, aur code padhne laayak banta hai.',
+      },
+      code: `[].reduce((a, b) => a + b);      // ✗ TypeError
+[].reduce((a, b) => a + b, 0);   // ✓ 0
+
+[10, 20].reduce((a, b) => a + b);     // 30 — 2 calls become 1
+[10, 20].reduce((a, b) => a + b, 0);  // 30 — 2 calls`,
+    },
+    {
+      heading: { en: 'The accumulator can be any type', hi: 'Accumulator kisi bhi type ka ho sakta hai' },
+      body: {
+        en: 'This is what makes reduce general rather than just a summing tool. Seed it with an object and you get grouping or counting; seed it with an array and you can implement map and filter yourself.',
+        hi: 'Isi se reduce sirf jodne ka auzaar nahi, ek general auzaar ban jaata hai. Object se seed karo toh grouping ya counting; array se seed karo toh map aur filter khud bana sakte ho.',
+      },
+      code: `// group by a field
+users.reduce((acc, u) => {
+  (acc[u.role] ||= []).push(u);
+  return acc;
+}, {});
+
+// count occurrences
+arr.reduce((c, x) => { c[x] = (c[x] || 0) + 1; return c; }, {});
+
+// max
+nums.reduce((m, n) => (n > m ? n : m), -Infinity);`,
+    },
+    {
+      heading: { en: 'Four arguments, and reduceRight', hi: 'Chaar arguments, aur reduceRight' },
+      body: {
+        en: 'The callback receives accumulator, value, index and the whole array. reduceRight is identical but walks backwards, which matters for anything order-dependent such as string building or function composition.',
+        hi: 'Callback ko accumulator, value, index aur poora array milta hai. reduceRight bilkul waisa hai par ulta chalta hai, jo order pe nirbhar cheezon mein maayne rakhta hai jaise string banana ya function composition.',
+      },
+      code: `['a','b','c'].reduce((a, b) => a + b);        // 'abc'
+['a','b','c'].reduceRight((a, b) => a + b);   // 'cba'`,
+    },
+    {
+      heading: { en: 'Do not spread inside it', hi: 'Iske andar spread mat karo' },
+      body: {
+        en: 'Spreading the accumulator each iteration allocates a new array or object every time, turning an O(n) fold into O(n²). Mutate the accumulator you own instead — it never escapes the reduce, so this is safe.',
+        hi: 'Har iteration mein accumulator spread karna har baar naya array ya object banata hai, jisse O(n) fold O(n²) ban jaata hai. Uski jagah apne accumulator ko mutate karo — wo reduce se bahar jaata hi nahi, toh ye safe hai.',
+      },
+      code: `arr.reduce((acc, v) => ({ ...acc, [v.id]: v }), {});   // ✗ O(n²)
+arr.reduce((acc, v) => { acc[v.id] = v; return acc; }, {});   // ✓ O(n)`,
+    },
+    {
+      heading: { en: 'And do not force it', hi: 'Aur zabardasti mat karo' },
+      body: {
+        en: 'reduce can express anything, which is not a reason to use it for everything. A reduce that reimplements filter or map is harder to read than the method it replaced. Reach for it when you are genuinely folding to one value or building a new shape.',
+        hi: 'reduce kuch bhi express kar sakta hai, par isliye har jagah use karna zaroori nahi. Jo reduce filter ya map ko dobara likhta hai wo us method se mushkil padha jaata hai jiski jagah aaya. Isse tab uthao jab sach mein ek value mein mod rahe ho ya naya roop bana rahe ho.',
+      },
+    },
+  ],
+
+  'How do you flatten a nested array?': [
+    {
+      heading: { en: 'flat() is the answer', hi: 'Jawab flat() hai' },
+      body: {
+        en: 'Array.prototype.flat takes a depth, defaulting to 1, and returns a new array with sub-array elements lifted into it. Pass Infinity to flatten completely, however deep the nesting goes.',
+        hi: 'Array.prototype.flat ek depth leta hai, default 1, aur naya array deta hai jisme sub-array ke elements upar utha liye jaate hain. Poori tarah flatten karne ke liye Infinity do, nesting chahe kitni bhi gehri ho.',
+      },
+      code: `[1, [2, 3]].flat();                    // [1, 2, 3]
+[1, [2, [3, [4]]]].flat();             // [1, 2, [3, [4]]]  depth 1
+[1, [2, [3, [4]]]].flat(2);            // [1, 2, 3, [4]]
+[1, [2, [3, [4]]]].flat(Infinity);     // [1, 2, 3, 4]`,
+    },
+    {
+      heading: { en: 'flat also removes holes', hi: 'flat holes bhi hata deta hai' },
+      body: {
+        en: 'A useful side effect worth knowing: flat drops empty slots in sparse arrays. It is the shortest way to compact one.',
+        hi: 'Ek kaam ka side effect: flat sparse arrays ke khaali slots gira deta hai. Array ko compact karne ka sabse chhota tareeka yahi hai.',
+      },
+      code: `[1, , 3].flat();     // [1, 3] — the hole is gone`,
+    },
+    {
+      heading: { en: 'flatMap for map-then-flatten-one', hi: 'map-phir-ek-level-flatten ke liye flatMap' },
+      body: {
+        en: 'flatMap runs a callback and flattens the result by exactly one level. It is more efficient than map followed by flat, and it lets a callback emit zero, one or many items — which makes it a filter and a map at the same time.',
+        hi: 'flatMap callback chalata hai aur nateeje ko bilkul ek level flatten karta hai. Ye map-phir-flat se behtar hai, aur callback ko zero, ek ya kai items dene deta hai — jisse wo ek saath filter aur map dono ban jaata hai.',
+      },
+      code: `['a b', 'c'].flatMap((s) => s.split(' '));   // ['a','b','c']
+
+// emit nothing to drop an item
+nums.flatMap((n) => (n > 0 ? [n] : []));     // filter + map in one`,
+    },
+    {
+      heading: { en: 'Write it yourself with recursion', hi: 'Recursion se khud likho' },
+      body: {
+        en: 'The interviewer usually wants this next. Walk the array; if an element is itself an array, recurse into it, otherwise keep it. Array.isArray is the test, and reduce is the natural way to accumulate.',
+        hi: 'Interviewer aam taur pe iske baad yahi chahta hai. Array pe chalo; agar koi element khud array hai toh usme recurse karo, warna usse rakh lo. Test Array.isArray hai, aur jama karne ka swabhavik tareeka reduce.',
+      },
+      code: `function flatten(arr) {
+  return arr.reduce(
+    (out, v) => out.concat(Array.isArray(v) ? flatten(v) : v),
+    []
+  );
+}
+flatten([1, [2, [3, [4]]]]);   // [1,2,3,4]`,
+    },
+    {
+      heading: { en: 'The iterative version avoids the stack', hi: 'Iterative version stack se bachaata hai' },
+      body: {
+        en: 'Recursion overflows on very deep nesting. A stack-based loop handles any depth. Mention this if asked about limits — it is the follow-up to the recursive answer.',
+        hi: 'Bahut gehri nesting pe recursion overflow ho jaata hai. Stack wala loop kisi bhi depth ko sambhaal leta hai. Seemaon ke baare mein poochha jaaye toh ye batao — recursive jawab ka yahi follow-up hai.',
+      },
+      code: `function flatten(input) {
+  const stack = [...input];
+  const out = [];
+  while (stack.length) {
+    const next = stack.pop();
+    if (Array.isArray(next)) stack.push(...next);
+    else out.push(next);
+  }
+  return out.reverse();
+}`,
+    },
+    {
+      heading: { en: 'The one-liners, and why not to use them', hi: 'Ek-line wale, aur unhe kyun na use karein' },
+      body: {
+        en: 'The old concat-with-apply trick flattens one level. The JSON regex hack works only on arrays of numbers and destroys everything else. Know them so you recognise them in old code, and reach for flat instead.',
+        hi: 'Purana concat-with-apply jugaad ek level flatten karta hai. JSON regex wala hack sirf numbers ke arrays pe chalta hai aur baaki sab bigaad deta hai. Inhe jaano taaki purane code mein pehchaan lo, aur khud flat use karo.',
+      },
+      code: `[].concat(...arr);                      // one level, old style
+JSON.parse('[' + JSON.stringify(arr).replace(/\\[|\\]/g, '') + ']');
+// ✗ numbers only, and unreadable`,
+    },
+  ],
+
+  'What is the difference between push() and concat()?': [
+    {
+      heading: { en: 'One mutates, the other returns', hi: 'Ek badalta hai, doosra deta hai' },
+      body: {
+        en: 'push adds to the END of the existing array and returns the new LENGTH. concat leaves the original untouched and returns a NEW array. Watch the return values — they trip people up more than the mutation does.',
+        hi: 'push maujooda array ke AAKHIR mein jodta hai aur nayi LENGTH deta hai. concat original ko chhod deta hai aur NAYA array deta hai. Return values dekho — mutation se zyada log inme phasate hain.',
+      },
+      code: `const a = [1, 2];
+
+a.push(3);        // returns 3 (the new length)
+a;                // [1, 2, 3]  ← changed
+
+const b = [1, 2];
+b.concat(3);      // returns [1, 2, 3]
+b;                // [1, 2]     ← unchanged`,
+    },
+    {
+      heading: { en: 'How they treat an array argument', hi: 'Array argument ko dono kaise lete hain' },
+      body: {
+        en: 'This is the difference that actually bites. push adds the array as ONE element, nesting it. concat spreads a top-level array\'s elements in. Getting this wrong gives you an unexpected nested array.',
+        hi: 'Ye wo farq hai jo asal mein kaatta hai. push array ko EK element ki tarah jodta hai, nest karte hue. concat top-level array ke elements ko khol kar daal deta hai. Ye galat karo toh anchaha nested array mil jaata hai.',
+      },
+      code: `const a = [1];
+a.push([2, 3]);      // [1, [2, 3]]     ← nested
+a.push(...[2, 3]);   // [1, [2,3], 2, 3] ← spread to fix it
+
+const b = [1];
+b.concat([2, 3]);    // [1, 2, 3]  ✓ flattened one level
+b.concat([[2]]);     // [1, [2]]   only ONE level`,
+    },
+    {
+      heading: { en: 'Performance', hi: 'Performance' },
+      body: {
+        en: 'push appends in place and is O(1) amortised. concat allocates and copies the whole array, so it is O(n). Building a list with concat inside a loop is O(n²) — the classic slow pattern.',
+        hi: 'push wahin jodta hai aur amortised O(1) hai. concat poora array banata aur copy karta hai, toh O(n). Loop ke andar concat se list banana O(n²) hai — classic dheema pattern.',
+      },
+      code: `// ✗ O(n²)
+let out = [];
+for (const x of items) out = out.concat(x);
+
+// ✓ O(n)
+const out = [];
+for (const x of items) out.push(x);`,
+    },
+    {
+      heading: { en: 'Immutability is why concat still exists', hi: 'concat ab bhi isliye hai: immutability' },
+      body: {
+        en: 'In React and Redux, mutating state means the component does not re-render, because the reference did not change. concat, or spread, gives you a new reference and the update is detected.',
+        hi: 'React aur Redux mein state mutate karna matlab component re-render nahi hota, kyunki reference nahi badla. concat, ya spread, naya reference deta hai aur update pakda jaata hai.',
+      },
+      code: `state.items.push(x);            // ✗ no re-render
+setItems(items.concat(x));      // ✓
+setItems([...items, x]);        // ✓ the idiomatic modern form`,
+    },
+    {
+      heading: { en: 'What to use today', hi: 'Aaj kya use karein' },
+      body: {
+        en: 'Spread has largely replaced concat: it reads better, works at any position and merges several arrays at once. Use push when you are deliberately building up a local array, and spread when you need a new one.',
+        hi: 'Spread ne concat ki jagah lagbhag le li hai: wo behtar padha jaata hai, kisi bhi jagah chalta hai aur ek saath kai arrays jodta hai. Jab jaan-boojh kar local array bana rahe ho tab push, aur naya chahiye tab spread.',
+      },
+      code: `[...a, ...b, x];                 // ✓ clear and flexible
+a.toSpliced(0, 0, x);            // modern immutable insert`,
+    },
+  ],
+
+  'What is the difference between mutable and immutable array methods?': [
+    {
+      heading: { en: 'Does it change the original?', hi: 'Kya ye original ko badalta hai?' },
+      body: {
+        en: 'A mutable method modifies the array in place and usually returns something other than the array — a length, a removed element. An immutable method leaves the original alone and returns a new array. Knowing which is which prevents a whole class of bugs.',
+        hi: 'Mutable method array ko wahin badal deta hai aur aam taur pe array ke alawa kuch deta hai — length, hataya gaya element. Immutable method original ko chhod deta hai aur naya array deta hai. Kaun kaunsa hai ye jaan lena bugs ki poori shreni rok deta hai.',
+      },
+    },
+    {
+      heading: { en: 'The list worth memorising', hi: 'Yaad rakhne laayak list' },
+      body: {
+        en: 'There are exactly nine mutating methods. Everything else on Array.prototype returns something new. Learning the short list is easier than learning the long one.',
+        hi: 'Bilkul nau mutating methods hain. Array.prototype pe baaki sab kuch naya deta hai. Chhoti list yaad karna lambi se aasaan hai.',
+      },
+      diagram: `MUTATING (9)                  NON-MUTATING
+push     pop                  map      filter
+shift    unshift              slice    concat
+splice   sort                 reduce   flat
+reverse  fill                 flatMap  join
+copyWithin                    every    some  find`,
+    },
+    {
+      heading: { en: 'sort and reverse are the dangerous pair', hi: 'sort aur reverse khatarnak jodi hain' },
+      body: {
+        en: 'They mutate AND return the array, so a chain looks harmless while quietly rewriting the original. This is the single most common accidental mutation in real code. Copy first.',
+        hi: 'Ye mutate karte HAIN aur array bhi dete hain, toh chain bekhatar dikhti hai jabki chup-chaap original badal rahi hoti hai. Asli code mein galti se hone wali mutation mein ye sabse aam hai. Pehle copy karo.',
+      },
+      code: `const sorted = users.sort(byName);
+sorted === users;          // true ✗ the original was reordered
+
+const sorted = [...users].sort(byName);   // ✓ safe
+const sorted = users.toSorted(byName);    // ✓ modern built-in`,
+    },
+    {
+      heading: { en: 'The new immutable twins', hi: 'Naye immutable joDe' },
+      body: {
+        en: 'ES2023 added toSorted, toReversed, toSpliced and with — non-mutating versions of sort, reverse, splice and index assignment. They make the safe option the shorter one for the first time.',
+        hi: 'ES2023 ne toSorted, toReversed, toSpliced aur with jode — sort, reverse, splice aur index assignment ke non-mutating roop. Pehli baar safe option chhota bhi ho gaya hai.',
+      },
+      code: `arr.toSorted(fn);        // instead of [...arr].sort(fn)
+arr.toReversed();
+arr.toSpliced(1, 2);
+arr.with(0, 'x');        // instead of copying then arr[0] = 'x'`,
+    },
+    {
+      heading: { en: 'Why it matters in React', hi: 'React mein ye kyun maayne rakhta hai' },
+      body: {
+        en: 'React compares state by reference. Mutating an array keeps the same reference, so the component does not re-render even though the data changed. Every state update must produce a new array.',
+        hi: 'React state ko reference se compare karta hai. Array mutate karo toh reference wahi rehta hai, toh data badalne ke baad bhi component re-render nahi hota. Har state update ko naya array banana hi chahiye.',
+      },
+      code: `items.push(x); setItems(items);      // ✗ same reference, no render
+setItems([...items, x]);              // ✓
+setItems(items.filter((i) => i.id !== id));   // ✓ filter is safe`,
+    },
+    {
+      heading: { en: 'When mutation is the right call', hi: 'Mutation kab sahi hai' },
+      body: {
+        en: 'Inside a function on an array you created yourself, mutation is fine and faster — nothing outside can observe it. The rule is about SHARED data: never mutate an array you were handed.',
+        hi: 'Apne banaye array pe kisi function ke andar mutation theek hai aur tez bhi — bahar se koi dekh nahi sakta. Rule SHARED data ke liye hai: jo array tumhe diya gaya hai usse kabhi mat badlo.',
+      },
+      code: `function build(n) {
+  const out = [];                 // local — mine to mutate
+  for (let i = 0; i < n; i++) out.push(i);
+  return out;
+}`,
+    },
+  ],
+
+  'How do you sort numbers correctly in JavaScript?': [
+    {
+      heading: { en: 'The default sort is alphabetical', hi: 'Default sort alphabetical hai' },
+      body: {
+        en: 'With no comparator, sort converts every element to a string and compares those strings. So 10 sorts before 9, because "10" is less than "9". This is the entire question.',
+        hi: 'Bina comparator ke sort har element ko string bana kar un strings ko compare karta hai. Toh 10, 9 se pehle aa jaata hai, kyunki "10" "9" se chhota hai. Poora sawaal yahi hai.',
+      },
+      code: `[10, 9, 1, 100].sort();
+// [1, 10, 100, 9]   ✗ string order
+
+[10, 9, 1, 100].sort((a, b) => a - b);
+// [1, 9, 10, 100]   ✓`,
+    },
+    {
+      heading: { en: 'The comparator contract', hi: 'Comparator ka contract' },
+      body: {
+        en: 'Return a negative number to put a first, positive to put b first, and zero to treat them as equal. a - b gives ascending and b - a gives descending — that is why the subtraction idiom works.',
+        hi: 'Negative number do toh a pehle, positive do toh b pehle, aur zero do toh dono barabar. a - b badhta kram deta hai aur b - a ghatta kram — isiliye subtraction wala idiom chalta hai.',
+      },
+      diagram: `compare(a, b)
+  < 0   a comes first
+  = 0   leave their order alone
+  > 0   b comes first`,
+    },
+    {
+      heading: { en: 'sort mutates', hi: 'sort mutate karta hai' },
+      body: {
+        en: 'It sorts the array in place AND returns it, which makes accidental mutation easy to miss. Copy first, or use toSorted.',
+        hi: 'Ye array ko wahin sort karta HAI aur usse return bhi karta hai, jisse galti se hui mutation dikhti nahi. Pehle copy karo, ya toSorted use karo.',
+      },
+      code: `const sorted = [...nums].sort((a, b) => a - b);   // ✓
+const sorted = nums.toSorted((a, b) => a - b);    // ✓ modern`,
+    },
+    {
+      heading: { en: 'Do not use subtraction for strings or booleans', hi: 'Strings ya booleans pe subtraction mat lo' },
+      body: {
+        en: 'Subtracting strings gives NaN, and a NaN comparator leaves the order undefined. Use localeCompare for strings, which also handles accents and case correctly.',
+        hi: 'Strings ko ghatane pe NaN milta hai, aur NaN wala comparator order ko anischit chhod deta hai. Strings ke liye localeCompare lo, jo accents aur case bhi theek sambhaalta hai.',
+      },
+      code: `names.sort((a, b) => a.localeCompare(b));            // ✓
+names.sort((a, b) => a.localeCompare(b, 'hi'));      // locale-aware
+nums.sort((a, b) => a - b);                           // numbers only`,
+    },
+    {
+      heading: { en: 'Sorting objects, and multi-key sorts', hi: 'Objects sort karna, aur multi-key sort' },
+      body: {
+        en: 'Compare the field you care about. For a tiebreak, fall through with || — the first non-zero result wins, which reads exactly like the rule you would state in words.',
+        hi: 'Jis field ki fikr hai usse compare karo. Barabari toote toh || se aage badho — pehla non-zero nateeja jeet jaata hai, jo bilkul waisa padha jaata hai jaise tum shabdon mein rule bataoge.',
+      },
+      code: `users.sort((a, b) => a.age - b.age);
+
+users.sort((a, b) =>
+  a.lastName.localeCompare(b.lastName) ||
+  a.firstName.localeCompare(b.firstName) ||
+  a.age - b.age
+);`,
+    },
+    {
+      heading: { en: 'Two details worth mentioning', hi: 'Do details zikr karne laayak' },
+      body: {
+        en: 'sort is stable as of ES2019, so equal elements keep their original order — which is what makes chained multi-key sorting reliable. And undefined values are always moved to the end, without ever being passed to your comparator.',
+        hi: 'ES2019 se sort stable hai, toh barabar elements apna asli order rakhte hain — isi se chained multi-key sorting bharosemand banti hai. Aur undefined values hamesha aakhir mein bhej di jaati hain, tumhare comparator tak pahunche bina.',
+      },
+      code: `[3, undefined, 1].sort((a, b) => a - b);
+// [1, 3, undefined] — undefined is always last`,
+    },
+  ],
+
+  /* ─── Asynchrony ──────────────────────────────────────────── */
+
+  'What is synchronous programming?': [
+    {
+      heading: { en: 'One thing at a time, in order', hi: 'Ek time pe ek kaam, kram se' },
+      body: {
+        en: 'Synchronous code runs statement by statement, and each one finishes completely before the next begins. Nothing is interleaved, so you can read the source top to bottom and know exactly what order things happen in.',
+        hi: 'Synchronous code statement dar statement chalta hai, aur har ek agle se pehle poora khatam hota hai. Kuch beech mein nahi ghusta, toh source ko upar se neeche padh kar tumhe bilkul pata hota hai kya kis kram mein hoga.',
+      },
+      code: `console.log('1');
+const x = compute();     // finishes fully
+console.log('2');        // only then
+// 1, then compute, then 2 — always`,
+    },
+    {
+      heading: { en: 'It is also blocking', hi: 'Ye blocking bhi hai' },
+      body: {
+        en: 'Because the call stack can only hold one thing, a slow synchronous operation stops everything. In a browser that means no clicks, no scrolling, no rendering — the tab is frozen until it returns.',
+        hi: 'Call stack ek hi cheez rakh sakta hai, isliye dheema synchronous operation sab kuch rok deta hai. Browser mein iska matlab hai na clicks, na scrolling, na rendering — return hone tak tab jam jaata hai.',
+      },
+      code: `const end = Date.now() + 3000;
+while (Date.now() < end) {}      // 3 seconds of frozen UI
+alert('now the page responds');`,
+    },
+    {
+      heading: { en: 'JavaScript is synchronous by default', hi: 'JavaScript default se synchronous hai' },
+      body: {
+        en: 'The engine itself runs everything synchronously on one call stack, with run-to-completion semantics: your function will never be paused halfway to run someone else\'s. Asynchrony is something the runtime adds around it, not a property of the language.',
+        hi: 'Engine khud sab kuch ek call stack pe synchronously chalata hai, run-to-completion ke saath: tumhara function beech mein rok kar kisi aur ka code nahi chalaya jaayega. Asynchrony runtime uske aas-paas jodta hai, ye language ki khoobi nahi.',
+      },
+    },
+    {
+      heading: { en: 'The blocking APIs to recognise', hi: 'Pehchanne laayak blocking APIs' },
+      body: {
+        en: 'alert, confirm and prompt block the browser. So does a synchronous XMLHttpRequest, which is why it is deprecated. In Node, every fs method ending in Sync blocks the event loop, and using one in a server request handler stalls every other request.',
+        hi: 'alert, confirm aur prompt browser rok dete hain. Synchronous XMLHttpRequest bhi, isiliye wo deprecated hai. Node mein har fs method jo Sync pe khatam hota hai event loop rokta hai, aur server ke request handler mein ek bhi use karna baaki har request atka deta hai.',
+      },
+      code: `fs.readFileSync('big.json');     // ✗ blocks the whole server
+await fs.promises.readFile('big.json');   // ✓`,
+    },
+    {
+      heading: { en: 'When synchronous is the right choice', hi: 'Synchronous kab sahi chunav hai' },
+      body: {
+        en: 'Almost all your code. Pure computation, transforming data, rendering logic — none of it should be async. Reach for asynchrony only when you are genuinely waiting on something outside the engine: the network, the disk, a timer, the user.',
+        hi: 'Tumhara lagbhag saara code. Pure computation, data badalna, rendering logic — inme se kuch bhi async nahi hona chahiye. Asynchrony tabhi lo jab tum sach mein engine ke bahar kisi cheez ka intezaar kar rahe ho: network, disk, timer, user.',
+      },
+    },
+  ],
+
+  'What is asynchronous programming?': [
+    {
+      heading: { en: 'Start now, finish later, do not wait', hi: 'Abhi shuru karo, baad mein khatam, intezaar mat karo' },
+      body: {
+        en: 'An asynchronous operation is handed off and returns immediately. The rest of your code keeps running, and the result arrives later through a callback, a promise or an await. Nothing is blocked in the meantime.',
+        hi: 'Asynchronous operation kisi aur ko saunp diya jaata hai aur turant laut aata hai. Tumhara baaki code chalta rehta hai, aur nateeja baad mein callback, promise ya await se aata hai. Beech mein kuch block nahi hota.',
+      },
+      code: `console.log('1');
+fetch('/api');           // handed to the browser, returns at once
+console.log('2');
+// 1, 2 — and the response arrives sometime after`,
+    },
+    {
+      heading: { en: 'Concurrency, not parallelism', hi: 'Concurrency, parallelism nahi' },
+      body: {
+        en: 'This distinction is worth stating. Your JavaScript still runs on one thread — only one piece of it executes at a time. What overlaps is the WAITING: the browser handles ten network requests at once while your single thread stays free.',
+        hi: 'Ye farq batane laayak hai. Tumhara JavaScript ab bhi ek thread pe chalta hai — ek time pe uska ek hi hissa chalta hai. Jo overlap hota hai wo INTEZAAR hai: browser ek saath das network requests sambhaalta hai jabki tumhara ek thread khaali rehta hai.',
+      },
+      diagram: `parallel      ████████   two threads doing work at once
+              ████████
+
+concurrent    ██      ██   one thread, work interleaved
+                ~~~~~~     waiting handled elsewhere`,
+    },
+    {
+      heading: { en: 'How the result gets back to you', hi: 'Nateeja tum tak wapas kaise aata hai' },
+      body: {
+        en: 'The runtime cannot interrupt you, so it queues your callback. The event loop waits for the call stack to empty, drains all microtasks, then takes one macrotask. Promise callbacks are microtasks and therefore jump ahead of timers.',
+        hi: 'Runtime tumhe beech mein rok nahi sakta, isliye wo tumhara callback queue kar deta hai. Event loop call stack khaali hone ka intezaar karta hai, saare microtasks khaali karta hai, phir ek macrotask leta hai. Promise callbacks microtasks hain isliye timers se aage nikal jaate hain.',
+      },
+      code: `console.log('a');
+setTimeout(() => console.log('b'));
+Promise.resolve().then(() => console.log('c'));
+console.log('d');
+// a d c b`,
+    },
+    {
+      heading: { en: 'Three generations of syntax', hi: 'Syntax ki teen peedhiyan' },
+      body: {
+        en: 'Callbacks came first and nested badly. Promises made the flow chainable and guaranteed a single settlement. async/await is syntax over promises that lets you write the same logic top to bottom with ordinary try/catch.',
+        hi: 'Callbacks pehle aaye aur buri tarah nest hue. Promises ne flow ko chainable banaya aur ek hi settlement guarantee ki. async/await promises ke upar syntax hai jo wahi logic upar se neeche, aam try/catch ke saath likhne deta hai.',
+      },
+      code: `getUser(id, (e, u) => { … });                    // callback
+getUser(id).then(getOrders).catch(handle);        // promise
+const u = await getUser(id);                      // async/await`,
+    },
+    {
+      heading: { en: 'The mistake await makes easy', hi: 'Wo galti jo await aasaan bana deta hai' },
+      body: {
+        en: 'Because it reads synchronously, people await inside loops and serialise work that had no dependency between its steps. Start everything first, then await once with Promise.all.',
+        hi: 'Ye synchronous jaisa padha jaata hai, isliye log loops ke andar await karte hain aur wo kaam serial bana dete hain jinke steps mein koi nirbharta thi hi nahi. Pehle sab shuru karo, phir Promise.all se ek baar await karo.',
+      },
+      code: `for (const id of ids) out.push(await load(id));   // ✗ serial
+const out = await Promise.all(ids.map(load));      // ✓ parallel`,
+    },
+    {
+      heading: { en: 'Async does not make CPU work faster', hi: 'Async CPU ka kaam tez nahi karta' },
+      body: {
+        en: 'Wrapping a heavy calculation in an async function changes nothing — it still runs on the one thread and still freezes the page. Asynchrony helps with WAITING. For heavy computation you need a Web Worker.',
+        hi: 'Bhaari calculation ko async function mein lapetne se kuch nahi badalta — wo ab bhi usi ek thread pe chalega aur page ab bhi jam jaayega. Asynchrony INTEZAAR mein madad karti hai. Bhaari computation ke liye Web Worker chahiye.',
+      },
+    },
+  ],
+
+  'What are the Promise states?': [
+    {
+      heading: { en: 'Three states, one transition', hi: 'Teen states, ek badlaav' },
+      body: {
+        en: 'A promise begins pending. It then either becomes fulfilled with a value or rejected with a reason. That transition happens at most once and can never be undone — a settled promise keeps its result forever.',
+        hi: 'Promise pending se shuru hota hai. Phir wo ya toh kisi value ke saath fulfilled hota hai ya kisi reason ke saath rejected. Ye badlaav zyada se zyada ek baar hota hai aur kabhi ulta nahi ho sakta — settled promise apna nateeja hamesha rakhta hai.',
+      },
+      diagram: `              ┌──► fulfilled (value)   → .then
+   pending ───┤
+              └──► rejected  (reason)  → .catch
+
+   one-way, and at most once`,
+    },
+    {
+      heading: { en: 'Settled is not a fourth state', hi: 'Settled chautha state nahi hai' },
+      body: {
+        en: 'People often say "settled" as though it were a state. It is an umbrella term meaning fulfilled OR rejected — that is, no longer pending. Getting this right is a small but noticed detail.',
+        hi: 'Log aksar "settled" ko state ki tarah bolte hain. Ye ek chhatri shabd hai jiska matlab hai fulfilled YA rejected — yaani ab pending nahi. Ye theek bolna chhoti par dhyaan mein aane wali baat hai.',
+      },
+      code: `// pending → fulfilled            settled
+// pending → rejected             settled
+// there is no way back to pending`,
+    },
+    {
+      heading: { en: 'The immutability guarantee', hi: 'Immutability ki guarantee' },
+      body: {
+        en: 'Once settled, further calls to resolve or reject are ignored. This is what makes promises safer than callbacks: a buggy library cannot call you twice, and a handler attached long after settlement still receives the stored result.',
+        hi: 'Ek baar settle hone ke baad resolve ya reject ke aage ke calls ignore ho jaate hain. Isi se promises callbacks se safe hain: kharaab library tumhe do baar call nahi kar sakti, aur settle hone ke bahut baad laga handler bhi rakha hua nateeja pa leta hai.',
+      },
+      code: `const p = new Promise((resolve, reject) => {
+  resolve('first');
+  resolve('second');   // ignored
+  reject('nope');      // ignored
+});
+p.then(console.log);   // 'first'
+
+setTimeout(() => p.then(console.log), 1000);   // 'first' again`,
+    },
+    {
+      heading: { en: 'You cannot read the state synchronously', hi: 'State ko synchronously nahi padh sakte' },
+      body: {
+        en: 'There is no p.state property. The only way to observe a promise is to attach a handler, and that handler always runs asynchronously as a microtask — even if the promise was already settled.',
+        hi: 'p.state jaisi koi property nahi hai. Promise ko dekhne ka ek hi tareeka hai handler lagana, aur wo handler hamesha asynchronously microtask ki tarah chalta hai — chahe promise pehle se settled ho.',
+      },
+      code: `const p = Promise.resolve(1);
+p.then(() => console.log('then'));
+console.log('sync');
+// sync
+// then   ← always after the current script`,
+    },
+    {
+      heading: { en: 'Resolved is not the same as fulfilled', hi: 'Resolved aur fulfilled ek nahi hain' },
+      body: {
+        en: 'A subtle point that impresses when you get it right. Resolving a promise with another promise makes it ADOPT that promise — it stays pending until the inner one settles. So "resolved" means "locked in", which may still mean pending.',
+        hi: 'Ek sookshm baat jo theek bolne pe asar chhodti hai. Kisi promise ko doosre promise se resolve karo toh wo usse APNA leta hai — jab tak andar wala settle na ho wo pending rehta hai. Toh "resolved" matlab "tay ho gaya", jo abhi bhi pending ho sakta hai.',
+      },
+      code: `const p = Promise.resolve(new Promise((r) => setTimeout(r, 1000)));
+// p is "resolved" but still PENDING for a second`,
+    },
+    {
+      heading: { en: 'Handling both outcomes', hi: 'Dono nateeje sambhalna' },
+      body: {
+        en: 'then takes an optional second argument for rejection, but catch is clearer and also covers errors thrown inside earlier then handlers. finally runs on either outcome and passes the result through untouched.',
+        hi: 'then rejection ke liye ek optional doosra argument leta hai, par catch saaf hai aur pehle wale then handlers ke andar phenke gaye errors bhi pakadta hai. finally dono nateejon pe chalta hai aur result waise ka waisa aage bhej deta hai.',
+      },
+      code: `p.then(onOk, onErr);              // does NOT catch onOk's own throw
+p.then(onOk).catch(onErr);        // ✓ catches both
+p.finally(hideSpinner);           // runs either way`,
+    },
+  ],
+
+  'What is the difference between callbacks and promises?': [
+    {
+      heading: { en: 'Push versus pull', hi: 'Push vs pull' },
+      body: {
+        en: 'With a callback you hand your function to the operation and it calls you — you have no object to hold. A promise gives you back a VALUE representing the future result, which you can store, pass around, and attach handlers to whenever you like.',
+        hi: 'Callback mein tum apna function operation ko de dete ho aur wo tumhe bulata hai — tumhare paas pakadne ko kuch nahi hota. Promise tumhe ek VALUE wapas deta hai jo bhavishya ka nateeja darshati hai, jise tum rakh sakte ho, ghuma sakte ho, aur jab chaaho handler laga sakte ho.',
+      },
+      code: `getUser(id, (e, u) => {});        // you give a function away
+
+const p = getUser(id);            // you get an object back
+p.then(use);                      // attach whenever you want`,
+    },
+    {
+      heading: { en: 'Nesting versus chaining', hi: 'Nesting vs chaining' },
+      body: {
+        en: 'Dependent callbacks nest one inside the next and grow sideways. Because then returns a new promise and waits for any promise you return from it, the same sequence becomes a flat chain.',
+        hi: 'Ek doosre pe nirbhar callbacks ek ke andar ek nest hote hain aur bagal mein badhte jaate hain. then naya promise deta hai aur tumhare return kiye promise ka intezaar karta hai, isliye wahi sequence ek seedhi chain ban jaati hai.',
+      },
+      code: `getUser(id, (e, u) => {
+  getOrders(u, (e, o) => {
+    getItems(o[0], (e, i) => { … });     // ✗ grows right
+  });
+});
+
+getUser(id).then(getOrders).then((o) => getItems(o[0]));   // ✓`,
+    },
+    {
+      heading: { en: 'Error handling is the biggest win', hi: 'Sabse badi jeet error handling hai' },
+      body: {
+        en: 'Callbacks force you to check the error argument at every level, and try/catch cannot cross the async boundary. A promise chain propagates rejection down to a single catch, and a throw inside any handler is caught there too.',
+        hi: 'Callbacks har level pe error argument check karwate hain, aur try/catch async boundary paar nahi kar sakta. Promise chain rejection ko neeche ek hi catch tak pahuncha deti hai, aur kisi bhi handler ke andar phenka gaya error wahin pakda jaata hai.',
+      },
+      code: `getUser(id)
+  .then(getOrders)
+  .then(render)
+  .catch(handle);       // ✓ any failure above lands here`,
+    },
+    {
+      heading: { en: 'Promises guarantee things callbacks cannot', hi: 'Promises wo guarantee dete hain jo callbacks nahi de sakte' },
+      body: {
+        en: 'Three guarantees, all enforced by the specification. A handler is called at most once. It always runs asynchronously, even if the promise already settled — so timing is consistent. And the result is stored, so attaching late still works.',
+        hi: 'Teen guarantees, sab specification se lagoo. Handler zyada se zyada ek baar chalta hai. Wo hamesha asynchronously chalta hai, chahe promise pehle se settle ho — toh timing ek jaisi rehti hai. Aur nateeja rakha jaata hai, toh der se handler lagana bhi chalta hai.',
+      },
+      code: `// A buggy callback API can do this:
+function bad(cb) { cb(null, 1); cb(null, 2); }   // called twice ✗
+
+// A promise cannot:
+new Promise((r) => { r(1); r(2); }).then(console.log);   // 1 only`,
+    },
+    {
+      heading: { en: 'Composition is only possible with promises', hi: 'Composition sirf promises se mumkin hai' },
+      body: {
+        en: 'Because a promise is a value, you can put promises in an array and combine them. There is no callback equivalent of Promise.all — you would have to hand-roll a counter and a results array, and get the error case right yourself.',
+        hi: 'Promise ek value hai, isliye promises ko array mein daal kar jod sakte ho. Promise.all jaisa callback mein kuch nahi hai — tumhe khud counter aur results array banana padta, aur error wala case bhi khud theek karna padta.',
+      },
+      code: `await Promise.all([a(), b(), c()]);
+await Promise.race([fetchIt(), timeout(5000)]);`,
+    },
+    {
+      heading: { en: 'Where callbacks are still correct', hi: 'Callbacks abhi bhi kahan sahi hain' },
+      body: {
+        en: 'A promise settles exactly once, so it is the wrong shape for a repeating event. addEventListener, streams and observers are all callback-based for good reason. Use promisify or util.promisify to convert one-shot callback APIs.',
+        hi: 'Promise theek ek baar settle hota hai, isliye baar-baar hone wale event ke liye wo galat shape hai. addEventListener, streams aur observers sab wajah se callback-based hain. Ek baar wale callback APIs badalne ke liye promisify ya util.promisify use karo.',
+      },
+      code: `const readFile = util.promisify(fs.readFile);
+const data = await readFile('a.txt');`,
+    },
+  ],
+
+  'What is the difference between async/await and plain Promises?': [
+    {
+      heading: { en: 'Same machinery, different syntax', hi: 'Wahi machinery, alag syntax' },
+      body: {
+        en: 'async/await is sugar over promises — nothing new happens underneath. An async function always returns a promise, and await simply pauses that function until a promise settles, then unwraps its value.',
+        hi: 'async/await promises ke upar sugar hai — andar kuch naya nahi hota. Async function hamesha promise return karta hai, aur await bas us function ko rokta hai jab tak promise settle na ho, phir uski value khol deta hai.',
+      },
+      code: `async function f() { return 1; }
+f();                    // Promise { 1 } — not 1
+
+// these two are equivalent:
+getUser(id).then((u) => u.name);
+async () => (await getUser(id)).name;`,
+    },
+    {
+      heading: { en: 'Error handling is the real gain', hi: 'Asli fayda error handling hai' },
+      body: {
+        en: 'With await, an ordinary try/catch works because the rejection surfaces as a thrown error at the await. You get one familiar construct instead of a chain of catch handlers, and you can catch a single step precisely.',
+        hi: 'await ke saath aam try/catch chalta hai kyunki rejection await pe phenke gaye error ki tarah upar aata hai. catch handlers ki chain ki jagah ek jaana-pehchana construct milta hai, aur tum theek ek step ko pakad sakte ho.',
+      },
+      code: `try {
+  const u = await getUser(id);
+  const o = await getOrders(u);
+} catch (e) {
+  handle(e);          // covers both
+} finally {
+  hideSpinner();
+}`,
+    },
+    {
+      heading: { en: 'Conditionals and loops read normally', hi: 'Conditionals aur loops normal padhe jaate hain' },
+      body: {
+        en: 'Branching in a promise chain means returning different promises and threading values through, which gets awkward fast. With await, an if is just an if, and intermediate values stay in scope for the rest of the function.',
+        hi: 'Promise chain mein branching ka matlab hai alag promises return karna aur values ko aage pirona, jo jaldi hi bhadda ho jaata hai. await ke saath if bas if hai, aur beech ki values poore function mein scope mein rehti hain.',
+      },
+      code: `// chain — value threading gets clumsy
+getUser(id).then((u) => getOrders(u).then((o) => ({ u, o })));
+
+// await — both stay in scope
+const u = await getUser(id);
+const o = await getOrders(u);
+if (o.length === 0) return null;`,
+    },
+    {
+      heading: { en: 'The serialisation trap', hi: 'Serialisation ka jaal' },
+      body: {
+        en: 'This is the cost of the nicer syntax. await in a loop waits for each iteration, so three one-second calls take three seconds. Promise chains made the parallel option obvious; await hides it. Start everything, then await once.',
+        hi: 'Achhe syntax ki yahi keemat hai. Loop mein await har iteration ka intezaar karta hai, toh ek-ek second ke teen calls teen second lete hain. Promise chains mein parallel wala option saaf dikhta tha; await usse chhupa deta hai. Sab shuru karo, phir ek baar await.',
+      },
+      code: `for (const id of ids) out.push(await load(id));   // ✗ 3s
+const out = await Promise.all(ids.map(load));      // ✓ ~1s
+
+// independent calls — start both, then await
+const [a, b] = await Promise.all([getA(), getB()]);`,
+    },
+    {
+      heading: { en: 'Where you still need the promise API', hi: 'Promise API ab bhi kahan chahiye' },
+      body: {
+        en: 'Combinators — all, race, any, allSettled — have no await equivalent. You also cannot await at the top level of a CommonJS module, and attaching a handler to a promise you want to keep running in the background is cleaner with then.',
+        hi: 'Combinators — all, race, any, allSettled — ka await mein koi joda nahi hai. CommonJS module ke top level pe await bhi nahi kar sakte, aur jis promise ko background mein chalte rehne dena hai uspe handler lagana then se saaf hota hai.',
+      },
+      code: `void trackAnalytics().catch(noop);      // fire and forget
+await Promise.allSettled(tasks);        // no await-only form`,
+    },
+    {
+      heading: { en: 'Two details worth knowing', hi: 'Do details jaanne laayak' },
+      body: {
+        en: 'await works on any thenable, not just real promises. And awaiting a non-promise still yields to the microtask queue, so it is not a no-op — the function still pauses and resumes.',
+        hi: 'await kisi bhi thenable pe chalta hai, sirf asli promises pe nahi. Aur non-promise ko await karna bhi microtask queue ko mauka deta hai, toh ye bekaar nahi hai — function phir bhi rukta aur wapas chalta hai.',
+      },
+      code: `await 5;               // still defers to a microtask
+console.log('after');   // runs later than you might expect`,
+    },
+  ],
+
+  'What is Promise.all()?': [
+    {
+      heading: { en: 'Wait for every promise, in parallel', hi: 'Har promise ka intezaar, parallel mein' },
+      body: {
+        en: 'Promise.all takes an iterable of promises and returns one promise that fulfils with an array of all their values. The operations run concurrently, so the total time is roughly the slowest one, not the sum.',
+        hi: 'Promise.all promises ka ek iterable leta hai aur ek promise deta hai jo un sabki values ke array ke saath fulfil hota hai. Operations saath chalte hain, toh kul samay lagbhag sabse dheeme ke barabar hai, jod nahi.',
+      },
+      code: `const [user, posts, tags] = await Promise.all([
+  getUser(id),      // 300ms
+  getPosts(id),     // 500ms
+  getTags(),        // 200ms
+]);
+// total ≈ 500ms, not 1000ms`,
+    },
+    {
+      heading: { en: 'Order is preserved regardless of timing', hi: 'Timing chahe kuch bhi ho, order bacha rehta hai' },
+      body: {
+        en: 'The results array matches the input order, not the order in which they finished. That is what makes destructuring the result safe.',
+        hi: 'Results ka array input ke order se milta hai, na ki khatam hone ke order se. Isi se result ko destructure karna safe hota hai.',
+      },
+      code: `await Promise.all([slow(), fast()]);
+// [slowResult, fastResult] — always in that order`,
+    },
+    {
+      heading: { en: 'It fails fast, on the first rejection', hi: 'Ye pehli rejection pe hi fail ho jaata hai' },
+      body: {
+        en: 'One rejection rejects the whole thing immediately, with that single reason. You lose the results of everything that succeeded — this is the behaviour that surprises people and the reason allSettled exists.',
+        hi: 'Ek rejection poore ko turant reject kar deti hai, usi ek reason ke saath. Jo safal hue unke nateeje kho jaate hain — yahi behaviour logon ko chaunkata hai aur isiliye allSettled hai.',
+      },
+      code: `await Promise.all([ok(), fails(), ok()]);
+// ✗ rejects at once — the two successes are discarded
+
+await Promise.allSettled([ok(), fails(), ok()]);
+// ✓ all three outcomes, each tagged`,
+    },
+    {
+      heading: { en: 'The other promises keep running', hi: 'Baaki promises chalte rehte hain' },
+      body: {
+        en: 'A rejection does not cancel anything. The remaining requests still complete and their handlers still run — the combined promise just stops reporting them. Promises have no cancellation; use AbortController if you need it.',
+        hi: 'Rejection kuch cancel nahi karti. Baaki requests phir bhi poori hoti hain aur unke handlers bhi chalte hain — bas combined promise unke baare mein batana band kar deta hai. Promises mein cancellation hai hi nahi; chahiye toh AbortController use karo.',
+      },
+    },
+    {
+      heading: { en: 'Non-promise values pass straight through', hi: 'Non-promise values seedha nikal jaati hain' },
+      body: {
+        en: 'Anything in the array that is not a promise is wrapped with Promise.resolve. That makes it safe to mix plain values in, and Promise.all on an empty array fulfils immediately with an empty array.',
+        hi: 'Array mein jo promise nahi hai wo Promise.resolve se lapet diya jaata hai. Toh saadi values milana safe hai, aur khaali array pe Promise.all turant khaali array ke saath fulfil ho jaata hai.',
+      },
+      code: `await Promise.all([1, Promise.resolve(2)]);   // [1, 2]
+await Promise.all([]);                         // [] immediately`,
+    },
+    {
+      heading: { en: 'The mistake: calling inside the array', hi: 'Galti: array ke andar call karna' },
+      body: {
+        en: 'You must pass promises that have ALREADY started. Wrapping already-awaited values, or awaiting inside a map callback, serialises the work and defeats the point entirely.',
+        hi: 'Aise promises dene hain jo PEHLE SE shuru ho chuke hon. Pehle se await ki hui values lapetna, ya map callback ke andar await karna, kaam serial bana deta hai aur poora maqsad hi khatam kar deta hai.',
+      },
+      code: `// ✗ serial — each await finishes before the next starts
+const a = await getA(); const b = await getB();
+await Promise.all([a, b]);
+
+// ✓ both in flight, then awaited together
+await Promise.all([getA(), getB()]);`,
+    },
+  ],
+
+  'What is the difference between Promise.all(), Promise.race(), Promise.any(), and Promise.allSettled()?': [
+    {
+      heading: { en: 'Four combinators, four questions', hi: 'Chaar combinators, chaar sawaal' },
+      body: {
+        en: 'Each answers a different question about a set of promises. all asks "did they all succeed?", allSettled asks "what happened to each?", race asks "what finished first?", any asks "did any succeed?".',
+        hi: 'Har ek promises ke samooh ke baare mein alag sawaal ka jawab deta hai. all poochta hai "kya sab safal hue?", allSettled "har ek ka kya hua?", race "sabse pehle kya khatam hua?", any "koi safal hua kya?".',
+      },
+      diagram: `             fulfils when           rejects when
+all          ALL fulfil             ANY rejects (fail fast)
+allSettled   all settle             never
+race         the FIRST settles      if the first settles as a rejection
+any          the FIRST fulfils      ALL reject (AggregateError)`,
+    },
+    {
+      heading: { en: 'all — everything or nothing', hi: 'all — sab kuch ya kuch nahi' },
+      body: {
+        en: 'Fulfils with an array of values in input order. One rejection rejects the whole thing immediately and throws away the successes. Use it when every piece is required to proceed.',
+        hi: 'Input ke order mein values ka array de kar fulfil hota hai. Ek rejection poore ko turant reject kar deti hai aur safaltaayein phenk deti hai. Isse tab use karo jab aage badhne ke liye har tukda zaroori ho.',
+      },
+      code: `const [a, b] = await Promise.all([getA(), getB()]);`,
+    },
+    {
+      heading: { en: 'allSettled — never rejects', hi: 'allSettled — kabhi reject nahi hota' },
+      body: {
+        en: 'Waits for every promise and fulfils with an array of result objects, each tagged with a status of "fulfilled" or "rejected". This is what you want when partial success is acceptable — a dashboard where one failing widget should not blank the page.',
+        hi: 'Har promise ka intezaar karta hai aur result objects ka array deta hai, har ek pe "fulfilled" ya "rejected" ka status. Jab aadhi safalta bhi chalti ho tab yahi chahiye — aisa dashboard jahan ek widget fail ho toh poora page khaali na ho.',
+      },
+      code: `const results = await Promise.allSettled(tasks);
+const ok = results.filter((r) => r.status === 'fulfilled')
+                  .map((r) => r.value);
+const failed = results.filter((r) => r.status === 'rejected')
+                      .map((r) => r.reason);`,
+    },
+    {
+      heading: { en: 'race — the first to settle, either way', hi: 'race — pehla jo settle ho, chahe jaise' },
+      body: {
+        en: 'Settles as soon as ANY promise settles, and adopts its outcome. A rejection wins the race just as readily as a fulfilment — which is exactly what makes it the timeout idiom.',
+        hi: 'Jaise hi KOI promise settle hota hai ye settle ho jaata hai, aur uska nateeja apna leta hai. Rejection bhi utni hi aasaani se race jeet leti hai jitni fulfilment — aur isi se ye timeout ka idiom ban jaata hai.',
+      },
+      code: `const timeout = (ms) =>
+  new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms));
+
+await Promise.race([fetchData(), timeout(5000)]);`,
+    },
+    {
+      heading: { en: 'any — the first SUCCESS', hi: 'any — pehli SAFALTA' },
+      body: {
+        en: 'Ignores rejections and waits for the first fulfilment. Only if every promise rejects does it reject, with an AggregateError whose errors array holds all the reasons. Use it to try several mirrors and take whichever answers first.',
+        hi: 'Rejections ko ignore karta hai aur pehli fulfilment ka intezaar karta hai. Sirf tab reject karta hai jab har promise reject ho, ek AggregateError ke saath jiske errors array mein saare reasons hote hain. Kai mirrors try karke jo pehle jawab de wo lene ke liye isse use karo.',
+      },
+      code: `try {
+  const data = await Promise.any([fromCDN(), fromOrigin(), fromCache()]);
+} catch (e) {
+  e.errors;   // an array of every rejection reason
+}`,
+    },
+    {
+      heading: { en: 'What none of them do', hi: 'Inme se koi kya nahi karta' },
+      body: {
+        en: 'None cancels anything. Once a combinator settles, the remaining promises keep running to completion — their side effects still happen. If you need real cancellation, pass an AbortSignal to each operation.',
+        hi: 'Koi bhi kuch cancel nahi karta. Combinator settle hone ke baad bhi baaki promises poore chalte rehte hain — unke side effects hote hi hain. Asli cancellation chahiye toh har operation ko AbortSignal do.',
+      },
+      code: `const c = new AbortController();
+const p = fetch(url, { signal: c.signal });
+c.abort();     // ✓ actually stops the request`,
+    },
+    {
+      heading: { en: 'Choosing, in one sentence each', hi: 'Chunna, ek-ek line mein' },
+      body: {
+        en: 'all when every result is required. allSettled when you want a report and partial success is fine. race for timeouts and for whichever-comes-first. any for fallbacks where only one needs to work.',
+        hi: 'all jab har nateeja zaroori ho. allSettled jab report chahiye aur aadhi safalta chal jaaye. race timeouts ke liye aur jo-pehle-aaye ke liye. any fallbacks ke liye jahan sirf ek ka chalna kaafi ho.',
+      },
+    },
+  ],
+
+  'What is the difference between microtasks and macrotasks?': [
+    {
+      heading: { en: 'Two queues with unequal priority', hi: 'Do queues, alag-alag priority' },
+      body: {
+        en: 'Both hold callbacks waiting for the call stack to empty, but the event loop treats them very differently. The microtask queue is drained COMPLETELY on every turn; the macrotask queue gives up exactly ONE callback per turn.',
+        hi: 'Dono mein wo callbacks hain jo call stack khaali hone ka intezaar kar rahe hain, par event loop dono ke saath bahut alag vyavhaar karta hai. Microtask queue har chakkar mein POORI khaali hoti hai; macrotask queue har chakkar mein theek EK callback deti hai.',
+      },
+      diagram: `MICROTASKS                  MACROTASKS
+.then .catch .finally       setTimeout  setInterval
+await continuations         setImmediate (Node)
+queueMicrotask              I/O, DOM events
+MutationObserver            MessageChannel
+
+ALL of them per turn        exactly ONE per turn`,
+    },
+    {
+      heading: { en: 'The loop, stated exactly', hi: 'Loop, bilkul theek-theek' },
+      body: {
+        en: 'Run the current script to completion. Drain the entire microtask queue, including microtasks queued while draining. Render if it is time. Take one macrotask and run it. Repeat.',
+        hi: 'Maujooda script poori chalao. Poori microtask queue khaali karo, un microtasks samet jo khaali karte waqt aaye. Waqt ho toh render karo. Ek macrotask lo aur chalao. Dohrao.',
+      },
+      code: `while (true) {
+  runUntilStackEmpty();
+  while (microtasks.length) run(microtasks.shift());   // ALL
+  maybeRender();
+  if (macrotasks.length) run(macrotasks.shift());      // ONE
+}`,
+    },
+    {
+      heading: { en: 'What that priority looks like', hi: 'Wo priority dikhti kaisi hai' },
+      body: {
+        en: 'Every promise callback runs before any timer, even a timer registered first with zero delay. Trace this example once and the rule stops feeling arbitrary.',
+        hi: 'Har promise callback kisi bhi timer se pehle chalta hai, us timer se bhi jo pehle zero delay ke saath register hua. Ye example ek baar trace kar lo toh rule mann-maana lagna band ho jaata hai.',
+      },
+      code: `setTimeout(() => console.log('timeout 1'));
+Promise.resolve().then(() => console.log('promise 1'));
+setTimeout(() => console.log('timeout 2'));
+Promise.resolve().then(() => console.log('promise 2'));
+
+// promise 1, promise 2, timeout 1, timeout 2`,
+    },
+    {
+      heading: { en: 'Microtasks added during a drain still run', hi: 'Drain ke dauraan aaye microtasks bhi chalte hain' },
+      body: {
+        en: 'The queue is drained until it is empty, not to a snapshot of its length. A microtask that queues another gets its child processed in the same turn — before any macrotask.',
+        hi: 'Queue tab tak khaali ki jaati hai jab tak wo khatam na ho, uski length ke snapshot tak nahi. Jo microtask doosra queue kare uska bachcha usi chakkar mein chalta hai — kisi bhi macrotask se pehle.',
+      },
+      code: `Promise.resolve().then(() => {
+  console.log('a');
+  Promise.resolve().then(() => console.log('b'));
+});
+setTimeout(() => console.log('c'));
+// a, b, c   ← b jumps ahead of the timer`,
+    },
+    {
+      heading: { en: 'Which is why starvation is possible', hi: 'Isiliye starvation mumkin hai' },
+      body: {
+        en: 'A microtask that endlessly queues another never lets the loop reach rendering or a macrotask. The page freezes with an empty call stack, which makes it confusing to diagnose. A recursive setTimeout has no such problem because it yields between turns.',
+        hi: 'Jo microtask bina ruke doosra queue karta rahe wo loop ko rendering ya macrotask tak pahunchne hi nahi deta. Page khaali call stack ke saath jam jaata hai, jisse pehchanna mushkil ho jaata hai. Recursive setTimeout mein ye problem nahi kyunki wo chakkar ke beech mauka deta hai.',
+      },
+      code: `function loop() { Promise.resolve().then(loop); }
+loop();                     // ✗ freezes the tab
+
+function ok() { setTimeout(ok); }
+ok();                       // ✓ fine`,
+    },
+    {
+      heading: { en: 'Rendering sits between macrotasks', hi: 'Rendering macrotasks ke beech baithti hai' },
+      body: {
+        en: 'The browser can only paint after microtasks are drained, and it does so between macrotasks — typically about once every sixteen milliseconds. That is why requestAnimationFrame, which runs just before paint, is the right hook for animation rather than a timer.',
+        hi: 'Browser tabhi paint kar sakta hai jab microtasks khaali ho jaayein, aur wo macrotasks ke beech karta hai — aam taur pe har solah millisecond mein ek baar. Isiliye animation ke liye timer nahi, requestAnimationFrame sahi hook hai, jo paint se theek pehle chalta hai.',
+      },
+    },
+  ],
+
+  'Explain the execution order of: console.log(1); setTimeout(() => console.log(2)); Promise.resolve().then(() => console.log(3)); console.log(4);': [
+    {
+      heading: { en: 'The answer is 1, 4, 3, 2', hi: 'Jawab hai 1, 4, 3, 2' },
+      body: {
+        en: 'Synchronous lines first in source order, then all microtasks, then macrotasks. Every question of this shape is answered by that one sentence — the rest is showing you can apply it.',
+        hi: 'Pehle synchronous lines, source ke kram mein, phir saare microtasks, phir macrotasks. Is shakal ka har sawaal isi ek line se hal ho jaata hai — baaki bas ye dikhana hai ki tum isse laga sakte ho.',
+      },
+      code: `console.log(1);
+setTimeout(() => console.log(2));
+Promise.resolve().then(() => console.log(3));
+console.log(4);
+
+// 1
+// 4
+// 3
+// 2`,
+    },
+    {
+      heading: { en: 'Step one: the synchronous pass', hi: 'Pehla kadam: synchronous chakkar' },
+      body: {
+        en: 'The engine runs the script top to bottom. Line 1 logs immediately. Line 2 registers a timer with the runtime and returns — the callback does not run. Line 3 creates an already-resolved promise and queues its handler as a microtask. Line 4 logs.',
+        hi: 'Engine script upar se neeche chalata hai. Line 1 turant log karti hai. Line 2 runtime ke paas timer register karke laut aati hai — callback nahi chalta. Line 3 pehle se resolved promise banati hai aur uska handler microtask ki tarah queue karti hai. Line 4 log karti hai.',
+      },
+      diagram: `after the script finishes:
+
+call stack     empty
+microtasks     [ log 3 ]
+macrotasks     [ log 2 ]
+output so far  1, 4`,
+    },
+    {
+      heading: { en: 'Step two: drain the microtasks', hi: 'Doosra kadam: microtasks khaali karo' },
+      body: {
+        en: 'With the stack empty, the event loop empties the microtask queue completely before touching anything else. The promise handler logs 3.',
+        hi: 'Stack khaali hote hi event loop kisi aur cheez ko chhoone se pehle microtask queue poori khaali karta hai. Promise handler 3 log karta hai.',
+      },
+    },
+    {
+      heading: { en: 'Step three: one macrotask', hi: 'Teesra kadam: ek macrotask' },
+      body: {
+        en: 'Only now does the loop take a macrotask. The timer callback logs 2. Note that the timer was registered BEFORE the promise, and it still runs last — priority beats registration order.',
+        hi: 'Ab jaakar loop ek macrotask leta hai. Timer callback 2 log karta hai. Dhyaan do timer promise se PEHLE register hua tha, aur phir bhi aakhir mein chala — priority register hone ke kram se jeet jaati hai.',
+      },
+    },
+    {
+      heading: { en: 'The variant with await', hi: 'await wala roop' },
+      body: {
+        en: 'Interviewers usually follow up with this one. Everything up to the first await runs synchronously; the code after it becomes a microtask, exactly like a then handler.',
+        hi: 'Interviewers aam taur pe iske baad yahi poochte hain. Pehle await tak ka sab kuch synchronously chalta hai; uske baad ka code microtask ban jaata hai, bilkul then handler ki tarah.',
+      },
+      code: `async function f() {
+  console.log('a');
+  await null;
+  console.log('b');     // ← this is now a microtask
+}
+f();
+console.log('c');
+// a, c, b`,
+    },
+    {
+      heading: { en: 'The variant with nested queueing', hi: 'Nested queueing wala roop' },
+      body: {
+        en: 'The hardest common version. A microtask queued from inside another microtask still runs in the same drain, before any timer. A microtask queued from inside a timer runs immediately after that timer, before the next one.',
+        hi: 'Sabse mushkil aam version. Kisi microtask ke andar se queue hua microtask usi drain mein chalta hai, kisi bhi timer se pehle. Kisi timer ke andar se queue hua microtask us timer ke turant baad chalta hai, agle timer se pehle.',
+      },
+      code: `setTimeout(() => { console.log('t1');
+  Promise.resolve().then(() => console.log('p-in-t1')); });
+setTimeout(() => console.log('t2'));
+Promise.resolve().then(() => console.log('p1'));
+
+// p1, t1, p-in-t1, t2`,
+    },
+    {
+      heading: { en: 'How to say it out loud', hi: 'Isse bol kar kaise kehna hai' },
+      body: {
+        en: '"All synchronous code runs first, so 1 and 4. Then the event loop drains the entire microtask queue, so the promise callback logs 3. Then it takes one macrotask, so the timer logs 2. Microtasks always beat macrotasks, regardless of registration order."',
+        hi: '"Saara synchronous code pehle chalta hai, toh 1 aur 4. Phir event loop poori microtask queue khaali karta hai, toh promise callback 3 log karta hai. Phir wo ek macrotask leta hai, toh timer 2 log karta hai. Microtasks hamesha macrotasks se jeet jaate hain, register hone ke kram se koi farq nahi."',
+      },
+    },
+  ],
+
+  /* ─── Modules, strictness and the engine ──────────────────── */
+
+  'What are iterators in JavaScript?': [
+    {
+      heading: { en: 'An object with a next method', hi: 'Ek object jisme next method ho' },
+      body: {
+        en: 'An iterator is any object with a next() method that returns { value, done }. Call next repeatedly to pull one value at a time; done becomes true when the sequence is exhausted. That is the whole protocol.',
+        hi: 'Iterator koi bhi aisa object hai jiske paas next() method ho jo { value, done } deta hai. Ek-ek value nikalne ke liye next baar-baar bulao; sequence khatam hone pe done true ho jaata hai. Poora protocol bas itna hai.',
+      },
+      code: `const it = [1, 2].values();
+it.next();   // { value: 1, done: false }
+it.next();   // { value: 2, done: false }
+it.next();   // { value: undefined, done: true }`,
+    },
+    {
+      heading: { en: 'Iterable is a different thing', hi: 'Iterable alag cheez hai' },
+      body: {
+        en: 'An ITERABLE is an object with a Symbol.iterator method that RETURNS an iterator. for...of, spread and destructuring all work on iterables, not on iterators directly. Keeping the two words apart is what the question is really testing.',
+        hi: 'ITERABLE wo object hai jisme Symbol.iterator method ho jo ek iterator DETA hai. for...of, spread aur destructuring iterables pe chalte hain, seedhe iterators pe nahi. Do shabdon ko alag rakhna hi asal mein test kiya jaa raha hai.',
+      },
+      diagram: `iterable            iterator
+{                   {
+  [Symbol.iterator]   next() → { value, done }
+    → an iterator   }
+}
+
+for...of asks the iterable for an iterator, then calls next`,
+    },
+    {
+      heading: { en: 'Which built-ins are iterable', hi: 'Kaunse built-ins iterable hain' },
+      body: {
+        en: 'Array, String, Map, Set, TypedArray, NodeList, arguments and generators. Plain objects are NOT — that is why for...of throws on them and you have to go through Object.entries.',
+        hi: 'Array, String, Map, Set, TypedArray, NodeList, arguments aur generators. Plain objects NAHI hain — isiliye for...of unpe error deta hai aur Object.entries se jaana padta hai.',
+      },
+      code: `for (const c of 'hi') {}          // ✓
+for (const x of { a: 1 }) {}      // ✗ not iterable
+for (const [k, v] of Object.entries({ a: 1 })) {}   // ✓`,
+    },
+    {
+      heading: { en: 'Making your own object iterable', hi: 'Apne object ko iterable banana' },
+      body: {
+        en: 'Add a Symbol.iterator method. Once you do, for...of, spread and array destructuring all start working on it for free — this is the payoff of it being a protocol rather than a class.',
+        hi: 'Symbol.iterator method jodo. Jaise hi jodoge, for...of, spread aur array destructuring sab uspe muft mein chalne lagenge — protocol hone ka, class hone ka nahi, yahi fayda hai.',
+      },
+      code: `const range = {
+  from: 1, to: 4,
+  [Symbol.iterator]() {
+    let n = this.from, last = this.to;
+    return { next: () => (n <= last
+      ? { value: n++, done: false }
+      : { value: undefined, done: true }) };
+  },
+};
+[...range];   // [1, 2, 3, 4]`,
+    },
+    {
+      heading: { en: 'Generators are the easy way to write one', hi: 'Isse likhne ka aasaan tareeka generators hain' },
+      body: {
+        en: 'A generator function returns an object that is both an iterator and an iterable, so the boilerplate disappears. In practice you almost never hand-write the next method.',
+        hi: 'Generator function aisa object deta hai jo iterator bhi hai aur iterable bhi, toh saara boilerplate gaayab ho jaata hai. Asal mein next method haath se likhne ki lagbhag kabhi zaroorat nahi padti.',
+      },
+      code: `const range = {
+  from: 1, to: 4,
+  *[Symbol.iterator]() {
+    for (let n = this.from; n <= this.to; n++) yield n;
+  },
+};
+[...range];   // [1, 2, 3, 4]`,
+    },
+    {
+      heading: { en: 'Laziness, and the optional return', hi: 'Laziness, aur optional return' },
+      body: {
+        en: 'Values are produced only when next is called, so an infinite sequence is fine as long as you stop pulling. An iterator may also implement return(), which the runtime calls when a for...of exits early via break — that is where you put cleanup.',
+        hi: 'Values tabhi banti hain jab next bulaya jaaye, toh anant sequence bhi theek hai jab tak tum kheenchna band kar do. Iterator return() bhi de sakta hai, jise runtime tab bulata hai jab for...of break se jaldi nikle — cleanup wahin rakho.',
+      },
+      code: `function* nums() {
+  try { let n = 0; while (true) yield n++; }
+  finally { console.log('cleaned up'); }   // runs on break
+}
+for (const n of nums()) { if (n > 2) break; }`,
+    },
+  ],
+
+  'What are modules in JavaScript?': [
+    {
+      heading: { en: 'A file with its own scope', hi: 'Apne scope wali ek file' },
+      body: {
+        en: 'A module is a file whose top-level bindings are private to it. Nothing leaks to the global object, and other files can only see what you explicitly export. That single rule is what makes large codebases tractable.',
+        hi: 'Module aisi file hai jiski top-level bindings usi tak seemit hain. Kuch bhi global object pe nahi jaata, aur doosri files sirf wahi dekh sakti hain jo tum explicitly export karo. Yahi ek rule bade codebases ko sambhalne laayak banata hai.',
+      },
+      code: `// utils.js
+const secret = 1;                 // private to this file
+export const double = (n) => n * 2;
+export default function main() {}
+
+// app.js
+import main, { double } from './utils.js';`,
+    },
+    {
+      heading: { en: 'Named and default exports', hi: 'Named aur default exports' },
+      body: {
+        en: 'Named exports can be many per file and must be imported by their exact name, which makes them refactor-friendly and tree-shakeable. A default export is one per file and can be imported under any name. Most style guides prefer named exports for exactly that reason.',
+        hi: 'Named exports ek file mein kai ho sakte hain aur unhe theek unhi naamon se import karna padta hai, jisse refactor aasaan aur tree-shaking mumkin hoti hai. Default export har file mein ek hota hai aur kisi bhi naam se import ho sakta hai. Zyadatar style guides isi wajah se named exports pasand karte hain.',
+      },
+      code: `export { a, b };                  // named
+export default thing;             // default
+
+import thing, { a, b as bee } from './m.js';
+import * as everything from './m.js';`,
+    },
+    {
+      heading: { en: 'Imports are hoisted and static', hi: 'Imports hoisted aur static hain' },
+      body: {
+        en: 'The whole import graph is resolved before any module body runs, so you can use an imported name above its import statement. It also means paths must be static strings — you cannot build one at runtime, which is exactly what lets bundlers tree-shake.',
+        hi: 'Poora import graph kisi bhi module body ke chalne se pehle resolve ho jaata hai, toh imported naam ko import statement ke upar bhi use kar sakte ho. Iska matlab paths static strings honi chahiye — runtime pe nahi bana sakte, aur isi se bundlers tree-shake kar paate hain.',
+      },
+      code: `greet();                          // ✓ works
+import { greet } from './a.js';
+
+import('./' + name + '.js');      // ✓ dynamic import, returns a promise`,
+    },
+    {
+      heading: { en: 'Live bindings, not copies', hi: 'Live bindings, copies nahi' },
+      body: {
+        en: 'An import is a live view of the exporting module\'s binding. If the exporter reassigns it, you see the new value. This differs from CommonJS, where require copies the value at the moment of the call.',
+        hi: 'Import export karne wale module ki binding ka zinda nazariya hai. Wo usse dobara assign kare toh tumhe nayi value dikhti hai. Ye CommonJS se alag hai, jahan require call ke us pal ki value copy kar leta hai.',
+      },
+      code: `// counter.js
+export let count = 0;
+export const inc = () => count++;
+
+// app.js
+import { count, inc } from './counter.js';
+inc(); console.log(count);   // 1 ✓ live
+count = 5;                   // ✗ TypeError — imports are read-only`,
+    },
+    {
+      heading: { en: 'Modules run once, and are always strict', hi: 'Modules ek baar chalte hain, aur hamesha strict hain' },
+      body: {
+        en: 'A module body is evaluated the first time it is imported and the result is cached — later imports get the same instance, which is how a module becomes a singleton. Module code is also implicitly in strict mode, and top-level this is undefined rather than window.',
+        hi: 'Module body pehli baar import hone pe evaluate hoti hai aur nateeja cache ho jaata hai — baad ke imports wahi instance paate hain, aur aise module singleton ban jaata hai. Module code apne aap strict mode mein hota hai, aur top-level this window nahi, undefined hota hai.',
+      },
+      code: `// config.js runs once no matter how many files import it
+export const config = load();`,
+    },
+    {
+      heading: { en: 'How to load one', hi: 'Isse load kaise karein' },
+      body: {
+        en: 'In the browser, a script tag with type="module" — which is deferred by default and requires CORS. In Node, either a .mjs extension or "type": "module" in package.json. And dynamic import() works anywhere for code splitting.',
+        hi: 'Browser mein type="module" wala script tag — jo default se deferred hai aur CORS maangta hai. Node mein ya toh .mjs extension ya package.json mein "type": "module". Aur code splitting ke liye dynamic import() har jagah chalta hai.',
+      },
+      code: `<script type="module" src="app.js"></script>
+
+const { heavy } = await import('./heavy.js');   // loaded on demand`,
+    },
+  ],
+
+  'What is the difference between CommonJS and ES Modules?': [
+    {
+      heading: { en: 'Two module systems, different eras', hi: 'Do module systems, alag daur' },
+      body: {
+        en: 'CommonJS was invented for Node before the language had modules; it uses require and module.exports. ES Modules are the standard built into the language, using import and export. Node supports both, which is why the confusion persists.',
+        hi: 'CommonJS Node ke liye tab bana jab language mein modules the hi nahi; ye require aur module.exports use karta hai. ES Modules language mein hi bane standard hain, import aur export ke saath. Node dono sambhaalta hai, isiliye uljhan bani rehti hai.',
+      },
+      code: `// CommonJS
+const fs = require('fs');
+module.exports = { a, b };
+
+// ES Modules
+import fs from 'node:fs';
+export { a, b };`,
+    },
+    {
+      heading: { en: 'Static versus dynamic — the root difference', hi: 'Static vs dynamic — jad wala farq' },
+      body: {
+        en: 'ESM imports are resolved before execution, so the dependency graph is known without running anything. require is a function call executed at runtime, so it can be conditional or built from a variable. Everything else follows from this.',
+        hi: 'ESM imports execution se pehle resolve hote hain, toh bina kuch chalaye dependency graph pata chal jaata hai. require ek function call hai jo runtime pe chalta hai, toh wo shart pe ya variable se ban sakta hai. Baaki sab isi se nikalta hai.',
+      },
+      code: `if (dev) require('./devtools');       // ✓ CommonJS allows this
+if (dev) import './devtools';         // ✗ SyntaxError in ESM
+if (dev) await import('./devtools');  // ✓ dynamic import`,
+    },
+    {
+      heading: { en: 'That is why tree shaking only works with ESM', hi: 'Isiliye tree shaking sirf ESM se hoti hai' },
+      body: {
+        en: 'Because a bundler can see the whole import graph statically, it can prove an export is never used and drop it. With require it cannot, since the call could resolve to anything at runtime. This is the most practically important consequence.',
+        hi: 'Bundler poora import graph static dekh sakta hai, isliye wo saabit kar sakta hai ki koi export kabhi use nahi hua aur usse gira sakta hai. require ke saath ye mumkin nahi, kyunki call runtime pe kuch bhi bana sakti hai. Sabse zyada vyavharik nateeja yahi hai.',
+      },
+    },
+    {
+      heading: { en: 'Copies versus live bindings', hi: 'Copies vs live bindings' },
+      body: {
+        en: 'require returns the value at the moment of the call, so a later reassignment inside the module is invisible to you. An ESM import is a live, read-only view — reassignment in the exporter is visible, and you cannot write to it.',
+        hi: 'require call ke us pal ki value deta hai, toh module ke andar baad mein hui reassignment tumhe nahi dikhti. ESM import ek zinda, sirf-padhne wala nazariya hai — export karne wale ki reassignment dikhti hai, aur tum usme likh nahi sakte.',
+      },
+      code: `// CommonJS: you hold a snapshot
+let { count } = require('./counter');   // never updates
+
+// ESM: you hold a live binding
+import { count } from './counter.js';   // reflects changes`,
+    },
+    {
+      heading: { en: 'Loading and this', hi: 'Loading aur this' },
+      body: {
+        en: 'require is synchronous and blocking. ESM loading is asynchronous, which is what enables top-level await — available in ESM only. Module code is always strict, and top-level this is undefined in ESM but module.exports in CommonJS.',
+        hi: 'require synchronous aur blocking hai. ESM ki loading asynchronous hai, isi se top-level await mumkin hota hai — jo sirf ESM mein hai. Module code hamesha strict hai, aur top-level this ESM mein undefined hai par CommonJS mein module.exports.',
+      },
+      code: `// ESM only
+const data = await fetch(url);   // top-level await ✓
+
+// CommonJS workaround
+(async () => { const data = await fetch(url); })();`,
+    },
+    {
+      heading: { en: 'Interop, and what breaks', hi: 'Interop, aur kya tootta hai' },
+      body: {
+        en: 'ESM can import a CommonJS module — the whole module.exports arrives as the default. CommonJS cannot require an ESM module at all; it must use dynamic import. ESM also requires the file extension in relative paths, which trips people migrating.',
+        hi: 'ESM CommonJS module import kar sakta hai — poora module.exports default ki tarah aata hai. CommonJS ESM module ko require kar hi nahi sakta; usse dynamic import chahiye. ESM relative paths mein file extension bhi maangta hai, jahan migrate karne wale phasate hain.',
+      },
+      code: `import cjs from './old.cjs';        // ✓ the whole exports object
+const esm = await import('./new.mjs');   // ✓ from CommonJS
+
+import './utils';        // ✗ ESM needs the extension
+import './utils.js';     // ✓`,
+    },
+    {
+      heading: { en: 'Which to use', hi: 'Kaunsa use karein' },
+      body: {
+        en: 'ESM for anything new — it is the standard, it works in browsers and Node alike, and it enables tree shaking. CommonJS remains only for legacy Node code and for packages that have not migrated. Do not mix them in one package without care.',
+        hi: 'Kisi bhi naye kaam ke liye ESM — wahi standard hai, browsers aur Node dono mein chalta hai, aur tree shaking deta hai. CommonJS sirf purane Node code aur un packages ke liye bacha hai jo migrate nahi hue. Ek hi package mein dono ko bina dhyaan ke mat milao.',
+      },
+    },
+  ],
+
+  'What is strict mode in JavaScript?': [
+    {
+      heading: { en: 'An opt-in to stricter semantics', hi: 'Sakht semantics chunne ka vikalp' },
+      body: {
+        en: 'Adding the "use strict" directive at the top of a file or function switches the engine into a stricter variant of the language. It turns silent mistakes into errors, forbids some confusing syntax, and disallows a few things that make optimisation hard.',
+        hi: 'File ya function ke upar "use strict" likhne se engine language ke sakht roop mein chala jaata hai. Ye chup-chaap hone wali galtiyon ko error bana deta hai, kuch uljhane wala syntax rok deta hai, aur kuch aisi cheezein mana kar deta hai jo optimisation mushkil karti hain.',
+      },
+      code: `'use strict';          // whole file — must be the FIRST statement
+
+function f() {
+  'use strict';        // or just this function
+}`,
+    },
+    {
+      heading: { en: 'Most of your code is already strict', hi: 'Tumhara zyadatar code pehle se strict hai' },
+      body: {
+        en: 'ES modules and class bodies are always strict, with no directive needed. Since most modern code is one or the other, you rarely write the directive by hand — but you should know why the rules apply.',
+        hi: 'ES modules aur class bodies hamesha strict hote hain, bina kisi directive ke. Modern code zyadatar inme se ek hi hota hai, toh directive haath se likhna kam padta hai — par rules kyun lagte hain ye pata hona chahiye.',
+      },
+    },
+    {
+      heading: { en: 'It catches accidental globals', hi: 'Ye galti se bane globals pakadta hai' },
+      body: {
+        en: 'This is the single most valuable change. In sloppy mode, assigning to an undeclared name silently creates a global variable — a typo becomes a program-wide leak. Strict mode makes it a ReferenceError at the exact line.',
+        hi: 'Sabse keemti badlaav yahi hai. Sloppy mode mein undeclared naam pe assign karna chup-chaap global variable bana deta hai — ek typo poore program mein leak ban jaata hai. Strict mode usse theek usi line pe ReferenceError bana deta hai.',
+      },
+      code: `function f() { conut = 1; }    // typo for count
+f();
+// sloppy: creates window.conut, no error ✗
+// strict: ReferenceError: conut is not defined ✓`,
+    },
+    {
+      heading: { en: 'Silent failures become throws', hi: 'Chup-chaap fail hona ab error hai' },
+      body: {
+        en: 'Writing to a frozen object, to a read-only property, or to a getter-only accessor all fail silently in sloppy mode. In strict mode each throws a TypeError, so a bug surfaces where it happens instead of three functions later.',
+        hi: 'Frozen object mein likhna, read-only property mein likhna, ya sirf-getter wale accessor mein likhna — sloppy mode mein sab chup-chaap fail ho jaate hain. Strict mode mein har ek TypeError deta hai, toh bug wahin dikhta hai jahan hua, teen functions baad nahi.',
+      },
+      code: `'use strict';
+const o = Object.freeze({ a: 1 });
+o.a = 2;              // ✗ TypeError ✓ caught
+delete Object.prototype;   // ✗ TypeError`,
+    },
+    {
+      heading: { en: 'this is undefined instead of the global', hi: 'this global ki jagah undefined hai' },
+      body: {
+        en: 'In a plain function call, sloppy mode substitutes the global object for this, which hides detached-method bugs. Strict mode leaves it undefined, so the mistake throws immediately and points at the real cause.',
+        hi: 'Saade function call mein sloppy mode this ki jagah global object rakh deta hai, jo alag hue method ke bugs chhupa deta hai. Strict mode usse undefined chhod deta hai, toh galti turant error deti hai aur asli wajah bata deti hai.',
+      },
+      code: `function f() { return this; }
+f();     // sloppy: window ✗   strict: undefined ✓
+
+const greet = user.greet;
+greet();   // strict: TypeError on this.name — the real bug`,
+    },
+    {
+      heading: { en: 'What else it forbids', hi: 'Aur kya mana hai' },
+      body: {
+        en: 'Duplicate parameter names, octal literals written with a leading zero, with statements, and deleting a plain variable. It also reserves future keywords like let, static and yield as identifiers.',
+        hi: 'Dohre parameter naam, shuruaati zero wale octal literals, with statements, aur saade variable ko delete karna. Ye let, static aur yield jaise aane wale keywords ko identifiers ke roop mein bhi reserve kar deta hai.',
+      },
+      code: `'use strict';
+function f(a, a) {}    // ✗ SyntaxError — duplicate parameter
+const n = 010;         // ✗ SyntaxError — use 0o10
+with (obj) {}          // ✗ SyntaxError`,
+    },
+    {
+      heading: { en: 'Why it exists at all', hi: 'Ye hai hi kyun' },
+      body: {
+        en: 'Backwards compatibility. The web could never break existing pages, so the fixes had to be opt-in. Strict mode was the mechanism, and modules made it the default — which is why new code effectively never runs in sloppy mode.',
+        hi: 'Backwards compatibility. Web maujooda pages tod nahi sakta tha, isliye sudhaar opt-in hi ho sakte the. Strict mode wahi zariya tha, aur modules ne usse default bana diya — isiliye naya code asal mein kabhi sloppy mode mein nahi chalta.',
+      },
+    },
+  ],
+
+  'What is garbage collection in JavaScript?': [
+    {
+      heading: { en: 'Memory is freed automatically', hi: 'Memory apne aap free hoti hai' },
+      body: {
+        en: 'You never call free. The engine tracks which objects your program can still reach and reclaims the rest. Your job is not to release memory but to stop referencing things you no longer need.',
+        hi: 'Tum kabhi free nahi bulaate. Engine dekhta hai tumhara program kaunse objects tak abhi pahunch sakta hai aur baaki wapas le leta hai. Tumhara kaam memory chhodna nahi, un cheezon ko reference karna band karna hai jinki ab zaroorat nahi.',
+      },
+      code: `let user = { name: 'Asha' };   // reachable through user
+user = null;                    // now unreachable → collectible`,
+    },
+    {
+      heading: { en: 'Reachability, not reference counting', hi: 'Reachability, reference counting nahi' },
+      body: {
+        en: 'The engine starts from a set of ROOTS — the global object, the current call stack, active closures — and marks everything it can reach through references. Anything unmarked is swept away. This is the mark-and-sweep algorithm.',
+        hi: 'Engine kuch ROOTS se shuru karta hai — global object, maujooda call stack, chaalu closures — aur references se jahan tak pahunch sake sab mark kar deta hai. Jo unmarked bacha wo saaf kar diya jaata hai. Yahi mark-and-sweep algorithm hai.',
+      },
+      diagram: `roots ──► A ──► B
+             │
+             └──► C        A, B, C are marked → kept
+
+        D ──► E            unreachable → swept`,
+    },
+    {
+      heading: { en: 'Which is why cycles are not a problem', hi: 'Isiliye cycles problem nahi hain' },
+      body: {
+        en: 'Two objects pointing at each other would keep a reference-counting collector alive forever. Under reachability they are collected normally, because nothing from the roots can reach them. This is a good detail to volunteer.',
+        hi: 'Ek doosre ko point karte do objects reference-counting collector ke liye hamesha zinda rehte. Reachability mein wo aam tareeke se collect ho jaate hain, kyunki roots se unhe koi pahunch nahi sakta. Ye khud se batane laayak detail hai.',
+      },
+      code: `function cycle() {
+  const a = {}, b = {};
+  a.b = b; b.a = a;      // they reference each other
+}
+cycle();                 // ✓ both are still collected`,
+    },
+    {
+      heading: { en: 'Generational collection', hi: 'Generational collection' },
+      body: {
+        en: 'V8 splits the heap into a small young generation and a large old one. Most objects die young, so the young space is scavenged frequently and cheaply; survivors are promoted to the old space, which is collected less often with a fuller mark-sweep-compact pass.',
+        hi: 'V8 heap ko ek chhoti young generation aur ek badi old generation mein baant deta hai. Zyadatar objects jaldi mar jaate hain, toh young space baar-baar aur saste mein saaf hota hai; bache hue old space mein promote hote hain, jo kam baar aur poore mark-sweep-compact se saaf hota hai.',
+      },
+    },
+    {
+      heading: { en: 'The four leaks you actually cause', hi: 'Chaar leaks jo tum asal mein karte ho' },
+      body: {
+        en: 'A cache or global that only grows. Event listeners never removed. Timers never cleared. And closures holding a large object longer than needed. Every real-world leak is one of these — none is a garbage-collector failure.',
+        hi: 'Aisa cache ya global jo sirf badhta hai. Kabhi na hataye gaye event listeners. Kabhi clear na kiye gaye timers. Aur closures jo bade object ko zaroorat se zyada der pakde rakhte hain. Har asli leak inme se ek hai — koi bhi garbage collector ki galti nahi.',
+      },
+      code: `el.addEventListener('click', fn);
+el.removeEventListener('click', fn);    // ✓
+
+const id = setInterval(tick, 1000);
+clearInterval(id);                      // ✓
+
+const cache = new Map();                // ✗ grows forever
+const cache = new WeakMap();            // ✓ self-cleaning`,
+    },
+    {
+      heading: { en: 'WeakMap and WeakSet opt out of keeping alive', hi: 'WeakMap aur WeakSet zinda rakhna chhod dete hain' },
+      body: {
+        en: 'A weak reference does not count as a reason to keep an object. Use them for metadata attached to objects you do not own — DOM nodes, class instances — and the entries disappear along with their keys, with no cleanup code.',
+        hi: 'Weak reference object ko zinda rakhne ki wajah nahi ginta. Unhe aise objects ke metadata ke liye use karo jo tumhare nahi hain — DOM nodes, class instances — aur entries apni keys ke saath gaayab ho jaati hain, bina kisi cleanup code ke.',
+      },
+    },
+    {
+      heading: { en: 'You cannot force it, and should not try', hi: 'Isse zabardasti nahi karwa sakte, aur karna bhi nahi chahiye' },
+      body: {
+        en: 'There is no standard API to trigger collection. Collection also pauses your code briefly, so allocating less matters more than freeing more. Profile with the browser\'s memory tools and compare heap snapshots to find what is being retained.',
+        hi: 'Collection chalane ki koi standard API nahi hai. Collection tumhara code thodi der ke liye rokta bhi hai, toh kam allocate karna zyada free karne se zyada maayne rakhta hai. Browser ke memory tools se profile karo aur heap snapshots compare karke dekho kya pakda hua hai.',
+      },
+    },
+  ],
+
+  'Explain the complete JavaScript execution process from writing code to browser execution.': [
+    {
+      heading: { en: 'The whole pipeline in one line', hi: 'Poori pipeline ek line mein' },
+      body: {
+        en: 'Source is downloaded, parsed into an AST, compiled to bytecode, run inside execution contexts on a call stack, with async work delegated to the runtime and returned through queues that the event loop drains — and the browser paints between turns.',
+        hi: 'Source download hota hai, AST mein parse hota hai, bytecode mein compile hota hai, call stack pe execution contexts ke andar chalta hai, async kaam runtime ko saunpa jaata hai aur queues ke through wapas aata hai jinhe event loop khaali karta hai — aur browser chakkar ke beech paint karta hai.',
+      },
+      diagram: `source → parse → AST → bytecode → execution contexts → call stack
+                                                     │
+                              ┌──────────────────────┴────────┐
+                         sync code                       Web APIs
+                                                              │
+                                                        task queues
+                                                              │
+                                                        event loop
+                                                              │
+                                                         rendering`,
+    },
+    {
+      heading: { en: '1. Download and parse', hi: '1. Download aur parse' },
+      body: {
+        en: 'The browser fetches the script and hands the text to the engine. The parser tokenises it and builds an Abstract Syntax Tree — a structured representation of the code. Syntax errors are caught here, before a single line executes.',
+        hi: 'Browser script laata hai aur text engine ko de deta hai. Parser usse tokens mein todta hai aur ek Abstract Syntax Tree banata hai — code ka ek dhaanche wala roop. Syntax errors yahin pakde jaate hain, ek bhi line chalne se pehle.',
+      },
+      code: `const age = 25;
+
+// tokens: const | age | = | 25 | ;
+//
+// AST:  VariableDeclaration (const)
+//         └ VariableDeclarator
+//             ├ Identifier: age
+//             └ Literal: 25`,
+    },
+    {
+      heading: { en: '2. Compile — bytecode, then JIT', hi: '2. Compile — bytecode, phir JIT' },
+      body: {
+        en: 'Modern engines are not simple interpreters. V8\'s Ignition turns the AST into bytecode for fast startup. As the program runs, the engine watches which functions are hot and TurboFan recompiles those into optimised machine code, based on the types it has observed.',
+        hi: 'Modern engines saade interpreters nahi hain. V8 ka Ignition AST ko bytecode mein badalta hai taaki shuruaat tez ho. Program chalte-chalte engine dekhta hai kaunse functions garam hain aur TurboFan unhe dekhe gaye types ke aadhaar pe optimised machine code mein dobara compile kar deta hai.',
+      },
+      diagram: `AST → Ignition → bytecode → run
+                              │ this function is hot
+                              ▼
+                          TurboFan → optimised machine code
+                              │ an assumption broke
+                              ▼
+                          deoptimise, back to bytecode`,
+    },
+    {
+      heading: { en: '3. Execution contexts, in two phases', hi: '3. Execution contexts, do phases mein' },
+      body: {
+        en: 'Before running any scope, the engine builds an execution context holding its variable environment, scope chain and this. The CREATION phase registers declarations — that is hoisting. The EXECUTION phase then runs the statements.',
+        hi: 'Kisi bhi scope ko chalane se pehle engine ek execution context banata hai jisme uska variable environment, scope chain aur this hote hain. CREATION phase declarations register karta hai — yahi hoisting hai. Phir EXECUTION phase statements chalata hai.',
+      },
+      code: `console.log(a);   // undefined — registered in the creation phase
+console.log(f);   // [Function: f] — whole body available
+console.log(b);   // ✗ TDZ — registered but uninitialised
+var a = 1;
+let b = 2;
+function f() {}`,
+    },
+    {
+      heading: { en: '4. The call stack', hi: '4. Call stack' },
+      body: {
+        en: 'Each call pushes its execution context; each return pops it. Only the top frame runs, which is what "single-threaded" means in practice. Overflow it with runaway recursion and you get a RangeError.',
+        hi: 'Har call apna execution context push karti hai; har return usse hata deti hai. Sirf sabse upar wala frame chalta hai, aur asal mein "single-threaded" ka yahi matlab hai. Bina rukne wali recursion se isse bhar do toh RangeError milta hai.',
+      },
+      diagram: `first() → second() → third()
+
+  │ third()  │  ← running
+  │ second() │
+  │ first()  │
+  │ global   │
+  └──────────┘`,
+    },
+    {
+      heading: { en: '5. Web APIs take the async work', hi: '5. Web APIs async kaam le lete hain' },
+      body: {
+        en: 'setTimeout, fetch, DOM events and localStorage are not part of the language — they are browser capabilities. The engine hands the work over and pops the frame at once, so nothing blocks while the browser waits on its own threads.',
+        hi: 'setTimeout, fetch, DOM events aur localStorage language ka hissa nahi hain — ye browser ki khoobiyan hain. Engine kaam saunp kar frame turant hata deta hai, toh browser apne threads pe intezaar karta hai aur kuch block nahi hota.',
+      },
+    },
+    {
+      heading: { en: '6. Queues and the event loop', hi: '6. Queues aur event loop' },
+      body: {
+        en: 'Finished work is queued, never injected. When the stack empties, the event loop drains the ENTIRE microtask queue — promises, await continuations — then takes exactly ONE macrotask such as a timer. That asymmetry is why a promise logs before a zero-delay timer.',
+        hi: 'Khatam hua kaam queue mein jaata hai, seedhe ghusaya nahi jaata. Stack khaali hote hi event loop POORI microtask queue khaali karta hai — promises, await ke aage ka code — phir theek EK macrotask leta hai jaise koi timer. Isi asantulan se promise, zero-delay timer se pehle log hota hai.',
+      },
+      code: `console.log('Start');
+setTimeout(() => console.log('Timer'));
+Promise.resolve().then(() => console.log('Promise'));
+console.log('End');
+
+// Start, End, Promise, Timer`,
+    },
+    {
+      heading: { en: '7. Rendering, between turns', hi: '7. Rendering, chakkar ke beech' },
+      body: {
+        en: 'The browser can only paint when the stack is empty and microtasks are drained. It then runs style calculation, layout, paint and compositing — usually about sixty times a second. This is why a long synchronous task freezes the page: the paint step simply never gets a turn.',
+        hi: 'Browser tabhi paint kar sakta hai jab stack khaali ho aur microtasks khatam hon. Phir wo style calculation, layout, paint aur compositing chalata hai — aam taur pe second mein lagbhag saath baar. Isiliye lamba synchronous kaam page jam kar deta hai: paint ka number aata hi nahi.',
+      },
+      diagram: `JS → DOM change → style → layout → paint → composite → screen`,
+    },
+    {
+      heading: { en: 'The one-line answer to give', hi: 'Dene laayak ek-line jawab' },
+      body: {
+        en: '"The browser hands the source to the engine, which parses it into an AST and compiles it to bytecode, optimising hot paths with a JIT. It creates execution contexts — a creation phase that hoists declarations, then an execution phase — and runs them on a single call stack. Async work goes to Web APIs and comes back through the microtask and macrotask queues, which the event loop drains with microtasks first. Rendering happens between turns."',
+        hi: '"Browser source engine ko deta hai, jo usse AST mein parse karke bytecode mein compile karta hai aur hot paths ko JIT se optimise karta hai. Wo execution contexts banata hai — ek creation phase jo declarations hoist karta hai, phir execution phase — aur unhe ek call stack pe chalata hai. Async kaam Web APIs ko jaata hai aur microtask aur macrotask queues se wapas aata hai, jinhe event loop pehle microtasks se khaali karta hai. Rendering chakkar ke beech hoti hai."',
+      },
+    },
+  ],
 };
