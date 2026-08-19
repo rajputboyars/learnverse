@@ -14,6 +14,11 @@ const CourseSchema = new mongoose.Schema(
       default: 'beginner',
     },
     language: { type: [String], default: ['english', 'hinglish'] },
+    category: {
+      type: String,
+      enum: ['programming', 'english'],
+      default: 'programming',
+    },
     status: { type: String, enum: ['draft', 'published'], default: 'draft' },
     order: { type: Number, default: 0 },
   },

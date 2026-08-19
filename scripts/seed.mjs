@@ -50,6 +50,7 @@ import * as deepLearningCourse from './content/deep-learning.mjs';
 import * as ragCourse from './content/rag.mjs';
 import * as fineTuningCourse from './content/fine-tuning.mjs';
 import * as mlopsCourse from './content/mlops.mjs';
+import * as englishSpeakingCourse from './content/english-speaking.mjs';
 
 const COURSES = [
   javascriptCourse,
@@ -95,6 +96,7 @@ const COURSES = [
   ragCourse,
   fineTuningCourse,
   mlopsCourse,
+  englishSpeakingCourse,
 ];
 
 // Code-fence language label per course slug.
@@ -142,6 +144,7 @@ const CODE_LANG = {
   rag: 'python',
   'fine-tuning': 'python',
   mlops: 'python',
+  'english-speaking': 'text',
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
