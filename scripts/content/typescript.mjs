@@ -1,6 +1,8 @@
 // TypeScript curriculum — beginner -> intermediate -> advanced.
 // Same shape as javascript.mjs, consumed by scripts/seed.mjs.
 
+import { deepDives } from './typescript-deep-dives.mjs';
+
 export function slugify(text) {
   return String(text)
     .toLowerCase()
@@ -2641,3 +2643,20 @@ const a: Animal = new Cat();   // ✓ the shape matches
     },
   },
 ];
+
+// Attach the step-by-step walkthroughs, which live in their own file so this
+// one stays navigable. Keys are matched on the exact question text; anything
+// left over is a typo we want to hear about rather than silently lose.
+const unmatched = new Set(Object.keys(deepDives));
+for (const q of generalInterviewQuestions) {
+  const sections = deepDives[q.question];
+  if (!sections) continue;
+  q.deepDive = sections;
+  unmatched.delete(q.question);
+}
+if (unmatched.size > 0) {
+  console.warn(
+    `[typescript] ${unmatched.size} deep-dive key(s) match no question:`
+  );
+  for (const key of unmatched) console.warn(`  ${key}`);
+}
