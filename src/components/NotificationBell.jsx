@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import Icon from '@/components/Icon';
 
 export default function NotificationBell() {
   const { status } = useSession();
@@ -26,7 +27,7 @@ export default function NotificationBell() {
 
   return (
     <Link href="/notifications" className="relative rounded-md p-1.5 text-lg hover:bg-slate-100 dark:hover:bg-slate-800" title="Notifications">
-      🔔
+      <Icon name="bell" className="h-4 w-4" />
       {unread > 0 && (
         <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
           {unread > 9 ? '9+' : unread}

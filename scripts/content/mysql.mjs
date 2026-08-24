@@ -15,7 +15,7 @@ export const course = {
   slug: 'mysql',
   description:
     'World ka most popular open-source database — setup, queries, indexes aur optimization. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '🐬',
+  icon: 'database',
   tags: ['mysql', 'database', 'sql', 'rdbms', 'backend'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

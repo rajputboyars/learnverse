@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
+import Icon from '@/components/Icon';
 
 export default function OfflinePage() {
   const { pick } = useLang();
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-white px-4 text-center dark:bg-slate-950">
-      <p className="text-5xl">📡</p>
+      <Icon name="satellite" className="mx-auto h-12 w-12 text-slate-400" />
       <h1 className="mt-4 text-2xl font-bold text-slate-900 dark:text-slate-100">{pick('Tum offline ho', 'You are offline')}</h1>
       <p className="mt-2 max-w-sm text-slate-500">
         {pick(

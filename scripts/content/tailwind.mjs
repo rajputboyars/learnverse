@@ -15,7 +15,7 @@ export const course = {
   slug: 'tailwind',
   description:
     'Utility-first CSS framework — fast UI banao bina CSS file ke. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '💨',
+  icon: 'wind',
   tags: ['tailwind', 'css', 'frontend', 'framework'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

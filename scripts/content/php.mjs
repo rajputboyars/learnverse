@@ -15,7 +15,7 @@ export const course = {
   slug: 'php',
   description:
     'Web ka veteran — server-side scripting, forms, sessions aur MySQL integration. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '🐘',
+  icon: 'database',
   tags: ['php', 'backend', 'web', 'server-side'],
   difficulty: 'beginner',
   language: ['english', 'hinglish'],

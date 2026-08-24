@@ -15,7 +15,7 @@ export const course = {
   slug: 'restapi',
   description:
     'Production-ready APIs banao — REST principles, Express routes, JWT authentication aur security. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '🔐',
+  icon: 'lock',
   tags: ['rest', 'api', 'jwt', 'authentication', 'backend', 'express'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

@@ -18,7 +18,7 @@ export const course = {
   slug: 'javascript',
   description:
     'Zero se advanced tak — JavaScript ka complete roadmap. Har concept English + Hinglish mein, desi examples, code, quiz aur interview questions ke saath.',
-  icon: '🟨',
+  icon: 'javascript',
   tags: ['javascript', 'frontend', 'mern', 'web'],
   difficulty: 'beginner',
   language: ['english', 'hinglish'],

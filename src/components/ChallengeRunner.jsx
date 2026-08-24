@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import Icon from '@/components/Icon';
 
 const HARNESS = `
 function assertEqual(a, b) {
@@ -40,7 +41,7 @@ export default function ChallengeRunner({ challenge, initiallyCompleted = false 
         worker.terminate();
         URL.revokeObjectURL(url);
         setStatus('failed');
-        setMessage('⏱ Timed out (possible infinite loop).');
+        setMessage('Timed out (possible infinite loop).');
       }, 2000);
       worker.onmessage = async (e) => {
         clearTimeout(timer);
@@ -48,7 +49,7 @@ export default function ChallengeRunner({ challenge, initiallyCompleted = false 
         URL.revokeObjectURL(url);
         if (e.data.pass) {
           setStatus('passed');
-          setMessage('✅ All tests passed!');
+          setMessage('All tests passed!');
           if (session?.user && !completed) {
             const res = await fetch('/api/challenges/complete', {
               method: 'POST',
@@ -63,7 +64,7 @@ export default function ChallengeRunner({ challenge, initiallyCompleted = false 
           }
         } else {
           setStatus('failed');
-          setMessage('❌ ' + (e.data.error || 'A test failed.'));
+          setMessage(e.data.error || 'A test failed.');
         }
       };
       worker.onerror = (err) => {
@@ -71,7 +72,7 @@ export default function ChallengeRunner({ challenge, initiallyCompleted = false 
         worker.terminate();
         URL.revokeObjectURL(url);
         setStatus('failed');
-        setMessage('❌ ' + err.message);
+        setMessage(err.message);
       };
       // assert helpers + user code + tests
       worker.postMessage(`${code}\n${challenge.tests}`);
@@ -108,14 +109,15 @@ export default function ChallengeRunner({ challenge, initiallyCompleted = false 
 
       {message && (
         <div className={`rounded-xl p-4 text-sm font-medium ${status === 'passed' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+          <Icon name={status === 'passed' ? 'check-circle' : 'x-circle'} className="mr-2 h-4 w-4" />
           {message}
-          {status === 'passed' && gainedXp > 0 && <span className="ml-2 text-green-700">+{gainedXp} XP 🎉</span>}
+          {status === 'passed' && gainedXp > 0 && <span className="ml-2 text-green-700">+{gainedXp} XP <Icon name="sparkles" className="h-3.5 w-3.5" /></span>}
           {status === 'passed' && completed && gainedXp === 0 && <span className="ml-2 text-slate-500">(already completed)</span>}
         </div>
       )}
 
       {completed && (
-        <p className="text-sm font-medium text-green-700">✅ Solved {!session?.user && '(login to earn XP)'}</p>
+        <p className="text-sm font-medium text-green-700"><Icon name="check-circle" className="mr-1.5 h-4 w-4" />Solved {!session?.user && '(login to earn XP)'}</p>
       )}
       {!session?.user && (
         <p className="text-sm text-slate-500"><Link href="/login" className="font-semibold text-indigo-600 underline">Login</Link> to earn XP for solving challenges.</p>

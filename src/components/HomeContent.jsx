@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useLang } from './LanguageProvider';
 import LanguageToggle from './LanguageToggle';
 import ContinueLearning from './ContinueLearning';
+import Icon from '@/components/Icon';
 
 export default function HomeContent({ courses, daily }) {
   const { t } = useLang();
@@ -35,7 +36,7 @@ export default function HomeContent({ courses, daily }) {
 
         {/* Language picker — visible right on landing */}
         <div className="mt-6 flex items-center justify-center gap-2 text-sm text-slate-500">
-          <span>🌐 {t('home.langPick')}</span>
+          <span className="inline-flex items-center gap-1.5"><Icon name="globe" className="h-3.5 w-3.5" />{t('home.langPick')}</span>
           <LanguageToggle />
         </div>
       </section>
@@ -51,14 +52,15 @@ export default function HomeContent({ courses, daily }) {
             className="group block rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-white p-6 transition hover:border-indigo-300"
           >
             <div className="flex items-center gap-2 text-sm font-semibold text-indigo-600">
+              <Icon name="target" className="h-3.5 w-3.5" />
               {t('home.cotd.label')}
             </div>
             <h2 className="mt-2 text-xl font-bold group-hover:text-indigo-600">{daily.title}</h2>
             <p className="mt-1 line-clamp-2 text-sm text-slate-600">{daily.hint}…</p>
             <div className="mt-3 flex items-center gap-2 text-xs text-slate-400">
-              {daily.course && <span>{daily.course.icon} {daily.course.title}</span>}
+              {daily.course && <span><Icon name={daily.course.icon} brand className="mr-1.5 h-3 w-3" />{daily.course.title}</span>}
               <span className="capitalize">· {daily.difficulty}</span>
-              <span className="ml-auto font-semibold text-indigo-600">{t('home.cotd.go')}</span>
+              <span className="ml-auto font-semibold text-indigo-600">{t('home.cotd.go')} <Icon name="arrow-right" className="h-3 w-3" /></span>
             </div>
           </Link>
         </section>
@@ -69,7 +71,7 @@ export default function HomeContent({ courses, daily }) {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((f) => (
             <div key={f.title} className="rounded-2xl border border-slate-200 bg-white p-6">
-              <div className="text-3xl">{f.icon}</div>
+              <Icon name={f.icon} className="h-8 w-8 text-indigo-600" />
               <h3 className="mt-4 font-semibold">{f.title}</h3>
               <p className="mt-2 text-sm text-slate-600">{f.desc}</p>
             </div>
@@ -91,7 +93,7 @@ export default function HomeContent({ courses, daily }) {
                 href={f.href}
                 className="group flex items-start gap-4 rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-indigo-300 hover:shadow-sm"
               >
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-indigo-50 text-2xl">{f.icon}</span>
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-indigo-50"><Icon name={f.icon} className="h-5 w-5 text-indigo-600" /></span>
                 <div>
                   <h3 className="font-semibold group-hover:text-indigo-600">{f.title}</h3>
                   <p className="mt-1 text-sm text-slate-600">{f.desc}</p>
@@ -106,6 +108,7 @@ export default function HomeContent({ courses, daily }) {
       <section className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-14">
         <div className="text-center">
           <span className="inline-block rounded-full bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
+            <Icon name="briefcase" className="mr-1.5 h-3.5 w-3.5" />
             {t('home.career.badge')}
           </span>
           <h2 className="mt-4 text-2xl font-bold sm:text-3xl">{t('home.career.title')}</h2>
@@ -115,11 +118,13 @@ export default function HomeContent({ courses, daily }) {
         <div className="mt-10 grid gap-5 md:grid-cols-2">
           {/* Resume Builder */}
           <div className="group flex flex-col overflow-hidden rounded-3xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-white p-8 transition hover:border-indigo-300 hover:shadow-sm">
-            <div className="text-4xl">📄</div>
+            <Icon name="file" className="h-9 w-9 text-indigo-600" />
             <h3 className="mt-4 text-xl font-bold">{t('home.resume.title')}</h3>
             <p className="mt-2 text-sm text-slate-600">{t('home.resume.desc')}</p>
             <ul className="mt-4 space-y-1.5 text-sm text-slate-600">
-              {t('home.resume.bullets').map((b) => <li key={b}>{b}</li>)}
+              {t('home.resume.bullets').map((b) => (
+                <li key={b}><Icon name="check" className="mr-1.5 h-3 w-3 text-green-600" />{b}</li>
+              ))}
             </ul>
             <Link href="/resume" className="mt-6 inline-block w-fit rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700">
               {t('home.resume.cta')}
@@ -128,11 +133,13 @@ export default function HomeContent({ courses, daily }) {
 
           {/* Certificates */}
           <div className="group flex flex-col overflow-hidden rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white p-8 transition hover:border-amber-300 hover:shadow-sm">
-            <div className="text-4xl">🎓</div>
+            <Icon name="graduation" className="h-9 w-9 text-amber-500" />
             <h3 className="mt-4 text-xl font-bold">{t('home.cert.title')}</h3>
             <p className="mt-2 text-sm text-slate-600">{t('home.cert.desc')}</p>
             <ul className="mt-4 space-y-1.5 text-sm text-slate-600">
-              {t('home.cert.bullets').map((b) => <li key={b}>{b}</li>)}
+              {t('home.cert.bullets').map((b) => (
+                <li key={b}><Icon name="check" className="mr-1.5 h-3 w-3 text-green-600" />{b}</li>
+              ))}
             </ul>
             <Link href="/courses" className="mt-6 inline-block w-fit rounded-lg bg-amber-500 px-6 py-3 font-semibold text-white hover:bg-amber-600">
               {t('home.cert.cta')}
@@ -146,7 +153,7 @@ export default function HomeContent({ courses, daily }) {
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold">{t('home.courses.title')}</h2>
           <Link href="/courses" className="text-sm font-medium text-indigo-600 hover:underline">
-            {t('home.courses.viewAll')}
+            {t('home.courses.viewAll')} <Icon name="arrow-right" className="h-3 w-3" />
           </Link>
         </div>
 
@@ -163,7 +170,7 @@ export default function HomeContent({ courses, daily }) {
                 href={`/courses/${c.slug}`}
                 className="group rounded-2xl border border-slate-200 bg-white p-6 transition hover:border-indigo-300 hover:shadow-sm"
               >
-                <div className="text-3xl">{c.icon}</div>
+                <Icon name={c.icon} brand className="h-8 w-8 text-indigo-600" />
                 <h3 className="mt-3 font-semibold group-hover:text-indigo-600">{c.title}</h3>
                 <p className="mt-1 line-clamp-2 text-sm text-slate-600">{c.description}</p>
                 <span className="mt-3 inline-block text-xs font-medium capitalize text-slate-400">{c.difficulty}</span>

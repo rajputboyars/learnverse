@@ -15,7 +15,7 @@ export const course = {
   slug: 'chatgpt',
   description:
     'ChatGPT aur GPT-4 ka complete guide — free vs Plus plan features, prompting tips, Custom GPTs, Advanced Data Analysis, aur OpenAI API se apps banana — sab kuch English aur Hinglish mein.',
-  icon: '💬',
+  icon: 'comments',
   tags: ['chatgpt', 'gpt-4', 'openai', 'ai', 'prompting', 'llm'],
   difficulty: 'beginner',
   language: ['english', 'hinglish'],

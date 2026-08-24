@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ROADMAPS } from '@/data/roadmaps';
 import L from '@/components/L';
+import Icon from '@/components/Icon';
 
 export const metadata = {
   title: 'Roadmaps — Learnverse',
@@ -83,7 +84,7 @@ export default function RoadmapsPage() {
             >
               {/* Icon + difficulty */}
               <div className="flex items-start justify-between">
-                <span className="text-4xl">{r.icon}</span>
+                <Icon name={r.icon} brand className="h-9 w-9 text-indigo-600" />
                 <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${DIFFICULTY_CLASS[r.difficulty]}`}>
                   {DIFFICULTY_LABEL[r.difficulty]}
                 </span>
@@ -97,13 +98,13 @@ export default function RoadmapsPage() {
               {/* Stats row */}
               <div className="mt-4 flex items-center gap-4 text-xs text-slate-500">
                 <span className="flex items-center gap-1">
-                  📚 <strong>{totalSteps}</strong> <L hi="courses" en="courses" />
+                  <Icon name="book-open" className="mr-1.5 h-3.5 w-3.5" /><strong>{totalSteps}</strong> <L hi="courses" en="courses" />
                 </span>
                 <span className="flex items-center gap-1">
-                  🗓️ {r.duration}
+                  <Icon name="calendar" className="mr-1.5 h-3.5 w-3.5" />{r.duration}
                 </span>
                 <span className="flex items-center gap-1">
-                  📈 {r.phases.length} <L hi="phases" en="phases" />
+                  <Icon name="chart-line" className="mr-1.5 h-3.5 w-3.5" />{r.phases.length} <L hi="phases" en="phases" />
                 </span>
               </div>
 
@@ -119,7 +120,7 @@ export default function RoadmapsPage() {
               {/* CTA */}
               <div className="mt-auto pt-5">
                 <span className="inline-flex items-center gap-1 text-sm font-medium text-indigo-600">
-                  <L hi="Roadmap dekho" en="View roadmap" /> <span className="transition-transform group-hover:translate-x-0.5">→</span>
+                  <L hi="Roadmap dekho" en="View roadmap" /> <Icon name="arrow-right" className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                 </span>
               </div>
             </Link>

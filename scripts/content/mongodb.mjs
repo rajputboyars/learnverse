@@ -17,7 +17,7 @@ export const course = {
   slug: 'mongodb',
   description:
     'NoSQL document database — CRUD, data modeling, Mongoose aur aggregation. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '🍃',
+  icon: 'leaf',
   tags: ['mongodb', 'database', 'nosql', 'mern'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

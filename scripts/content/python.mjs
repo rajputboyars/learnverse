@@ -15,7 +15,7 @@ export const course = {
   slug: 'python',
   description:
     'Sabse beginner-friendly language — syntax, data structures, OOP aur real-world scripting. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '🐍',
+  icon: 'python',
   tags: ['python', 'programming', 'backend', 'scripting'],
   difficulty: 'beginner',
   language: ['english', 'hinglish'],

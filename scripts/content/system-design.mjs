@@ -15,7 +15,7 @@ export const course = {
   slug: 'system-design',
   description:
     'Scalable systems design — scalability, load balancing, caching, database scaling, CAP theorem, message queues, CDN aur microservices. Interview-ready, English + Hinglish, desi examples ke saath.',
-  icon: '🏗️',
+  icon: 'project',
   tags: ['system-design', 'scalability', 'interview', 'architecture', 'cs-fundamentals'],
   difficulty: 'advanced',
   language: ['english', 'hinglish'],

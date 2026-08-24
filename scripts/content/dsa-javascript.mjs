@@ -15,7 +15,7 @@ export const course = {
   slug: 'dsa-javascript',
   description:
     'Data Structures & Algorithms — but implemented in JavaScript, in depth. Array/Map/Set complexity, class-based structures (linked lists, trees, heaps, graphs), aur JS-specific gotchas. English + Hinglish, desi examples aur full working code ke saath.',
-  icon: '🧮',
+  icon: 'calculator',
   tags: ['dsa', 'javascript', 'algorithms', 'data-structures', 'interview'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

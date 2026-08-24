@@ -15,7 +15,7 @@ export const course = {
   slug: 'postgresql',
   description:
     'Powerful open-source relational database — tables, joins, indexes, JSONB, transactions, window functions aur performance. English + Hinglish, desi examples aur SQL ke saath.',
-  icon: '🐘',
+  icon: 'database',
   tags: ['postgresql', 'postgres', 'database', 'sql', 'backend'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

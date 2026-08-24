@@ -45,53 +45,53 @@ const DICT = {
     'home.langPick': 'Apni language choose karo:',
 
     // Home — concept of the day
-    'home.cotd.label': '🎯 Concept of the Day',
-    'home.cotd.go': 'Aaj seekho →',
+    'home.cotd.label': 'Concept of the Day',
+    'home.cotd.go': 'Aaj seekho',
 
     // Home — features (4)
     'home.features': [
       { icon: '🇮🇳', title: 'English + Hinglish', desc: 'Har concept do languages mein — jaise dost samjha raha ho.' },
-      { icon: '🪔', title: 'Daily-life examples', desc: '"Closure samjho jaise dabbawala tiffin system." Desi analogies jo yaad rahti hain.' },
-      { icon: '💼', title: 'Concept → Interview bridge', desc: 'Har concept ke saath — ye interview mein kaise poochha jaata hai.' },
-      { icon: '🧠', title: 'Quick quizzes + XP', desc: 'Padho, quiz do, XP lo, streak banao. Retention ke liye.' },
+      { icon: 'lightbulb', title: 'Daily-life examples', desc: '"Closure samjho jaise dabbawala tiffin system." Desi analogies jo yaad rahti hain.' },
+      { icon: 'briefcase', title: 'Concept → Interview bridge', desc: 'Har concept ke saath — ye interview mein kaise poochha jaata hai.' },
+      { icon: 'brain', title: 'Quick quizzes + XP', desc: 'Padho, quiz do, XP lo, streak banao. Retention ke liye.' },
     ],
 
     // Home — toolkit showcase
-    'home.showcase.title': 'Sirf padhna nahi — pura learning toolkit 🚀',
+    'home.showcase.title': 'Sirf padhna nahi — pura learning toolkit',
     'home.showcase.sub':
       'Har course ke andar interactive features — practice karo, code chalao, doubts poocho, aur progress track karo. Sab ek hi jagah.',
     'home.highlights': [
-      { icon: '🧠', title: 'Practice Quiz', desc: 'Har course ka timed quiz — khud ko test karo, score + retry.', href: '/courses' },
-      { icon: '🎤', title: 'Mock Interview', desc: 'Course ke interview questions flip-card se practice karo.', href: '/courses' },
-      { icon: '💬', title: 'Discussion Board', desc: 'Har course pe doubts discuss karo, community se seekho.', href: '/courses' },
-      { icon: '💻', title: 'Code Playground', desc: 'Concept page pe code browser mein hi run karo.', href: '/courses' },
-      { icon: '💪', title: 'Code Challenges', desc: 'Coding challenges solve karke XP kamao.', href: '/challenges' },
-      { icon: '💼', title: 'Interview Questions', desc: 'EN + Hinglish answers, course aur level se filter.', href: '/interview-questions' },
-      { icon: '🔁', title: 'Spaced Revision', desc: 'Seekha hua flashcards se revise — yaad rakho.', href: '/revise' },
-      { icon: '🔥', title: 'XP, Streaks & Leaderboard', desc: 'Gamified learning — top rank ke liye compete karo.', href: '/leaderboard' },
-      { icon: '🏅', title: 'Badges & Certificates', desc: 'Achievements unlock karo, certificate LinkedIn pe share karo.', href: '/dashboard' },
-      { icon: '🗺️', title: 'Roadmaps', desc: 'Structured learning paths — kya, kis order mein padhna hai.', href: '/roadmaps' },
+      { icon: 'brain', title: 'Practice Quiz', desc: 'Har course ka timed quiz — khud ko test karo, score + retry.', href: '/courses' },
+      { icon: 'microphone', title: 'Mock Interview', desc: 'Course ke interview questions flip-card se practice karo.', href: '/courses' },
+      { icon: 'comments', title: 'Discussion Board', desc: 'Har course pe doubts discuss karo, community se seekho.', href: '/courses' },
+      { icon: 'code', title: 'Code Playground', desc: 'Concept page pe code browser mein hi run karo.', href: '/courses' },
+      { icon: 'muscle', title: 'Code Challenges', desc: 'Coding challenges solve karke XP kamao.', href: '/challenges' },
+      { icon: 'briefcase', title: 'Interview Questions', desc: 'EN + Hinglish answers, course aur level se filter.', href: '/interview-questions' },
+      { icon: 'repeat', title: 'Spaced Revision', desc: 'Seekha hua flashcards se revise — yaad rakho.', href: '/revise' },
+      { icon: 'fire', title: 'XP, Streaks & Leaderboard', desc: 'Gamified learning — top rank ke liye compete karo.', href: '/leaderboard' },
+      { icon: 'medal', title: 'Badges & Certificates', desc: 'Achievements unlock karo, certificate LinkedIn pe share karo.', href: '/dashboard' },
+      { icon: 'map', title: 'Roadmaps', desc: 'Structured learning paths — kya, kis order mein padhna hai.', href: '/roadmaps' },
     ],
 
     // Home — career toolkit
-    'home.career.badge': 'Naukri-ready bano 💼',
+    'home.career.badge': 'Naukri-ready bano',
     'home.career.title': 'Seekho, prove karo, job pao',
     'home.career.sub':
       'Sirf concepts nahi — course complete karke certificate kamao aur apna professional resume yahin bana ke PDF download karo.',
     'home.resume.title': 'Resume Builder',
     'home.resume.desc':
       'Live preview ke saath professional resume banao — experience, projects, skills sab add karo. Skills seedhe apne completed courses se import karo, theme choose karo, aur ek click mein PDF download.',
-    'home.resume.bullets': ['✓ Live A4 preview, 3 colour themes', '✓ Courses se skills auto-import', '✓ Print → Save as PDF'],
-    'home.resume.cta': 'Build your resume →',
+    'home.resume.bullets': ['Live A4 preview, 3 colour themes', 'Courses se skills auto-import', 'Print → Save as PDF'],
+    'home.resume.cta': 'Build your resume',
     'home.cert.title': 'Certificates',
     'home.cert.desc':
       'Koi bhi course 100% complete karo aur ek shareable Certificate of Completion pao — unique certificate ID ke saath. Download karo ya LinkedIn pe share karke apni learning dikhao.',
-    'home.cert.bullets': ['✓ Course complete pe auto-unlock', '✓ Unique verifiable certificate ID', '✓ Download / LinkedIn pe share'],
-    'home.cert.cta': 'Earn a certificate →',
+    'home.cert.bullets': ['Course complete pe auto-unlock', 'Unique verifiable certificate ID', 'Download / LinkedIn pe share'],
+    'home.cert.cta': 'Earn a certificate',
 
     // Home — courses
     'home.courses.title': 'Popular courses',
-    'home.courses.viewAll': 'View all →',
+    'home.courses.viewAll': 'View all',
     'home.courses.empty': 'No courses yet. Run the seed script to add starter content:',
 
     // Concept reader
@@ -99,8 +99,8 @@ const DICT = {
     'reader.dailyExample': 'Daily-life example',
     'reader.codeExample': 'Code example',
     'reader.keyPoints': 'Key points',
-    'reader.interviewHeading': '💼 Interview mein aise poochha jaata hai',
-    'reader.completed': '✅ Completed',
+    'reader.interviewHeading': 'Interview mein aise poochha jaata hai',
+    'reader.completed': 'Completed',
     'reader.markDone': 'Mark as done',
     'reader.saving': 'Saving...',
     'reader.loginToSave': 'progress save aur XP ke liye',
@@ -109,9 +109,9 @@ const DICT = {
     // Dashboard
     'dash.greeting': 'Hi',
     'dash.sub': 'Aaj kuch naya seekha?',
-    'dash.publicProfile': '🔗 Public profile',
+    'dash.publicProfile': 'Public profile',
     'dash.keepLearning': 'Keep learning',
-    'dash.buildResume': '📄 Build resume',
+    'dash.buildResume': 'Build resume',
   },
 
   en: {
@@ -147,53 +147,53 @@ const DICT = {
     'home.langPick': 'Choose your language:',
 
     // Home — concept of the day
-    'home.cotd.label': '🎯 Concept of the Day',
-    'home.cotd.go': 'Learn today →',
+    'home.cotd.label': 'Concept of the Day',
+    'home.cotd.go': 'Learn today',
 
     // Home — features (4)
     'home.features': [
       { icon: '🇮🇳', title: 'English + Hinglish', desc: 'Every concept in two languages — like a friend explaining it to you.' },
-      { icon: '🪔', title: 'Daily-life examples', desc: '"Think of a closure like the dabbawala tiffin system." Analogies that stick.' },
-      { icon: '💼', title: 'Concept → Interview bridge', desc: 'Every concept shows how it gets asked in interviews.' },
-      { icon: '🧠', title: 'Quick quizzes + XP', desc: 'Read, take the quiz, earn XP, build a streak — for retention.' },
+      { icon: 'lightbulb', title: 'Daily-life examples', desc: '"Think of a closure like the dabbawala tiffin system." Analogies that stick.' },
+      { icon: 'briefcase', title: 'Concept → Interview bridge', desc: 'Every concept shows how it gets asked in interviews.' },
+      { icon: 'brain', title: 'Quick quizzes + XP', desc: 'Read, take the quiz, earn XP, build a streak — for retention.' },
     ],
 
     // Home — toolkit showcase
-    'home.showcase.title': 'Not just reading — a complete learning toolkit 🚀',
+    'home.showcase.title': 'Not just reading — a complete learning toolkit',
     'home.showcase.sub':
       'Interactive features inside every course — practice, run code, ask doubts, and track progress. All in one place.',
     'home.highlights': [
-      { icon: '🧠', title: 'Practice Quiz', desc: 'A timed quiz for every course — test yourself, score and retry.', href: '/courses' },
-      { icon: '🎤', title: 'Mock Interview', desc: 'Practice a course’s interview questions with flip-cards.', href: '/courses' },
-      { icon: '💬', title: 'Discussion Board', desc: 'Discuss doubts on every course and learn from the community.', href: '/courses' },
-      { icon: '💻', title: 'Code Playground', desc: 'Run code right in the browser on the concept page.', href: '/courses' },
-      { icon: '💪', title: 'Code Challenges', desc: 'Solve coding challenges and earn XP.', href: '/challenges' },
-      { icon: '💼', title: 'Interview Questions', desc: 'EN + Hinglish answers, filter by course and level.', href: '/interview-questions' },
-      { icon: '🔁', title: 'Spaced Revision', desc: 'Revise what you learnt with flashcards — remember it.', href: '/revise' },
-      { icon: '🔥', title: 'XP, Streaks & Leaderboard', desc: 'Gamified learning — compete for the top rank.', href: '/leaderboard' },
-      { icon: '🏅', title: 'Badges & Certificates', desc: 'Unlock achievements, share your certificate on LinkedIn.', href: '/dashboard' },
-      { icon: '🗺️', title: 'Roadmaps', desc: 'Structured learning paths — what to learn and in what order.', href: '/roadmaps' },
+      { icon: 'brain', title: 'Practice Quiz', desc: 'A timed quiz for every course — test yourself, score and retry.', href: '/courses' },
+      { icon: 'microphone', title: 'Mock Interview', desc: 'Practice a course’s interview questions with flip-cards.', href: '/courses' },
+      { icon: 'comments', title: 'Discussion Board', desc: 'Discuss doubts on every course and learn from the community.', href: '/courses' },
+      { icon: 'code', title: 'Code Playground', desc: 'Run code right in the browser on the concept page.', href: '/courses' },
+      { icon: 'muscle', title: 'Code Challenges', desc: 'Solve coding challenges and earn XP.', href: '/challenges' },
+      { icon: 'briefcase', title: 'Interview Questions', desc: 'EN + Hinglish answers, filter by course and level.', href: '/interview-questions' },
+      { icon: 'repeat', title: 'Spaced Revision', desc: 'Revise what you learnt with flashcards — remember it.', href: '/revise' },
+      { icon: 'fire', title: 'XP, Streaks & Leaderboard', desc: 'Gamified learning — compete for the top rank.', href: '/leaderboard' },
+      { icon: 'medal', title: 'Badges & Certificates', desc: 'Unlock achievements, share your certificate on LinkedIn.', href: '/dashboard' },
+      { icon: 'map', title: 'Roadmaps', desc: 'Structured learning paths — what to learn and in what order.', href: '/roadmaps' },
     ],
 
     // Home — career toolkit
-    'home.career.badge': 'Get job-ready 💼',
+    'home.career.badge': 'Get job-ready',
     'home.career.title': 'Learn it, prove it, get the job',
     'home.career.sub':
       'Not just concepts — complete a course to earn a certificate, and build your professional resume right here as a PDF.',
     'home.resume.title': 'Resume Builder',
     'home.resume.desc':
       'Build a professional resume with live preview — add experience, projects and skills. Import skills straight from your completed courses, pick a theme, and download a PDF in one click.',
-    'home.resume.bullets': ['✓ Live A4 preview, 3 colour themes', '✓ Auto-import skills from courses', '✓ Print → Save as PDF'],
-    'home.resume.cta': 'Build your resume →',
+    'home.resume.bullets': ['Live A4 preview, 3 colour themes', 'Auto-import skills from courses', 'Print → Save as PDF'],
+    'home.resume.cta': 'Build your resume',
     'home.cert.title': 'Certificates',
     'home.cert.desc':
       'Complete any course 100% and get a shareable Certificate of Completion — with a unique certificate ID. Download it or share on LinkedIn to show your learning.',
-    'home.cert.bullets': ['✓ Auto-unlocks on course completion', '✓ Unique verifiable certificate ID', '✓ Download / share on LinkedIn'],
-    'home.cert.cta': 'Earn a certificate →',
+    'home.cert.bullets': ['Auto-unlocks on course completion', 'Unique verifiable certificate ID', 'Download / share on LinkedIn'],
+    'home.cert.cta': 'Earn a certificate',
 
     // Home — courses
     'home.courses.title': 'Popular courses',
-    'home.courses.viewAll': 'View all →',
+    'home.courses.viewAll': 'View all',
     'home.courses.empty': 'No courses yet. Run the seed script to add starter content:',
 
     // Concept reader
@@ -201,8 +201,8 @@ const DICT = {
     'reader.dailyExample': 'Daily-life example',
     'reader.codeExample': 'Code example',
     'reader.keyPoints': 'Key points',
-    'reader.interviewHeading': '💼 How this is asked in interviews',
-    'reader.completed': '✅ Completed',
+    'reader.interviewHeading': 'How this is asked in interviews',
+    'reader.completed': 'Completed',
     'reader.markDone': 'Mark as done',
     'reader.saving': 'Saving...',
     'reader.loginToSave': 'to save progress & earn XP',
@@ -211,9 +211,9 @@ const DICT = {
     // Dashboard
     'dash.greeting': 'Hi',
     'dash.sub': 'Learnt something new today?',
-    'dash.publicProfile': '🔗 Public profile',
+    'dash.publicProfile': 'Public profile',
     'dash.keepLearning': 'Keep learning',
-    'dash.buildResume': '📄 Build resume',
+    'dash.buildResume': 'Build resume',
   },
 };
 

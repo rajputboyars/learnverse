@@ -15,7 +15,7 @@ export const course = {
   slug: 'sql',
   description:
     'Databases se baat karo — SELECT, JOIN, GROUP BY aur queries. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '🗃️',
+  icon: 'database',
   tags: ['sql', 'database', 'query', 'rdbms'],
   difficulty: 'beginner',
   language: ['english', 'hinglish'],

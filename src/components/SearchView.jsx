@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useLang } from './LanguageProvider';
 import SearchBox from './SearchBox';
+import Icon from '@/components/Icon';
 
 export default function SearchView({ q, concepts, questions }) {
   const { pick } = useLang();
@@ -51,7 +52,7 @@ export default function SearchView({ q, concepts, questions }) {
                     <span className="flex items-center gap-2 text-xs text-slate-400">
                       {c.course && (
                         <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-indigo-600">
-                          {c.course.icon} {c.course.title}
+                          <Icon name={c.course.icon} brand className="mr-1.5 h-3 w-3" />{c.course.title}
                         </span>
                       )}
                       <span className="capitalize">{c.difficulty}</span>
@@ -77,7 +78,7 @@ export default function SearchView({ q, concepts, questions }) {
                     <span>{qn.question}</span>
                     {qn.course && (
                       <span className="shrink-0 rounded-full bg-indigo-50 px-2 py-0.5 text-xs text-indigo-600">
-                        {qn.course.icon}
+                        <Icon name={qn.course.icon} brand className="h-3 w-3" />
                       </span>
                     )}
                   </Link>

@@ -15,7 +15,7 @@ export const course = {
   slug: 'mlops',
   description:
     'Production ML lifecycle — experiment tracking (MLflow, Weights & Biases), model serving aur deployment, CI/CD for models, monitoring, data/model drift detection aur retraining pipelines. AI ko reliably chalte rehna sikhata hai, English aur Hinglish mein.',
-  icon: '🔧',
+  icon: 'wrench',
   tags: ['mlops', 'mlflow', 'deployment', 'monitoring', 'ci-cd'],
   difficulty: 'advanced',
   language: ['english', 'hinglish'],

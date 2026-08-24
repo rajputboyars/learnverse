@@ -1,8 +1,14 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { config } from "@fortawesome/fontawesome-svg-core";
+import "@fortawesome/fontawesome-svg-core/styles.css";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
+
+// FontAwesome's stylesheet is imported above, so stop the core library from
+// injecting a second copy at runtime (which causes oversized icons on first paint).
+config.autoAddCss = false;
 
 // Set the theme before paint to avoid a flash of the wrong colour scheme.
 const themeInit = `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`;

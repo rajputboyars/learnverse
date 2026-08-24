@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
+import Icon from '@/components/Icon';
 
 export default function MockInterviewPage() {
   const { slug } = useParams();
@@ -99,7 +100,7 @@ export default function MockInterviewPage() {
   if (!data.questions?.length) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <p className="text-4xl">🎤</p>
+        <Icon name="microphone" className="mx-auto h-10 w-10 text-indigo-600" />
         <h1 className="mt-4 text-2xl font-bold">
           {pick('Mock Interview', 'Mock Interview')}
         </h1>
@@ -124,7 +125,7 @@ export default function MockInterviewPage() {
     const pct = Math.round((score / data.questions.length) * 100);
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
-        <p className="text-5xl">🎤</p>
+        <Icon name="microphone" className="mx-auto h-12 w-12 text-indigo-600" />
         <h1 className="mt-4 text-3xl font-bold">
           {score} / {data.questions.length}
         </h1>
@@ -171,7 +172,8 @@ export default function MockInterviewPage() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between gap-2">
         <h1 className="text-xl font-bold">
-          🎤 {data.course?.icon} {data.course?.title} —{' '}
+          <Icon name="microphone" className="mr-2 h-5 w-5 text-indigo-600" />
+          <Icon name={data.course?.icon} brand className="mr-2 h-5 w-5" /> {data.course?.title} —{' '}
           {pick('Mock Interview', 'Mock Interview')}
         </h1>
         <span className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
@@ -229,15 +231,7 @@ export default function MockInterviewPage() {
                 <span className="relative h-5 w-5 rounded-sm bg-white" />
               ) : (
                 /* Mic icon */
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="relative h-7 w-7"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4Z" />
-                  <path fillRule="evenodd" d="M4 11a1 1 0 0 1 2 0 6 6 0 0 0 12 0 1 1 0 1 1 2 0 8 8 0 0 1-7 7.93V21h2a1 1 0 1 1 0 2H9a1 1 0 1 1 0-2h2v-2.07A8 8 0 0 1 4 11Z" clipRule="evenodd" />
-                </svg>
+                <Icon name="microphone" className="relative h-7 w-7" />
               )}
             </button>
 
@@ -342,7 +336,7 @@ export default function MockInterviewPage() {
                 onClick={() => rate(true)}
                 className="rounded-xl bg-green-600 py-3 font-semibold text-white hover:bg-green-700"
               >
-                {pick('Aa gaya ✓', 'Got it ✓')}
+                <Icon name="check" className="mr-1.5 h-3.5 w-3.5" />{pick('Aa gaya', 'Got it')}
               </button>
             </div>
           </div>

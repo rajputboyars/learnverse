@@ -13,6 +13,20 @@
   --foreground: #e2e8f0;
 }
 
+/* Brand icon colours. <Icon brand> tags the icon .brand-icon and sets the
+ * --brand-light / --brand-dark pair inline (the values live in
+ * src/lib/icons.js); these rules pick whichever matches the active theme. That
+ * lets the exact brand hex be used on dark surfaces while a darkened variant
+ * keeps the same mark readable on white.
+ *
+ * The var() must be dereferenced here rather than on :root — a custom property
+ * resolves against the element that declares it, so a --brand-icon token
+ * defined on :root would never see the per-icon values. !important matches the
+ * dark-mode overrides below and keeps the brand colour ahead of any text-*
+ * utility that shares the element. */
+.brand-icon { color: var(--brand-light, currentColor) !important; }
+.dark .brand-icon { color: var(--brand-dark, currentColor) !important; }
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

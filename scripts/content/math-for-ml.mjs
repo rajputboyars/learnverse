@@ -15,7 +15,7 @@ export const course = {
   slug: 'math-for-ml',
   description:
     'ML samajhne ke liye zaroori maths — Linear Algebra (vectors, matrices), Calculus (derivatives, gradient descent), aur Probability & Statistics. Har topic intuition-first, code ke saath, English aur Hinglish mein.',
-  icon: '➗',
+  icon: 'divide',
   tags: ['math', 'linear-algebra', 'calculus', 'statistics', 'machine-learning'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

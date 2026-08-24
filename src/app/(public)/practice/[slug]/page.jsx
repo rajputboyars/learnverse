@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
+import Icon from '@/components/Icon';
 
 export default function PracticePage() {
   const { slug } = useParams();
@@ -52,7 +53,7 @@ export default function PracticePage() {
     const pct = Math.round((score / data.questions.length) * 100);
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
-        <p className="text-5xl">{pct >= 70 ? '🎉' : pct >= 40 ? '👍' : '📚'}</p>
+        <Icon name={pct >= 70 ? 'sparkles' : pct >= 40 ? 'thumbs-up' : 'book-open'} className="mx-auto h-12 w-12 text-indigo-600" />
         <h1 className="mt-4 text-3xl font-bold">{score} / {data.questions.length}</h1>
         <p className="mt-1 text-slate-600">{pct}% {pick('sahi', 'correct')}</p>
         <p className="mt-3 text-slate-500">
@@ -73,7 +74,7 @@ export default function PracticePage() {
   return (
     <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-bold">🧠 {data.course?.icon} {data.course?.title} — {pick('Practice', 'Practice')}</h1>
+        <h1 className="flex items-center gap-2 text-xl font-bold"><Icon name="brain" className="h-5 w-5 text-indigo-600" /><Icon name={data.course?.icon} brand className="h-5 w-5" />{data.course?.title} — {pick('Practice', 'Practice')}</h1>
         <span className="text-sm text-slate-500">Q {idx + 1}/{data.questions.length} · {pick('Score', 'Score')} {score}</span>
       </div>
 
@@ -100,11 +101,11 @@ export default function PracticePage() {
         </div>
         {picked !== null && (
           <div className="mt-4">
-            {q.explanation && <p className="text-sm text-slate-600">💡 {q.explanation}</p>}
+            {q.explanation && <p className="text-sm text-slate-600"><Icon name="lightbulb" className="mr-1.5 h-3.5 w-3.5 text-amber-500" />{q.explanation}</p>}
             <div className="mt-3 flex items-center justify-between">
               <Link href={`/concepts/${q.conceptSlug}`} className="text-xs text-slate-400 hover:text-indigo-600">{pick('Source:', 'From:')} {q.conceptTitle}</Link>
               <button onClick={next} className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
-                {isLast ? pick('Result dekho', 'See result') : pick('Aage →', 'Next →')}
+                {isLast ? pick('Result dekho', 'See result') : pick('Aage', 'Next')}
               </button>
             </div>
           </div>

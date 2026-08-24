@@ -17,7 +17,7 @@ export const course = {
   slug: 'express',
   description:
     'Node ke liye web framework — routing, middleware aur REST APIs. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '🚂',
+  icon: 'train',
   tags: ['express', 'backend', 'nodejs', 'mern', 'api'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

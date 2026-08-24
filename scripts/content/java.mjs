@@ -15,7 +15,7 @@ export const course = {
   slug: 'java',
   description:
     'Enterprise ki favourite language — OOP, collections, exceptions aur JVM. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '☕',
+  icon: 'java',
   tags: ['java', 'oop', 'backend', 'programming'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

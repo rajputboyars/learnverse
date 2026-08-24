@@ -15,7 +15,7 @@ export const course = {
   slug: 'ai-ml',
   description:
     'Machine Learning aur Deep Learning in depth — algorithms (regression, trees, SVM, KNN, clustering), training (gradient descent, regularization) aur neural networks (CNN, RNN, transformers). Python ke saath, English + Hinglish, desi examples aur code.',
-  icon: '🧠',
+  icon: 'brain',
   tags: ['ai', 'machine-learning', 'deep-learning', 'python', 'neural-networks'],
   difficulty: 'advanced',
   language: ['english', 'hinglish'],

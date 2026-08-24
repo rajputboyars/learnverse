@@ -15,7 +15,7 @@ export const course = {
   slug: 'html',
   description:
     'Web ki neenv — HTML basics se forms tak. Har concept English + Hinglish mein, desi examples, code aur interview questions ke saath.',
-  icon: '🧱',
+  icon: 'html',
   tags: ['html', 'frontend', 'web'],
   difficulty: 'beginner',
   language: ['english', 'hinglish'],

@@ -15,7 +15,7 @@ export const course = {
   slug: 'eds',
   description:
     'Adobe Experience Manager Edge Delivery Services (pehle Franklin/Helix) zero se seekho — blocks, decorate(), content-as-a-doc model, performance philosophy aur deployment. MERN devs ke liye analogies ke saath, English + Hinglish mein.',
-  icon: '⚡',
+  icon: 'bolt',
   tags: ['aem', 'eds', 'edge-delivery-services', 'adobe', 'franklin', 'frontend'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

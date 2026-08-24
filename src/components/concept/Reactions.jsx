@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useLang } from '../LanguageProvider';
+import Icon from '../Icon';
 
 const TYPES = [
-  { key: 'helpful', emoji: '👍', label: 'Helpful', hi: 'Helpful' },
-  { key: 'understood', emoji: '💡', label: 'Understood', hi: 'Samajh aaya' },
-  { key: 'fire', emoji: '🔥', label: 'Best', hi: 'Best' },
+  { key: 'helpful', icon: 'thumbs-up', label: 'Helpful', hi: 'Helpful' },
+  { key: 'understood', icon: 'lightbulb', label: 'Understood', hi: 'Samajh aaya' },
+  { key: 'fire', icon: 'fire', label: 'Best', hi: 'Best' },
 ];
 
 export default function Reactions({ conceptId }) {
@@ -52,7 +53,7 @@ export default function Reactions({ conceptId }) {
               : 'border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
-          <span>{t.emoji}</span> {pick(t.hi, t.label)}
+          <Icon name={t.icon} className="h-4 w-4" /> {pick(t.hi, t.label)}
           {counts[t.key] > 0 && <span className="text-xs text-slate-400">{counts[t.key]}</span>}
         </button>
       ))}

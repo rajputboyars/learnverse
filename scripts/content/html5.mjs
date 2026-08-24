@@ -15,7 +15,7 @@ export const course = {
   slug: 'html5',
   description:
     'Modern HTML5 — semantic tags, audio/video, new forms, canvas, aur browser APIs. English + Hinglish, desi examples aur interview questions ke saath.',
-  icon: '🌐',
+  icon: 'globe',
   tags: ['html5', 'frontend', 'web', 'apis'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

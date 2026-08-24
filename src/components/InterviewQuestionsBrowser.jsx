@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useLang } from './LanguageProvider';
 import ConceptAnimation from './ConceptAnimation';
+import Icon from '@/components/Icon';
 
 const DIFF_ORDER = ['easy', 'medium', 'hard'];
 
@@ -46,7 +47,7 @@ function CodeExample({ example, label, outputLabel }) {
           }}
           className="ml-auto rounded-md px-2 py-0.5 text-[11px] font-semibold text-slate-500 transition hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-200"
         >
-          {copied ? '✓' : '⧉'}
+          <Icon name={copied ? 'check' : 'copy'} className="h-3 w-3" />
         </button>
       </div>
 
@@ -214,9 +215,7 @@ export default function InterviewQuestionsBrowser({ questions }) {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative min-w-[200px] flex-1">
           <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
-            </svg>
+            <Icon name="search" className="h-[15px] w-[15px]" />
           </span>
           <input
             type="search"
@@ -362,7 +361,7 @@ export default function InterviewQuestionsBrowser({ questions }) {
                   {selected.visual && <ConceptAnimation type={selected.visual} />}
 
                   <p className="mt-6 border-t border-slate-200 pt-3 text-xs text-slate-400 dark:border-slate-800">
-                    {pick('Tip: list mein ↑ ↓ arrow keys use karo.', 'Tip: use ↑ ↓ arrow keys in the list.')}
+                    {pick('Tip: list mein arrow keys use karo.', 'Tip: use the arrow keys in the list.')}
                   </p>
                 </>
               )}
@@ -405,9 +404,7 @@ export default function InterviewQuestionsBrowser({ questions }) {
                           <span
                             className={`mt-0.5 flex-none text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`}
                           >
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                              <path d="m6 9 6 6 6-6" />
-                            </svg>
+                            <Icon name="chevron-down" className="h-[13px] w-[13px]" />
                           </span>
                         </button>
                         {open && (

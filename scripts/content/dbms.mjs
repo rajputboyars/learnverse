@@ -15,7 +15,7 @@ export const course = {
   slug: 'dbms',
   description:
     'Database Management Systems — ER model, keys, normalization, transactions/ACID, indexing aur SQL vs NoSQL. Interview-ready CS fundamentals, English + Hinglish, desi examples aur SQL ke saath.',
-  icon: '🗃️',
+  icon: 'database',
   tags: ['dbms', 'database', 'sql', 'cs-fundamentals', 'interview'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

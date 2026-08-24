@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useLang } from '../LanguageProvider';
+import Icon from '../Icon';
 
 export default function CommentsSection({ conceptId }) {
   const { data: session } = useSession();
@@ -62,7 +63,7 @@ export default function CommentsSection({ conceptId }) {
             onClick={() => (session?.user ? vote(c._id) : null)}
             className={`inline-flex items-center gap-1 ${c.voted ? 'font-semibold text-indigo-600' : 'text-slate-500 hover:text-indigo-600'}`}
           >
-            ▲ {c.votes}
+            <Icon name="caret-up" className="h-3 w-3" /> {c.votes}
           </button>
           {!isReply && session?.user && (
             <button onClick={() => setReplyTo(replyTo === c._id ? null : c._id)} className="text-slate-500 hover:text-indigo-600">
@@ -95,7 +96,7 @@ export default function CommentsSection({ conceptId }) {
 
   return (
     <section className="my-10">
-      <h2 className="mb-4 text-lg font-semibold">💬 {pick('Community Q&A', 'Community Q&A')}</h2>
+      <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold"><Icon name="comments" className="h-5 w-5 text-indigo-600" />{pick('Community Q&A', 'Community Q&A')}</h2>
 
       {session?.user ? (
         <div className="mb-6 flex gap-2">
@@ -121,7 +122,7 @@ export default function CommentsSection({ conceptId }) {
         <p className="text-slate-400">Loading…</p>
       ) : tops.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-slate-500">
-          {pick('Abhi koi sawaal nahi. Pehle tum poochho! 🙌', 'No questions yet. Be the first to ask! 🙌')}
+          {pick('Abhi koi sawaal nahi. Pehle tum poochho!', 'No questions yet. Be the first to ask!')}
         </p>
       ) : (
         <div className="space-y-4">

@@ -15,7 +15,7 @@ export const course = {
   slug: 'redux',
   description:
     'React apps mein global state manage karo — Redux Toolkit aur Zustand dono. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '🔄',
+  icon: 'rotate',
   tags: ['redux', 'zustand', 'state-management', 'react'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

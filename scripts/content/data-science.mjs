@@ -15,7 +15,7 @@ export const course = {
   slug: 'data-science',
   description:
     'Data se insights nikalna — lifecycle, data cleaning, EDA, statistics aur machine learning basics. Python ke saath, English + Hinglish, desi examples aur code ke saath.',
-  icon: '📊',
+  icon: 'chart',
   tags: ['data-science', 'machine-learning', 'statistics', 'python', 'analytics'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

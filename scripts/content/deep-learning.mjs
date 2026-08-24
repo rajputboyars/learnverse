@@ -15,7 +15,7 @@ export const course = {
   slug: 'deep-learning',
   description:
     'Neural networks se lekar modern architectures tak — perceptrons, activation functions, backpropagation, CNNs (images), RNNs aur Transformers (sequences), aur PyTorch basics. Advanced AI ka core, English aur Hinglish mein.',
-  icon: '🔥',
+  icon: 'fire',
   tags: ['deep-learning', 'neural-networks', 'pytorch', 'cnn', 'transformers'],
   difficulty: 'advanced',
   language: ['english', 'hinglish'],

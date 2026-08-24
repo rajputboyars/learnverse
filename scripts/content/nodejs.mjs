@@ -17,7 +17,7 @@ export const course = {
   slug: 'nodejs',
   description:
     'JavaScript ko server pe chalao — modules, fs, async, streams, HTTP aur production patterns. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '🟢',
+  icon: 'node',
   tags: ['nodejs', 'backend', 'javascript', 'mern'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

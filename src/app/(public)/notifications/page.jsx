@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
+import Icon from '@/components/Icon';
 
 export default function NotificationsPage() {
   const { status } = useSession();
@@ -27,7 +28,7 @@ export default function NotificationsPage() {
   if (status !== 'authenticated') {
     return (
       <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-2xl font-bold">🔔 {pick('Notifications', 'Notifications')}</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold"><Icon name="bell" className="h-5 w-5 text-indigo-600" />{pick('Notifications', 'Notifications')}</h1>
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-indigo-200 bg-indigo-50 px-6 py-4 dark:border-indigo-800 dark:bg-indigo-950/40">
           <p className="text-sm text-indigo-800 dark:text-indigo-300">
             {pick('Sign up karo taaki jab koi tumhare comments pe reply ya upvote kare, yahan notification aaye.', 'Sign up to get notified when someone replies to or upvotes your comments.')}
@@ -43,7 +44,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-2xl font-bold">🔔 {pick('Notifications', 'Notifications')}</h1>
+      <h1 className="flex items-center gap-2 text-2xl font-bold"><Icon name="bell" className="h-5 w-5 text-indigo-600" />{pick('Notifications', 'Notifications')}</h1>
       {!items ? (
         <p className="mt-4 text-slate-400">{pick('Loading…', 'Loading…')}</p>
       ) : items.length === 0 ? (
@@ -61,7 +62,7 @@ export default function NotificationsPage() {
               href={n.link}
               className={`flex items-start gap-3 px-4 py-3 hover:bg-slate-50 ${n.read ? '' : 'bg-indigo-50/40'}`}
             >
-              <span className="text-lg">{n.type === 'upvote' ? '▲' : '💬'}</span>
+              <Icon name={n.type === 'upvote' ? 'caret-up' : 'comments'} className="h-4 w-4 text-indigo-600" />
               <div className="min-w-0">
                 <p className="text-sm text-slate-700">
                   <b>{n.actorName}</b> {n.message}

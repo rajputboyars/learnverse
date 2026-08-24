@@ -15,7 +15,7 @@ export const course = {
   slug: 'docker',
   description:
     'Apps containerise aur deploy karo — Docker, docker-compose, Vercel, Railway aur production best practices. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '🐳',
+  icon: 'docker',
   tags: ['docker', 'deployment', 'devops', 'containers', 'ci-cd'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],
