@@ -49,13 +49,21 @@ export default function ConceptForm({ initial = null, conceptId = null }) {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
 
+  // These endpoints return an { error } object (not an array) when the DB is
+  // unreachable — guard so the whole editor doesn't crash on `.map`.
   useEffect(() => {
-    fetch('/api/courses?all=1').then((r) => r.json()).then(setCourses);
+    fetch('/api/courses?all=1')
+      .then((r) => r.json())
+      .then((d) => setCourses(Array.isArray(d) ? d : []))
+      .catch(() => setCourses([]));
   }, []);
 
   useEffect(() => {
     if (!form.courseId) { setTopics([]); return; }
-    fetch(`/api/topics?courseId=${form.courseId}`).then((r) => r.json()).then(setTopics);
+    fetch(`/api/topics?courseId=${form.courseId}`)
+      .then((r) => r.json())
+      .then((d) => setTopics(Array.isArray(d) ? d : []))
+      .catch(() => setTopics([]));
   }, [form.courseId]);
 
   function set(k, v) { setForm((f) => ({ ...f, [k]: v })); }
@@ -97,12 +105,12 @@ export default function ConceptForm({ initial = null, conceptId = null }) {
     }
   }
 
-  const input = 'w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-indigo-400';
+  const input = 'w-full rounded-xl border border-line bg-card px-3 py-2 text-ink outline-none focus:border-brand';
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
       <div className="space-y-5">
-        {msg && <p className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600">{msg}</p>}
+        {msg && <p className="rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-600">{msg}</p>}
 
         <div className="grid gap-3 sm:grid-cols-2">
           <select value={form.courseId} onChange={(e) => { set('courseId', e.target.value); set('topicId', ''); }} className={input}>
@@ -122,7 +130,7 @@ export default function ConceptForm({ initial = null, conceptId = null }) {
             placeholder="Concept title (e.g. JavaScript Closures)"
             className={input}
           />
-          <p className="mt-1 text-xs text-slate-400">URL: /concepts/{form.slug || 'your-slug'}</p>
+          <p className="mt-1 text-xs text-muted-soft">URL: /concepts/{form.slug || 'your-slug'}</p>
         </div>
 
         <div className="grid gap-3">
@@ -164,19 +172,19 @@ export default function ConceptForm({ initial = null, conceptId = null }) {
         </div>
 
         {/* Quiz builder */}
-        <div className="rounded-2xl border border-slate-200 p-4">
+        <div className="lv-card p-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">🧠 Quiz</h3>
-            <button onClick={addQuiz} className="text-sm font-medium text-indigo-600 hover:underline">+ Add question</button>
+            <button onClick={addQuiz} className="text-sm font-bold text-brand hover:underline">+ Add question</button>
           </div>
           {quiz.map((q, i) => (
-            <div key={i} className="mt-3 rounded-lg bg-slate-50 p-3">
+            <div key={i} className="mt-3 rounded-xl bg-line-soft p-3">
               <input value={q.question} onChange={(e) => updateQuiz(i, { question: e.target.value })} placeholder="Question" className={input} />
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 {q.options.map((o, oi) => (
                   <label key={oi} className="flex items-center gap-2">
                     <input type="radio" checked={q.correctIndex === oi} onChange={() => updateQuiz(i, { correctIndex: oi })} />
-                    <input value={o} onChange={(e) => updateOption(i, oi, e.target.value)} placeholder={`Option ${oi + 1}`} className="flex-1 rounded border border-slate-200 px-2 py-1 text-sm" />
+                    <input value={o} onChange={(e) => updateOption(i, oi, e.target.value)} placeholder={`Option ${oi + 1}`} className="flex-1 rounded-lg border border-line bg-card px-2 py-1 text-sm text-ink outline-none focus:border-brand" />
                   </label>
                 ))}
               </div>
@@ -186,23 +194,23 @@ export default function ConceptForm({ initial = null, conceptId = null }) {
         </div>
 
         <div className="flex gap-3">
-          <button onClick={() => save('draft')} disabled={saving} className="rounded-lg border border-slate-200 px-5 py-2.5 font-semibold hover:bg-slate-50 disabled:opacity-50">
+          <button onClick={() => save('draft')} disabled={saving} className="lv-btn lv-btn-ghost disabled:opacity-50">
             Save draft
           </button>
-          <button onClick={() => save('published')} disabled={saving} className="rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white hover:bg-indigo-700 disabled:opacity-50">
+          <button onClick={() => save('published')} disabled={saving} className="lv-btn lv-btn-primary disabled:opacity-50">
             {saving ? 'Saving…' : isEdit ? 'Update & Publish' : 'Publish'}
           </button>
         </div>
       </div>
 
       {/* AI assist panel — separate column (wireframe). Stub for Phase 2. */}
-      <aside className="h-fit rounded-2xl border border-dashed border-indigo-200 bg-indigo-50/40 p-4">
-        <h3 className="flex items-center gap-2 font-semibold text-indigo-700">✨ AI Assist</h3>
-        <p className="mt-2 text-sm text-slate-600">
+      <aside className="h-fit rounded-3xl border border-dashed border-brand-tint-2 bg-brand-tint/50 p-5">
+        <h3 className="flex items-center gap-2 font-bold text-brand-dark">✨ AI Assist</h3>
+        <p className="mt-2 text-sm text-ink-soft">
           Phase 2: generate a draft, auto-create the Hinglish version, suggest a
           daily-life analogy, and draft quiz questions.
         </p>
-        <button disabled className="mt-3 w-full cursor-not-allowed rounded-lg bg-indigo-200 px-4 py-2 text-sm font-semibold text-white">
+        <button disabled className="lv-btn mt-3 w-full cursor-not-allowed justify-center bg-brand/40 py-2 text-sm text-white">
           Generate draft (coming soon)
         </button>
       </aside>

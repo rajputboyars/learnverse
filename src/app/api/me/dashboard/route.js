@@ -35,20 +35,22 @@ export async function GET() {
   const totalByCourse = {};
   for (const t of totals) totalByCourse[t._id?.toString()] = t.total;
 
-  const courseProgress = courses
-    .map((c) => {
-      const id = c._id.toString();
-      const total = totalByCourse[id] || 0;
-      const completed = completedByCourse[id] || 0;
-      return {
-        title: c.title,
-        slug: c.slug,
-        icon: c.icon,
-        total,
-        completed,
-        pct: total ? Math.round((completed / total) * 100) : 0,
-      };
-    })
+  // Progress for every published course, including ones not started yet
+  // (0%) — the roadmap-preview widget needs those to render locked steps.
+  const allCourseProgress = courses.map((c) => {
+    const id = c._id.toString();
+    const total = totalByCourse[id] || 0;
+    const completed = completedByCourse[id] || 0;
+    return {
+      title: c.title,
+      slug: c.slug,
+      icon: c.icon,
+      total,
+      completed,
+      pct: total ? Math.round((completed / total) * 100) : 0,
+    };
+  });
+  const courseProgress = allCourseProgress
     .filter((c) => c.completed > 0)
     .sort((a, b) => b.pct - a.pct);
 
@@ -85,6 +87,7 @@ export async function GET() {
     conceptsCompleted: stats?.conceptsCompleted || 0,
     nextLevelAt: xpForNextLevel(stats?.totalXP || 0),
     courseProgress,
+    allCourseProgress,
     completedCourses: completedCourses.map((c) => ({ title: c.title, slug: c.slug, icon: c.icon })),
     bookmarks: bookmarkList,
     badges,

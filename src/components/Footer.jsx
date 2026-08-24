@@ -13,11 +13,12 @@ export default function Footer() {
             <p className="font-semibold text-slate-800">Learnverse</p>
             <p className="mt-1 max-w-md">{t('footer.tagline')}</p>
           </div>
-          <div className="flex gap-6">
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
             <Link href="/courses" className="hover:text-indigo-600">{t('nav.courses')}</Link>
             <Link href="/roadmaps" className="hover:text-indigo-600">{t('nav.roadmaps')}</Link>
             <Link href="/interview-questions" className="hover:text-indigo-600">{t('nav.interview')}</Link>
             <Link href="/leaderboard" className="hover:text-indigo-600">{t('nav.leaderboard')}</Link>
+            <Link href="/certificate/verify" className="hover:text-indigo-600">{t('footer.verify')}</Link>
           </div>
         </div>
         <p className="mt-8 text-xs text-slate-400">

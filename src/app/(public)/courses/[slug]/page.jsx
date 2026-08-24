@@ -5,6 +5,7 @@ import Course from '@/models/Course';
 import Topic from '@/models/Topic';
 import Concept from '@/models/Concept';
 import L from '@/components/L';
+import CourseDetailBody from '@/components/CourseDetailBody';
 
 export const revalidate = 3600;
 
@@ -54,6 +55,12 @@ export async function generateMetadata({ params }) {
   }
 }
 
+const LEVELS = [
+  { key: 'beginner', label: 'Beginner', icon: '🌱' },
+  { key: 'intermediate', label: 'Intermediate', icon: '🚀' },
+  { key: 'advanced', label: 'Advanced', icon: '🧠' },
+];
+
 export default async function CoursePage({ params }) {
   const { slug } = await params;
   const data = await getCourse(slug).catch(() => null);
@@ -66,110 +73,68 @@ export default async function CoursePage({ params }) {
     (conceptsByTopic[key] ||= []).push(c);
   }
 
-  // Group topics by level for a beginner → intermediate → advanced path.
-  const LEVELS = [
-    { key: 'beginner', label: 'Beginner', icon: '🌱' },
-    { key: 'intermediate', label: 'Intermediate', icon: '🚀' },
-    { key: 'advanced', label: 'Advanced', icon: '🧠' },
-  ];
   const topicsByLevel = {};
   for (const t of topics) {
     const lvl = t.level || 'beginner';
     (topicsByLevel[lvl] ||= []).push(t);
   }
 
+  // Serialize the whole tree for the client progress component in one shot —
+  // it needs every concept's id/slug/difficulty to render checkmarks and
+  // figure out which one is "next up" for the signed-in learner.
+  const levels = LEVELS.map((lvl) => ({
+    key: lvl.key,
+    label: lvl.label,
+    icon: lvl.icon,
+    topics: (topicsByLevel[lvl.key] || []).map((t) => ({
+      id: t._id.toString(),
+      title: t.title,
+      description: t.description,
+      concepts: (conceptsByTopic[t._id.toString()] || []).map((c) => ({
+        id: c._id.toString(),
+        slug: c.slug,
+        title: c.title,
+        difficulty: c.difficulty,
+      })),
+    })),
+  })).filter((lvl) => lvl.topics.length > 0);
+
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
-      <Link href="/courses" className="text-sm text-slate-500 hover:text-indigo-600">
+    <div className="mx-auto w-full max-w-[840px] px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
+      <Link href="/courses" className="flex items-center gap-1.5 text-[13.5px] font-semibold text-muted hover:text-brand">
         ← <L hi="Saare courses" en="All courses" />
       </Link>
 
-      <div className="mt-4 flex items-start gap-4">
-        <div className="text-5xl">{course.icon}</div>
-        <div>
-          <h1 className="text-3xl font-bold">{course.title}</h1>
-          <p className="mt-2 text-slate-600">{course.description}</p>
-          <span className="mt-2 inline-block text-sm capitalize text-slate-400">
+      <div className="mt-4 flex items-start gap-5">
+        <div className="text-[44px] leading-none sm:text-[56px]">{course.icon}</div>
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl font-bold text-ink sm:text-[32px]">{course.title}</h1>
+          <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted sm:text-[15px]">{course.description}</p>
+          <p className="mt-2 text-[11.5px] capitalize text-muted-soft sm:text-[13px]">
             {course.difficulty} · {concepts.length} <L hi="concepts" en="concepts" />
-          </span>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Link
-              href={`/practice/${slug}`}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
-            >
+          </p>
+
+          <div className="mt-4 flex gap-2 overflow-x-auto pb-0.5 sm:mt-[18px]">
+            <Link href={`/practice/${slug}`} className="lv-pill border border-line bg-card text-ink-soft whitespace-nowrap">
               🧠 <L hi="Practice quiz" en="Practice quiz" />
             </Link>
-            <Link
-              href={`/mock-interview/${slug}`}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
-            >
+            <Link href={`/mock-interview/${slug}`} className="lv-pill border border-line bg-card text-ink-soft whitespace-nowrap">
               🎤 <L hi="Mock interview" en="Mock interview" />
             </Link>
-            <Link
-              href={`/courses/${slug}/discuss`}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
-            >
+            <Link href={`/courses/${slug}/discuss`} className="lv-pill border border-line bg-card text-ink-soft whitespace-nowrap">
               💬 <L hi="Discussion board" en="Discussion board" />
             </Link>
           </div>
         </div>
       </div>
 
-      <div className="mt-10 space-y-12">
-        {topics.length === 0 && (
-          <p className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
-            <L hi="Is course mein abhi koi topic add nahi hua." en="No topics added to this course yet." />
-          </p>
-        )}
-        {LEVELS.map((lvl) => {
-          const levelTopics = topicsByLevel[lvl.key] || [];
-          if (levelTopics.length === 0) return null;
-          return (
-            <div key={lvl.key}>
-              <div className="mb-5 flex items-center gap-2">
-                <span className="text-2xl">{lvl.icon}</span>
-                <h2 className="text-2xl font-bold">{lvl.label}</h2>
-                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-500">
-                  {levelTopics.length} <L hi="topics" en="topics" />
-                </span>
-              </div>
-              <div className="space-y-8">
-                {levelTopics.map((t) => {
-                  const list = conceptsByTopic[t._id.toString()] || [];
-                  return (
-                    <section key={t._id.toString()}>
-                      <h3 className="text-lg font-semibold">{t.title}</h3>
-                      {t.description && (
-                        <p className="mt-1 text-sm text-slate-500">{t.description}</p>
-                      )}
-                      <div className="mt-3 divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200">
-                        {list.length === 0 && (
-                          <p className="p-4 text-sm text-slate-400"><L hi="Jald aa raha hai…" en="Coming soon…" /></p>
-                        )}
-                        {list.map((c, i) => (
-                          <Link
-                            key={c._id.toString()}
-                            href={`/concepts/${c.slug}`}
-                            className="flex items-center justify-between px-4 py-3.5 transition hover:bg-slate-50"
-                          >
-                            <span className="flex items-center gap-3">
-                              <span className="grid h-7 w-7 place-items-center rounded-full bg-slate-100 text-xs font-medium text-slate-500">
-                                {i + 1}
-                              </span>
-                              <span className="font-medium">{c.title}</span>
-                            </span>
-                            <span className="text-xs capitalize text-slate-400">{c.difficulty}</span>
-                          </Link>
-                        ))}
-                      </div>
-                    </section>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      {levels.length === 0 ? (
+        <p className="mt-10 rounded-2xl border border-dashed border-line p-8 text-center text-muted">
+          <L hi="Is course mein abhi koi topic add nahi hua." en="No topics added to this course yet." />
+        </p>
+      ) : (
+        <CourseDetailBody courseId={course._id.toString()} totalConcepts={concepts.length} levels={levels} />
+      )}
     </div>
   );
 }

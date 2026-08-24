@@ -41,8 +41,8 @@ export default function BookmarkButton({ conceptId }) {
       title={bookmarked ? 'Remove bookmark' : 'Bookmark this concept'}
       className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition disabled:opacity-50 ${
         bookmarked
-          ? 'border-indigo-200 bg-indigo-50 text-indigo-600'
-          : 'border-slate-200 text-slate-500 hover:bg-slate-50'
+          ? 'border-brand-tint-2 bg-brand-tint text-brand-dark'
+          : 'border-line text-muted hover:bg-brand-tint/40'
       }`}
     >
       <span>{bookmarked ? '🔖' : '🏷️'}</span>

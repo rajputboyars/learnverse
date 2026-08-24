@@ -6,6 +6,28 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
 
+const AVATAR_TINTS = ['bg-violet-tint', 'bg-amber-tint', 'bg-accent-green-tint', 'bg-brand-tint'];
+
+function UpvoteIcon({ className = '' }) {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <path d="M12 6.4a1 1 0 01.75.34l6 6.86A1 1 0 0118 15.2H6a1 1 0 01-.75-1.6l6-6.86A1 1 0 0112 6.4z" />
+    </svg>
+  );
+}
+
+function timeAgo(date) {
+  const min = Math.floor((Date.now() - new Date(date).getTime()) / 60000);
+  if (min < 1) return 'just now';
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  if (day === 1) return 'Yesterday';
+  if (day < 30) return `${day} days ago`;
+  return new Date(date).toLocaleDateString();
+}
+
 export default function ThreadPage() {
   const { slug, id } = useParams();
   const router = useRouter();
@@ -16,9 +38,14 @@ export default function ThreadPage() {
   const [busy, setBusy] = useState(false);
 
   async function load() {
-    const res = await fetch(`/api/discussions/${id}`);
-    if (res.status === 404) { setData('missing'); return; }
-    setData(await res.json());
+    try {
+      const res = await fetch(`/api/discussions/${id}`);
+      if (!res.ok) { setData('missing'); return; }
+      setData(await res.json());
+    } catch {
+      // Never leave the page stuck on "Loading…" if the API errors out.
+      setData('missing');
+    }
   }
   useEffect(() => { load(); }, [id]);
 
@@ -48,12 +75,14 @@ export default function ThreadPage() {
     }
   }
 
-  if (!data) return <p className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12 text-slate-400">Loading…</p>;
+  if (!data) return <p className="mx-auto w-full max-w-[760px] px-4 sm:px-6 lg:px-8 py-12 text-muted">Loading…</p>;
   if (data === 'missing') {
     return (
-      <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-20 text-center">
-        <p className="text-slate-500">{pick('Thread nahi mila ya delete ho gaya.', 'Thread not found or deleted.')}</p>
-        <Link href={`/courses/${slug}/discuss`} className="mt-4 inline-block font-semibold text-indigo-600 underline">{pick('Discussions pe wapas', 'Back to discussions')}</Link>
+      <div className="mx-auto w-full max-w-[760px] px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <p className="text-muted">{pick('Thread nahi mila ya delete ho gaya.', 'Thread not found or deleted.')}</p>
+        <Link href={`/courses/${slug}/discuss`} className="mt-4 inline-block font-bold text-brand underline">
+          {pick('Discussions pe wapas', 'Back to discussions')}
+        </Link>
       </div>
     );
   }
@@ -61,43 +90,91 @@ export default function ThreadPage() {
   const { thread, replies, isAdmin } = data;
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
-      <Link href={`/courses/${slug}/discuss`} className="text-sm text-slate-500 hover:text-indigo-600">← {pick('Saari discussions', 'All discussions')}</Link>
+    <div className="mx-auto w-full max-w-[760px] px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
+      <Link href={`/courses/${slug}/discuss`} className="text-[13.5px] font-semibold text-muted hover:text-brand">
+        ← {pick('Saari discussions', 'All discussions')}
+      </Link>
 
-      <div className="mt-3 rounded-2xl border border-slate-200 bg-white p-5">
-        <h1 className="text-xl font-bold">{thread.title}</h1>
-        <p className="prose-content mt-2 text-sm text-slate-700">{thread.body}</p>
-        <div className="mt-3 flex items-center gap-4 text-xs text-slate-400">
-          <span className="font-medium text-slate-600">{thread.userName}</span>
-          <span>{new Date(thread.createdAt).toLocaleDateString()}</span>
-          <button onClick={() => vote(thread._id)} className={thread.voted ? 'font-semibold text-indigo-600' : 'hover:text-indigo-600'}>▲ {thread.votes}</button>
-          {(thread.mine || isAdmin) && <button onClick={() => remove(thread._id, true)} className="text-red-400 hover:text-red-600">{pick('Delete', 'Delete')}</button>}
-        </div>
-      </div>
+      {/* Thread */}
+      <div className="lv-card mt-3 px-[22px] py-5">
+        <div className="flex gap-3.5">
+          <button
+            onClick={() => vote(thread._id)}
+            className={`flex w-9 shrink-0 flex-col items-center gap-0.5 ${thread.voted ? 'text-brand' : 'text-muted hover:text-brand'}`}
+          >
+            <UpvoteIcon />
+            <span className="text-[13px] font-bold">{thread.votes}</span>
+          </button>
 
-      <h2 className="mt-8 text-sm font-semibold uppercase tracking-wide text-slate-400">{replies.length} {pick('replies', 'replies')}</h2>
-      <div className="mt-3 space-y-3">
-        {replies.map((r) => (
-          <div key={r._id} className="rounded-2xl border border-slate-200 bg-white p-4">
-            <p className="prose-content text-sm text-slate-700">{r.body}</p>
-            <div className="mt-2 flex items-center gap-4 text-xs text-slate-400">
-              <span className="font-medium text-slate-600">{r.userName}</span>
-              <span>{new Date(r.createdAt).toLocaleDateString()}</span>
-              <button onClick={() => vote(r._id)} className={r.voted ? 'font-semibold text-indigo-600' : 'hover:text-indigo-600'}>▲ {r.votes}</button>
-              {(r.mine || isAdmin) && <button onClick={() => remove(r._id, false)} className="text-red-400 hover:text-red-600">{pick('Delete', 'Delete')}</button>}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <span className="h-[30px] w-[30px] shrink-0 rounded-full bg-brand-tint" />
+                <span className="truncate text-sm font-bold text-ink">{thread.userName}</span>
+              </div>
+              <span className="shrink-0 text-xs text-muted-soft">{timeAgo(thread.createdAt)}</span>
             </div>
+            <h1 className="mt-2.5 text-xl font-bold text-ink">{thread.title}</h1>
+            <p className="prose-content mt-2 text-[14.5px] leading-relaxed text-ink-soft">{thread.body}</p>
+            {(thread.mine || isAdmin) && (
+              <button onClick={() => remove(thread._id, true)} className="mt-2.5 text-xs text-red-400 hover:text-red-600">
+                {pick('Delete', 'Delete')}
+              </button>
+            )}
           </div>
-        ))}
+        </div>
+
+        {/* Replies — nested under the thread, matching the design */}
+        {replies.length > 0 && (
+          <div className="ml-[31px] mt-3.5 flex flex-col gap-4 border-l-2 border-line-soft pl-4">
+            {replies.map((r, i) => (
+              <div key={r._id}>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <span className={`h-[26px] w-[26px] shrink-0 rounded-full ${AVATAR_TINTS[i % AVATAR_TINTS.length]}`} />
+                    <span className="truncate text-[13px] font-bold text-ink">{r.userName}</span>
+                  </div>
+                  <span className="shrink-0 text-[11.5px] text-muted-soft">{timeAgo(r.createdAt)}</span>
+                </div>
+                <p className="prose-content mt-1.5 text-[13.5px] leading-relaxed text-ink-soft">{r.body}</p>
+                <div className="mt-1.5 flex items-center gap-4 text-xs">
+                  <button
+                    onClick={() => vote(r._id)}
+                    className={`inline-flex items-center gap-1 ${r.voted ? 'font-bold text-brand' : 'text-muted hover:text-brand'}`}
+                  >
+                    ▲ {r.votes}
+                  </button>
+                  {(r.mine || isAdmin) && (
+                    <button onClick={() => remove(r._id, false)} className="text-red-400 hover:text-red-600">
+                      {pick('Delete', 'Delete')}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+
+      <h2 className="mt-7 text-[11.5px] font-bold uppercase tracking-wide text-muted">
+        {replies.length} {pick('replies', 'replies')}
+      </h2>
 
       {session?.user ? (
-        <form onSubmit={postReply} className="mt-6 flex gap-2">
-          <input value={reply} onChange={(e) => setReply(e.target.value)} placeholder={pick('Reply likho…', 'Write a reply…')} className="flex-1 rounded-lg border border-slate-200 px-4 py-2.5 outline-none focus:border-indigo-400" />
-          <button disabled={busy} className="rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white hover:bg-indigo-700 disabled:opacity-50">{pick('Reply', 'Reply')}</button>
+        <form onSubmit={postReply} className="mt-3 flex gap-2">
+          <input
+            value={reply}
+            onChange={(e) => setReply(e.target.value)}
+            placeholder={pick('Reply likho…', 'Write a reply…')}
+            className="flex-1 rounded-xl border border-line bg-card px-4 py-2.5 text-ink outline-none focus:border-brand"
+          />
+          <button disabled={busy} className="lv-btn lv-btn-primary py-2.5 text-sm disabled:opacity-50">
+            {pick('Reply', 'Reply')}
+          </button>
         </form>
       ) : (
-        <p className="mt-6 rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-          <Link href="/login" className="font-semibold text-indigo-600 underline">Login</Link>{' '}
+        <p className="mt-3 rounded-xl bg-line-soft px-4 py-3 text-sm text-ink-soft">
+          <Link href="/login" className="font-bold text-brand underline">Login</Link>{' '}
           {pick('karke reply karo.', 'to reply.')}
         </p>
       )}

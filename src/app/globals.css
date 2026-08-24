@@ -6,11 +6,57 @@
 :root {
   --background: #ffffff;
   --foreground: #0f172a;
+
+  /* Redesign tokens (see the "Learnverse Redesign" design canvas / style guide).
+   * Warm paper/ink pair instead of pure white/slate; card stays white so
+   * content surfaces still pop off the page background. */
+  --paper: #fbfaf8;
+  --card: #ffffff;
+  --ink: #0b1120;
+  --ink-soft: #334155;
+  --muted: #64748b;
+  --muted-soft: #94a3b8;
+  --line: #e6e4e0;
+  --line-soft: #f1f0ed;
+  --brand-tint: #eef2ff;
+  --brand-tint-2: #e0e7ff;
+  --amber-ink: #b45309;
+  --amber-tint: #fffbeb;
+  --amber-tint-2: #fef3c7;
+  --violet: #8b5cf6;
+  --violet-ink: #6d28d9;
+  --violet-tint: #f5f3ff;
+  --accent-green: #10b981;
+  --accent-green-ink: #047857;
+  --accent-green-tint: #ecfdf5;
+  --dark-card: #131b2e;
 }
 
 .dark {
   --background: #0b1120;
   --foreground: #e2e8f0;
+
+  /* Same tokens, flipped for dark mode. Values match the existing
+   * .dark surface remaps below so the two systems stay consistent. */
+  --paper: #0b1120;
+  --card: #131b2e;
+  --ink: #e2e8f0;
+  --ink-soft: #cbd5e1;
+  --muted: #94a3b8;
+  --muted-soft: #64748b;
+  --line: #1f2937;
+  --line-soft: #1e293b;
+  --brand-tint: #1e1b4b;
+  --brand-tint-2: #312e81;
+  --amber-ink: #fcd9a8;
+  --amber-tint: #422006;
+  --amber-tint-2: #78350f;
+  --violet: #a78bfa;
+  --violet-ink: #c4b5fd;
+  --violet-tint: #2e1065;
+  --accent-green: #34d399;
+  --accent-green-ink: #6ee7b7;
+  --accent-green-tint: #052e1a;
 }
 
 @theme inline {
@@ -20,13 +66,102 @@
   --color-brand-dark: #4338ca;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-space-grotesk);
+
+  /* Redesign tokens exposed as Tailwind utilities:
+   * bg-paper, text-ink, border-line, bg-brand-tint, bg-violet, etc. */
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-muted: var(--muted);
+  --color-muted-soft: var(--muted-soft);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-brand-tint: var(--brand-tint);
+  --color-brand-tint-2: var(--brand-tint-2);
+  --color-amber-ink: var(--amber-ink);
+  --color-amber-tint: var(--amber-tint);
+  --color-amber-tint-2: var(--amber-tint-2);
+  --color-violet: var(--violet);
+  --color-violet-ink: var(--violet-ink);
+  --color-violet-tint: var(--violet-tint);
+  --color-accent-green: var(--accent-green);
+  --color-accent-green-ink: var(--accent-green-ink);
+  --color-accent-green-tint: var(--accent-green-tint);
+  --color-dark-card: var(--dark-card);
+}
+
+/* Display headings use Space Grotesk (the redesign's type system);
+ * body text stays on Geist. Applied globally so pages pick up the new
+ * type scale without touching every component's className. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-space-grotesk), var(--font-geist-sans), system-ui, sans-serif;
+  letter-spacing: -0.01em;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--paper);
+  color: var(--ink);
   font-family: var(--font-sans), system-ui, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Redesign components (ported from the "Learnverse Redesign" style guide).
+ * Prefixed lv- to stay out of the way of Tailwind's own utility names.
+ * Wrapped in the `components` layer (Tailwind's default layer order is
+ * theme, base, components, utilities) so a plain Tailwind utility class
+ * placed alongside one of these — e.g. `hover:border-brand/40` on an
+ * `.lv-card` — still wins the cascade instead of losing to this file's
+ * unlayered CSS, which always outranks layered rules regardless of order. */
+@layer components {
+  .lv-card {
+    background: var(--color-card);
+    border: 1px solid var(--color-line);
+    border-radius: 1.5rem; /* 24px */
+  }
+
+  .lv-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.875rem; /* 14px */
+    padding: 0.875rem 1.625rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    border: none;
+  }
+  .lv-btn-primary {
+    background: var(--color-brand);
+    color: #fff;
+    box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.55);
+  }
+  .lv-btn-amber {
+    background: #f59e0b;
+    color: #fff;
+    box-shadow: 0 8px 20px -6px rgba(245, 158, 11, 0.55);
+  }
+  .lv-btn-ghost {
+    background: var(--color-card);
+    color: var(--color-ink);
+    border: 1.5px solid var(--color-line);
+  }
+
+  .lv-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 9999px;
+    padding: 0.375rem 0.875rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
 }
 
 /* Readable long-form content (concept explanations) */
@@ -45,7 +180,7 @@ body {
  * border-slate-*). Rather than editing every component, remap those common
  * surfaces under .dark. Two-class selectors beat single-class utilities.
  */
-.dark body { background: var(--background); color: var(--foreground); }
+.dark body { background: var(--paper); color: var(--ink); }
 .dark .bg-white { background-color: #111827 !important; }
 .dark .bg-slate-50 { background-color: #0f172a !important; }
 .dark .bg-slate-100 { background-color: #1e293b !important; }
@@ -66,6 +201,21 @@ body {
 .dark .text-slate-400 { color: #64748b !important; }
 .dark .text-amber-900 { color: #fcd9a8 !important; }
 .dark .bg-white\/80 { background-color: rgba(17, 24, 39, 0.85) !important; }
+
+/*
+ * The resume A4 preview is a document, not app chrome — it represents a
+ * printed sheet of paper and must stay light in dark mode (and when printed).
+ * The broad `.dark .bg-white` / `.dark .text-slate-*` remaps above would
+ * otherwise turn the "paper" dark, so undo them inside the preview only.
+ */
+.dark .resume-preview,
+.dark .resume-preview .bg-white { background-color: #ffffff !important; }
+.dark .resume-preview .text-slate-900 { color: #0f172a !important; }
+.dark .resume-preview .text-slate-800 { color: #1e293b !important; }
+.dark .resume-preview .text-slate-700 { color: #334155 !important; }
+.dark .resume-preview .text-slate-600 { color: #475569 !important; }
+.dark .resume-preview .text-slate-500 { color: #64748b !important; }
+.dark .resume-preview .text-slate-400 { color: #94a3b8 !important; }
 
 /* Print: hide site chrome so certificates print cleanly */
 @media print {
