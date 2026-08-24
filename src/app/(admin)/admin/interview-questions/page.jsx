@@ -19,9 +19,12 @@ export default function AdminInterviewQuestionsPage() {
   const [msg, setMsg] = useState('');
 
   async function load() {
+    // Both endpoints return a non-array { error } payload when the DB is down.
+    const safeJson = (url) =>
+      fetch(url).then((r) => r.json()).catch(() => null);
     const [cs, qs] = await Promise.all([
-      fetch('/api/courses?all=1').then((r) => r.json()),
-      fetch('/api/interview-questions').then((r) => r.json()),
+      safeJson('/api/courses?all=1'),
+      safeJson('/api/interview-questions'),
     ]);
     setCourses(Array.isArray(cs) ? cs : []);
     setQuestions(Array.isArray(qs) ? qs : []);
@@ -58,13 +61,13 @@ export default function AdminInterviewQuestionsPage() {
     if (res.ok) load();
   }
 
-  const input = 'w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-indigo-400';
+  const input = 'w-full rounded-xl border border-line bg-card px-3 py-2 text-ink outline-none focus:border-brand';
 
   return (
     <div className="max-w-3xl">
       <h1 className="text-2xl font-bold">Interview Questions</h1>
 
-      <form onSubmit={add} className="mt-6 space-y-3 rounded-2xl border border-slate-200 p-5">
+      <form onSubmit={add} className="lv-card mt-6 space-y-3 p-5">
         <h2 className="font-semibold">Add a question</h2>
         {msg && <p className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">{msg}</p>}
         <div className="grid gap-3 sm:grid-cols-2">
@@ -87,18 +90,18 @@ export default function AdminInterviewQuestionsPage() {
         <input value={form.question} onChange={(e) => setForm({ ...form, question: e.target.value })} placeholder="Question" className={input} />
         <textarea rows={3} value={form.answer.english} onChange={(e) => setForm({ ...form, answer: { ...form.answer, english: e.target.value } })} placeholder="Answer (English)" className={input} />
         <textarea rows={3} value={form.answer.hinglish} onChange={(e) => setForm({ ...form, answer: { ...form.answer, hinglish: e.target.value } })} placeholder="Answer (Hinglish)" className={input} />
-        <button disabled={busy} className="rounded-lg bg-indigo-600 px-5 py-2 font-semibold text-white hover:bg-indigo-700 disabled:opacity-50">
+        <button disabled={busy} className="lv-btn lv-btn-primary py-2 text-sm disabled:opacity-50">
           {busy ? 'Adding…' : 'Add question'}
         </button>
       </form>
 
-      <p className="mt-8 text-sm text-slate-500">{questions.length} questions</p>
-      <div className="mt-3 divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200">
+      <p className="mt-8 text-sm text-muted">{questions.length} questions</p>
+      <div className="lv-card mt-3 divide-y divide-line-soft overflow-hidden">
         {questions.map((q) => (
           <div key={q._id} className="flex items-start justify-between gap-3 px-4 py-3">
             <div>
               <p className="font-medium">{q.question}</p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-muted-soft">
                 {q.courseId && courseById[q.courseId] ? courseById[q.courseId].title : 'No course'} · {q.difficulty}
               </p>
             </div>

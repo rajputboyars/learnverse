@@ -27,11 +27,11 @@ export default async function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Dashboard</h1>
-      <p className="mt-1 text-slate-500">Content overview.</p>
+      <h1 className="text-2xl font-bold text-ink">Dashboard</h1>
+      <p className="mt-1 text-muted">Content overview.</p>
 
       {!counts ? (
-        <p className="mt-6 rounded-xl bg-red-50 p-4 text-sm text-red-600">
+        <p className="mt-6 rounded-2xl bg-red-50 p-4 text-sm text-red-600">
           Could not connect to the database. Check MONGODB_URI in .env.local.
         </p>
       ) : (
@@ -43,19 +43,19 @@ export default async function AdminDashboard() {
             { label: 'Interview Qs', value: counts.questions },
             { label: 'Users', value: counts.users },
           ].map((c) => (
-            <div key={c.label} className="rounded-2xl border border-slate-200 p-5">
-              <p className="text-sm text-slate-500">{c.label}</p>
-              <p className="mt-1 text-3xl font-bold">{c.value}</p>
+            <div key={c.label} className="lv-card p-5">
+              <p className="text-sm text-muted">{c.label}</p>
+              <p className="mt-1 text-3xl font-bold text-ink">{c.value.toLocaleString()}</p>
             </div>
           ))}
         </div>
       )}
 
       <div className="mt-8 flex gap-3">
-        <Link href="/admin/concepts/new" className="rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white hover:bg-indigo-700">
+        <Link href="/admin/concepts/new" className="lv-btn lv-btn-primary">
           + Add concept
         </Link>
-        <Link href="/admin/courses" className="rounded-lg border border-slate-200 px-5 py-2.5 font-semibold hover:bg-slate-50">
+        <Link href="/admin/courses" className="lv-btn lv-btn-ghost">
           Manage courses
         </Link>
       </div>

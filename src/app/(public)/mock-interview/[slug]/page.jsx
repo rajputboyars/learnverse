@@ -2,17 +2,32 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
+
+const DIFFICULTY_LABEL = { easy: 'Beginner', medium: 'Intermediate', hard: 'Advanced' };
+
+function MicIcon() {
+  return (
+    <svg className="relative h-7 w-7" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4Z" />
+      <path fillRule="evenodd" d="M4 11a1 1 0 0 1 2 0 6 6 0 0 0 12 0 1 1 0 1 1 2 0 8 8 0 0 1-7 7.93V21h2a1 1 0 1 1 0 2H9a1 1 0 1 1 0-2h2v-2.07A8 8 0 0 1 4 11Z" clipRule="evenodd" />
+    </svg>
+  );
+}
 
 export default function MockInterviewPage() {
   const { slug } = useParams();
   const { lang: uiLang, pick } = useLang();
+  const { data: session, status: authStatus } = useSession();
 
   const [data, setData]         = useState(null);
   const [idx, setIdx]           = useState(0);
   const [score, setScore]       = useState(0);
   const [finished, setFinished] = useState(false);
+  const [baselineXP, setBaselineXP] = useState(null);
+  const [xpEarned, setXpEarned] = useState(0);
 
   // Answer inputs
   const [userText, setUserText]     = useState('');
@@ -35,7 +50,7 @@ export default function MockInterviewPage() {
   }
 
   function load() {
-    setData(null); setIdx(0); setScore(0); setFinished(false); resetAnswer();
+    setData(null); setIdx(0); setScore(0); setFinished(false); setXpEarned(0); resetAnswer();
     fetch(`/api/mock-interview?courseSlug=${slug}`)
       .then((r) => r.json())
       .then(setData)
@@ -43,6 +58,14 @@ export default function MockInterviewPage() {
   }
 
   useEffect(() => { load(); }, [slug]);
+
+  useEffect(() => {
+    if (authStatus !== 'authenticated') return;
+    fetch('/api/me/stats')
+      .then((r) => r.json())
+      .then((d) => setBaselineXP(d.totalXP ?? 0))
+      .catch(() => {});
+  }, [authStatus]);
 
   /* ── Voice recording ───────────────────────────────────────────── */
   async function startRecording() {
@@ -78,8 +101,22 @@ export default function MockInterviewPage() {
     setShowModal(true);
   }
 
-  function rate(got) {
-    if (got) setScore((s) => s + 1);
+  async function rate(got) {
+    if (got) {
+      setScore((s) => s + 1);
+      const q = data.questions[idx];
+      if (q.conceptId && authStatus === 'authenticated') {
+        try {
+          const res = await fetch('/api/mock-interview', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ conceptId: q.conceptId }),
+          });
+          const reward = await res.json();
+          if (res.ok && reward.gained) setXpEarned((x) => x + reward.gained);
+        } catch {}
+      }
+    }
     setShowModal(false);
     const isLast = idx + 1 >= (data?.questions?.length || 0);
     if (isLast) { setFinished(true); return; }
@@ -90,7 +127,7 @@ export default function MockInterviewPage() {
   /* ── Loading / empty states ────────────────────────────────────── */
   if (!data) {
     return (
-      <p className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-16 text-slate-400">
+      <p className="mx-auto w-full max-w-[820px] px-4 sm:px-6 lg:px-8 py-16 text-muted">
         {pick('Questions load ho rahe hain…', 'Loading questions…')}
       </p>
     );
@@ -100,19 +137,16 @@ export default function MockInterviewPage() {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <p className="text-4xl">🎤</p>
-        <h1 className="mt-4 text-2xl font-bold">
+        <h1 className="mt-4 text-2xl font-bold text-ink">
           {pick('Mock Interview', 'Mock Interview')}
         </h1>
-        <p className="mt-2 text-slate-600">
+        <p className="mt-2 text-muted">
           {pick(
             'Is course ke liye abhi interview questions nahi hain.',
             'No interview questions for this course yet.',
           )}
         </p>
-        <Link
-          href={`/courses/${slug}`}
-          className="mt-6 inline-block font-semibold text-indigo-600 underline"
-        >
+        <Link href={`/courses/${slug}`} className="mt-6 inline-block font-bold text-brand underline">
           {pick('Course pe wapas', 'Back to course')}
         </Link>
       </div>
@@ -123,37 +157,48 @@ export default function MockInterviewPage() {
   if (finished) {
     const pct = Math.round((score / data.questions.length) * 100);
     return (
-      <div className="mx-auto max-w-md px-4 py-16 text-center">
-        <p className="text-5xl">🎤</p>
-        <h1 className="mt-4 text-3xl font-bold">
+      <div className="mx-auto max-w-[460px] px-4 py-16 text-center">
+        <p className="text-[52px] leading-none">🎤</p>
+        <h1 className="mt-3.5 text-[44px] font-bold text-ink">
           {score} / {data.questions.length}
         </h1>
-        <p className="mt-1 text-slate-600">
+        <p className="mt-1 text-[15px] text-muted">
           {pick('confidently answer kiye', 'confidently answered')}
         </p>
-        <div className="mx-auto mt-4 h-3 w-48 overflow-hidden rounded-full bg-slate-100">
-          <div
-            className="h-full rounded-full bg-indigo-600 transition-all"
-            style={{ width: `${pct}%` }}
-          />
+        <div className="mx-auto mt-[18px] h-2.5 w-[220px] overflow-hidden rounded-full bg-line-soft">
+          <div className="h-full rounded-full bg-brand transition-all" style={{ width: `${pct}%` }} />
         </div>
-        <p className="mt-3 text-sm text-slate-500">
+
+        {xpEarned > 0 && (
+          <div
+            className="mt-6 flex items-center gap-3.5 rounded-2xl p-5 text-left"
+            style={{ background: 'linear-gradient(120deg,var(--color-violet),#a855f7)' }}
+          >
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="#fff" className="shrink-0">
+              <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" />
+            </svg>
+            <div>
+              <div className="text-[17px] font-bold text-white">+{xpEarned} XP {pick('mile', 'earned')}</div>
+              {baselineXP !== null && (
+                <div className="mt-0.5 text-[12.5px] text-violet-100">
+                  {baselineXP} → {baselineXP + xpEarned} {pick('total XP', 'total XP')}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <p className="mt-6 text-[13.5px] leading-relaxed text-muted">
           {pick(
             'Jo "needs work" the, unke concepts dobara padho aur retry karo.',
             'Re-read the concepts you marked "needs work" and retry.',
           )}
         </p>
-        <div className="mt-6 flex justify-center gap-3">
-          <button
-            onClick={load}
-            className="rounded-xl bg-indigo-600 px-5 py-2.5 font-semibold text-white hover:bg-indigo-700"
-          >
+        <div className="mt-6 flex gap-3">
+          <button onClick={load} className="lv-btn lv-btn-primary flex-1 justify-center">
             {pick('Retry', 'Retry')}
           </button>
-          <Link
-            href={`/courses/${slug}`}
-            className="rounded-xl border border-slate-200 px-5 py-2.5 font-semibold hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
-          >
+          <Link href={`/courses/${slug}`} className="lv-btn lv-btn-ghost flex-1 justify-center">
             {pick('Course pe wapas', 'Back to course')}
           </Link>
         </div>
@@ -164,38 +209,31 @@ export default function MockInterviewPage() {
   /* ── Main interview UI ─────────────────────────────────────────── */
   const q = data.questions[idx];
   const modelAnswer = (uiLang === 'hi' && q.hinglish) ? q.hinglish : q.english;
-  const hasAnswer = userText.trim() || audioURL;
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
+    <div className="mx-auto w-full max-w-[820px] px-4 py-10 sm:px-6 lg:px-8 lg:py-11">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between gap-2">
-        <h1 className="text-xl font-bold">
-          🎤 {data.course?.icon} {data.course?.title} —{' '}
-          {pick('Mock Interview', 'Mock Interview')}
+      <div className="flex items-center justify-between gap-2">
+        <h1 className="text-[19px] font-bold text-ink sm:text-[22px]">
+          🎤 {data.course?.icon} {data.course?.title} — {pick('Mock Interview', 'Mock Interview')}
         </h1>
-        <span className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+        <span className="lv-pill shrink-0 bg-line-soft text-ink-soft">
           {idx + 1} / {data.questions.length}
         </span>
       </div>
 
       {/* Progress bar */}
-      <div className="mb-6 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-        <div
-          className="h-full rounded-full bg-indigo-600 transition-all"
-          style={{ width: `${((idx) / data.questions.length) * 100}%` }}
-        />
+      <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-line-soft">
+        <div className="h-full rounded-full bg-brand transition-all" style={{ width: `${(idx / data.questions.length) * 100}%` }} />
       </div>
 
       {/* Question card */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-900 sm:p-8">
-        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium capitalize text-slate-500 dark:bg-slate-800">
-          {q.difficulty}
-        </span>
-        <p className="mt-4 text-lg font-semibold text-slate-900 dark:text-slate-100">
+      <div className="lv-card mt-6 p-6 sm:p-[26px]">
+        <span className="lv-pill bg-amber-tint text-amber-ink">{DIFFICULTY_LABEL[q.difficulty] || q.difficulty}</span>
+        <h2 className="mt-4 text-[19px] font-bold leading-snug text-ink">
           {q.question}
-        </p>
-        <p className="mt-2 text-sm text-slate-500">
+        </h2>
+        <p className="mt-2 text-[13.5px] text-muted">
           {pick(
             'Pehle khud answer socho, phir record ya type karo aur submit karo.',
             'Think about the answer first, then record or type it and submit.',
@@ -203,11 +241,11 @@ export default function MockInterviewPage() {
         </p>
 
         {/* Answer inputs */}
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <div className="mt-[22px] grid gap-4 sm:grid-cols-2">
 
           {/* Voice recording */}
-          <div className="flex flex-col items-center justify-start rounded-xl border border-slate-200 p-5 dark:border-slate-700">
-            <p className="mb-4 text-xs font-bold uppercase tracking-wide text-slate-400">
+          <div className="flex flex-col items-center justify-start rounded-2xl border border-line p-5">
+            <p className="mb-4 text-[11px] font-bold uppercase tracking-wide text-muted">
               {pick('Voice Record', 'Voice Record')}
             </p>
 
@@ -216,32 +254,20 @@ export default function MockInterviewPage() {
               onClick={recording ? stopRecording : startRecording}
               aria-label={recording ? 'Stop recording' : 'Start recording'}
               className={`relative grid h-16 w-16 place-items-center rounded-full text-white transition focus:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 ${
-                recording
-                  ? 'bg-red-500 focus-visible:ring-red-400'
-                  : 'bg-indigo-600 hover:bg-indigo-700 focus-visible:ring-indigo-400'
+                recording ? 'bg-red-500 focus-visible:ring-red-400' : 'bg-brand hover:bg-brand-dark focus-visible:ring-brand-tint'
               }`}
             >
               {recording && (
                 <span className="absolute inset-0 animate-ping rounded-full bg-red-400 opacity-60" />
               )}
               {recording ? (
-                /* Stop square */
                 <span className="relative h-5 w-5 rounded-sm bg-white" />
               ) : (
-                /* Mic icon */
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="relative h-7 w-7"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4Z" />
-                  <path fillRule="evenodd" d="M4 11a1 1 0 0 1 2 0 6 6 0 0 0 12 0 1 1 0 1 1 2 0 8 8 0 0 1-7 7.93V21h2a1 1 0 1 1 0 2H9a1 1 0 1 1 0-2h2v-2.07A8 8 0 0 1 4 11Z" clipRule="evenodd" />
-                </svg>
+                <MicIcon />
               )}
             </button>
 
-            <p className="mt-3 text-xs text-slate-500">
+            <p className="mt-3 text-xs text-muted">
               {recording
                 ? pick('Recording… ruk ke stop karo', 'Recording… tap to stop')
                 : audioURL
@@ -255,8 +281,8 @@ export default function MockInterviewPage() {
           </div>
 
           {/* Text input */}
-          <div className="flex flex-col rounded-xl border border-slate-200 p-4 dark:border-slate-700">
-            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">
+          <div className="flex flex-col rounded-2xl border border-line p-[18px]">
+            <p className="mb-2.5 text-[11px] font-bold uppercase tracking-wide text-muted">
               {pick('Type Answer', 'Type Answer')}
             </p>
             <textarea
@@ -264,7 +290,7 @@ export default function MockInterviewPage() {
               onChange={(e) => setUserText(e.target.value)}
               placeholder={pick('Yahan apna answer likho…', 'Type your answer here…')}
               rows={6}
-              className="flex-1 resize-none rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-800 placeholder-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500"
+              className="flex-1 resize-none rounded-xl border border-line bg-line-soft p-3 text-sm text-ink placeholder-muted-soft focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand-tint"
             />
           </div>
         </div>
@@ -272,7 +298,7 @@ export default function MockInterviewPage() {
         {/* Submit */}
         <button
           onClick={handleSubmit}
-          className="mt-5 w-full rounded-xl bg-indigo-600 py-3.5 font-semibold text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-400 focus-visible:ring-offset-2"
+          className="lv-btn lv-btn-primary mt-5 w-full justify-center focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-tint focus-visible:ring-offset-2"
         >
           {pick('Submit & Model Answer Dekho', 'Submit & See Model Answer')}
         </button>
@@ -281,16 +307,17 @@ export default function MockInterviewPage() {
       {/* ── Reveal Modal ──────────────────────────────────────────── */}
       {showModal && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 sm:items-center"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/55 sm:items-center sm:p-4"
           onClick={(e) => e.target === e.currentTarget && setShowModal(false)}
         >
-          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl dark:bg-slate-900">
+          {/* Bottom sheet on mobile (flat bottom edge), centred dialog on desktop */}
+          <div className="lv-card w-full max-w-lg rounded-b-none shadow-2xl sm:rounded-b-3xl">
             {/* Modal header */}
-            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 dark:border-slate-800">
-              <h2 className="font-bold text-slate-900 dark:text-slate-100">
+            <div className="flex items-center justify-between border-b border-line-soft px-6 py-4">
+              <h2 className="font-bold text-ink">
                 {pick('Answer Reveal', 'Answer Reveal')}
               </h2>
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-muted">
                 Q {idx + 1} / {data.questions.length}
               </span>
             </div>
@@ -298,15 +325,15 @@ export default function MockInterviewPage() {
             <div className="max-h-[70vh] overflow-y-auto px-6 py-5">
               {/* User's answer */}
               {(userText.trim() || audioURL) && (
-                <div className="mb-4 rounded-xl bg-indigo-50 p-4 dark:bg-indigo-900/20">
-                  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
+                <div className="mb-4 rounded-2xl bg-brand-tint p-4">
+                  <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-brand-dark">
                     {pick('Aapka Jawab', 'Your Answer')}
                   </p>
                   {audioURL && (
                     <audio src={audioURL} controls className="mb-3 w-full" />
                   )}
                   {userText.trim() && (
-                    <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                    <p className="text-sm leading-relaxed text-ink-soft">
                       {userText}
                     </p>
                   )}
@@ -314,34 +341,28 @@ export default function MockInterviewPage() {
               )}
 
               {/* Model answer */}
-              <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800">
-                <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              <div className="rounded-2xl bg-line-soft p-4">
+                <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-muted">
                   {pick('Sahi Jawab', 'Model Answer')}
                 </p>
-                <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                <p className="text-sm leading-relaxed text-ink-soft">
                   {modelAnswer}
                 </p>
                 {uiLang !== 'hi' && q.hinglish && (
-                  <div className="mt-3 rounded-lg bg-amber-50 p-3 dark:bg-amber-900/20">
-                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-400">Hinglish</p>
-                    <p className="mt-1 text-sm text-amber-900 dark:text-amber-200">{q.hinglish}</p>
+                  <div className="mt-3 rounded-xl bg-amber-tint p-3">
+                    <p className="text-xs font-bold text-amber-ink">Hinglish</p>
+                    <p className="mt-1 text-sm text-ink-soft">{q.hinglish}</p>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Rate buttons */}
-            <div className="grid grid-cols-2 gap-3 border-t border-slate-100 px-6 py-4 dark:border-slate-800">
-              <button
-                onClick={() => rate(false)}
-                className="rounded-xl bg-amber-500 py-3 font-semibold text-white hover:bg-amber-600"
-              >
+            <div className="grid grid-cols-2 gap-3 border-t border-line-soft px-6 py-4">
+              <button onClick={() => rate(false)} className="lv-btn justify-center bg-amber-500 text-white">
                 {pick('Aur practice chahiye', 'Needs work')}
               </button>
-              <button
-                onClick={() => rate(true)}
-                className="rounded-xl bg-green-600 py-3 font-semibold text-white hover:bg-green-700"
-              >
+              <button onClick={() => rate(true)} className="lv-btn justify-center bg-accent-green text-white">
                 {pick('Aa gaya ✓', 'Got it ✓')}
               </button>
             </div>

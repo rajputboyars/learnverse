@@ -14,8 +14,8 @@ export default async function EditConceptPage({ params }) {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Edit concept</h1>
-      <p className="mt-1 text-slate-500">Update content, examples, code and quiz.</p>
+      <h1 className="text-2xl font-bold text-ink">Edit concept</h1>
+      <p className="mt-1 text-muted">Update content, examples, code and quiz.</p>
       <div className="mt-6">
         <ConceptForm initial={initial} conceptId={id} />
       </div>

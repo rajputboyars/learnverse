@@ -36,10 +36,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+      }
+      // Settings page calls update({ name, email }) after a successful save
+      // so the session (and Navbar etc.) reflect the change immediately,
+      // without forcing a re-login.
+      if (trigger === 'update' && session) {
+        if (session.name) token.name = session.name;
+        if (session.email) token.email = session.email;
       }
       return token;
     },
