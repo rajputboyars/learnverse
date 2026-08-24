@@ -15,7 +15,7 @@ export const course = {
   slug: 'computer-networks',
   description:
     'Networking fundamentals — OSI/TCP-IP model, TCP vs UDP, IP & DNS, HTTP/HTTPS aur "how the web works". Interview-ready, English + Hinglish, desi examples ke saath.',
-  icon: '🌐',
+  icon: 'globe',
   tags: ['computer-networks', 'cs-fundamentals', 'interview', 'http', 'tcp-ip'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

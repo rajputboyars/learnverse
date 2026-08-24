@@ -6,6 +6,7 @@ import Course from '@/models/Course';
 import InterviewQuestion from '@/models/InterviewQuestion';
 import ConceptReader from '@/components/concept/ConceptReader';
 import { SITE_URL } from '@/lib/site';
+import Icon from '@/components/Icon';
 
 export const revalidate = 3600;
 
@@ -127,7 +128,7 @@ export default async function ConceptPage({ params }) {
                 href={`/courses/${course.slug}`}
                 className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-indigo-600"
               >
-                <span>{course.icon}</span> {course.title}
+                <Icon name={course.icon} brand className="h-4 w-4" /> {course.title}
               </Link>
             )}
             <nav className="space-y-1 border-l border-slate-200 pl-3 text-sm">
@@ -157,7 +158,7 @@ export default async function ConceptPage({ params }) {
               href={`/courses/${course.slug}`}
               className="mb-4 inline-block text-sm text-slate-500 hover:text-indigo-600 lg:hidden"
             >
-              ← {course.title}
+              <Icon name="arrow-left" className="mr-1.5 h-3 w-3" />{course.title}
             </Link>
           )}
           <ConceptReader concept={concept} />

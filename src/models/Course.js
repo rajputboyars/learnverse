@@ -6,7 +6,7 @@ const CourseSchema = new mongoose.Schema(
     slug: { type: String, required: true, unique: true },
     description: { type: String, default: '' },
     thumbnail: { type: String, default: '' },
-    icon: { type: String, default: '📘' },
+    icon: { type: String, default: 'book' },
     tags: [{ type: String }],
     difficulty: {
       type: String,

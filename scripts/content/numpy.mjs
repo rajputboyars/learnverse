@@ -15,7 +15,7 @@ export const course = {
   slug: 'numpy',
   description:
     'Python ki numerical computing power — arrays, vectorization, broadcasting aur math. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '🔢',
+  icon: 'hashtag',
   tags: ['numpy', 'python', 'data-science', 'arrays'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

@@ -8,7 +8,7 @@ export function slugify(str) {
 export const course = {
   title: 'Claude AI',
   slug: 'claude-ai',
-  icon: '🧡',
+  icon: 'heart',
   description:
     'Master Anthropic\'s Claude — from conversational use to the API. Learn every plan tier, the full model family, 200K context, Projects, Artifacts, Extended Thinking, and prompt engineering with XML tags.',
   order: 35,

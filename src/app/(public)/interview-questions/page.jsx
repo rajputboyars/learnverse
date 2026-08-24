@@ -4,6 +4,7 @@ import InterviewQuestion from '@/models/InterviewQuestion';
 import Course from '@/models/Course';
 import L from '@/components/L';
 import InterviewQuestionsBrowser from '@/components/InterviewQuestionsBrowser';
+import Icon from '@/components/Icon';
 
 export const revalidate = 3600;
 
@@ -121,7 +122,7 @@ export default async function InterviewQuestionsPage({ searchParams }) {
                   className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-6 transition hover:border-indigo-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
                 >
                   {/* Icon */}
-                  <div className="text-5xl">{c.icon || '📘'}</div>
+                  <Icon name={c.icon || 'book'} brand className="h-12 w-12 text-indigo-600" />
 
                   {/* Title + count */}
                   <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-slate-100">
@@ -147,7 +148,7 @@ export default async function InterviewQuestionsPage({ searchParams }) {
                       href={`/mock-interview/${c.slug}`}
                       className="flex-1 rounded-xl border border-slate-200 py-2.5 text-center text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                     >
-                      🎤 Mock
+                      <Icon name="microphone" className="mr-1.5 h-3.5 w-3.5" />Mock
                     </Link>
                   </div>
                 </div>
@@ -167,14 +168,21 @@ export default async function InterviewQuestionsPage({ searchParams }) {
         href="/interview-questions"
         className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600"
       >
-        ← <L hi="Saare courses" en="All courses" />
+        <Icon name="arrow-left" className="h-3 w-3" /><L hi="Saare courses" en="All courses" />
       </Link>
 
       {/* Heading */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold">
-            {activeCourse ? `${activeCourse.icon} ${activeCourse.title}` : 'Interview Questions'}
+            {activeCourse ? (
+              <span className="flex items-center gap-3">
+                <Icon name={activeCourse.icon} brand className="h-7 w-7 text-indigo-600" />
+                {activeCourse.title}
+              </span>
+            ) : (
+              'Interview Questions'
+            )}
           </h1>
           <p className="mt-1 text-slate-600 dark:text-slate-400">
             <L
@@ -188,7 +196,7 @@ export default async function InterviewQuestionsPage({ searchParams }) {
             href={`/mock-interview/${activeCourse.slug}`}
             className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
           >
-            🎤 <L hi="Mock Interview Shuru Karo" en="Start Mock Interview" />
+            <Icon name="microphone" className="mr-1.5 h-3.5 w-3.5" /><L hi="Mock Interview Shuru Karo" en="Start Mock Interview" />
           </Link>
         )}
       </div>

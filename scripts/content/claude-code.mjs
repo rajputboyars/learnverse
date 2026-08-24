@@ -8,7 +8,7 @@ export function slugify(str) {
 export const course = {
   title: 'Claude Code',
   slug: 'claude-code',
-  icon: '🖥️',
+  icon: 'desktop',
   description:
     'Master Claude Code — Anthropic\'s agentic CLI that reads your files, edits code, runs commands, and integrates with git. Learn file operations, MCP servers, CLAUDE.md, slash commands, and autonomous task completion.',
   order: 36,

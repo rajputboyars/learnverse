@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Icon from '../Icon';
 
 export default function BookmarkButton({ conceptId }) {
   const { data: session } = useSession();
@@ -45,7 +46,7 @@ export default function BookmarkButton({ conceptId }) {
           : 'border-slate-200 text-slate-500 hover:bg-slate-50'
       }`}
     >
-      <span>{bookmarked ? '🔖' : '🏷️'}</span>
+      <Icon name={bookmarked ? 'bookmark' : 'tag'} className="h-4 w-4" />
       {bookmarked ? 'Bookmarked' : 'Bookmark'}
     </button>
   );

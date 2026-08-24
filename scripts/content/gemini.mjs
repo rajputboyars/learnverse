@@ -15,7 +15,7 @@ export const course = {
   slug: 'gemini',
   description:
     'Google Gemini ka complete guide — Flash/Pro/Ultra models, free vs Advanced ($20/mo) plans, Google Workspace integration (Gmail/Docs/Drive), Deep Research, aur Gemini API se apps banana — English aur Hinglish mein.',
-  icon: '✨',
+  icon: 'sparkles',
   tags: ['gemini', 'google', 'ai', 'vertex-ai', 'google-workspace'],
   difficulty: 'beginner',
   language: ['english', 'hinglish'],

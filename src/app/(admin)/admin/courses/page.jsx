@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { slugify } from '@/lib/slug';
+import Icon from '@/components/Icon';
 
 export default function AdminCoursesPage() {
   const [courses, setCourses] = useState([]);
   const [topicsByCourse, setTopicsByCourse] = useState({});
-  const [course, setCourse] = useState({ title: '', description: '', icon: '📘', difficulty: 'beginner', status: 'published' });
+  const [course, setCourse] = useState({ title: '', description: '', icon: 'book', difficulty: 'beginner', status: 'published' });
   const [busy, setBusy] = useState(false);
 
   async function load() {
@@ -33,7 +34,7 @@ export default function AdminCoursesPage() {
     });
     setBusy(false);
     if (res.ok) {
-      setCourse({ title: '', description: '', icon: '📘', difficulty: 'beginner', status: 'published' });
+      setCourse({ title: '', description: '', icon: 'book', difficulty: 'beginner', status: 'published' });
       load();
     } else {
       alert((await res.json()).error);
@@ -57,13 +58,19 @@ export default function AdminCoursesPage() {
 
       <form onSubmit={createCourse} className="mt-6 rounded-2xl border border-slate-200 p-5">
         <h2 className="font-semibold">New course</h2>
-        <div className="mt-3 grid gap-3 sm:grid-cols-[80px_1fr]">
-          <input
-            value={course.icon}
-            onChange={(e) => setCourse({ ...course, icon: e.target.value })}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-center"
-            placeholder="📘"
-          />
+        <div className="mt-3 grid gap-3 sm:grid-cols-[190px_1fr]">
+          {/* Icon name, not an emoji — see ICONS in src/lib/icons.js. Legacy
+              emoji still resolve, so old rows keep working. */}
+          <div className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2">
+            <Icon name={course.icon} brand className="h-4 w-4 shrink-0 text-slate-400" />
+            <input
+              value={course.icon}
+              onChange={(e) => setCourse({ ...course, icon: e.target.value })}
+              className="w-full min-w-0 bg-transparent outline-none"
+              placeholder="icon name"
+              title="FontAwesome icon name, e.g. javascript, docker, react, book"
+            />
+          </div>
           <input
             required
             value={course.title}
@@ -99,7 +106,7 @@ export default function AdminCoursesPage() {
         {courses.map((c) => (
           <div key={c._id} className="rounded-2xl border border-slate-200 p-5">
             <div className="flex items-center justify-between">
-              <span className="font-semibold">{c.icon} {c.title}</span>
+              <span className="flex items-center gap-2 font-semibold"><Icon name={c.icon} brand className="h-4 w-4" />{c.title}</span>
               <span className="text-xs text-slate-400">/{c.slug} · {c.status}</span>
             </div>
             <ul className="mt-3 space-y-1 text-sm text-slate-600">

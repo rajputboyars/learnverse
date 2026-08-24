@@ -9,6 +9,7 @@ import UserProgress from '@/models/UserProgress';
 import PrintButton from '@/components/PrintButton';
 import ShareButtons from '@/components/ShareButtons';
 import L from '@/components/L';
+import Icon from '@/components/Icon';
 
 export const dynamic = 'force-dynamic';
 
@@ -49,7 +50,7 @@ export default async function CertificatePage({ params }) {
     const pct = total ? Math.round((completed / total) * 100) : 0;
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold">{course.icon} {course.title}</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold"><Icon name={course.icon} brand className="h-6 w-6" />{course.title}</h1>
         <p className="mt-3 text-slate-600">
           <L hi="Certificate tab milega jab course 100% complete ho. Abhi " en="You’ll get the certificate when the course is 100% complete. Currently " /><b>{pct}%</b> ({completed}/{total}).
         </p>
@@ -91,7 +92,7 @@ export default async function CertificatePage({ params }) {
           <p className="mt-6 text-slate-500"><L hi="Ye certify karta hai ki" en="This certifies that" /></p>
           <h1 className="mt-2 text-3xl font-bold text-slate-800 sm:text-4xl">{session.user.name}</h1>
           <p className="mt-4 text-slate-500"><L hi="ne successfully ye course complete kiya" en="has successfully completed the course" /></p>
-          <h2 className="mt-2 text-2xl font-semibold text-indigo-700">{course.icon} {course.title}</h2>
+          <h2 className="mt-2 flex items-center justify-center gap-2 text-2xl font-semibold text-indigo-700"><Icon name={course.icon} brand className="h-6 w-6" />{course.title}</h2>
           <p className="mt-1 text-sm text-slate-500">{total} <L hi="concepts master kiye" en="concepts mastered" /></p>
 
           <div className="mt-10 flex items-end justify-between text-left text-xs text-slate-500">
@@ -107,7 +108,7 @@ export default async function CertificatePage({ params }) {
         </div>
       </div>
 
-      <div className="no-print"><ShareButtons title={`I completed ${course.title} on Learnverse!`} text={`I just earned my ${course.title} certificate on Learnverse 🎓`} /></div>
+      <div className="no-print"><ShareButtons title={`I completed ${course.title} on Learnverse!`} text={`I just earned my ${course.title} certificate on Learnverse`} /></div>
 
       <div className="no-print mt-2 flex flex-wrap items-center justify-center gap-3">
         <PrintButton />

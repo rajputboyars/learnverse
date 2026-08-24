@@ -15,7 +15,7 @@ export const course = {
   slug: 'dsa',
   description:
     'Data Structures & Algorithms — Big O se le kar arrays, linked lists, trees, graphs aur dynamic programming tak. Interview-ready, English + Hinglish, desi examples aur code ke saath.',
-  icon: '🧩',
+  icon: 'puzzle',
   tags: ['dsa', 'algorithms', 'data-structures', 'interview', 'problem-solving'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

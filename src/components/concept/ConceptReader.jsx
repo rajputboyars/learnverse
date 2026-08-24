@@ -11,6 +11,7 @@ import Reactions from './Reactions';
 import ShareButtons from '../ShareButtons';
 import Quiz from './Quiz';
 import { useLang } from '../LanguageProvider';
+import Icon from '../Icon';
 
 const RUNNABLE = new Set(['javascript', 'html']);
 
@@ -61,7 +62,7 @@ export default function ConceptReader({ concept }) {
     if (res.ok) {
       setDone(true);
       if (data.gained) {
-        showToast(`+${data.gained} XP! 🔥 ${data.currentStreak}-day streak`);
+        showToast(`+${data.gained} XP! ${data.currentStreak}-day streak`);
       }
     }
   }
@@ -95,7 +96,7 @@ export default function ConceptReader({ concept }) {
 
       {/* Reading in — language follows the global top-bar toggle (the USP). */}
       <div className="mb-6 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500">
-        <span>🌐</span>
+        <Icon name="globe" className="h-3.5 w-3.5" />
         <span>
           <span className="font-semibold text-indigo-600">{showHinglish ? 'Hinglish' : 'English'}</span>
           {' · '}{t('reader.langNote')}
@@ -112,7 +113,7 @@ export default function ConceptReader({ concept }) {
       {concept.dailyLifeExample && (
         <div className="my-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:p-6">
           <div className="mb-2 flex items-center gap-2 font-semibold text-amber-800">
-            <span className="text-xl">🪔</span> {t('reader.dailyExample')}
+            <Icon name="lightbulb" className="h-5 w-5" /> {t('reader.dailyExample')}
           </div>
           <p className="prose-content text-[15px] text-amber-900">
             {concept.dailyLifeExample}
@@ -139,7 +140,7 @@ export default function ConceptReader({ concept }) {
           <ul className="space-y-2 text-[15px] text-slate-700">
             {concept.keyPoints.map((k, i) => (
               <li key={i} className="flex gap-2">
-                <span className="text-indigo-600">→</span>
+                <Icon name="arrow-right" className="mt-1.5 h-3 w-3 shrink-0 text-indigo-600" />
                 <span>{k}</span>
               </li>
             ))}
@@ -153,7 +154,7 @@ export default function ConceptReader({ concept }) {
           conceptId={concept._id}
           quiz={concept.quiz}
           onPassed={(reward) =>
-            showToast(`Quiz passed! +${reward.gained} XP 🎉`)
+            showToast(`Quiz passed! +${reward.gained} XP`)
           }
         />
       </div>
@@ -162,6 +163,7 @@ export default function ConceptReader({ concept }) {
       <div className="my-8 flex flex-col items-start gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
         {done ? (
           <span className="inline-flex items-center gap-2 font-semibold text-green-700">
+            <Icon name="check-circle" className="h-4 w-4" />
             {t('reader.completed')}
           </span>
         ) : (
@@ -186,7 +188,7 @@ export default function ConceptReader({ concept }) {
       {/* Interview questions linked to this concept */}
       {concept.interviewQuestions?.length > 0 && (
         <div className="my-8">
-          <h2 className="mb-3 text-lg font-semibold">{t('reader.interviewHeading')}</h2>
+          <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold"><Icon name="briefcase" className="h-4 w-4 text-indigo-600" />{t('reader.interviewHeading')}</h2>
           <div className="space-y-3">
             {concept.interviewQuestions.map((q) => (
               <details

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLang } from '@/components/LanguageProvider';
+import Icon from '@/components/Icon';
 
 export default function LeaderboardPage() {
   const { pick } = useLang();
@@ -18,7 +19,7 @@ export default function LeaderboardPage() {
       .finally(() => setLoading(false));
   }, [scope]);
 
-  const medal = ['🥇', '🥈', '🥉'];
+  const medalClass = ['text-amber-400', 'text-slate-400', 'text-amber-700'];
 
   return (
     <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
@@ -49,7 +50,7 @@ export default function LeaderboardPage() {
           <p className="p-8 text-center text-slate-400">Loading…</p>
         ) : rows.length === 0 ? (
           <p className="p-8 text-center text-slate-400">
-            {pick('Abhi tak koi XP nahi. Padho, quiz do, top pe aao! 🚀', 'No XP earned yet. Learn, take quizzes, get to the top! 🚀')}
+            {pick('Abhi tak koi XP nahi. Padho, quiz do, top pe aao!', 'No XP earned yet. Learn, take quizzes, get to the top!')}
           </p>
         ) : (
           <ul className="divide-y divide-slate-100">
@@ -57,7 +58,11 @@ export default function LeaderboardPage() {
               <li key={r.rank} className="flex items-center justify-between px-5 py-3.5">
                 <span className="flex items-center gap-3">
                   <span className="w-6 text-center font-semibold text-slate-400">
-                    {medal[r.rank - 1] || r.rank}
+                    {medalClass[r.rank - 1] ? (
+                      <Icon name="medal" className={`h-4 w-4 ${medalClass[r.rank - 1]}`} />
+                    ) : (
+                      r.rank
+                    )}
                   </span>
                   <span className="font-medium">{r.name}</span>
                   <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
@@ -66,7 +71,7 @@ export default function LeaderboardPage() {
                 </span>
                 <span className="flex items-center gap-3 text-sm">
                   {r.currentStreak > 0 && (
-                    <span className="text-orange-500">🔥 {r.currentStreak}</span>
+                    <span className="text-orange-500"><Icon name="fire" className="mr-1 h-3.5 w-3.5" />{r.currentStreak}</span>
                   )}
                   <span className="font-semibold text-indigo-600">{r.xp} XP</span>
                 </span>

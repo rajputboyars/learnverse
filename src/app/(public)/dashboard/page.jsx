@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
+import Icon from '@/components/Icon';
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -27,7 +28,7 @@ export default function DashboardPage() {
     ? [
         { label: 'Total XP', value: data.totalXP },
         { label: 'Level', value: data.level },
-        { label: 'Current streak', value: `${data.currentStreak} 🔥` },
+        { label: 'Current streak', value: data.currentStreak, icon: 'fire' },
         { label: 'Concepts done', value: data.conceptsCompleted },
       ]
     : [];
@@ -51,12 +52,12 @@ export default function DashboardPage() {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold">{isGuest ? 'Dashboard' : `${t('dash.greeting')} ${session.user.name?.split(' ')[0]} 👋`}</h1>
+          <h1 className="text-3xl font-bold">{isGuest ? 'Dashboard' : `${t('dash.greeting')} ${session.user.name?.split(' ')[0]}`}</h1>
           <p className="mt-2 text-slate-600">{isGuest ? 'Login karke apni progress dekho.' : t('dash.sub')}</p>
         </div>
         {!isGuest && (
           <Link href={`/u/${session.user.id}`} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
-            {t('dash.publicProfile')}
+            <Icon name="link" className="mr-1.5 h-3.5 w-3.5" />{t('dash.publicProfile')}
           </Link>
         )}
       </div>
@@ -65,7 +66,10 @@ export default function DashboardPage() {
         {cards.map((c) => (
           <div key={c.label} className="rounded-2xl border border-slate-200 bg-white p-5">
             <p className="text-sm text-slate-500">{c.label}</p>
-            <p className="mt-1 text-2xl font-bold">{c.value}</p>
+            <p className="mt-1 flex items-center gap-2 text-2xl font-bold">
+              {c.value}
+              {c.icon && <Icon name={c.icon} className="h-5 w-5 text-orange-500" />}
+            </p>
           </div>
         ))}
       </div>
@@ -86,7 +90,7 @@ export default function DashboardPage() {
       {data && data.badges && (
         <div className="mt-10">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold">🏅 Achievements</h2>
+            <h2 className="flex items-center gap-2 text-xl font-bold"><Icon name="medal" className="h-5 w-5 text-amber-500" />Achievements</h2>
             <span className="text-sm text-slate-500">
               {data.badges.filter((b) => b.earned).length}/{data.badges.length} unlocked
             </span>
@@ -100,7 +104,7 @@ export default function DashboardPage() {
                   b.earned ? 'border-indigo-200 bg-indigo-50' : 'border-slate-200 bg-slate-50 opacity-60'
                 }`}
               >
-                <div className={`text-3xl ${b.earned ? '' : 'grayscale'}`}>{b.earned ? b.icon : '🔒'}</div>
+                <Icon name={b.earned ? b.icon : 'lock'} className={`mx-auto h-8 w-8 ${b.earned ? 'text-indigo-600' : 'text-slate-400'}`} />
                 <p className="mt-2 text-sm font-semibold">{b.name}</p>
                 <p className="mt-0.5 text-xs text-slate-500">{b.desc}</p>
               </div>
@@ -112,7 +116,7 @@ export default function DashboardPage() {
       {/* Certificates */}
       {data && data.completedCourses && data.completedCourses.length > 0 && (
         <div className="mt-10">
-          <h2 className="text-xl font-bold">🎓 Certificates</h2>
+          <h2 className="flex items-center gap-2 text-xl font-bold"><Icon name="graduation" className="h-5 w-5 text-amber-500" />Certificates</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {data.completedCourses.map((c) => (
               <Link
@@ -120,8 +124,8 @@ export default function DashboardPage() {
                 href={`/certificate/${c.slug}`}
                 className="flex items-center justify-between rounded-2xl border border-amber-200 bg-amber-50 p-4 hover:border-amber-300"
               >
-                <span className="font-medium">{c.icon} {c.title}</span>
-                <span className="text-sm font-semibold text-amber-700">View certificate →</span>
+                <span className="flex items-center gap-2 font-medium"><Icon name={c.icon} brand className="h-4 w-4" />{c.title}</span>
+                <span className="text-sm font-semibold text-amber-700">View certificate <Icon name="arrow-right" className="h-3 w-3" /></span>
               </Link>
             ))}
           </div>
@@ -146,7 +150,7 @@ export default function DashboardPage() {
                 className="block rounded-2xl border border-slate-200 bg-white p-4 hover:border-indigo-300"
               >
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">{c.icon} {c.title}</span>
+                  <span className="flex items-center gap-2 font-medium"><Icon name={c.icon} brand className="h-4 w-4" />{c.title}</span>
                   <span className="text-slate-500">{c.completed}/{c.total} · {c.pct}%</span>
                 </div>
                 <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
@@ -160,12 +164,12 @@ export default function DashboardPage() {
 
       {/* Bookmarks */}
       <div className="mt-10">
-        <h2 className="text-xl font-bold">🔖 Bookmarks</h2>
+        <h2 className="flex items-center gap-2 text-xl font-bold"><Icon name="bookmark" className="h-5 w-5 text-indigo-600" />Bookmarks</h2>
         {!data ? (
           <p className="mt-3 text-slate-400">Loading…</p>
         ) : data.bookmarks.length === 0 ? (
           <p className="mt-3 rounded-2xl border border-dashed border-slate-300 p-6 text-center text-slate-500">
-            Koi bookmark nahi. Kisi concept pe 🏷️ Bookmark dabao taaki yahan save ho.
+            Koi bookmark nahi. Kisi concept pe <Icon name="tag" className="h-3.5 w-3.5" /> Bookmark dabao taaki yahan save ho.
           </p>
         ) : (
           <div className="mt-4 divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200">
@@ -187,7 +191,7 @@ export default function DashboardPage() {
           {t('nav.leaderboard')}
         </Link>
         <Link href="/resume" className="rounded-lg border border-slate-200 px-5 py-2.5 font-semibold hover:bg-slate-50">
-          {t('dash.buildResume')}
+          <Icon name="file" className="mr-1.5 h-3.5 w-3.5" />{t('dash.buildResume')}
         </Link>
       </div>
     </div>

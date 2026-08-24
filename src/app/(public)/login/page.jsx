@@ -5,6 +5,7 @@ import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
+import Icon from '@/components/Icon';
 
 export default function LoginPage() {
   return (
@@ -42,7 +43,7 @@ function LoginForm() {
 
   return (
     <div className="mx-auto flex max-w-md flex-col px-4 py-16">
-      <h1 className="text-2xl font-bold">{pick('Wapas aa gaye 👋', 'Welcome back 👋')}</h1>
+      <h1 className="text-2xl font-bold">{pick('Wapas aa gaye', 'Welcome back')} <Icon name="wave" className="h-5 w-5 text-amber-500" /></h1>
       <p className="mt-1 text-slate-600">{pick('XP aur streak track karne ke liye login karo.', 'Login to track your XP and streak.')}</p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4">

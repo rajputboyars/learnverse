@@ -15,7 +15,7 @@ export const course = {
   slug: 'oops',
   description:
     'Object-Oriented Programming — classes, 4 pillars (encapsulation, abstraction, inheritance, polymorphism) aur SOLID principles. Interview-ready, English + Hinglish, desi examples aur code ke saath.',
-  icon: '🧱',
+  icon: 'html',
   tags: ['oop', 'cs-fundamentals', 'interview', 'design'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

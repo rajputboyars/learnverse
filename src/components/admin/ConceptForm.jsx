@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { slugify } from '@/lib/slug';
+import Icon from '@/components/Icon';
 
 const EMPTY = {
   courseId: '',
@@ -133,7 +134,7 @@ export default function ConceptForm({ initial = null, conceptId = null }) {
         </div>
 
         <div>
-          <label className="text-sm font-medium">🪔 Daily-life example (the USP)</label>
+          <label className="text-sm font-medium"><Icon name="lightbulb" className="mr-1.5 h-3.5 w-3.5 text-amber-500" />Daily-life example (the USP)</label>
           <textarea rows={3} value={form.dailyLifeExample} onChange={(e) => set('dailyLifeExample', e.target.value)} className={`${input} mt-1`} />
         </div>
 
@@ -166,7 +167,7 @@ export default function ConceptForm({ initial = null, conceptId = null }) {
         {/* Quiz builder */}
         <div className="rounded-2xl border border-slate-200 p-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">🧠 Quiz</h3>
+            <h3 className="flex items-center gap-2 font-semibold"><Icon name="brain" className="h-4 w-4 text-indigo-600" />Quiz</h3>
             <button onClick={addQuiz} className="text-sm font-medium text-indigo-600 hover:underline">+ Add question</button>
           </div>
           {quiz.map((q, i) => (
@@ -197,7 +198,7 @@ export default function ConceptForm({ initial = null, conceptId = null }) {
 
       {/* AI assist panel — separate column (wireframe). Stub for Phase 2. */}
       <aside className="h-fit rounded-2xl border border-dashed border-indigo-200 bg-indigo-50/40 p-4">
-        <h3 className="flex items-center gap-2 font-semibold text-indigo-700">✨ AI Assist</h3>
+        <h3 className="flex items-center gap-2 font-semibold text-indigo-700"><Icon name="sparkles" className="h-4 w-4" />AI Assist</h3>
         <p className="mt-2 text-sm text-slate-600">
           Phase 2: generate a draft, auto-create the Hinglish version, suggest a
           daily-life analogy, and draft quiz questions.

@@ -15,7 +15,7 @@ export const course = {
   slug: 'os',
   description:
     'OS fundamentals — processes vs threads, CPU scheduling, memory & virtual memory, deadlocks aur synchronization. Interview-ready, English + Hinglish, desi examples ke saath.',
-  icon: '💻',
+  icon: 'code',
   tags: ['operating-systems', 'cs-fundamentals', 'interview', 'concurrency'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

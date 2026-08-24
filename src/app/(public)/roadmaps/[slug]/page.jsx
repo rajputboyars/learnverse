@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ROADMAPS, COURSE_META, ROADMAP_COLORS } from '@/data/roadmaps';
 import L from '@/components/L';
+import Icon from '@/components/Icon';
 
 export function generateStaticParams() {
   return ROADMAPS.map((r) => ({ slug: r.slug }));
@@ -24,9 +25,9 @@ const DIFFICULTY_CLASS = {
 };
 
 const LEVEL_META = {
-  beginner:     { label: 'Beginner',     icon: '🌱' },
-  intermediate: { label: 'Intermediate', icon: '🚀' },
-  advanced:     { label: 'Advanced',     icon: '🏆' },
+  beginner:     { label: 'Beginner',     icon: 'seedling' },
+  intermediate: { label: 'Intermediate', icon: 'rocket' },
+  advanced:     { label: 'Advanced',     icon: 'trophy' },
 };
 
 export default async function RoadmapDetailPage({ params }) {
@@ -43,7 +44,7 @@ export default async function RoadmapDetailPage({ params }) {
 
       {/* Breadcrumb */}
       <Link href="/roadmaps" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600">
-        ← <L hi="Saare Roadmaps" en="All Roadmaps" />
+        <Icon name="arrow-left" className="mr-1.5 h-3 w-3" /><L hi="Saare Roadmaps" en="All Roadmaps" />
       </Link>
 
       {/* Hero */}
@@ -51,7 +52,7 @@ export default async function RoadmapDetailPage({ params }) {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <span className="text-5xl">{roadmap.icon}</span>
+              <Icon name={roadmap.icon} brand className="h-12 w-12 text-indigo-600" />
               <div>
                 <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">{roadmap.title}</h1>
                 <p className={`mt-0.5 text-sm font-medium italic ${colors.text}`}>"{roadmap.tagline}"</p>
@@ -64,16 +65,16 @@ export default async function RoadmapDetailPage({ params }) {
         {/* Meta pills */}
         <div className="mt-5 flex flex-wrap gap-2 text-sm">
           <span className={`rounded-full px-3 py-1 font-medium ${DIFFICULTY_CLASS[roadmap.difficulty]}`}>
-            {roadmap.difficulty === 'beginner' ? '🌱' : roadmap.difficulty === 'advanced' ? '🏆' : '🚀'} {roadmap.difficulty}
+            <Icon name={roadmap.difficulty === 'beginner' ? 'seedling' : roadmap.difficulty === 'advanced' ? 'trophy' : 'rocket'} className="mr-1.5 h-3.5 w-3.5" />{roadmap.difficulty}
           </span>
           <span className="rounded-full bg-white px-3 py-1 font-medium text-slate-700 border border-slate-200">
-            🗓️ {roadmap.duration}
+            <Icon name="calendar" className="mr-1.5 h-3.5 w-3.5" />{roadmap.duration}
           </span>
           <span className="rounded-full bg-white px-3 py-1 font-medium text-slate-700 border border-slate-200">
-            📚 {totalSteps} <L hi="courses" en="courses" />
+            <Icon name="book-open" className="mr-1.5 h-3.5 w-3.5" />{totalSteps} <L hi="courses" en="courses" />
           </span>
           <span className="rounded-full bg-white px-3 py-1 font-medium text-slate-700 border border-slate-200">
-            📈 {roadmap.phases.length} <L hi="phases" en="phases" />
+            <Icon name="chart-line" className="mr-1.5 h-3.5 w-3.5" />{roadmap.phases.length} <L hi="phases" en="phases" />
           </span>
         </div>
 
@@ -83,7 +84,7 @@ export default async function RoadmapDetailPage({ params }) {
           <ul className="grid gap-1.5 sm:grid-cols-2">
             {roadmap.outcomes.map((o, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
-                <span className={`mt-0.5 shrink-0 font-bold ${colors.text}`}>✓</span>
+                <Icon name="check" className={`mt-1 h-3 w-3 shrink-0 ${colors.text}`} />
                 {o}
               </li>
             ))}
@@ -112,7 +113,7 @@ export default async function RoadmapDetailPage({ params }) {
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-slate-900">{phase.title}</h3>
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${DIFFICULTY_CLASS[phase.level]}`}>
-                        {levelMeta.icon} {levelMeta.label}
+                        <Icon name={levelMeta.icon} className="mr-1.5 h-3.5 w-3.5" />{levelMeta.label}
                       </span>
                     </div>
                     <p className="text-sm text-slate-500">{phase.description}</p>
@@ -153,7 +154,7 @@ export default async function RoadmapDetailPage({ params }) {
 
       {/* Bottom CTA */}
       <div className="mt-16 rounded-2xl border border-slate-200 bg-white p-8 text-center">
-        <p className="text-2xl font-bold text-slate-900"><L hi="Ready ho? Shuru karo! 🚀" en="Ready? Let’s start! 🚀" /></p>
+        <p className="text-2xl font-bold text-slate-900"><L hi="Ready ho? Shuru karo!" en="Ready? Let’s start!" /></p>
         <p className="mt-2 text-slate-600">
           <L hi="Phase 1 se start karo — ek step ek time. Consistency hi key hai." en="Start from Phase 1 — one step at a time. Consistency is the key." />
         </p>
@@ -162,7 +163,7 @@ export default async function RoadmapDetailPage({ params }) {
             href={`/courses/${roadmap.phases[0]?.steps[0]?.courseSlug}`}
             className="rounded-xl bg-indigo-600 px-6 py-3 font-medium text-white hover:bg-indigo-700 transition"
           >
-            <L hi="Phase 1 shuru karo →" en="Start Phase 1 →" />
+            <L hi="Phase 1 shuru karo" en="Start Phase 1" /> <Icon name="arrow-right" className="h-3 w-3" />
           </Link>
           <Link
             href="/courses"
@@ -185,8 +186,8 @@ function StepCard({ step, meta, colors, globalOrder }) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         {/* Icon + order */}
         <div className="flex items-center gap-3 sm:flex-col sm:items-center sm:gap-1 sm:w-14">
-          <div className={`flex h-11 w-11 items-center justify-center rounded-xl text-2xl ${colors.bg} shrink-0`}>
-            {meta.icon}
+          <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${colors.bg} shrink-0`}>
+            <Icon name={meta.icon} brand className="h-5 w-5" />
           </div>
           <span className="text-xs font-medium text-slate-400"><L hi="Step" en="Step" /> {globalOrder}</span>
         </div>
@@ -199,7 +200,7 @@ function StepCard({ step, meta, colors, globalOrder }) {
               {meta.difficulty}
             </span>
             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
-              ⏱ {step.duration}
+              <Icon name="clock" className="mr-1.5 h-3 w-3" />{step.duration}
             </span>
           </div>
 
@@ -229,7 +230,7 @@ function StepCard({ step, meta, colors, globalOrder }) {
               href={`/courses/${step.courseSlug}`}
               className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white transition ${colors.dot} hover:opacity-90`}
             >
-              {meta.icon} <L hi="Shuru karo" en="Start" /> {meta.title} <span className="transition-transform group-hover:translate-x-0.5">→</span>
+              <Icon name={meta.icon} brand className="mr-1.5 h-3.5 w-3.5" /><L hi="Shuru karo" en="Start" /> {meta.title} <Icon name="arrow-right" className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
         </div>
@@ -244,12 +245,12 @@ function ExternalStepCard({ step, colors, globalOrder }) {
       <div className="absolute -left-[1.95rem] top-5 h-3.5 w-3.5 rounded-full border-2 border-white bg-slate-400" />
 
       <div className="flex items-center gap-3 mb-3">
-        <span className="text-2xl">{step.externalIcon ?? '📖'}</span>
+        <Icon name={step.externalIcon ?? 'book-open'} brand className="h-6 w-6 text-slate-500" />
         <div>
           <div className="flex items-center gap-2">
             <h4 className="font-bold text-slate-900">{step.externalTitle ?? 'External Resource'}</h4>
             <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs text-slate-600">External</span>
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">⏱ {step.duration}</span>
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500"><Icon name="clock" className="mr-1 h-3 w-3" />{step.duration}</span>
           </div>
           <p className="text-xs text-slate-400">Step {globalOrder}</p>
         </div>

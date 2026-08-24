@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Icon from '@/components/Icon';
 
 export default function ShareButtons({ title = 'Learnverse', text = '' }) {
   const [copied, setCopied] = useState(false);
@@ -37,25 +38,25 @@ export default function ShareButtons({ title = 'Learnverse', text = '' }) {
         onClick={() => open(`https://wa.me/?text=${shareText}%20${encodeURIComponent(url())}`)}
         className="rounded-full border border-slate-200 px-3 py-1.5 text-sm hover:bg-green-50 hover:text-green-700"
       >
-        🟢 WhatsApp
+        <Icon name="whatsapp" className="mr-1.5 h-4 w-4" />WhatsApp
       </button>
       <button
         onClick={() => open(`https://twitter.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(url())}`)}
         className="rounded-full border border-slate-200 px-3 py-1.5 text-sm hover:bg-slate-100"
       >
-        𝕏 Twitter
+        <Icon name="twitter" className="mr-1.5 h-4 w-4" />Twitter
       </button>
       <button
         onClick={() => open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url())}`)}
         className="rounded-full border border-slate-200 px-3 py-1.5 text-sm hover:bg-blue-50 hover:text-blue-700"
       >
-        in LinkedIn
+        <Icon name="linkedin" className="mr-1.5 h-4 w-4" />LinkedIn
       </button>
       <button onClick={copy} className="rounded-full border border-slate-200 px-3 py-1.5 text-sm hover:bg-slate-100">
-        {copied ? '✓ Copied' : '🔗 Copy link'}
+        <Icon name={copied ? 'check' : 'link'} className="mr-1.5 h-4 w-4" />{copied ? 'Copied' : 'Copy link'}
       </button>
       <button onClick={nativeShare} className="rounded-full border border-slate-200 px-3 py-1.5 text-sm hover:bg-slate-100 sm:hidden">
-        ↗ Share
+        <Icon name="share" className="mr-1.5 h-4 w-4" />Share
       </button>
     </div>
   );

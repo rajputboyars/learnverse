@@ -15,7 +15,7 @@ export const course = {
   slug: 'fine-tuning',
   description:
     'LLMs ko apne data pe adapt karo — kab fine-tune karna hai vs RAG vs prompting, datasets banana, LoRA/QLoRA aur PEFT se efficient training, Hugging Face Transformers, aur evaluation. Advanced AI engineering skill, English aur Hinglish mein.',
-  icon: '🎯',
+  icon: 'target',
   tags: ['fine-tuning', 'lora', 'peft', 'hugging-face', 'llm'],
   difficulty: 'advanced',
   language: ['english', 'hinglish'],

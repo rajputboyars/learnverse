@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
+import Icon from '@/components/Icon';
 
 export default function ThreadPage() {
   const { slug, id } = useParams();
@@ -62,7 +63,7 @@ export default function ThreadPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
-      <Link href={`/courses/${slug}/discuss`} className="text-sm text-slate-500 hover:text-indigo-600">← {pick('Saari discussions', 'All discussions')}</Link>
+      <Link href={`/courses/${slug}/discuss`} className="text-sm text-slate-500 hover:text-indigo-600"><Icon name="arrow-left" className="mr-1.5 h-3 w-3" />{pick('Saari discussions', 'All discussions')}</Link>
 
       <div className="mt-3 rounded-2xl border border-slate-200 bg-white p-5">
         <h1 className="text-xl font-bold">{thread.title}</h1>
@@ -70,7 +71,7 @@ export default function ThreadPage() {
         <div className="mt-3 flex items-center gap-4 text-xs text-slate-400">
           <span className="font-medium text-slate-600">{thread.userName}</span>
           <span>{new Date(thread.createdAt).toLocaleDateString()}</span>
-          <button onClick={() => vote(thread._id)} className={thread.voted ? 'font-semibold text-indigo-600' : 'hover:text-indigo-600'}>▲ {thread.votes}</button>
+          <button onClick={() => vote(thread._id)} className={thread.voted ? 'font-semibold text-indigo-600' : 'hover:text-indigo-600'}><Icon name="caret-up" className="mr-1 h-3 w-3" />{thread.votes}</button>
           {(thread.mine || isAdmin) && <button onClick={() => remove(thread._id, true)} className="text-red-400 hover:text-red-600">{pick('Delete', 'Delete')}</button>}
         </div>
       </div>
@@ -83,7 +84,7 @@ export default function ThreadPage() {
             <div className="mt-2 flex items-center gap-4 text-xs text-slate-400">
               <span className="font-medium text-slate-600">{r.userName}</span>
               <span>{new Date(r.createdAt).toLocaleDateString()}</span>
-              <button onClick={() => vote(r._id)} className={r.voted ? 'font-semibold text-indigo-600' : 'hover:text-indigo-600'}>▲ {r.votes}</button>
+              <button onClick={() => vote(r._id)} className={r.voted ? 'font-semibold text-indigo-600' : 'hover:text-indigo-600'}><Icon name="caret-up" className="mr-1 h-3 w-3" />{r.votes}</button>
               {(r.mine || isAdmin) && <button onClick={() => remove(r._id, false)} className="text-red-400 hover:text-red-600">{pick('Delete', 'Delete')}</button>}
             </div>
           </div>

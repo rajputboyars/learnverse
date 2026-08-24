@@ -16,7 +16,7 @@ export const course = {
   slug: 'english-speaking',
   description:
     'Fluent English bolna seekho — bina grammar ki ratta-fatta ke. Golden Rule se sentence banana, modal verbs, verb patterns, question tricks, sentence starters, professional phrases aur daily-use collocations. Sab Hinglish explanation ke saath.',
-  icon: '🗣️',
+  icon: 'comments',
   tags: ['english', 'speaking', 'grammar', 'communication', 'fluency'],
   difficulty: 'beginner',
   language: ['english', 'hinglish'],

@@ -10,6 +10,7 @@ import NotificationBell from './NotificationBell';
 import SearchBox from './SearchBox';
 import { useLang } from './LanguageProvider';
 import { ROADMAPS } from '@/data/roadmaps';
+import Icon from '@/components/Icon';
 
 // Shared site container — keep in sync with Footer & page wrappers so
 // header, content and footer all line up at the same edges.
@@ -106,7 +107,7 @@ export default function Navbar() {
             aria-label="Menu"
             className="rounded-md p-2 text-lg hover:bg-slate-100 dark:hover:bg-slate-800 sm:hidden"
           >
-            {open ? '✕' : '☰'}
+            <Icon name={open ? 'x' : 'bars'} />
           </button>
         </div>
       </div>
@@ -145,7 +146,7 @@ export default function Navbar() {
               title={(r) => r.title}
               sub={(r) => r.duration}
               footerHref="/roadmaps"
-              footerLabel={`${t('nav.roadmaps')} →`}
+              footerLabel={t('nav.roadmaps')}
             />
           </NavDropdown>
 
@@ -162,7 +163,7 @@ export default function Navbar() {
               sub={(c) => c.difficulty}
               subClass="capitalize"
               footerHref="/interview-questions"
-              footerLabel={`${t('nav.interview')} →`}
+              footerLabel={t('nav.interview')}
             />
           </NavDropdown>
 
@@ -296,13 +297,10 @@ function NavDropdown({ href, label, children }) {
         }`}
       >
         {label}
-        <svg
-          width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-          className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
+        <Icon
+          name="chevron-down"
+          className={`h-3 w-3 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        />
       </Link>
 
       {/* Full-width panel, aligned to the sub-header row */}
@@ -343,7 +341,7 @@ function DropdownGrid({
               className="group/item flex items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 transition-all duration-150 hover:border-indigo-100 hover:bg-indigo-50/70 hover:shadow-sm dark:hover:border-slate-700 dark:hover:bg-slate-800/70"
             >
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-indigo-50 text-lg leading-none ring-1 ring-indigo-100 transition-colors group-hover/item:bg-white group-hover/item:ring-indigo-300 dark:bg-slate-800 dark:ring-slate-700 dark:group-hover/item:bg-slate-900 dark:group-hover/item:ring-indigo-500/40">
-                {icon(it)}
+                <Icon name={icon(it)} brand className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
               </span>
               <span className="min-w-0">
                 <span className="block truncate text-sm font-semibold text-slate-800 transition-colors group-hover/item:text-indigo-700 dark:text-slate-100 dark:group-hover/item:text-indigo-300">
@@ -363,6 +361,7 @@ function DropdownGrid({
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
           >
             {footerLabel}
+            <Icon name="arrow-right" className="h-3 w-3" />
           </Link>
         </div>
       )}

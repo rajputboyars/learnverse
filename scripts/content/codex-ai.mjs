@@ -7,7 +7,7 @@ export const course = {
   title: 'OpenAI Codex',
   slug: 'codex-ai',
   description: 'OpenAI Codex — autonomous AI coding agent — samjho kya hai, GitHub Copilot se kaise alag hai, kaise use karo efficiently, plans kya hain, aur development workflow mein integrate karo.',
-  icon: '⚡',
+  icon: 'bolt',
   tags: ['codex', 'openai', 'ai-coding', 'agentic', 'github-copilot'],
   difficulty: 'intermediate',
   language: 'Python',

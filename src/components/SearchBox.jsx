@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Icon from '@/components/Icon';
 
 const DIFFICULTY_DOT = { easy: '#10b981', medium: '#f59e0b', hard: '#ef4444' };
 
@@ -170,7 +171,7 @@ export default function SearchBox({ placeholder = 'Search…', className = '' })
                         active={cursor === idx}
                         onHover={() => setCursor(idx)}
                         onSelect={() => { setOpen(false); setQuery(''); }}
-                        left={<span className="text-xl">{c.icon}</span>}
+                        left={<Icon name={c.icon} brand className="h-5 w-5" />}
                         label={c.title}
                         badge={<Badge color="indigo">Course</Badge>}
                       />
@@ -202,7 +203,7 @@ export default function SearchBox({ placeholder = 'Search…', className = '' })
                         badge={
                           c.course ? (
                             <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300">
-                              {c.course.icon} {c.course.title}
+                              <Icon name={c.course.icon} brand className="mr-1 h-3 w-3" />{c.course.title}
                             </span>
                           ) : null
                         }
@@ -229,7 +230,7 @@ export default function SearchBox({ placeholder = 'Search…', className = '' })
                         active={cursor === idx}
                         onHover={() => setCursor(idx)}
                         onSelect={() => { setOpen(false); setQuery(''); }}
-                        left={<span className="text-base">{q.courseIcon || '❓'}</span>}
+                        left={<Icon name={q.courseIcon || 'question'} brand className="h-4 w-4 text-slate-500" />}
                         label={q.question}
                         badge={<Badge color="amber">Q&amp;A</Badge>}
                       />
@@ -246,7 +247,7 @@ export default function SearchBox({ placeholder = 'Search…', className = '' })
                   className="flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
                 >
                   <SearchIcon size={14} />
-                  See all results for &ldquo;{query}&rdquo; →
+                  See all results for &ldquo;{query}&rdquo;<Icon name="arrow-right" className="h-3 w-3" />
                 </Link>
               </div>
             </div>
@@ -312,17 +313,12 @@ function Badge({ color, children }) {
 
 function SearchIcon({ size = 15 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
+    <Icon name="search" style={{ width: size, height: size }} />
   );
 }
 
 function Spinner() {
   return (
-    <svg className="animate-spin" width={15} height={15} viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="40 20" strokeLinecap="round" />
-    </svg>
+    <Icon name="rotate" spin className="h-[15px] w-[15px]" />
   );
 }

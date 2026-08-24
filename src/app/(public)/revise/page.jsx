@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
+import Icon from '@/components/Icon';
 
 const RATINGS = [
   { key: 'forgot', label: 'Forgot', hi: 'Bhool gaya', color: 'bg-red-500 hover:bg-red-600' },
@@ -38,7 +39,7 @@ export default function RevisePage() {
   if (cards.length === 0) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <p className="text-5xl">✅</p>
+        <Icon name="check-circle" className="mx-auto h-12 w-12 text-green-600" />
         <h1 className="mt-4 text-2xl font-bold">{pick('Sab revise ho gaya!', 'All revised!')}</h1>
         <p className="mt-2 text-slate-600">
           {done > 0 ? pick(`${done} cards review ho gaye. `, `${done} cards reviewed. `) : ''}
@@ -78,7 +79,7 @@ export default function RevisePage() {
         </div>
       )}
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">🔁 Revision</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold"><Icon name="repeat" className="h-5 w-5 text-indigo-600" />Revision</h1>
         <span className="text-sm text-slate-500">{idx + 1} / {cards.length}</span>
       </div>
 
@@ -101,18 +102,18 @@ export default function RevisePage() {
                 <p className="mb-2 text-sm font-semibold">{pick('Key points', 'Key points')}</p>
                 <ul className="space-y-1 text-sm text-slate-700">
                   {card.keyPoints.map((k, i) => (
-                    <li key={i} className="flex gap-2"><span className="text-indigo-600">→</span>{k}</li>
+                    <li key={i} className="flex gap-2"><Icon name="arrow-right" className="mt-1.5 h-3 w-3 shrink-0 text-indigo-600" />{k}</li>
                   ))}
                 </ul>
               </div>
             )}
             {card.dailyLifeExample && (
               <div className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
-                <span className="font-semibold">🪔 Example: </span>{card.dailyLifeExample}
+                <span className="font-semibold"><Icon name="lightbulb" className="mr-1.5 h-3.5 w-3.5 text-amber-500" />Example: </span>{card.dailyLifeExample}
               </div>
             )}
             <Link href={`/concepts/${card.slug}`} className="inline-block text-sm font-medium text-indigo-600 hover:underline">
-              {pick('Poora concept padho →', 'Read full concept →')}
+              {pick('Poora concept padho', 'Read full concept')} <Icon name="arrow-right" className="h-3 w-3" />
             </Link>
           </div>
         )}

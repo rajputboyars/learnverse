@@ -15,7 +15,7 @@ export const course = {
   slug: 'pandas',
   description:
     'Data analysis ka king tool — DataFrames, cleaning, grouping aur analysis. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '🐼',
+  icon: 'python',
   tags: ['pandas', 'python', 'data-science', 'dataframe', 'analysis'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
+import Icon from '@/components/Icon';
 
 export default function DiscussListPage() {
   const { slug } = useParams();
@@ -37,10 +38,11 @@ export default function DiscussListPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
-      <Link href={`/courses/${slug}`} className="text-sm text-slate-500 hover:text-indigo-600">← {pick('Course pe wapas', 'Back to course')}</Link>
+      <Link href={`/courses/${slug}`} className="text-sm text-slate-500 hover:text-indigo-600"><Icon name="arrow-left" className="mr-1.5 h-3 w-3" />{pick('Course pe wapas', 'Back to course')}</Link>
       <div className="mt-3 flex items-center justify-between">
         <h1 className="text-2xl font-bold">
-          💬 {data?.course ? `${data.course.icon} ${data.course.title}` : 'Course'} {pick('Discussion', 'Discussion')}
+          <Icon name="comments" className="mr-2 h-5 w-5 text-indigo-600" />
+          {data?.course ? <><Icon name={data.course.icon} brand className="mr-1.5 h-5 w-5" />{data.course.title}</> : 'Course'} {pick('Discussion', 'Discussion')}
         </h1>
         {session?.user && (
           <button onClick={() => setShowForm((s) => !s)} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
@@ -71,7 +73,7 @@ export default function DiscussListPage() {
           <p className="text-slate-400">Loading…</p>
         ) : data.threads?.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
-            {pick('Abhi koi discussion nahi. Pehla thread tum shuru karo! 🙌', 'No discussions yet. Start the first thread! 🙌')}
+            {pick('Abhi koi discussion nahi. Pehla thread tum shuru karo!', 'No discussions yet. Start the first thread!')}
           </p>
         ) : (
           data.threads.map((t) => (
@@ -83,8 +85,8 @@ export default function DiscussListPage() {
               <p className="mt-1 line-clamp-2 text-sm text-slate-600">{t.body}</p>
               <div className="mt-2 flex items-center gap-4 text-xs text-slate-400">
                 <span>{pick('by', 'by')} {t.userName}</span>
-                <span>▲ {t.votes}</span>
-                <span>💬 {t.replyCount} {pick('replies', 'replies')}</span>
+                <span><Icon name="caret-up" className="mr-1 h-3 w-3" />{t.votes}</span>
+                <span><Icon name="comments" className="mr-1 h-3 w-3" />{t.replyCount} {pick('replies', 'replies')}</span>
               </div>
             </Link>
           ))

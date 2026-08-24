@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import PrintButton from '@/components/PrintButton';
 import { useLang } from '@/components/LanguageProvider';
+import Icon from '@/components/Icon';
 
 const LS_KEY = 'learnverse_resume_draft';
 
@@ -156,7 +157,7 @@ export default function ResumePage() {
       {/* Header bar */}
       <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold">📄 Resume Builder</h1>
+          <h1 className="flex items-center gap-3 text-3xl font-bold"><Icon name="file" className="h-7 w-7 text-indigo-600" />Resume Builder</h1>
           <p className="mt-1 text-sm text-slate-500">
             {pick(
               'Left mein edit karo, right mein live preview. Print → "Save as PDF" se download karo.',
@@ -167,7 +168,7 @@ export default function ResumePage() {
         <div className="flex flex-wrap items-center gap-3">
           {savedAt && (
             <span className="text-sm text-green-600">
-              {pick('Auto-save ho gaya ✓', 'Auto-saved ✓')}
+              <Icon name="check" className="mr-1.5 h-3 w-3" />{pick('Auto-save ho gaya', 'Auto-saved')}
             </span>
           )}
           <button
@@ -175,9 +176,13 @@ export default function ResumePage() {
             disabled={saving}
             className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold hover:bg-slate-50 disabled:opacity-60"
           >
-            {saving ? pick('Save ho raha hai…', 'Saving…') : '💾 Save'}
+            {saving ? (
+              pick('Save ho raha hai…', 'Saving…')
+            ) : (
+              <><Icon name="save" className="mr-1.5 h-3.5 w-3.5" />Save</>
+            )}
           </button>
-          <PrintButton label={pick('⬇ Download PDF', '⬇ Download PDF')} />
+          <PrintButton label={pick('Download PDF', 'Download PDF')} />
         </div>
       </div>
 
@@ -186,8 +191,8 @@ export default function ResumePage() {
         <div className="no-print mb-6 flex items-center justify-between gap-4 rounded-2xl border border-indigo-100 bg-indigo-50 px-5 py-3">
           <p className="text-sm text-indigo-800">
             {pick(
-              '📌 Guest mode — aapka resume browser mein save ho raha hai. Account banao ya login karo toh cloud mein save hoga aur kabhi nahi jayega.',
-              '📌 Guest mode — your resume is saved in your browser. Sign in to save it to the cloud so it\'s never lost.',
+              'Guest mode — aapka resume browser mein save ho raha hai. Account banao ya login karo toh cloud mein save hoga aur kabhi nahi jayega.',
+              'Guest mode — your resume is saved in your browser. Sign in to save it to the cloud so it\'s never lost.',
             )}
           </p>
           <div className="flex shrink-0 gap-2">
@@ -259,7 +264,7 @@ export default function ResumePage() {
             action={
               status === 'authenticated' ? (
                 <button onClick={importSkills} className="text-xs font-semibold text-indigo-600 hover:underline">
-                  {pick('↓ Courses se import karo', '↓ Import from my courses')}
+                  <Icon name="arrow-down" className="mr-1 h-3 w-3" />{pick('Courses se import karo', 'Import from my courses')}
                 </button>
               ) : null
             }
@@ -365,8 +370,8 @@ export default function ResumePage() {
 
           <p className="pb-4 text-center text-xs text-slate-400">
             {pick(
-              '✓ Data browser mein auto-save ho raha hai. Login karke cloud pe bhi save karo.',
-              '✓ Data is auto-saved in your browser. Login to also save to the cloud.',
+              'Data browser mein auto-save ho raha hai. Login karke cloud pe bhi save karo.',
+              'Data is auto-saved in your browser. Login to also save to the cloud.',
             )}
           </p>
         </div>
@@ -386,12 +391,12 @@ export default function ResumePage() {
                 <p className="mt-1 text-lg text-slate-600">{form.headline}</p>
               )}
               <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-                {form.email    && <span>✉ {form.email}</span>}
-                {form.phone    && <span>☎ {form.phone}</span>}
-                {form.location && <span>📍 {form.location}</span>}
-                {form.website  && <span>🌐 {form.website}</span>}
-                {form.github   && <span>⌥ {form.github}</span>}
-                {form.linkedin && <span>in {form.linkedin}</span>}
+                {form.email    && <span><Icon name="envelope" className="mr-1 h-3 w-3" />{form.email}</span>}
+                {form.phone    && <span><Icon name="phone" className="mr-1 h-3 w-3" />{form.phone}</span>}
+                {form.location && <span><Icon name="location-dot" className="mr-1 h-3 w-3" />{form.location}</span>}
+                {form.website  && <span><Icon name="globe" className="mr-1 h-3 w-3" />{form.website}</span>}
+                {form.github   && <span><Icon name="github" className="mr-1 h-3 w-3" />{form.github}</span>}
+                {form.linkedin && <span><Icon name="linkedin" className="mr-1 h-3 w-3" />{form.linkedin}</span>}
               </div>
             </header>
 

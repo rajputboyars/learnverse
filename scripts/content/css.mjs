@@ -15,7 +15,7 @@ export const course = {
   slug: 'css',
   description:
     'Web ko sundar banao — CSS basics se Flexbox, Grid, animations tak. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '🎨',
+  icon: 'css',
   tags: ['css', 'frontend', 'web', 'styling'],
   difficulty: 'beginner',
   language: ['english', 'hinglish'],

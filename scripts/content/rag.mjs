@@ -15,7 +15,7 @@ export const course = {
   slug: 'rag',
   description:
     'Retrieval-Augmented Generation (RAG) se LLM ko apna data do — embeddings, vector databases (Pinecone, Chroma, pgvector), chunking, retrieval aur LangChain/LlamaIndex. Production AI chatbots aur Q&A apps banao, English aur Hinglish mein.',
-  icon: '🔎',
+  icon: 'search',
   tags: ['rag', 'embeddings', 'vector-database', 'langchain', 'llm'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

@@ -15,7 +15,7 @@ export const course = {
   slug: 'gen-ai',
   description:
     'LLMs se le kar prompting, RAG, embeddings, agents aur responsible AI tak — Generative AI samjho aur usse apps banao. English + Hinglish, desi examples aur code ke saath.',
-  icon: '🤖',
+  icon: 'robot',
   tags: ['gen-ai', 'llm', 'ai', 'prompting', 'rag'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

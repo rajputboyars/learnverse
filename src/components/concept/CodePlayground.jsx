@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import Icon from '../Icon';
 
 // Runs user JS in a Web Worker (separate thread) so an infinite loop can be
 // killed via worker.terminate() without freezing the page. HTML/CSS render in
@@ -55,7 +56,7 @@ export default function CodePlayground({ code: initialCode, language = 'javascri
       const timer = setTimeout(() => {
         worker.terminate();
         URL.revokeObjectURL(url);
-        setOutput([...logs, { kind: 'error', text: '⏱ Timed out (2s) — possible infinite loop.' }]);
+        setOutput([...logs, { kind: 'error', text: 'Timed out (2s) — possible infinite loop.' }]);
         setRunning(false);
       }, 2000);
       worker.onmessage = (e) => {
@@ -96,7 +97,7 @@ export default function CodePlayground({ code: initialCode, language = 'javascri
     <div className="overflow-hidden rounded-2xl border border-slate-200">
       <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-2">
         <span className="flex items-center gap-2 text-xs font-medium text-slate-500">
-          <span>▶</span> Interactive playground · {mode === 'html' ? 'HTML' : 'JavaScript'}
+          <Icon name="play" className="h-3 w-3" /> Interactive playground · {mode === 'html' ? 'HTML' : 'JavaScript'}
         </span>
         <div className="flex gap-2">
           <button

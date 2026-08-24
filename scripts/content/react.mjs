@@ -17,7 +17,7 @@ export const course = {
   slug: 'react',
   description:
     'Modern UI library — components, hooks, state, performance aur production patterns. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '⚛️',
+  icon: 'react',
   tags: ['react', 'frontend', 'javascript', 'mern'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

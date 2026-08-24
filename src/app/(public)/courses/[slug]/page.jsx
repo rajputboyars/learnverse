@@ -5,6 +5,7 @@ import Course from '@/models/Course';
 import Topic from '@/models/Topic';
 import Concept from '@/models/Concept';
 import L from '@/components/L';
+import Icon from '@/components/Icon';
 
 export const revalidate = 3600;
 
@@ -68,9 +69,9 @@ export default async function CoursePage({ params }) {
 
   // Group topics by level for a beginner → intermediate → advanced path.
   const LEVELS = [
-    { key: 'beginner', label: 'Beginner', icon: '🌱' },
-    { key: 'intermediate', label: 'Intermediate', icon: '🚀' },
-    { key: 'advanced', label: 'Advanced', icon: '🧠' },
+    { key: 'beginner', label: 'Beginner', icon: 'seedling' },
+    { key: 'intermediate', label: 'Intermediate', icon: 'rocket' },
+    { key: 'advanced', label: 'Advanced', icon: 'brain' },
   ];
   const topicsByLevel = {};
   for (const t of topics) {
@@ -81,11 +82,11 @@ export default async function CoursePage({ params }) {
   return (
     <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       <Link href="/courses" className="text-sm text-slate-500 hover:text-indigo-600">
-        ← <L hi="Saare courses" en="All courses" />
+        <Icon name="arrow-left" className="mr-1.5 h-3 w-3" /><L hi="Saare courses" en="All courses" />
       </Link>
 
       <div className="mt-4 flex items-start gap-4">
-        <div className="text-5xl">{course.icon}</div>
+        <Icon name={course.icon} brand className="h-12 w-12 text-indigo-600" />
         <div>
           <h1 className="text-3xl font-bold">{course.title}</h1>
           <p className="mt-2 text-slate-600">{course.description}</p>
@@ -97,19 +98,19 @@ export default async function CoursePage({ params }) {
               href={`/practice/${slug}`}
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
             >
-              🧠 <L hi="Practice quiz" en="Practice quiz" />
+              <Icon name="brain" className="h-4 w-4" /> <L hi="Practice quiz" en="Practice quiz" />
             </Link>
             <Link
               href={`/mock-interview/${slug}`}
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
             >
-              🎤 <L hi="Mock interview" en="Mock interview" />
+              <Icon name="microphone" className="h-4 w-4" /> <L hi="Mock interview" en="Mock interview" />
             </Link>
             <Link
               href={`/courses/${slug}/discuss`}
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
             >
-              💬 <L hi="Discussion board" en="Discussion board" />
+              <Icon name="comments" className="h-4 w-4" /> <L hi="Discussion board" en="Discussion board" />
             </Link>
           </div>
         </div>
@@ -127,7 +128,7 @@ export default async function CoursePage({ params }) {
           return (
             <div key={lvl.key}>
               <div className="mb-5 flex items-center gap-2">
-                <span className="text-2xl">{lvl.icon}</span>
+                <Icon name={lvl.icon} className="h-6 w-6 text-indigo-600" />
                 <h2 className="text-2xl font-bold">{lvl.label}</h2>
                 <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-500">
                   {levelTopics.length} <L hi="topics" en="topics" />

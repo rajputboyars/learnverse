@@ -17,7 +17,7 @@ export const course = {
   slug: 'typescript',
   description:
     'JavaScript ko type-safe banao — types, interfaces, generics aur advanced patterns. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '🔷',
+  icon: 'square',
   tags: ['typescript', 'javascript', 'frontend', 'backend'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

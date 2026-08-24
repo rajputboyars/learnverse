@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { connectDB } from '@/lib/db';
 import Course from '@/models/Course';
 import L from '@/components/L';
+import Icon from '@/components/Icon';
 
 export const revalidate = 3600;
 
@@ -25,7 +26,7 @@ function CourseCard({ c }) {
       href={`/courses/${c.slug}`}
       className="group rounded-2xl border border-slate-200 bg-white p-6 transition hover:border-indigo-300 hover:shadow-sm"
     >
-      <div className="text-3xl">{c.icon}</div>
+      <Icon name={c.icon} brand className="h-8 w-8 text-indigo-600" />
       <h2 className="mt-3 font-semibold group-hover:text-indigo-600">{c.title}</h2>
       <p className="mt-1 line-clamp-2 text-sm text-slate-600">{c.description}</p>
       <div className="mt-3 flex flex-wrap gap-1.5">
@@ -71,7 +72,7 @@ export default async function CoursesPage() {
           {english.length > 0 && (
             <section className="mt-14">
               <div className="flex items-center gap-3">
-                <span className="text-3xl">🗣️</span>
+                <Icon name="comments" className="h-7 w-7 text-indigo-600" />
                 <div>
                   <h2 className="text-2xl font-bold">
                     <L hi="English Learning" en="English Learning" />

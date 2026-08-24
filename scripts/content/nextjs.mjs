@@ -17,7 +17,7 @@ export const course = {
   slug: 'nextjs',
   description:
     'React ka production framework — routing, rendering strategies, API routes, auth, performance aur deployment. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '▲',
+  icon: 'caret-up',
   tags: ['nextjs', 'react', 'frontend', 'fullstack', 'ssr'],
   difficulty: 'intermediate',
   language: ['english', 'hinglish'],

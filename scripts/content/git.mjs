@@ -15,7 +15,7 @@ export const course = {
   slug: 'git',
   description:
     'Version control seekho — commits, branches, pull requests aur team collaboration. English + Hinglish, desi examples, code aur interview questions ke saath.',
-  icon: '🌿',
+  icon: 'git',
   tags: ['git', 'github', 'version-control', 'devops'],
   difficulty: 'beginner',
   language: ['english', 'hinglish'],

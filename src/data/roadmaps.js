@@ -5,7 +5,7 @@ export const ROADMAPS = [
   {
     slug: 'frontend',
     title: 'Frontend Developer',
-    icon: '🖥️',
+    icon: 'desktop',
     tagline: 'Websites banao jo dikhne mein sundar aur feel mein smooth ho.',
     description:
       'Frontend development ka complete roadmap — HTML se lekar React, TypeScript aur Next.js tak. Har cheez step-by-step, beginner se advance tak.',
@@ -23,7 +23,7 @@ export const ROADMAPS = [
     phases: [
       {
         title: 'Phase 1 — Foundation',
-        icon: '🌱',
+        icon: 'seedling',
         level: 'beginner',
         description: 'Web ka base seekho — structure, styling aur basics.',
         steps: [
@@ -59,7 +59,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 2 — JavaScript',
-        icon: '🚀',
+        icon: 'rocket',
         level: 'intermediate',
         description: 'Web pages ko interactive aur dynamic banao.',
         steps: [
@@ -74,7 +74,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 3 — Modern Frontend',
-        icon: '⚡',
+        icon: 'bolt',
         level: 'intermediate',
         description: 'Industry-standard frameworks aur tools seekho.',
         steps: [
@@ -96,7 +96,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 4 — Production Ready',
-        icon: '🏆',
+        icon: 'trophy',
         level: 'advanced',
         description: 'Real-world apps banao aur deploy karo.',
         steps: [
@@ -122,7 +122,7 @@ export const ROADMAPS = [
   {
     slug: 'backend',
     title: 'Backend Developer',
-    icon: '⚙️',
+    icon: 'wrench',
     tagline: 'Server, database aur APIs — jo user ko dikhai nahi deta par sab kuch chalata hai.',
     description:
       'Backend development ka complete roadmap — Node.js, Express, MongoDB se lekar REST APIs, JWT auth aur Docker deployment tak.',
@@ -140,7 +140,7 @@ export const ROADMAPS = [
     phases: [
       {
         title: 'Phase 1 — Foundation',
-        icon: '🌱',
+        icon: 'seedling',
         level: 'beginner',
         description: 'JavaScript aur version control ka base.',
         steps: [
@@ -162,7 +162,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 2 — Node & Express',
-        icon: '🚀',
+        icon: 'rocket',
         level: 'intermediate',
         description: 'Server banao aur APIs likhna seekho.',
         steps: [
@@ -184,7 +184,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 3 — Database & Auth',
-        icon: '🗄️',
+        icon: 'database',
         level: 'intermediate',
         description: 'Data store karo aur users ko secure karo.',
         steps: [
@@ -206,7 +206,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 4 — DevOps & Deploy',
-        icon: '🐳',
+        icon: 'docker',
         level: 'advanced',
         description: 'App ko containerise karo aur production mein deploy karo.',
         steps: [
@@ -225,7 +225,7 @@ export const ROADMAPS = [
   {
     slug: 'fullstack',
     title: 'Full Stack Developer',
-    icon: '🚀',
+    icon: 'rocket',
     tagline: 'Frontend aur backend dono — ek hi developer sab kuch build kare.',
     description:
       'Complete full-stack roadmap — HTML se lekar React, Node.js, MongoDB, TypeScript, Next.js aur deployment tak. Longest path, highest reward.',
@@ -243,7 +243,7 @@ export const ROADMAPS = [
     phases: [
       {
         title: 'Phase 1 — Web Foundations',
-        icon: '🌱',
+        icon: 'seedling',
         level: 'beginner',
         description: 'Web development ki neenv — structure, styling aur scripting.',
         steps: [
@@ -279,7 +279,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 2 — Frontend Stack',
-        icon: '🎨',
+        icon: 'css',
         level: 'intermediate',
         description: 'Modern frontend development — React ecosystem.',
         steps: [
@@ -308,7 +308,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 3 — Backend Stack',
-        icon: '⚙️',
+        icon: 'wrench',
         level: 'intermediate',
         description: 'Server-side development — APIs aur database.',
         steps: [
@@ -344,7 +344,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 4 — Advanced & Production',
-        icon: '🏆',
+        icon: 'trophy',
         level: 'advanced',
         description: 'TypeScript, Next.js aur deployment.',
         steps: [
@@ -377,7 +377,7 @@ export const ROADMAPS = [
   {
     slug: 'mern',
     title: 'MERN Stack',
-    icon: '⚡',
+    icon: 'bolt',
     tagline: 'MongoDB + Express + React + Node.js — India ka most popular job stack.',
     description:
       'MERN stack ka focused roadmap — ye four technologies sikhke tum full-stack JavaScript developer ban jaoge. India mein MERN jobs sabse zyada hain.',
@@ -395,7 +395,7 @@ export const ROADMAPS = [
     phases: [
       {
         title: 'Phase 1 — JavaScript First',
-        icon: '🌱',
+        icon: 'seedling',
         level: 'beginner',
         description: 'MERN sab JavaScript hai — pehle JS solid karo.',
         steps: [
@@ -410,7 +410,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 2 — React (M-E-R-N ka R)',
-        icon: '⚛️',
+        icon: 'react',
         level: 'intermediate',
         description: 'Frontend — user jo screen pe dekhta hai woh React banata hai.',
         steps: [
@@ -432,7 +432,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 3 — Node + Express (M-E-R-N ka N+E)',
-        icon: '⚙️',
+        icon: 'wrench',
         level: 'intermediate',
         description: 'Backend — server aur API jo React se communicate karta hai.',
         steps: [
@@ -461,7 +461,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 4 — MongoDB (M-E-R-N ka M)',
-        icon: '🍃',
+        icon: 'leaf',
         level: 'intermediate',
         description: 'Database — data store karo aur query karo.',
         steps: [
@@ -476,7 +476,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 5 — Ship It',
-        icon: '🚢',
+        icon: 'ship',
         level: 'advanced',
         description: 'MERN app deploy karo aur world ko dikhao.',
         steps: [
@@ -502,7 +502,7 @@ export const ROADMAPS = [
   {
     slug: 'pern',
     title: 'PERN Stack',
-    icon: '🐘',
+    icon: 'database',
     tagline: 'PostgreSQL + Express + React + Node.js — SQL wali full-stack power.',
     description:
       'PERN stack roadmap — MongoDB ki jagah PostgreSQL (relational DB). Financial apps, enterprise systems aur complex data relationships ke liye PERN prefer kiya jaata hai.',
@@ -520,7 +520,7 @@ export const ROADMAPS = [
     phases: [
       {
         title: 'Phase 1 — JavaScript + Git',
-        icon: '🌱',
+        icon: 'seedling',
         level: 'beginner',
         description: 'PERN ka base — sab kuch JavaScript hai.',
         steps: [
@@ -542,7 +542,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 2 — React Frontend',
-        icon: '⚛️',
+        icon: 'react',
         level: 'intermediate',
         description: 'PERN ka R — React se UI banao.',
         steps: [
@@ -564,7 +564,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 3 — Node + Express Backend',
-        icon: '⚙️',
+        icon: 'wrench',
         level: 'intermediate',
         description: 'PERN ka E+N — backend aur APIs.',
         steps: [
@@ -593,7 +593,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 4 — PostgreSQL (PERN ka P)',
-        icon: '🐘',
+        icon: 'database',
         level: 'intermediate',
         description: 'Relational database — SQL aur PostgreSQL.',
         steps: [
@@ -602,7 +602,7 @@ export const ROADMAPS = [
             order: 8,
             note: 'external',
             externalTitle: 'PostgreSQL + SQL',
-            externalIcon: '🐘',
+            externalIcon: 'database',
             externalDescription:
               'PERN ka P — PostgreSQL ek powerful relational database hai. SQL, tables, joins, transactions aur pg (node-postgres) library seekho. W3Schools SQL tutorial + PostgreSQL official docs se start karo.',
             why: 'MERN vs PERN ka main difference — MongoDB ki jagah PostgreSQL. Relational data ke liye SQL queries powerful hain.',
@@ -614,7 +614,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 5 — Deploy',
-        icon: '🚀',
+        icon: 'rocket',
         level: 'advanced',
         description: 'PERN app deploy karo.',
         steps: [
@@ -633,7 +633,7 @@ export const ROADMAPS = [
   {
     slug: 'devops',
     title: 'DevOps',
-    icon: '🐳',
+    icon: 'docker',
     tagline: 'Code likhna sikhna toh hai — ship karna bhi sikho.',
     description:
       'DevOps roadmap — Git se lekar Docker, CI/CD aur cloud deployment tak. Apps reliably build, test aur deploy karna seekho.',
@@ -651,7 +651,7 @@ export const ROADMAPS = [
     phases: [
       {
         title: 'Phase 1 — Version Control',
-        icon: '🌿',
+        icon: 'git',
         level: 'beginner',
         description: 'Git aur GitHub — DevOps ka starting point.',
         steps: [
@@ -666,7 +666,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 2 — Containers',
-        icon: '🐳',
+        icon: 'docker',
         level: 'intermediate',
         description: 'Docker se apps package karo — consistent environments everywhere.',
         steps: [
@@ -688,7 +688,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 3 — Deploy & Automate',
-        icon: '🚀',
+        icon: 'rocket',
         level: 'intermediate',
         description: 'Apps deploy karo aur CI/CD pipelines banao.',
         steps: [
@@ -710,7 +710,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 4 — Advanced DevOps',
-        icon: '🔧',
+        icon: 'wrench',
         level: 'advanced',
         description: 'CI/CD pipelines, monitoring aur production best practices.',
         steps: [
@@ -736,7 +736,7 @@ export const ROADMAPS = [
   {
     slug: 'ai-engineer',
     title: 'AI Engineer',
-    icon: '🤖',
+    icon: 'robot',
     tagline: 'Python se lekar LLMs tak — AI apps banao jo sach mein kaam karein.',
     description:
       'AI Engineering ka complete roadmap — Python, Math, Data, Machine Learning, Deep Learning, Generative AI aur LLMs se lekar RAG, fine-tuning aur MLOps tak. Sabse zyada demand wala career, step-by-step Hinglish mein.',
@@ -754,7 +754,7 @@ export const ROADMAPS = [
     phases: [
       {
         title: 'Phase 1 — Programming Foundation',
-        icon: '🐍',
+        icon: 'python',
         level: 'beginner',
         description: 'AI ki language Python hai — pehle programming solid karo.',
         steps: [
@@ -783,7 +783,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 2 — Math & Data',
-        icon: '📊',
+        icon: 'chart',
         level: 'intermediate',
         description: 'AI ke andar math aur data hi engine hain — inhe samjho.',
         steps: [
@@ -826,7 +826,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 3 — Machine Learning',
-        icon: '🧠',
+        icon: 'brain',
         level: 'advanced',
         description: 'Models jo data se seekhte hain — ML aur Deep Learning.',
         steps: [
@@ -848,7 +848,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 4 — Generative AI & LLMs',
-        icon: '✨',
+        icon: 'sparkles',
         level: 'advanced',
         description: 'LLMs, prompting aur GenAI apps — aaj ka sabse hot area.',
         steps: [
@@ -891,7 +891,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 5 — AI Coding Tools',
-        icon: '⚡',
+        icon: 'bolt',
         level: 'intermediate',
         description: 'AI ke saath 10x fast build karo — modern developer superpower.',
         steps: [
@@ -920,7 +920,7 @@ export const ROADMAPS = [
       },
       {
         title: 'Phase 6 — Production & MLOps',
-        icon: '🚀',
+        icon: 'rocket',
         level: 'advanced',
         description: 'Models ko real users tak pahunchao — serve, scale aur monitor.',
         steps: [
@@ -960,42 +960,42 @@ export const ROADMAPS = [
 
 // Lookup map: courseSlug → course metadata (icon, title, difficulty)
 export const COURSE_META = {
-  javascript: { icon: '🟨', title: 'JavaScript',          difficulty: 'beginner'     },
-  html:        { icon: '🧱', title: 'HTML',                difficulty: 'beginner'     },
-  html5:       { icon: '🌐', title: 'HTML5',               difficulty: 'intermediate' },
-  css:         { icon: '🎨', title: 'CSS',                  difficulty: 'beginner'     },
-  tailwind:    { icon: '💨', title: 'Tailwind CSS',         difficulty: 'intermediate' },
-  react:       { icon: '⚛️', title: 'React.js',             difficulty: 'intermediate' },
-  nodejs:      { icon: '🟢', title: 'Node.js',              difficulty: 'intermediate' },
-  express:     { icon: '🚂', title: 'Express.js',           difficulty: 'intermediate' },
-  mongodb:     { icon: '🍃', title: 'MongoDB',              difficulty: 'intermediate' },
-  typescript:  { icon: '🔷', title: 'TypeScript',           difficulty: 'intermediate' },
-  nextjs:      { icon: '▲',  title: 'Next.js',              difficulty: 'intermediate' },
-  redux:       { icon: '🔄', title: 'Redux & Zustand',      difficulty: 'intermediate' },
-  git:         { icon: '🌿', title: 'Git & GitHub',         difficulty: 'beginner'     },
-  restapi:     { icon: '🔐', title: 'REST API & JWT Auth',  difficulty: 'intermediate' },
-  docker:      { icon: '🐳', title: 'Docker & Deployment',  difficulty: 'intermediate' },
+  javascript: { icon: 'javascript', title: 'JavaScript',          difficulty: 'beginner'     },
+  html:        { icon: 'html', title: 'HTML',                difficulty: 'beginner'     },
+  html5:       { icon: 'globe', title: 'HTML5',               difficulty: 'intermediate' },
+  css:         { icon: 'css', title: 'CSS',                  difficulty: 'beginner'     },
+  tailwind:    { icon: 'wind', title: 'Tailwind CSS',         difficulty: 'intermediate' },
+  react:       { icon: 'react', title: 'React.js',             difficulty: 'intermediate' },
+  nodejs:      { icon: 'node', title: 'Node.js',              difficulty: 'intermediate' },
+  express:     { icon: 'train', title: 'Express.js',           difficulty: 'intermediate' },
+  mongodb:     { icon: 'leaf', title: 'MongoDB',              difficulty: 'intermediate' },
+  typescript:  { icon: 'square', title: 'TypeScript',           difficulty: 'intermediate' },
+  nextjs:      { icon: 'caret-up',  title: 'Next.js',              difficulty: 'intermediate' },
+  redux:       { icon: 'rotate', title: 'Redux & Zustand',      difficulty: 'intermediate' },
+  git:         { icon: 'git', title: 'Git & GitHub',         difficulty: 'beginner'     },
+  restapi:     { icon: 'lock', title: 'REST API & JWT Auth',  difficulty: 'intermediate' },
+  docker:      { icon: 'docker', title: 'Docker & Deployment',  difficulty: 'intermediate' },
 
   // AI Engineer roadmap
-  python:        { icon: '🐍', title: 'Python',                 difficulty: 'beginner'     },
-  dsa:           { icon: '🧩', title: 'DSA',                    difficulty: 'intermediate' },
-  numpy:         { icon: '🔢', title: 'NumPy',                  difficulty: 'intermediate' },
-  pandas:        { icon: '🐼', title: 'Pandas',                 difficulty: 'intermediate' },
-  sql:           { icon: '🗃️', title: 'SQL',                    difficulty: 'beginner'     },
-  'data-science':{ icon: '📊', title: 'Data Science',           difficulty: 'intermediate' },
-  'ai-ml':       { icon: '🧠', title: 'AI & Machine Learning',  difficulty: 'advanced'     },
-  'gen-ai':      { icon: '🤖', title: 'Generative AI',          difficulty: 'intermediate' },
-  chatgpt:       { icon: '💬', title: 'ChatGPT & GPT-4',        difficulty: 'beginner'     },
-  'claude-ai':   { icon: '🧡', title: 'Claude AI',              difficulty: 'beginner'     },
-  'claude-code': { icon: '🖥️', title: 'Claude Code',            difficulty: 'intermediate' },
-  'codex-ai':    { icon: '⚡', title: 'OpenAI Codex',           difficulty: 'intermediate' },
-  gemini:        { icon: '✨', title: 'Google Gemini',          difficulty: 'beginner'     },
-  'system-design':{ icon: '🏗️', title: 'System Design',         difficulty: 'advanced'     },
-  'math-for-ml': { icon: '➗', title: 'Math for Machine Learning', difficulty: 'intermediate' },
-  'deep-learning':{ icon: '🔥', title: 'Deep Learning',          difficulty: 'advanced'     },
-  rag:           { icon: '🔎', title: 'RAG & Vector Databases',  difficulty: 'intermediate' },
-  'fine-tuning': { icon: '🎯', title: 'Fine-tuning & Adaptation', difficulty: 'advanced'     },
-  mlops:         { icon: '🔧', title: 'MLOps',                   difficulty: 'advanced'     },
+  python:        { icon: 'python', title: 'Python',                 difficulty: 'beginner'     },
+  dsa:           { icon: 'puzzle', title: 'DSA',                    difficulty: 'intermediate' },
+  numpy:         { icon: 'hashtag', title: 'NumPy',                  difficulty: 'intermediate' },
+  pandas:        { icon: 'python', title: 'Pandas',                 difficulty: 'intermediate' },
+  sql:           { icon: 'database', title: 'SQL',                    difficulty: 'beginner'     },
+  'data-science':{ icon: 'chart', title: 'Data Science',           difficulty: 'intermediate' },
+  'ai-ml':       { icon: 'brain', title: 'AI & Machine Learning',  difficulty: 'advanced'     },
+  'gen-ai':      { icon: 'robot', title: 'Generative AI',          difficulty: 'intermediate' },
+  chatgpt:       { icon: 'comments', title: 'ChatGPT & GPT-4',        difficulty: 'beginner'     },
+  'claude-ai':   { icon: 'heart', title: 'Claude AI',              difficulty: 'beginner'     },
+  'claude-code': { icon: 'desktop', title: 'Claude Code',            difficulty: 'intermediate' },
+  'codex-ai':    { icon: 'bolt', title: 'OpenAI Codex',           difficulty: 'intermediate' },
+  gemini:        { icon: 'sparkles', title: 'Google Gemini',          difficulty: 'beginner'     },
+  'system-design':{ icon: 'project', title: 'System Design',         difficulty: 'advanced'     },
+  'math-for-ml': { icon: 'divide', title: 'Math for Machine Learning', difficulty: 'intermediate' },
+  'deep-learning':{ icon: 'fire', title: 'Deep Learning',          difficulty: 'advanced'     },
+  rag:           { icon: 'search', title: 'RAG & Vector Databases',  difficulty: 'intermediate' },
+  'fine-tuning': { icon: 'target', title: 'Fine-tuning & Adaptation', difficulty: 'advanced'     },
+  mlops:         { icon: 'wrench', title: 'MLOps',                   difficulty: 'advanced'     },
 };
 
 export const ROADMAP_COLORS = {

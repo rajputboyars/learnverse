@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import Icon from '../Icon';
 
 export default function Quiz({ conceptId, quiz, onPassed }) {
   const { data: session } = useSession();
@@ -65,7 +66,7 @@ export default function Quiz({ conceptId, quiz, onPassed }) {
     return (
       <section className="flex items-center justify-between gap-4 rounded-2xl border border-indigo-100 bg-indigo-50/50 p-5 sm:p-6">
         <div className="flex items-center gap-2">
-          <span className="text-xl">🧠</span>
+          <Icon name="brain" className="h-5 w-5 text-indigo-600" />
           <div>
             <h3 className="text-lg font-semibold">Did you understand? Quick quiz</h3>
             <p className="text-sm text-slate-600">
@@ -99,7 +100,7 @@ export default function Quiz({ conceptId, quiz, onPassed }) {
       >
       <div className="mb-4 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-xl">🧠</span>
+          <Icon name="brain" className="h-5 w-5 text-indigo-600" />
           <h3 className="text-lg font-semibold">Did you understand? Quick quiz</h3>
         </div>
         <button
@@ -107,7 +108,7 @@ export default function Quiz({ conceptId, quiz, onPassed }) {
           aria-label="Close quiz"
           className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
         >
-          ✕
+          <Icon name="x" className="h-4 w-4" />
         </button>
       </div>
 
@@ -141,7 +142,7 @@ export default function Quiz({ conceptId, quiz, onPassed }) {
                 })}
               </div>
               {res?.explanation && (
-                <p className="mt-2 text-sm text-slate-600">💡 {res.explanation}</p>
+                <p className="mt-2 text-sm text-slate-600"><Icon name="lightbulb" className="mr-1.5 h-3.5 w-3.5 text-amber-500" />{res.explanation}</p>
               )}
             </div>
           );
@@ -161,7 +162,7 @@ export default function Quiz({ conceptId, quiz, onPassed }) {
           <p className="font-semibold">
             You got {result.correct}/{result.total} correct{' '}
             {result.passed || (result.guest && result.correct / result.total >= 0.6)
-              ? '🎉'
+              ? <Icon name="sparkles" className="h-4 w-4 text-amber-500" />
               : '— try again!'}
           </p>
           {result.guest ? (
@@ -176,7 +177,7 @@ export default function Quiz({ conceptId, quiz, onPassed }) {
               +{result.reward.gained} XP earned! Total: {result.reward.totalXP} XP
             </p>
           ) : result.passed ? (
-            <p className="mt-2 text-sm text-slate-600">Already completed earlier ✅</p>
+            <p className="mt-2 text-sm text-slate-600">Already completed earlier <Icon name="check-circle" className="h-3.5 w-3.5 text-green-600" /></p>
           ) : (
             <button
               onClick={() => { setResult(null); setAnswers({}); }}
