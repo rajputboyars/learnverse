@@ -1,6 +1,8 @@
 // AEM Edge Delivery Services (EDS) curriculum — zero to hero, beginner -> intermediate -> advanced.
 // Same shape as docker.mjs / git.mjs, consumed by scripts/seed.mjs.
 
+import { deepDives } from './eds-deep-dives.mjs';
+
 export function slugify(text) {
   return String(text)
     .toLowerCase()
@@ -910,6 +912,586 @@ const advanced = [
       },
     ],
   },
+  {
+    title: 'Site-Wide Patterns: Nav, Footer & Redirects',
+    level: 'advanced',
+    description: 'Nav/Footer special blocks, redirects.json, 404 handling, aur accessibility defaults.',
+    concepts: [
+      {
+        title: 'The Nav and Footer Blocks — Special, Site-Wide Fragments',
+        difficulty: 'medium',
+        tags: ['eds', 'nav', 'footer', 'fragments'],
+        explanation: {
+          english:
+            "Nav and footer are the one case in EDS where content genuinely needs to be identical on every single page, so the boilerplate treats them as special-cased fragments rather than something an author repeats per-page. A document at a fixed path (e.g. `/nav` and `/footer`) holds the nav/footer content once; `scripts.js`'s eager phase explicitly fetches both, using the exact same fragment-loading mechanism covered earlier, and injects the results into the page's `<header>` and `<footer>` before the rest of decoration happens. This is why editing the nav document updates every page site-wide instantly on next publish, with zero code change and zero per-page duplication — the same fragment technique you'd use for a reusable FAQ, applied to the two pieces of content every page needs.",
+          hinglish:
+            "Nav aur footer EDS mein wo ek case hain jahan content ko genuinely har single page pe identical hona chahiye, isliye boilerplate unhe special-cased fragments ki tarah treat karta hai, na ki kuch jo author har page pe repeat kare. Ek fixed path pe ek document (jaise `/nav` aur `/footer`) nav/footer content ek baar hold karta hai; `scripts.js` ka eager phase explicitly dono fetch karta hai, wahi exact fragment-loading mechanism use karke jo pehle cover kiya, aur results ko page ke `<header>` aur `<footer>` mein inject karta hai baaki decoration hone se pehle. Isi wajah se nav document edit karne se agle publish pe poori site instantly update ho jaati hai, zero code change aur zero per-page duplication ke saath — wahi fragment technique jo tum ek reusable FAQ ke liye use karte, un do content pieces pe apply hoti hai jo har page ko chahiye.",
+        },
+        dailyLifeExample:
+          'Ye ek mall ke har floor pe lagi common directory board jaisa hai — mall management (author) ek jagah board ka content update karta hai, aur har floor (page) ka apna board automatically wahi naya content dikhata hai, kisi ko har floor pe alag se jaake board badalna nahi padta.',
+        codeExample:
+          "// scripts.js — simplified nav/footer loading (eager phase)\nasync function loadHeader(header) {\n  const navPath = '/nav';\n  const html = await fetch(\`\${navPath}.plain.html\`).then((r) => r.text());\n  header.innerHTML = html;\n  // then decorate any blocks found inside the fetched nav content\n}\n\nasync function loadFooter(footer) {\n  const html = await fetch('/footer.plain.html').then((r) => r.text());\n  footer.innerHTML = html;\n}\n\n// Both run during the eager phase, alongside the page's own content",
+        keyPoints: [
+          'Nav/footer live in one fixed-path document each (e.g. /nav, /footer)',
+          'scripts.js fetches and injects them during the eager phase',
+          'It reuses the same fragment-loading mechanism as reusable content blocks',
+          'Editing the nav/footer document updates the whole site on next publish',
+        ],
+        quiz: [
+          {
+            question: 'Why are nav and footer treated specially instead of being authored per-page?',
+            options: [
+              'Because EDS forbids editing them',
+              'Because their content is genuinely identical on every page, so one document backs the whole site',
+              'Because they are written in a different language',
+              'They are not actually special — every block works this way',
+            ],
+            correctIndex: 1,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'How does EDS keep the navigation menu in sync across hundreds of pages when an author adds a new menu item?',
+            difficulty: 'medium',
+            frequency: 'common',
+            answer: {
+              english:
+                "Nav content lives in a single document at a fixed path (e.g. /nav), not duplicated per page. scripts.js's eager phase fetches that document's generated HTML and injects it into every page's <header> before decoration continues — the same fragment-loading mechanism used for reusable content. So an author editing and publishing that one document updates the menu on every page site-wide immediately, with no code change.",
+              hinglish:
+                "Nav content ek single document mein rehta hai ek fixed path pe (jaise /nav), har page pe duplicate nahi hota. scripts.js ka eager phase us document ki generated HTML fetch karta hai aur use har page ke <header> mein inject karta hai decoration continue hone se pehle — wahi fragment-loading mechanism jo reusable content ke liye use hota hai. Isliye author us ek document ko edit aur publish karke poori site pe menu ko turant update kar deta hai, koi code change nahi.",
+            },
+          },
+        ],
+      },
+      {
+        title: 'redirects.json & 404 Handling',
+        difficulty: 'medium',
+        tags: ['eds', 'redirects', '404', 'routing'],
+        explanation: {
+          english:
+            "Because content lives in documents rather than a database with stable IDs, pages get renamed or moved more often than in a traditional CMS — an author renaming a doc changes its URL. EDS's answer is a `redirects.json` document (or spreadsheet), authored the same way as content, with two columns: the old path and the new path. `scripts.js` checks incoming requests against this table early, before any block decoration, and issues the redirect. A request that matches nothing in redirects.json and has no matching document falls through to `404.html` — a normal static page in the code repo, styled like the rest of the site, that developers own and customise directly, since a 'page not found' is a code-repo concern, not a content-authoring one.",
+          hinglish:
+            "Kyunki content database mein stable IDs ke bajaye documents mein rehta hai, pages traditional CMS se zyada baar rename ya move hote hain — ek author ek doc rename karta hai to uska URL badal jaata hai. EDS ka jawab hai ek `redirects.json` document (ya spreadsheet), content jaise hi authored, do columns ke saath: purana path aur naya path. `scripts.js` incoming requests ko is table ke against jaldi check karta hai, kisi bhi block decoration se pehle, aur redirect issue karta hai. Ek request jo redirects.json mein kuch match nahi karti aur jiska koi matching document nahi hai `404.html` pe fall through hoti hai — code repo mein ek normal static page, baaki site jaisi styled, jise developers directly own aur customise karte hain, kyunki ek 'page not found' code-repo ka concern hai, content-authoring ka nahi.",
+        },
+        dailyLifeExample:
+          'Ye ek dukaan ke shift hone jaisa hai — purane address pe ek chhota note chipka diya jaata hai "Hum yahan shift ho gaye, naya address ye hai" (redirect), taaki purane grahak bhatak na jaayen. Aur agar koi bilkul galat address pe pahunch jaaye jo kabhi exist hi nahi karta, ek "yahan koi dukaan nahi hai" board (404 page) dikhta hai.',
+        codeExample:
+          '// redirects.json (authored as a doc/sheet, converted like content)\n{\n  "data": [\n    { "Source": "/old-pricing", "Destination": "/pricing" },\n    { "Source": "/blog/old-post", "Destination": "/resources/old-post" }\n  ]\n}\n\n// scripts.js checks this table early, before block decoration:\n// request for /old-pricing -> 301/302 redirect to /pricing\n\n// No match anywhere -> falls through to 404.html\n// (a normal file in the code repo, developer-owned)',
+        keyPoints: [
+          'redirects.json maps old paths to new ones, authored like content',
+          'Checked early in scripts.js, before any block decoration runs',
+          'Handles the fact that renaming a document changes its URL',
+          '404.html is a developer-owned code file, not an authored document',
+        ],
+        quiz: [
+          {
+            question: 'Why does EDS need a redirects mechanism more than a typical database-backed CMS might?',
+            options: [
+              'EDS pages never actually get renamed',
+              'Because content lives in documents whose URLs change when an author renames the doc, unlike stable database IDs',
+              'redirects.json is only used for external links',
+              'It is purely a legal requirement with no technical reason',
+            ],
+            correctIndex: 1,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'An author renames a published document, breaking bookmarked links and SEO rankings for the old URL. How do you handle this in EDS?',
+            difficulty: 'medium',
+            frequency: 'common',
+            answer: {
+              english:
+                "Add an entry to the project's redirects.json (or the spreadsheet backing it) mapping the old path to the new one. scripts.js checks incoming requests against this table early, before any block decoration, and issues the redirect — preserving old bookmarks and passing SEO signal to the new URL, without needing a code change or a server-side rule.",
+              hinglish:
+                "Project ke redirects.json (ya use backing karne wali spreadsheet) mein ek entry add karo jo purane path ko naye se map kare. scripts.js incoming requests ko is table ke against jaldi check karta hai, kisi bhi block decoration se pehle, aur redirect issue karta hai — purane bookmarks preserve karte hue aur SEO signal ko naye URL tak pass karte hue, bina kisi code change ya server-side rule ke.",
+            },
+          },
+        ],
+      },
+      {
+        title: 'Accessibility Defaults in Blocks',
+        difficulty: 'medium',
+        tags: ['eds', 'accessibility', 'a11y', 'best-practices'],
+        explanation: {
+          english:
+            "Because EDS blocks are hand-written HTML rather than framework components with built-in accessibility primitives, semantic correctness is entirely the block author's responsibility, and it's a common interview probe. Practical defaults: `decorate()` should produce real semantic elements (`<button>` not a `<div onclick>`, `<nav>`, `<ul><li>`) so screen readers and keyboard navigation work without extra ARIA; every image passed through `createOptimizedPicture()` needs a meaningful `alt` sourced from the author's doc, never empty unless the image is purely decorative; interactive elements you build (a custom accordion, a carousel) need keyboard handlers (Enter/Space, arrow keys) in addition to click handlers, since a `<div>` with only a click listener is invisible to keyboard/screen-reader users; and colour choices in a block's CSS should meet WCAG contrast ratios, since there's no linter enforcing this automatically the way some component libraries do.",
+          hinglish:
+            "Kyunki EDS blocks hand-written HTML hote hain, na ki built-in accessibility primitives wale framework components, semantic correctness poori tarah block author ki responsibility hai, aur ye ek common interview probe hai. Practical defaults: `decorate()` ko real semantic elements banane chahiye (`<div onclick>` nahi, `<button>`, `<nav>`, `<ul><li>`) taaki screen readers aur keyboard navigation bina extra ARIA ke kaam karein; `createOptimizedPicture()` se guzarne wali har image ko ek meaningful `alt` chahiye jo author ke doc se aaye, kabhi khaali nahi jab tak image purely decorative na ho; jo interactive elements tum khud banate ho (ek custom accordion, ek carousel) unhe keyboard handlers chahiye (Enter/Space, arrow keys) click handlers ke alawa, kyunki sirf click listener wala ek `<div>` keyboard/screen-reader users ke liye invisible hota hai; aur block ke CSS mein colour choices ko WCAG contrast ratios milne chahiye, kyunki koi linter ise automatically enforce nahi karta jaise kuch component libraries karti hain.",
+        },
+        dailyLifeExample:
+          'Ye ek building mein ramp banane jaisa hai sirf stairs ke bajaye — koi automatically ise force nahi karta, par ek achha architect (developer) jaan-boojh kar ise design mein shaamil karta hai taaki har koi building use kar sake, na sirf wo log jo stairs chad sakte hain.',
+        codeExample:
+          "// BAD — invisible to keyboard/screen-reader users\nconst tab = document.createElement('div');\ntab.addEventListener('click', () => activate(tab));\n\n// GOOD — real semantics + keyboard support\nconst tab = document.createElement('button');\ntab.setAttribute('role', 'tab');\ntab.setAttribute('aria-selected', 'false');\ntab.addEventListener('click', () => activate(tab));\ntab.addEventListener('keydown', (e) => {\n  if (e.key === 'Enter' || e.key === ' ') activate(tab);\n});\n\n// Images — alt must come from the author's content, not be left empty\nconst pic = createOptimizedPicture(img.src, img.alt || '', false);",
+        keyPoints: [
+          'Accessibility in EDS blocks is entirely on the developer — no framework enforces it',
+          'Prefer real semantic elements (<button>, <nav>) over div+onclick',
+          'Every meaningful image needs an author-sourced alt attribute',
+          'Custom interactive elements need keyboard handlers, not just click handlers',
+        ],
+        quiz: [
+          {
+            question: 'Why is accessibility a bigger manual responsibility in EDS block code than in many component libraries?',
+            options: [
+              'EDS blocks cannot be made accessible at all',
+              'There is no framework enforcing semantic HTML or ARIA — the block author must build it in by hand',
+              'Accessibility is handled entirely by the CDN',
+              'Authors are responsible for accessibility, not developers',
+            ],
+            correctIndex: 1,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'You built a custom "Accordion" block using divs with click handlers. A screen-reader user reports it doesn\'t work. What\'s wrong and how do you fix it?',
+            difficulty: 'medium',
+            frequency: 'common',
+            answer: {
+              english:
+                "A div with only a click listener has no semantic meaning and isn't keyboard-focusable, so screen readers announce nothing useful and keyboard-only users can't reach it. Fix: use real interactive elements (<button>) for the accordion headers, add aria-expanded reflecting open/closed state, and add keydown handlers for Enter/Space so it works without a mouse — EDS gives no framework-level accessibility for free, so this has to be built into decorate() explicitly.",
+              hinglish:
+                "Sirf click listener wale div ka koi semantic meaning nahi hai aur wo keyboard-focusable nahi hai, isliye screen readers kuch useful announce nahi karte aur keyboard-only users wahan pahunch hi nahi sakte. Fix: accordion headers ke liye real interactive elements (<button>) use karo, open/closed state reflect karta hua aria-expanded add karo, aur Enter/Space ke liye keydown handlers add karo taaki ye bina mouse ke kaam kare — EDS koi framework-level accessibility free mein nahi deta, isliye ye decorate() mein explicitly build karna padta hai.",
+            },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Monitoring, Testing & the Universal Editor',
+    level: 'advanced',
+    description: 'RUM analytics, block testing/CI, aur visual (WYSIWYG) authoring ke saath Universal Editor.',
+    concepts: [
+      {
+        title: 'Real User Monitoring (RUM) — Built-in, Privacy-Friendly Analytics',
+        difficulty: 'medium',
+        tags: ['eds', 'rum', 'analytics', 'performance-monitoring'],
+        explanation: {
+          english:
+            "Most EDS boilerplates ship with a lightweight RUM (Real User Monitoring) script loaded in the delayed phase — it samples a small percentage of real visitors and reports actual, field Core Web Vitals (LCP, CLS, INP) plus basic navigation/click events back to Adobe's collector, without cookies or personal data, so it doesn't need a cookie-consent banner the way most third-party analytics do. This matters for interviews because it closes the loop on EDS's whole performance philosophy: you're not just optimising for a lab score (Lighthouse, run once in CI) but continuously measuring what real users on real devices and real networks actually experience, and the sampling keeps the RUM script itself tiny enough that it doesn't meaningfully hurt the performance it's measuring.",
+          hinglish:
+            "Zyadatar EDS boilerplates ek lightweight RUM (Real User Monitoring) script ke saath ship hote hain jo delayed phase mein load hota hai — ye real visitors ka ek chhota percentage sample karta hai aur actual, field Core Web Vitals (LCP, CLS, INP) plus basic navigation/click events wapas Adobe ke collector ko report karta hai, bina cookies ya personal data ke, isliye ise cookie-consent banner ki zaroorat nahi padti jaise zyadatar third-party analytics ko padti hai. Ye interviews ke liye matter karta hai kyunki ye EDS ki poori performance philosophy ka loop band karta hai: tum sirf ek lab score (Lighthouse, CI mein ek baar chala hua) ke liye optimise nahi kar rahe, balki continuously measure kar rahe ho ki real devices aur real networks pe real users actually kya experience karte hain, aur sampling RUM script ko khud itna chhota rakhti hai ki ye us performance ko meaningfully hurt na kare jise ye measure kar raha hai.",
+        },
+        dailyLifeExample:
+          'Ye ek restaurant ke quality-check jaisa hai jo sirf kitchen mein ek baar taste test (Lighthouse, lab test) karne ke bajaye, kabhi-kabhi asli customers se unka real feedback bhi leta hai (RUM) — bina unka naam-pata poochhe, bas anonymous feedback, taaki pata chale ki asli experience kaisa hai, na sirf controlled kitchen test mein.',
+        codeExample:
+          "// delayed.js — RUM is typically wired up here, in the delayed phase\nimport { sampleRUM } from './aem.js';\n\nsampleRUM('cwv');   // reports field Core Web Vitals for sampled visitors\nsampleRUM('click', { source: '.cards a' });  // basic interaction tracking\n\n// No cookies, no personal data -> no cookie-consent banner needed\n// Sampling keeps the script's own footprint small",
+        keyPoints: [
+          'RUM measures real, field performance data from actual visitors — not just a lab score',
+          'It runs in the delayed phase and samples only a fraction of visitors',
+          'No cookies/personal data, so no consent banner is required',
+          'Closes the loop between "Lighthouse says it\'s fast" and "users actually experience it as fast"',
+        ],
+        quiz: [
+          {
+            question: 'Why doesn\'t EDS\'s built-in RUM typically require a cookie-consent banner?',
+            options: [
+              'It is illegal to require one',
+              'It samples only a small percentage of visitors',
+              'It reports aggregate performance data without cookies or personal data',
+              'Consent banners are handled by the CDN automatically',
+            ],
+            correctIndex: 2,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'Your Lighthouse CI score is 98, but you suspect real users on slow networks are having a worse experience. How would you find out in an EDS project?',
+            difficulty: 'hard',
+            frequency: 'rare',
+            answer: {
+              english:
+                "Look at the project's RUM data rather than trusting Lighthouse alone. Lighthouse is a single, controlled lab run; RUM samples real visitors on their actual devices and networks and reports field Core Web Vitals (LCP, CLS, INP) back continuously. A gap between a high lab score and worse field data usually points to real-world conditions Lighthouse doesn't simulate — slow 3G, low-end devices, or a third-party script that only misbehaves for some users.",
+              hinglish:
+                "Sirf Lighthouse pe trust karne ke bajaye project ke RUM data ko dekho. Lighthouse ek single, controlled lab run hai; RUM real visitors ko unke actual devices aur networks pe sample karta hai aur field Core Web Vitals (LCP, CLS, INP) continuously wapas report karta hai. Ek high lab score aur worse field data ke beech gap usually un real-world conditions ki taraf ishara karta hai jinhe Lighthouse simulate nahi karta — slow 3G, low-end devices, ya ek third-party script jo sirf kuch users ke liye misbehave karti hai.",
+            },
+          },
+        ],
+      },
+      {
+        title: 'Testing Blocks — Linting, CI Checks & Visual Regression',
+        difficulty: 'medium',
+        tags: ['eds', 'testing', 'ci', 'linting'],
+        explanation: {
+          english:
+            "Since there's no build step and no framework test-renderer, EDS testing leans on a few lighter-weight layers instead of a typical Jest/React Testing Library setup. ESLint and Stylelint (both included in the boilerplate) catch obvious JS/CSS mistakes on every commit via a pre-commit hook and in CI. A GitHub Action runs Lighthouse CI against each PR's own live preview URL, failing the PR on a performance/accessibility/SEO regression — this is EDS's substitute for a traditional 'does it still work' test, since a broken block usually also tanks the Lighthouse score. For genuine functional testing, teams write plain browser-based tests (e.g. Playwright) that load a real preview URL and assert on the rendered DOM after decoration — testing the OUTPUT of decorate() rather than unit-testing the function in isolation, since there's no virtual DOM to render against outside a real browser.",
+          hinglish:
+            "Kyunki koi build step nahi hai aur koi framework test-renderer nahi hai, EDS testing ek typical Jest/React Testing Library setup ke bajaye kuch lighter-weight layers pe leki hai. ESLint aur Stylelint (dono boilerplate mein included) har commit pe ek pre-commit hook aur CI mein obvious JS/CSS mistakes pakadte hain. Ek GitHub Action har PR ki apni live preview URL ke against Lighthouse CI chalata hai, ek performance/accessibility/SEO regression pe PR ko fail karte hue — ye EDS ka substitute hai ek traditional 'kya ye abhi bhi kaam karta hai' test ke liye, kyunki ek tuta hua block usually Lighthouse score bhi tank kar deta hai. Genuine functional testing ke liye, teams plain browser-based tests likhti hain (jaise Playwright) jo ek real preview URL load karte hain aur decoration ke baad rendered DOM pe assert karte hain — decorate() ke OUTPUT ko test karte hue na ki function ko isolation mein unit-test karte hue, kyunki ek real browser ke bahar render karne ke liye koi virtual DOM nahi hai.",
+        },
+        dailyLifeExample:
+          'Ye ek bakery jaisa hai jo har din ke aakhir mein sirf recipe check nahi karti (unit test), balki asli oven mein bana hua asli cake taste karti hai (Lighthouse CI on live preview) — kyunki final result hi asli maayne rakhta hai, na ki recipe kitni "sahi" likhi gayi thi.',
+        codeExample:
+          "// .github/workflows/*.yml — runs on every PR\n# 1. ESLint + Stylelint — catches JS/CSS mistakes\n# 2. Lighthouse CI against the PR's own live preview URL\n#    fails the PR if performance/a11y/SEO regresses\n\n// A Playwright-style functional test — tests decorate()'s OUTPUT, not the function itself\ntest('cards block renders as a list', async ({ page }) => {\n  await page.goto('https://pr-123--repo--org.aem.page/test-page');\n  const items = await page.locator('.cards ul li').count();\n  expect(items).toBeGreaterThan(0);\n});",
+        keyPoints: [
+          'ESLint/Stylelint catch mistakes pre-commit and in CI',
+          'Lighthouse CI on the PR\'s live preview URL substitutes for a "does it work" test',
+          'Functional tests assert on decorate()\'s rendered DOM output, in a real browser',
+          'There is no virtual-DOM unit-testing layer — EDS leans on real browser testing instead',
+        ],
+        quiz: [
+          {
+            question: 'Why do EDS projects typically use Lighthouse CI as a stand-in for a "does the page still work" check?',
+            options: [
+              'Lighthouse cannot detect performance issues',
+              'A broken block usually also degrades the Lighthouse score, so it doubles as a regression signal',
+              'Lighthouse replaces the need for any code review',
+              'It is unrelated to functional correctness',
+            ],
+            correctIndex: 1,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'How would you write an automated test to catch a regression in a block, given EDS has no virtual DOM or component test-renderer?',
+            difficulty: 'medium',
+            frequency: 'rare',
+            answer: {
+              english:
+                "Write a real-browser test (e.g. with Playwright) that loads the block's own live preview URL and asserts on the actual rendered DOM after decorate() has run — for example, checking that a Cards block produces a <ul> with the expected number of <li> items. Since there's no virtual DOM to test against, you test the genuine output in a genuine browser rather than unit-testing decorate() in isolation.",
+              hinglish:
+                "Ek real-browser test likho (jaise Playwright se) jo block ki khud ki live preview URL load kare aur decorate() chalne ke baad actual rendered DOM pe assert kare — for example, check karo ki ek Cards block expected number of <li> items wala ek <ul> produce karta hai. Kyunki test karne ke liye koi virtual DOM nahi hai, tum ek genuine browser mein genuine output test karte ho, decorate() ko isolation mein unit-test karne ke bajaye.",
+            },
+          },
+        ],
+      },
+      {
+        title: 'The Universal Editor — Visual, WYSIWYG Authoring',
+        difficulty: 'hard',
+        tags: ['eds', 'universal-editor', 'authoring', 'advanced'],
+        explanation: {
+          english:
+            "Document-based authoring (Google Docs/SharePoint) is EDS's default, but it has a real limitation: an author can't see what a block will actually look like until they check the preview. The Universal Editor is Adobe's newer, optional visual authoring layer that sits on top of the same content/code model — it renders the real, decorated page in an iframe and lets an author click directly on a block to edit its fields in a side panel, WYSIWYG-style, closer to a traditional page builder. To support it, a block needs a small extra file — usually a component definition/model (JSON) describing its editable fields — alongside the existing `<name>.js`/`<name>.css`, so the Universal Editor knows what's editable and how. It's opt-in per project: document-based authoring and the Universal Editor can coexist, and many teams still default to documents for their simplicity while offering the Universal Editor for authors who want a more visual workflow.",
+          hinglish:
+            "Document-based authoring (Google Docs/SharePoint) EDS ka default hai, par isme ek real limitation hai: ek author ye nahi dekh sakta ki ek block actually kaisa dikhega jab tak wo preview check na kare. Universal Editor Adobe ka naya, optional visual authoring layer hai jo usi content/code model ke upar baithta hai — ye real, decorated page ko ek iframe mein render karta hai aur author ko seedha ek block pe click karke uske fields ko ek side panel mein edit karne deta hai, WYSIWYG-style, ek traditional page builder ke zyada kareeb. Ise support karne ke liye, ek block ko ek chhoti extra file chahiye — usually ek component definition/model (JSON) jo uske editable fields describe karti hai — existing `<name>.js`/`<name>.css` ke saath. Universal Editor ko pata chalta hai ki kya editable hai aur kaise. Ye per-project opt-in hai: document-based authoring aur Universal Editor saath reh sakte hain, aur bahut saari teams still documents ko unki simplicity ke liye default rakhti hain jabki un authors ko Universal Editor offer karti hain jinhe zyada visual workflow chahiye.",
+        },
+        dailyLifeExample:
+          'Ye ek darzi ke paas kapda order karne ke do tarike jaisa hai — ek, tum ek kaagaz pe measurements likh ke bhej do (document-based authoring, fast par tum result tabhi dekhte ho jab kapda ban jaaye), doosra, tum khud shop mein jaake mirror ke saamne khade ho ke live adjustments dekhte ho (Universal Editor, WYSIWYG, dheema par visual).',
+        codeExample:
+          "// blocks/cards/_cards.json — a component model for the Universal Editor\n// (lives alongside cards.js and cards.css, describes editable fields)\n{\n  \"definitions\": [\n    {\n      \"title\": \"Cards\",\n      \"id\": \"cards\",\n      \"plugins\": {\n        \"xwalk\": {\n          \"page\": {\n            \"resourceType\": \"core/franklin/components/block/v1/block\",\n            \"template\": { \"name\": \"Cards\" }\n          }\n        }\n      }\n    }\n  ]\n}\n// The block's own decorate()/CSS stay exactly the same — this file only\n// teaches the Universal Editor what's editable and how to render the toolbar.",
+        keyPoints: [
+          'Document-based authoring is the default; the Universal Editor is an optional visual layer on top',
+          'It renders the real decorated page and lets authors edit fields via a side panel, WYSIWYG-style',
+          'A block needs an extra component-definition file to be Universal-Editor-aware',
+          'decorate()/CSS stay unchanged — the model file only adds editability metadata',
+        ],
+        quiz: [
+          {
+            question: 'What real limitation of document-based authoring does the Universal Editor address?',
+            options: [
+              'Documents cannot hold images',
+              'Authors can\'t see what a block will actually look like until they check the preview',
+              'Documents are too slow to save',
+              'It removes the need for developers entirely',
+            ],
+            correctIndex: 1,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'A marketing team wants a more visual, "what you see is what you get" authoring experience than typing tables into a Google Doc. What EDS feature addresses this, and what does a developer need to add?',
+            difficulty: 'hard',
+            frequency: 'rare',
+            answer: {
+              english:
+                "The Universal Editor — an optional visual authoring layer that renders the real, decorated page and lets authors edit a block's fields directly in a side panel. To support it, a developer adds a small component-definition file (a JSON model describing the block's editable fields) alongside the existing decorate()/CSS files; the block's rendering logic itself doesn't change.",
+              hinglish:
+                "Universal Editor — ek optional visual authoring layer jo real, decorated page render karta hai aur authors ko block ke fields directly ek side panel mein edit karne deta hai. Ise support karne ke liye, ek developer ek chhoti component-definition file add karta hai (ek JSON model jo block ke editable fields describe karta hai) existing decorate()/CSS files ke saath; block ka rendering logic khud nahi badalta.",
+            },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Styling & Authoring Conventions Beyond Blocks',
+    level: 'advanced',
+    description: 'Icons, author-driven buttons, aur section-level styling — content jo blocks nahi hai.',
+    concepts: [
+      {
+        title: 'Icons — the :icon-name: Convention',
+        difficulty: 'medium',
+        tags: ['eds', 'icons', 'conventions', 'authoring'],
+        explanation: {
+          english:
+            "Not every visual element deserves a full block — a phone icon next to a number, a checkmark in a list, needs to be author-insertable without an image upload dialog. EDS's convention: an author types a name wrapped in colons directly in the text, like `:phone:`, and a `decorateIcons()` step (run during the eager phase, alongside block decoration) scans every text node on the page for that pattern and replaces it with an inline `<img>`/`<svg>` sourced from a matching file in the `icons/` folder (e.g. `icons/phone.svg`). This is emoji-like from the author's point of view — type a name between colons — but produces a real, developer-controlled SVG rather than relying on the OS's emoji font, so the icon's style stays consistent with the brand across every browser and device.",
+          hinglish:
+            "Har visual element ek poora block deserve nahi karta — ek number ke baaju mein phone icon, ek list mein ek checkmark, isse author ko bina image upload dialog ke insert karne layak hona chahiye. EDS ka convention: author text mein directly colons ke andar wrapped ek naam type karta hai, jaise `:phone:`, aur ek `decorateIcons()` step (eager phase mein chalta hai, block decoration ke saath) page ke har text node ko us pattern ke liye scan karta hai aur use ek inline `<img>`/`<svg>` se replace kar deta hai jo `icons/` folder mein ek matching file se aata hai (jaise `icons/phone.svg`). Ye author ke nazariye se emoji jaisa hai — colons ke beech ek naam type karo — par ek real, developer-controlled SVG produce karta hai, OS ke emoji font pe depend karne ke bajaye, isliye icon ka style har browser aur device pe brand ke saath consistent rehta hai.",
+        },
+        dailyLifeExample:
+          'Ye ek WhatsApp mein `:smile:` type karke emoji laane jaisa hai — tumhe kabhi ek image file dhoondhni ya upload nahi karni padti, bas naam yaad rakhna hai. EDS mein bhi author ko sirf ye yaad rakhna hai ki `:phone:` type karne se ek professional-looking phone icon aa jaayega, image files se kabhi nahi jhoolna padta.',
+        codeExample:
+          "// Author types this directly in the Google Doc:\n//   Call us :phone: or email :email: anytime\n\n// scripts.js — simplified decorateIcons()\nexport function decorateIcons(element) {\n  element.querySelectorAll('span.icon').forEach((span) => {\n    // EDS's doc conversion already wraps :name: as <span class=\"icon icon-name\">\n    const name = [...span.classList].find((c) => c.startsWith('icon-'))?.replace('icon-', '');\n    const img = document.createElement('img');\n    img.src = `/icons/${name}.svg`;\n    img.loading = 'lazy';\n    span.append(img);\n  });\n}\n\n// icons/phone.svg — a developer-owned SVG file, one per icon name",
+        keyPoints: [
+          'Authors insert icons by typing :name: directly in the doc text, no image upload',
+          'decorateIcons() scans for the pattern and swaps in an SVG from icons/<name>.svg',
+          'Icons are real, developer-controlled SVGs — not OS emoji fonts',
+          'Runs during the eager phase, alongside normal block decoration',
+        ],
+        quiz: [
+          {
+            question: 'How does a non-technical author add a phone icon to a line of text in EDS?',
+            options: [
+              'By uploading an SVG file through a code editor',
+              'By typing :phone: directly in the document text',
+              'By asking a developer to hardcode it',
+              'Icons cannot be author-inserted in EDS',
+            ],
+            correctIndex: 1,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'How would you let a non-technical author insert a consistent, on-brand icon without giving them access to code or an asset library?',
+            difficulty: 'easy',
+            frequency: 'common',
+            answer: {
+              english:
+                "Use EDS's icon convention: the author types the icon's name wrapped in colons directly in the document text (e.g. :phone:). A decorateIcons() step, run during the eager phase, scans the page for that pattern and replaces it with an SVG from the icons/ folder — giving the author an emoji-like authoring experience while the actual visual asset stays fully developer-controlled.",
+              hinglish:
+                "EDS ka icon convention use karo: author icon ka naam colons ke andar wrapped directly document text mein type karta hai (jaise :phone:). Eager phase mein chalne wala ek decorateIcons() step us pattern ke liye page scan karta hai aur use icons/ folder se ek SVG se replace kar deta hai — author ko ek emoji jaisa authoring experience dete hue jabki actual visual asset poori tarah developer-controlled rehta hai.",
+            },
+          },
+        ],
+      },
+      {
+        title: 'Buttons & Links — Author-Driven Styling Without a Button Block',
+        difficulty: 'medium',
+        tags: ['eds', 'buttons', 'links', 'conventions'],
+        explanation: {
+          english:
+            "A call-to-action button is common enough that requiring a dedicated \"Button\" block table for it would be authoring friction for something this simple. EDS's default boilerplate instead reads FORMATTING as intent: a link that is the ONLY content of its own paragraph is treated as a button; if that link text is bold, it becomes a primary (filled) button, and if italic, a secondary (outlined) button — styled via `.button` / `.button.primary` / `.button.secondary` classes added by a `decorateButtons()` step that runs alongside block decoration. This means an author creates a working, on-brand CTA button using formatting they already know from Word/Docs (bold, italic on a link) with zero new UI to learn, and a developer never has to build a Button block at all for the common case.",
+          hinglish:
+            "Ek call-to-action button itna common hota hai ki uske liye ek dedicated \"Button\" block table maangna itni simple cheez ke liye authoring friction hoga. EDS ka default boilerplate iske bajaye FORMATTING ko intent ki tarah padhta hai: ek link jo apne poore paragraph ka EKMATRA content hai use button treat kiya jaata hai; agar us link ka text bold hai, ye ek primary (filled) button ban jaata hai, aur agar italic hai, ek secondary (outlined) button — `.button` / `.button.primary` / `.button.secondary` classes se styled jo ek `decorateButtons()` step add karta hai jo block decoration ke saath chalta hai. Matlab ek author ek working, on-brand CTA button bana leta hai us formatting se jo use already Word/Docs se pata hai (bold, italic ek link pe), zero naya UI seekhne ki zaroorat nahi, aur ek developer ko common case ke liye kabhi ek Button block banana hi nahi padta.",
+        },
+        dailyLifeExample:
+          'Ye restaurant ke menu mein "Today\'s Special" ko underline ya bold karke highlight karne jaisa hai — waiter (developer) ko ye samjhaane ki zaroorat nahi ki ye special hai, formatting khud hi signal de deti hai. Author bhi bas ek link ko bold kar deta hai aur wo automatically ek eye-catching button ban jaata hai.',
+        codeExample:
+          "// Author types a link as the ONLY content of its paragraph, in bold:\n//   **[Get Started](https://example.com/signup)**\n// -> becomes a PRIMARY button\n\n// scripts.js — simplified decorateButtons()\nexport function decorateButtons(element) {\n  element.querySelectorAll('p > a:only-child').forEach((a) => {\n    const p = a.parentElement;\n    a.classList.add('button');\n    if (p.querySelector('strong')) a.classList.add('button', 'primary');\n    else if (p.querySelector('em')) a.classList.add('button', 'secondary');\n    p.replaceWith(a);\n  });\n}\n\n/* styles/styles.css */\n.button.primary  { background: var(--brand-color); color: white; }\n.button.secondary { border: 2px solid var(--brand-color); background: transparent; }",
+        keyPoints: [
+          'A link alone in its own paragraph is auto-detected as a button — no Button block needed',
+          'Bold link text -> primary (filled) button; italic -> secondary (outlined) button',
+          'decorateButtons() runs alongside block decoration, reading formatting as intent',
+          'Authors reuse formatting they already know (bold/italic) instead of learning new UI',
+        ],
+        quiz: [
+          {
+            question: 'How does an author create a "primary" styled CTA button in the default EDS boilerplate?',
+            options: [
+              'By typing a table with the word "Button"',
+              'By putting a link alone in its own paragraph and making the link text bold',
+              'By asking a developer to add custom CSS for that one link',
+              'It is not possible without a dedicated Button block',
+            ],
+            correctIndex: 1,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'Why doesn\'t the default EDS boilerplate ship a dedicated "Button" block, and how do authors still get styled CTA buttons?',
+            difficulty: 'medium',
+            frequency: 'common',
+            answer: {
+              english:
+                "Because a button is common and simple enough that requiring a separate block table would be unnecessary authoring friction. Instead, decorateButtons() reads formatting as intent: a link alone in its own paragraph becomes a button, bold makes it primary, italic makes it secondary — reusing formatting authors already know from Word/Docs rather than teaching a new authoring pattern.",
+              hinglish:
+                "Kyunki ek button itna common aur simple hai ki ek alag block table maangna unnecessary authoring friction hoga. Iske bajaye, decorateButtons() formatting ko intent ki tarah padhta hai: apne poore paragraph mein akela link ek button ban jaata hai, bold use primary banata hai, italic secondary banata hai — us formatting ko reuse karte hue jo authors ko already Word/Docs se pata hai, ek naya authoring pattern sikhane ke bajaye.",
+            },
+          },
+        ],
+      },
+      {
+        title: 'Section Metadata — Per-Section Styling Variants',
+        difficulty: 'medium',
+        tags: ['eds', 'section-metadata', 'sections', 'styling'],
+        explanation: {
+          english:
+            "Page Metadata (covered earlier) sets values for the WHOLE page — title, description. Section Metadata is a different, similarly-named table that an author places at the END of one specific section, and it only affects that one section's wrapper `<div class=\"section\">`. Its rows become extra classes or a background-image/colour on that section — e.g. a \"style: highlight\" row adds a `highlight-container` class, which a developer's CSS then styles (a tinted background, extra padding) — without needing a whole new block just to change one section's background. This is the section-level counterpart to block variations: block variations restyle ONE block, section metadata restyles the WRAPPER holding possibly several blocks and text together.",
+          hinglish:
+            "Page Metadata (pehle cover ki) POORE page ke liye values set karti hai — title, description. Section Metadata ek alag, similarly-named table hai jise author ek specific section ke AAKHIR mein rakhta hai, aur ye sirf us ek section ke wrapper `<div class=\"section\">` ko affect karti hai. Iski rows us section pe extra classes ya ek background-image/colour ban jaati hain — jaise ek \"style: highlight\" row ek `highlight-container` class add karti hai, jise ek developer ka CSS phir style karta hai (ek tinted background, extra padding) — bina ek poora naya block banaye sirf ek section ka background badalne ke liye. Ye block variations ka section-level counterpart hai: block variations ek AKELE block ko restyle karte hain, section metadata us WRAPPER ko restyle karta hai jo shaayad kai blocks aur text ko saath rakhta hai.",
+        },
+        dailyLifeExample:
+          'Ye ek report mein ek poore paragraph ke around ek highlighter box lagane jaisa hai — tum har word ko alag se highlight nahi karte (block variations), tum poore hisse ke around ek box daal dete ho taaki wo standout kare (section metadata), chahe uske andar text ho ya ek table ho ya dono.',
+        codeExample:
+          '# In the doc, at the end of one section (before the next `---`):\n# | Section Metadata |\n# | Style | highlight |\n\n# EDS adds a class to that section\'s wrapper:\n# <div class="section highlight-container">...</div>\n\n/* styles/styles.css */\n.highlight-container {\n  background: var(--highlight-bg, #fef3c7);\n  padding: 48px 24px;\n}',
+        keyPoints: [
+          'Section Metadata is placed at the end of one section, unlike page-level Metadata',
+          'Its rows become extra classes/background on that section\'s wrapper div only',
+          'It restyles a whole section (possibly several blocks + text), not just one block',
+          'A common use: a "highlight" or "narrow" style row without a new block',
+        ],
+        quiz: [
+          {
+            question: 'What is the key difference between "Metadata" and "Section Metadata" tables in an EDS document?',
+            options: [
+              'They are the same thing with two names',
+              'Metadata sets page-wide values (title, description); Section Metadata styles only the section it\'s placed in',
+              'Section Metadata is only for images',
+              'Metadata is deprecated in favour of Section Metadata',
+            ],
+            correctIndex: 1,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'An author wants one section of a page to have a tinted background while the rest of the page stays default, without a developer touching every block inside it. How would you support this?',
+            difficulty: 'medium',
+            frequency: 'common',
+            answer: {
+              english:
+                "Use a Section Metadata table placed at the end of that specific section — e.g. a \"Style: highlight\" row. EDS adds the resulting class (e.g. highlight-container) to that section's own wrapper div, not to the blocks inside it, so a single CSS rule styles the whole section's background regardless of how many blocks or text pieces it contains.",
+              hinglish:
+                "Us specific section ke aakhir mein ek Section Metadata table use karo — jaise ek \"Style: highlight\" row. EDS resulting class (jaise highlight-container) ko us section ke apne wrapper div pe add karta hai, uske andar ke blocks pe nahi, isliye ek single CSS rule poore section ke background ko style kar deti hai chahe usme kitne bhi blocks ya text pieces ho.",
+            },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Scaling EDS: Localization, Experimentation & Author Tooling',
+    level: 'advanced',
+    description: 'Multi-language sites, A/B testing, aur Sidekick se author experience.',
+    concepts: [
+      {
+        title: 'Multi-Language Sites — Locale-per-Folder Content Structure',
+        difficulty: 'hard',
+        tags: ['eds', 'localization', 'i18n', 'multi-language'],
+        explanation: {
+          english:
+            "A global brand needs the same site in many languages, and EDS's document model handles this with a folder convention rather than any special i18n framework: content lives at paths like `/us/en/...`, `/fr/fr/...`, `/in/hi/...` — one document tree per locale — while the SAME code repo (same blocks, same scripts.js) serves all of them. A block's decorate() logic doesn't change per language; only the content it decorates does. The remaining pieces are conventional web i18n concerns layered on top: a language-switcher block that maps the current path to its sibling in another locale folder, `hreflang` tags injected via each page's Metadata, and locale-specific nav/footer documents (since nav/footer are fetched per the fragment mechanism, a French page's nav can point at a French nav document). The key insight for an interview: EDS doesn't need a dedicated localization FEATURE, because the content/code split already does most of the work — content naturally varies per folder, code naturally stays shared.",
+          hinglish:
+            "Ek global brand ko bahut saari languages mein wahi site chahiye hoti hai, aur EDS ka document model ise ek folder convention se handle karta hai, kisi special i18n framework se nahi: content aise paths pe rehta hai jaise `/us/en/...`, `/fr/fr/...`, `/in/hi/...` — har locale ke liye ek document tree — jabki WAHI code repo (same blocks, same scripts.js) sabko serve karta hai. Ek block ka decorate() logic language ke hisaab se nahi badalta; sirf wo content badalta hai jise wo decorate karta hai. Baaki pieces conventional web i18n concerns hain jo upar layer hote hain: ek language-switcher block jo current path ko doosre locale folder mein uske sibling se map karta hai, har page ke Metadata ke through inject hue `hreflang` tags, aur locale-specific nav/footer documents (kyunki nav/footer fragment mechanism ke through fetch hote hain, ek French page ka nav ek French nav document ko point kar sakta hai). Interview ke liye key insight: EDS ko ek dedicated localization FEATURE ki zaroorat nahi, kyunki content/code split already zyadatar kaam kar deta hai — content naturally folder ke hisaab se vary karta hai, code naturally shared rehta hai.",
+        },
+        dailyLifeExample:
+          'Ye ek restaurant chain jaisa hai jiska ek hi kitchen design aur recipe book (code) har branch (locale) mein same hai, par har branch apne local zaike ke hisaab se menu likh leta hai apni khud ki language mein (content per folder) — kitchen dobara design nahi karni padti, sirf menu card alag hota hai.',
+        codeExample:
+          "# Content structure — one document tree per locale, same code repo\n/us/en/index      /fr/fr/index      /in/hi/index\n/us/en/about      /fr/fr/about      /in/hi/about\n\n# The SAME blocks/cards/cards.js decorates all of them —\n# only the content it reads differs per locale\n\n# A language switcher just maps path segments:\nfunction switchLocale(currentPath, newLocale) {\n  const parts = currentPath.split('/');\n  parts[1] = newLocale.split('-')[0];   // 'us' -> 'fr'\n  parts[2] = newLocale.split('-')[1];   // 'en' -> 'fr'\n  return parts.join('/');\n}",
+        keyPoints: [
+          'Locales are separated by folder path (/us/en/, /fr/fr/), not by a framework feature',
+          'The exact same code repo/blocks serve every locale — only content differs',
+          'Nav/footer fragments and hreflang metadata can be authored per-locale',
+          'EDS\'s content/code split does most of the localization work "for free"',
+        ],
+        quiz: [
+          {
+            question: 'How does EDS typically support a multi-language site?',
+            options: [
+              'A special i18n framework built into scripts.js',
+              'Separate document trees per locale (folder-based), served by the same shared code repo',
+              'A completely separate code repo per language',
+              'It does not support multiple languages',
+            ],
+            correctIndex: 1,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'How would you architect a 5-country, 5-language EDS site without maintaining 5 separate codebases?',
+            difficulty: 'hard',
+            frequency: 'rare',
+            answer: {
+              english:
+                "One shared code repo (blocks, scripts, styles) serves all five, since decorate() logic doesn't depend on language — only the content it decorates does. Content is organised into one document tree per locale (e.g. /us/en/, /fr/fr/), each authored independently. A language-switcher block maps the current path to its sibling in another locale folder, and nav/footer/hreflang are authored per-locale using the same fragment and metadata mechanisms already used elsewhere.",
+              hinglish:
+                "Ek shared code repo (blocks, scripts, styles) sabhi paanch ko serve karta hai, kyunki decorate() logic language pe depend nahi karta — sirf wo content depend karta hai jise ye decorate karta hai. Content ko har locale ke liye ek document tree mein organise kiya jaata hai (jaise /us/en/, /fr/fr/), har ek independently authored. Ek language-switcher block current path ko doosre locale folder mein uske sibling se map karta hai, aur nav/footer/hreflang per-locale authored hote hain wahi fragment aur metadata mechanisms use karke jo kahin aur pehle se use hote hain.",
+            },
+          },
+        ],
+      },
+      {
+        title: 'A/B Testing & Personalization with Experiments',
+        difficulty: 'hard',
+        tags: ['eds', 'experimentation', 'ab-testing', 'personalization'],
+        explanation: {
+          english:
+            "Marketing teams routinely want to A/B test a hero headline or a CTA without waiting on a developer. EDS's experimentation plugin keeps this document-native: instead of a separate variant-management tool, a variant is just another sibling document (e.g. `/campaign` and `/campaign/variant-b`), and a Metadata-like table on the control page declares the experiment — its name, which variant paths participate, and the traffic split. At runtime, a small script (loaded early, before render, to avoid a visible flash of the wrong variant) picks a variant per visitor, swaps in that variant's content, and tags the pageview so RUM can correlate which variant a user saw with what they did next — turning EDS's own built-in analytics into the experiment's measurement layer, with no separate tool like Optimizely required.",
+          hinglish:
+            "Marketing teams aksar chahti hain ki ek hero headline ya ek CTA A/B test ho jaaye bina kisi developer ka wait kiye. EDS ka experimentation plugin ise document-native rakhta hai: ek alag variant-management tool ke bajaye, ek variant bas ek aur sibling document hota hai (jaise `/campaign` aur `/campaign/variant-b`), aur control page pe ek Metadata-jaisi table experiment declare karti hai — uska naam, kaunse variant paths participate karte hain, aur traffic split. Runtime pe, ek chhota script (jaldi load hota hai, render se pehle, taaki galat variant ka visible flash na ho) har visitor ke liye ek variant chunta hai, us variant ka content swap karta hai, aur pageview ko tag karta hai taaki RUM correlate kar sake ki user ne kaunsa variant dekha aur usne aage kya kiya — EDS ke khud ke built-in analytics ko experiment ka measurement layer bana dete hue, koi alag tool jaise Optimizely ki zaroorat nahi.",
+        },
+        dailyLifeExample:
+          'Ye ek dukaan ke do alag boards test karne jaisa hai — aadhe customers ko ek board dikhao, baaki aadhe ko doosra, aur dekho kaunsa zyada log andar aate hain. Har board (variant) already poori tarah bana hua hai (ek sibling document), tumhe bas kisko kaunsa board dikhana hai ye decide karna hai aur result track karna hai.',
+        codeExample:
+          '# Control page /campaign has an experiment declared via a table:\n# | Experiment |\n# | Experiment | homepage-hero-test |\n# | Variants   | /campaign/variant-b |\n# | Split      | 50 |\n\n# Runtime (simplified) — runs early, before the page paints:\nasync function runExperiment(config) {\n  const bucket = Math.random() < config.split / 100 ? \'variant-b\' : \'control\';\n  if (bucket !== \'control\') {\n    const html = await fetch(`${config.variants[0]}.plain.html`).then((r) => r.text());\n    document.querySelector(\'main\').innerHTML = html;\n  }\n  sampleRUM(\'experiment\', { source: config.name, target: bucket });\n}',
+        keyPoints: [
+          'A variant is just another sibling document, authored like any other page',
+          'The experiment (name, variants, split) is declared via a Metadata-style table',
+          'A variant-picking script runs early, before paint, to avoid a flash of the wrong content',
+          'RUM tags which variant a visitor saw, doubling as the experiment\'s analytics — no separate tool needed',
+        ],
+        quiz: [
+          {
+            question: 'In EDS, what is an A/B test "variant" at the content level?',
+            options: [
+              'A special database record',
+              'Just another sibling document, authored the same way as any page',
+              'A separate deployment of the entire site',
+              'A CSS-only change with no content difference',
+            ],
+            correctIndex: 1,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'A marketing team wants to A/B test two versions of a landing page headline without any code changes. How does EDS support this?',
+            difficulty: 'hard',
+            frequency: 'rare',
+            answer: {
+              english:
+                "The variant is authored as a sibling document (e.g. /campaign/variant-b), and the control page declares the experiment via a Metadata-style table naming the experiment, its variant paths, and the traffic split — no code change needed. A runtime script, loaded early to avoid a flash of the wrong content, buckets each visitor and swaps in the chosen variant's content, tagging the pageview so RUM can report which variant performed better.",
+              hinglish:
+                "Variant ek sibling document ki tarah authored hota hai (jaise /campaign/variant-b), aur control page ek Metadata-style table ke through experiment declare karta hai jo experiment ka naam, uske variant paths, aur traffic split batati hai — koi code change nahi chahiye. Ek runtime script, jaldi load hota hai galat content ka flash avoid karne ke liye, har visitor ko bucket karta hai aur chune hue variant ka content swap karta hai, pageview ko tag karte hue taaki RUM report kar sake ki kaunsa variant behtar perform kiya.",
+            },
+          },
+        ],
+      },
+      {
+        title: 'The Sidekick — Author Tooling for Preview, Publish & Bulk Actions',
+        difficulty: 'medium',
+        tags: ['eds', 'sidekick', 'authoring', 'tooling'],
+        explanation: {
+          english:
+            "Authors shouldn't need to know EDS's URL structure (`.page` vs `.live`, branch names) to do their job. The Sidekick is a browser extension that gives them that workflow as buttons instead: opened from either the Google Doc itself or the live page, it offers one-click Preview (convert this doc and show the result), Publish (promote preview to live), and Reload/Edit shortcuts, plus bulk operations like previewing or publishing every document in a folder at once for a big content update. For developers, the Sidekick is also extensible — a project can register custom plugins (extra buttons) that call project-specific tooling, like a 'translate this page' action or a custom validation check, directly from the same toolbar authors already use.",
+          hinglish:
+            "Authors ko apna kaam karne ke liye EDS ki URL structure (`.page` vs `.live`, branch names) jaanne ki zaroorat nahi honi chahiye. Sidekick ek browser extension hai jo unhe ye workflow buttons ki tarah deta hai: ya to Google Doc se ya live page se khola jaata hai, ye one-click Preview (is doc ko convert karo aur result dikhao), Publish (preview ko live mein promote karo), aur Reload/Edit shortcuts offer karta hai, plus bulk operations jaise ek folder ki har document ko ek saath preview ya publish karna ek badi content update ke liye. Developers ke liye, Sidekick extensible bhi hai — ek project custom plugins (extra buttons) register kar sakta hai jo project-specific tooling call karte hain, jaise ek 'is page ko translate karo' action ya ek custom validation check, wahi toolbar se jo authors already use karte hain.",
+        },
+        dailyLifeExample:
+          'Ye ek remote control jaisa hai jo tumhe TV ke andar ke complex circuits jaane bina channel badalne deta hai — author ko URL structure ya technical steps yaad rakhne ki zaroorat nahi, wo bas Sidekick ke "Publish" button pe click karta hai, jaise remote ke ek button se TV on ho jaata hai.',
+        codeExample:
+          "# What the Sidekick gives an author, as buttons — no URL knowledge needed:\n#   Preview   -> converts the current doc and opens its .page preview\n#   Publish   -> promotes that document from preview to live (.live)\n#   Edit      -> jumps from the live/preview page back to its source doc\n#   Bulk      -> preview/publish every doc in a selected folder at once\n\n# tools/sidekick/config.json — developers can register custom plugins\n{\n  \"plugins\": [\n    { \"id\": \"translate\", \"title\": \"Translate Page\", \"url\": \"https://internal-tool/translate\" }\n  ]\n}",
+        keyPoints: [
+          'The Sidekick is a browser extension giving authors Preview/Publish/Edit as buttons',
+          'It works directly from either the Google Doc or the rendered page',
+          'It supports bulk operations across a whole folder of documents',
+          'Developers can extend it with custom plugins for project-specific author actions',
+        ],
+        quiz: [
+          {
+            question: 'What problem does the Sidekick solve for content authors?',
+            options: [
+              'It writes decorate() functions automatically',
+              'It gives authors Preview/Publish/Edit as simple buttons, without needing to know EDS\'s URL structure',
+              'It replaces the need for Google Docs entirely',
+              'It is a code linter for developers only',
+            ],
+            correctIndex: 1,
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'An author asks how they\'re supposed to "publish" a page if they\'ve never seen a URL like .aem.live. What do you tell them, and what would you build for a project-specific action they need?',
+            difficulty: 'medium',
+            frequency: 'rare',
+            answer: {
+              english:
+                "They don't need to know the URL structure at all — the Sidekick browser extension gives them Preview and Publish as one-click buttons, usable directly from their Google Doc or the rendered page. For a project-specific action (e.g. a translation trigger), a developer registers a custom Sidekick plugin in the project's config, which shows up as an extra button in the same toolbar the author already uses.",
+              hinglish:
+                "Unhe URL structure jaanne ki zaroorat hi nahi hai — Sidekick browser extension unhe Preview aur Publish one-click buttons ki tarah deta hai, directly unke Google Doc ya rendered page se usable. Ek project-specific action ke liye (jaise ek translation trigger), ek developer project ke config mein ek custom Sidekick plugin register karta hai, jo usi toolbar mein ek extra button ki tarah dikhta hai jo author already use karta hai.",
+            },
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 export const curriculum = [...beginner, ...intermediate, ...advanced];
@@ -1003,4 +1585,65 @@ export const generalInterviewQuestions = [
         "Bahut saari EDS sites ko same common blocks chahiye hote hain (Cards, Hero, Columns, Accordion). Har project inhe dobara banane ke bajaye, teams ek shared block-collection repo maintain karti hain aur specific blocks ko project ke apne blocks/ folder mein zaroorat ke hisaab se pull karti hain, har project ka repo lean rakhte hue phir bhi battle-tested, reusable implementations ka fayda uthate hue — conceptually ek shared component library install karne jaisa, bas npm package ke bajaye file copying ke through.",
     },
   },
+
+  // ─── Deeper advanced questions (see eds-deep-dives.mjs) ────
+  {
+    question: 'Walk through exactly what happens between an author clicking "Publish" and a user seeing the new content live.',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'Publish moves the document from its preview state to its live state — a content operation, not a code deploy. The pipeline re-converts the document into fresh HTML under the .live domain, the CDN edge cache is invalidated for that specific path, and the next visitor gets the newly-cached, freshly-decorated page.',
+      hinglish:
+        'Publish document ko uski preview state se live state mein move karta hai — ek content operation, koi code deploy nahi. Pipeline document ko fresh HTML mein .live domain ke under dobara convert karti hai, us specific path ke liye CDN edge cache invalidate hoti hai, aur agla visitor naya cached, freshly-decorated page paata hai.',
+    },
+  },
+  {
+    question: 'What is the performance cost of putting too much JavaScript inside a single block\'s decorate(), and how would you diagnose it?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'decorate() runs synchronously on the main thread by default, so a heavy block delays every block behind it and delays interactivity. Diagnose it with the DevTools Performance panel — look for a long main-thread task during the eager/lazy phases — then fix by batching DOM reads/writes, deferring non-critical work to delayed.js, or moving heavy computation to a Web Worker.',
+      hinglish:
+        'decorate() default se main thread pe synchronously chalta hai, isliye ek heavy block uske peeche har block ko der karta hai aur interactivity ko der karta hai. Ise DevTools ke Performance panel se diagnose karo — eager/lazy phases ke dauraan ek lambi main-thread task dhoondo — phir DOM reads/writes batch karke, non-critical kaam delayed.js mein defer karke, ya heavy computation ko Web Worker mein move karke fix karo.',
+    },
+  },
+  {
+    question: 'How would you implement a "Load More" / pagination pattern inside a block, given there\'s no framework state management?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'It depends on where the data lives. If every item is already authored in the doc, all items are already in the DOM — decorate() hides items past a page size and a click handler reveals the next batch. If items come from an external source, keep "state" as a single offset variable captured in decorate()\'s closure, fetching and appending the next page on each click.',
+      hinglish:
+        'Ye depend karta hai data kahan rehta hai. Agar har item pehle se doc mein authored hai, sab items already DOM mein hain — decorate() ek page size ke aage items chhupa deta hai aur ek click handler agla batch reveal karta hai. Agar items external source se aate hain, "state" ko ek single offset variable rakho jo decorate() ke closure mein capture hai, har click pe agla page fetch aur append karte hue.',
+    },
+  },
+  {
+    question: 'Why can\'t a block safely call fetch() to an external API inside decorate() without extra care?',
+    difficulty: 'hard',
+    frequency: 'common',
+    answer: {
+      english:
+        'A blocking fetch inside decorate() competes with the eager/lazy loading model protecting first paint, and if awaited with no fallback, a slow or failed API means the block renders nothing — including content the author already authored. The safer pattern: decorate the authored content synchronously first, then fetch and progressively enhance afterward, with a visible loading state and error handling.',
+      hinglish:
+        'decorate() ke andar ek blocking fetch us eager/lazy loading model se compete karta hai jo first paint ko protect karta hai, aur agar bina fallback ke await kiya jaaye, ek slow ya failed API ka matlab hai block kuch bhi render nahi karta — us content ko bhi nahi jo author ne pehle se authored kiya tha. Safer pattern: pehle authored content ko synchronously decorate karo, phir baad mein fetch karke progressively enhance karo, ek visible loading state aur error handling ke saath.',
+    },
+  },
 ];
+
+// Attach the step-by-step walkthroughs, which live in their own file so this
+// one stays navigable. Keys are matched on the exact question text; anything
+// left over is a typo we want to hear about rather than silently lose.
+const unmatched = new Set(Object.keys(deepDives));
+for (const q of generalInterviewQuestions) {
+  const sections = deepDives[q.question];
+  if (!sections) continue;
+  q.deepDive = sections;
+  unmatched.delete(q.question);
+}
+if (unmatched.size > 0) {
+  console.warn(`[eds] ${unmatched.size} deep-dive key(s) match no question:`);
+  for (const key of unmatched) console.warn(`  ${key}`);
+}
