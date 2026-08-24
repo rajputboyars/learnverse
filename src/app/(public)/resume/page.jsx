@@ -156,8 +156,8 @@ export default function ResumePage() {
       {/* Header bar */}
       <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-ink">📄 Resume Builder</h1>
-          <p className="mt-1 text-sm text-muted">
+          <h1 className="text-3xl font-bold">📄 Resume Builder</h1>
+          <p className="mt-1 text-sm text-slate-500">
             {pick(
               'Left mein edit karo, right mein live preview. Print → "Save as PDF" se download karo.',
               'Edit on the left, live preview on the right. Print → "Save as PDF" to download.',
@@ -166,14 +166,14 @@ export default function ResumePage() {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           {savedAt && (
-            <span className="text-sm text-accent-green-ink">
+            <span className="text-sm text-green-600">
               {pick('Auto-save ho gaya ✓', 'Auto-saved ✓')}
             </span>
           )}
           <button
             onClick={save}
             disabled={saving}
-            className="lv-btn lv-btn-ghost py-2 text-sm disabled:opacity-60"
+            className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold hover:bg-slate-50 disabled:opacity-60"
           >
             {saving ? pick('Save ho raha hai…', 'Saving…') : '💾 Save'}
           </button>
@@ -183,8 +183,8 @@ export default function ResumePage() {
 
       {/* Guest nudge banner */}
       {status !== 'authenticated' && (
-        <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-brand-tint-2 bg-brand-tint px-5 py-4">
-          <p className="text-sm text-ink-soft">
+        <div className="no-print mb-6 flex items-center justify-between gap-4 rounded-2xl border border-indigo-100 bg-indigo-50 px-5 py-3">
+          <p className="text-sm text-indigo-800">
             {pick(
               '📌 Guest mode — aapka resume browser mein save ho raha hai. Account banao ya login karo toh cloud mein save hoga aur kabhi nahi jayega.',
               '📌 Guest mode — your resume is saved in your browser. Sign in to save it to the cloud so it\'s never lost.',
@@ -193,13 +193,13 @@ export default function ResumePage() {
           <div className="flex shrink-0 gap-2">
             <Link
               href="/login?callbackUrl=/resume"
-              className="lv-btn lv-btn-primary py-2 text-sm"
+              className="rounded-lg bg-indigo-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700"
             >
               {pick('Login', 'Login')}
             </Link>
             <Link
               href="/register?callbackUrl=/resume"
-              className="lv-btn lv-btn-ghost py-2 text-sm"
+              className="rounded-lg border border-indigo-200 px-4 py-1.5 text-sm font-semibold text-indigo-700 hover:bg-indigo-100"
             >
               {pick('Sign up', 'Sign up')}
             </Link>
@@ -220,7 +220,7 @@ export default function ResumePage() {
                   onClick={() => setForm((f) => ({ ...f, theme: key }))}
                   title={key}
                   className={`h-9 w-9 rounded-full ring-2 ring-offset-2 transition ${
-                    form.theme === key ? 'ring-ink scale-110' : 'ring-transparent hover:scale-105'
+                    form.theme === key ? 'ring-slate-900 scale-110' : 'ring-transparent hover:scale-105'
                   }`}
                   style={{ backgroundColor: th.accent }}
                 />
@@ -249,7 +249,7 @@ export default function ResumePage() {
               onChange={set('summary')}
               rows={3}
               placeholder={pick('Apne baare mein 2–3 lines…', '2–3 lines about yourself…')}
-              className="w-full rounded-xl border border-line bg-card px-3 py-2 text-sm text-ink outline-none focus:border-brand"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400"
             />
           </Section>
 
@@ -258,7 +258,7 @@ export default function ResumePage() {
             title={pick('Skills', 'Skills')}
             action={
               status === 'authenticated' ? (
-                <button onClick={importSkills} className="text-xs font-bold text-brand hover:underline">
+                <button onClick={importSkills} className="text-xs font-semibold text-indigo-600 hover:underline">
                   {pick('↓ Courses se import karo', '↓ Import from my courses')}
                 </button>
               ) : null
@@ -268,9 +268,9 @@ export default function ResumePage() {
               value={skillsText}
               onChange={(e) => setSkillsText(e.target.value)}
               placeholder="JavaScript, React, Node.js, MongoDB, CSS…"
-              className="w-full rounded-xl border border-line bg-card px-3 py-2 text-sm text-ink outline-none focus:border-brand"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400"
             />
-            <p className="mt-1 text-xs text-muted-soft">
+            <p className="mt-1 text-xs text-slate-400">
               {pick('Comma se separate karo — e.g. React, Node.js, SQL', 'Separate with commas — e.g. React, Node.js, SQL')}
             </p>
           </Section>
@@ -294,7 +294,7 @@ export default function ResumePage() {
                   onChange={setItem('experience', i, 'description')}
                   rows={2}
                   placeholder={pick('Kya kiya, kya achieve kiya…', 'What you did, what you achieved…')}
-                  className="mt-2 w-full rounded-xl border border-line bg-card px-3 py-2 text-sm text-ink outline-none focus:border-brand"
+                  className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400"
                 />
               </>
             )}
@@ -319,7 +319,7 @@ export default function ResumePage() {
                   onChange={setItem('education', i, 'description')}
                   rows={2}
                   placeholder={pick('Grade, specialisation…', 'Grade, specialisation…')}
-                  className="mt-2 w-full rounded-xl border border-line bg-card px-3 py-2 text-sm text-ink outline-none focus:border-brand"
+                  className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400"
                 />
               </>
             )}
@@ -342,7 +342,7 @@ export default function ResumePage() {
                   onChange={setItem('projects', i, 'description')}
                   rows={2}
                   placeholder={pick('Kya bana, kya tech use ki…', 'What you built, tech stack used…')}
-                  className="mt-2 w-full rounded-xl border border-line bg-card px-3 py-2 text-sm text-ink outline-none focus:border-brand"
+                  className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400"
                 />
               </>
             )}
@@ -363,7 +363,7 @@ export default function ResumePage() {
             )}
           />
 
-          <p className="pb-4 text-center text-xs text-muted-soft">
+          <p className="pb-4 text-center text-xs text-slate-400">
             {pick(
               '✓ Data browser mein auto-save ho raha hai. Login karke cloud pe bhi save karo.',
               '✓ Data is auto-saved in your browser. Login to also save to the cloud.',
@@ -482,9 +482,9 @@ export default function ResumePage() {
 
 function Section({ title, action, children }) {
   return (
-    <div className="lv-card p-5">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="font-bold text-ink">{title}</h3>
+        <h3 className="font-bold">{title}</h3>
         {action}
       </div>
       {children}
@@ -495,11 +495,11 @@ function Section({ title, action, children }) {
 function Field({ label, value, onChange }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-semibold text-muted">{label}</span>
+      <span className="mb-1 block text-xs font-medium text-slate-500">{label}</span>
       <input
         value={value || ''}
         onChange={onChange}
-        className="w-full rounded-xl border border-line bg-card px-3 py-2 text-sm text-ink outline-none focus:border-brand"
+        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400"
       />
     </label>
   );
@@ -511,19 +511,19 @@ function Repeatable({ title, items, onAdd, onRemove, render }) {
     <Section
       title={title}
       action={
-        <button onClick={onAdd} className="text-xs font-bold text-brand hover:underline">
+        <button onClick={onAdd} className="text-xs font-semibold text-indigo-600 hover:underline">
           + {pick('Add karo', 'Add')}
         </button>
       }
     >
       {items.length === 0 ? (
-        <p className="text-sm text-muted">
+        <p className="text-sm text-slate-400">
           {pick('Koi entry nahi. "Add karo" pe tap karo.', 'No entries yet. Tap "+ Add".')}
         </p>
       ) : (
         <div className="space-y-4">
           {items.map((item, i) => (
-            <div key={i} className="rounded-xl border border-line-soft bg-line-soft/60 p-3">
+            <div key={i} className="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
               <div className="mb-2 flex justify-end">
                 <button
                   onClick={onRemove(i)}

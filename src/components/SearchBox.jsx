@@ -4,10 +4,9 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-const DIFFICULTY_DOT = { easy: 'var(--color-accent-green)', medium: 'var(--color-amber-ink)', hard: '#ef4444' };
-const DIFFICULTY_LABEL = { easy: 'beginner', medium: 'intermediate', hard: 'advanced' };
+const DIFFICULTY_DOT = { easy: '#10b981', medium: '#f59e0b', hard: '#ef4444' };
 
-export default function SearchBox({ placeholder = 'Search…', className = '', large = false }) {
+export default function SearchBox({ placeholder = 'Search…', className = '' }) {
   const router = useRouter();
   const [query, setQuery]     = useState('');
   const [results, setResults] = useState(null);  // null = idle, {} = loaded
@@ -115,10 +114,10 @@ export default function SearchBox({ placeholder = 'Search…', className = '', l
     <div ref={containerRef} className={`relative ${className}`}>
       {/* Input */}
       <div className="relative flex items-center">
-        <span className={`pointer-events-none absolute text-muted ${large ? 'left-5' : 'left-3'}`}>
+        <span className="pointer-events-none absolute left-3 text-slate-400">
           {loading
             ? <Spinner />
-            : <SearchIcon size={large ? 18 : 15} />
+            : <SearchIcon />
           }
         </span>
         <input
@@ -130,30 +129,26 @@ export default function SearchBox({ placeholder = 'Search…', className = '', l
           onFocus={() => query.trim().length >= 2 && setOpen(true)}
           placeholder={placeholder}
           autoComplete="off"
-          className={
-            large
-              ? 'w-full rounded-2xl border-[1.5px] border-line bg-card py-[15px] pl-[52px] pr-5 text-[15.5px] font-semibold text-ink outline-none placeholder:font-normal placeholder:text-muted-soft focus:border-brand focus:ring-4 focus:ring-brand-tint'
-              : 'h-9 w-full rounded-full border border-line bg-card py-1.5 pl-9 pr-4 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-tint'
-          }
+          className="h-9 w-full rounded-full border border-slate-200 bg-white py-1.5 pl-9 pr-4 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-indigo-500"
         />
       </div>
 
       {/* Dropdown */}
       {showDropdown && (
-        <div className="lv-card absolute left-0 right-0 top-full z-50 mt-1.5 overflow-hidden shadow-xl">
+        <div className="absolute left-0 right-0 top-full z-50 mt-1.5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900">
 
           {/* Loading skeleton */}
           {loading && !results && (
             <div className="space-y-2 p-3">
               {[1,2,3].map((i) => (
-                <div key={i} className="h-8 animate-pulse rounded-lg bg-line-soft" />
+                <div key={i} className="h-8 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
               ))}
             </div>
           )}
 
           {/* Empty state */}
           {isEmpty && (
-            <p className="px-4 py-5 text-center text-sm text-muted">
+            <p className="px-4 py-5 text-center text-sm text-slate-500">
               No results for &ldquo;{query}&rdquo;
             </p>
           )}
@@ -177,7 +172,7 @@ export default function SearchBox({ placeholder = 'Search…', className = '', l
                         onSelect={() => { setOpen(false); setQuery(''); }}
                         left={<span className="text-xl">{c.icon}</span>}
                         label={c.title}
-                        badge={<Badge color="brand">Course</Badge>}
+                        badge={<Badge color="indigo">Course</Badge>}
                       />
                     );
                   })}
@@ -206,12 +201,12 @@ export default function SearchBox({ placeholder = 'Search…', className = '', l
                         label={c.title}
                         badge={
                           c.course ? (
-                            <span className="rounded-full bg-brand-tint px-2 py-0.5 text-xs text-brand-dark">
+                            <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300">
                               {c.course.icon} {c.course.title}
                             </span>
                           ) : null
                         }
-                        sublabel={DIFFICULTY_LABEL[c.difficulty] || c.difficulty}
+                        sublabel={c.difficulty}
                       />
                     );
                   })}
@@ -244,11 +239,11 @@ export default function SearchBox({ placeholder = 'Search…', className = '', l
               )}
 
               {/* See all link */}
-              <div className="border-t border-line-soft px-4 py-2.5">
+              <div className="border-t border-slate-100 px-4 py-2.5 dark:border-slate-800">
                 <Link
                   href={`/search?q=${encodeURIComponent(query)}`}
                   onClick={() => { setOpen(false); setQuery(''); }}
-                  className="flex items-center gap-1.5 text-sm font-medium text-brand hover:underline"
+                  className="flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
                 >
                   <SearchIcon size={14} />
                   See all results for &ldquo;{query}&rdquo; →
@@ -267,7 +262,7 @@ export default function SearchBox({ placeholder = 'Search…', className = '', l
 function Section({ label, children }) {
   return (
     <div>
-      <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-muted-soft">
+      <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
         {label}
       </p>
       {children}
@@ -282,18 +277,20 @@ function ResultRow({ href, active, onHover, onSelect, left, label, badge, sublab
       onClick={onSelect}
       onMouseEnter={onHover}
       className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
-        active ? 'bg-brand-tint' : 'hover:bg-line-soft'
+        active
+          ? 'bg-indigo-50 dark:bg-indigo-900/30'
+          : 'hover:bg-slate-50 dark:hover:bg-slate-800'
       }`}
     >
-      <span className="flex h-5 w-5 shrink-0 items-center justify-center text-muted">
+      <span className="flex h-5 w-5 shrink-0 items-center justify-center text-slate-400">
         {left}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-ink">
+        <span className="block truncate text-sm font-medium text-slate-800 dark:text-slate-100">
           {label}
         </span>
         {sublabel && (
-          <span className="text-xs capitalize text-muted-soft">{sublabel}</span>
+          <span className="text-xs capitalize text-slate-400">{sublabel}</span>
         )}
       </span>
       {badge && <span className="shrink-0">{badge}</span>}
@@ -303,11 +300,11 @@ function ResultRow({ href, active, onHover, onSelect, left, label, badge, sublab
 
 function Badge({ color, children }) {
   const colors = {
-    brand: 'bg-brand-tint text-brand-dark',
-    amber: 'bg-amber-tint text-amber-ink',
+    indigo: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300',
+    amber:  'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
   };
   return (
-    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${colors[color] || colors.brand}`}>
+    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${colors[color] || colors.indigo}`}>
       {children}
     </span>
   );

@@ -40,20 +40,20 @@ export default function Reactions({ conceptId }) {
   }
 
   return (
-    <div className="my-6 flex flex-wrap items-center gap-2 border-t border-line pt-6">
-      <span className="mr-1 text-sm font-medium text-muted">{pick('Is concept ko rate karo:', 'Rate this concept:')}</span>
+    <div className="my-8 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-6">
+      <span className="mr-1 text-sm font-medium text-slate-500">{pick('Is concept ko rate karo:', 'Rate this concept:')}</span>
       {TYPES.map((t) => (
         <button
           key={t.key}
           onClick={() => react(t.key)}
           className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition ${
             mine === t.key
-              ? 'border-brand-tint-2 bg-brand-tint font-semibold text-brand-dark'
-              : 'border-line text-ink-soft hover:bg-brand-tint/40'
+              ? 'border-indigo-300 bg-indigo-50 font-semibold text-indigo-600'
+              : 'border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
           <span>{t.emoji}</span> {pick(t.hi, t.label)}
-          {counts[t.key] > 0 && <span className="text-xs text-muted-soft">{counts[t.key]}</span>}
+          {counts[t.key] > 0 && <span className="text-xs text-slate-400">{counts[t.key]}</span>}
         </button>
       ))}
     </div>

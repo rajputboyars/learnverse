@@ -76,9 +76,6 @@ export default function Navbar() {
               <Link href="/dashboard" className="rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">
                 {session.user.name?.split(' ')[0] || 'Me'}
               </Link>
-              <Link href="/settings" aria-label="Settings" title={t('nav.settings')} className="rounded-md p-1.5 text-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                ⚙️
-              </Link>
               <button
                 onClick={() => signOut({ callbackUrl: '/' })}
                 className="whitespace-nowrap rounded-md border border-slate-200 px-3 py-1.5 text-sm hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
@@ -209,9 +206,6 @@ export default function Navbar() {
                 )}
                 <Link href="/dashboard" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">
                   {t('nav.dashboard')}
-                </Link>
-                <Link href="/settings" onClick={() => setOpen(false)} className="rounded-md px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800">
-                  {t('nav.settings')}
                 </Link>
                 <button
                   onClick={() => { setOpen(false); signOut({ callbackUrl: '/' }); }}

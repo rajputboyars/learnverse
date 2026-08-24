@@ -19,12 +19,12 @@ export async function GET() {
 
   const [concept, course] = await Promise.all([
     Concept.findById(last.conceptId).select('title slug').lean(),
-    Course.findById(last.courseId).select('title slug icon').lean(),
+    Course.findById(last.courseId).select('title icon').lean(),
   ]);
   if (!concept) return NextResponse.json({ concept: null });
 
   return NextResponse.json({
     concept: { title: concept.title, slug: concept.slug },
-    course: course ? { title: course.title, slug: course.slug, icon: course.icon } : null,
+    course: course ? { title: course.title, icon: course.icon } : null,
   });
 }

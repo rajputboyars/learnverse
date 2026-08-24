@@ -7,7 +7,6 @@ const UserSchema = new mongoose.Schema(
     passwordHash: { type: String, required: true },
     image: { type: String, default: '' },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
-    emailNotifications: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

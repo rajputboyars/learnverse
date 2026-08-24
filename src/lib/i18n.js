@@ -22,7 +22,6 @@ const DICT = {
     'nav.revise': 'Revise',
     'nav.resume': 'Resume',
     'nav.dashboard': 'Dashboard',
-    'nav.settings': 'Settings',
     'nav.admin': 'Admin',
     'nav.login': 'Login',
     'nav.signup': 'Sign up',
@@ -33,14 +32,9 @@ const DICT = {
     'footer.tagline':
       'Bharat ke developers ke liye — concepts in Hinglish, with desi examples, code aur interview prep. Seekho easy way mein.',
     'footer.built': 'Built with Next.js.',
-    'footer.verify': 'Verify certificate',
 
     // Home — hero
     'home.badge': 'Bharat ke developers ke liye 🇮🇳',
-    'home.hero.streak': '12 din',
-    'home.hero.streakLabel': 'streak',
-    'home.hero.xp': '⚡ +40 XP mile',
-    'home.showcase.badge': '🚀 Complete learning toolkit',
     'home.title.prefix': 'Concepts seekho ',
     'home.title.highlight': 'easiest way',
     'home.title.suffix': ' mein',
@@ -87,12 +81,12 @@ const DICT = {
     'home.resume.title': 'Resume Builder',
     'home.resume.desc':
       'Live preview ke saath professional resume banao — experience, projects, skills sab add karo. Skills seedhe apne completed courses se import karo, theme choose karo, aur ek click mein PDF download.',
-    'home.resume.bullets': ['Live A4 preview, 3 colour themes', 'Courses se skills auto-import', 'Print → Save as PDF'],
+    'home.resume.bullets': ['✓ Live A4 preview, 3 colour themes', '✓ Courses se skills auto-import', '✓ Print → Save as PDF'],
     'home.resume.cta': 'Build your resume →',
     'home.cert.title': 'Certificates',
     'home.cert.desc':
       'Koi bhi course 100% complete karo aur ek shareable Certificate of Completion pao — unique certificate ID ke saath. Download karo ya LinkedIn pe share karke apni learning dikhao.',
-    'home.cert.bullets': ['Course complete pe auto-unlock', 'Unique verifiable certificate ID', 'Download / LinkedIn pe share'],
+    'home.cert.bullets': ['✓ Course complete pe auto-unlock', '✓ Unique verifiable certificate ID', '✓ Download / LinkedIn pe share'],
     'home.cert.cta': 'Earn a certificate →',
 
     // Home — courses
@@ -118,28 +112,6 @@ const DICT = {
     'dash.publicProfile': '🔗 Public profile',
     'dash.keepLearning': 'Keep learning',
     'dash.buildResume': '📄 Build resume',
-    'dash.streak': 'day streak',
-    'dash.xpLevel': 'total XP · Level',
-    'dash.weeklyRank': "on this week's leaderboard",
-    'dash.notRanked': 'not ranked this week',
-    'dash.badgesUnlocked': 'badges unlocked',
-    'dash.continueLearning': 'Continue learning',
-    'dash.resume': 'Resume →',
-    'dash.yourRoadmap': 'Your roadmap',
-    'dash.viewRoadmap': 'View full roadmap →',
-    'dash.pickRoadmap': 'Pick a roadmap to get a step-by-step path.',
-    'dash.locked': 'Locked',
-    'dash.badges': 'Badges',
-    'dash.viewAllBadges': 'View all',
-    'dash.weeklyLeaderboard': 'Weekly leaderboard',
-    'dash.you': 'You',
-    'dash.seeFullLeaderboard': 'See full leaderboard →',
-    'dash.certificates': 'Certificates',
-    'dash.noCertificates': 'Complete a course to earn your first certificate.',
-    'dash.revisionDue': 'Revision due today',
-    'dash.revisionCount': 'flashcards due for revision.',
-    'dash.noRevision': "You're all caught up — nothing due right now.",
-    'dash.startRevision': 'Start revision →',
   },
 
   en: {
@@ -152,7 +124,6 @@ const DICT = {
     'nav.revise': 'Revise',
     'nav.resume': 'Resume',
     'nav.dashboard': 'Dashboard',
-    'nav.settings': 'Settings',
     'nav.admin': 'Admin',
     'nav.login': 'Login',
     'nav.signup': 'Sign up',
@@ -163,14 +134,9 @@ const DICT = {
     'footer.tagline':
       'For developers in India — concepts in plain language, with everyday examples, code and interview prep. Learn the easy way.',
     'footer.built': 'Built with Next.js.',
-    'footer.verify': 'Verify certificate',
 
     // Home — hero
     'home.badge': 'Made for developers in India 🇮🇳',
-    'home.hero.streak': '12 days',
-    'home.hero.streakLabel': 'streak',
-    'home.hero.xp': '⚡ +40 XP earned',
-    'home.showcase.badge': '🚀 Complete learning toolkit',
     'home.title.prefix': 'Learn concepts the ',
     'home.title.highlight': 'easiest way',
     'home.title.suffix': '',
@@ -217,12 +183,12 @@ const DICT = {
     'home.resume.title': 'Resume Builder',
     'home.resume.desc':
       'Build a professional resume with live preview — add experience, projects and skills. Import skills straight from your completed courses, pick a theme, and download a PDF in one click.',
-    'home.resume.bullets': ['Live A4 preview, 3 colour themes', 'Auto-import skills from courses', 'Print → Save as PDF'],
+    'home.resume.bullets': ['✓ Live A4 preview, 3 colour themes', '✓ Auto-import skills from courses', '✓ Print → Save as PDF'],
     'home.resume.cta': 'Build your resume →',
     'home.cert.title': 'Certificates',
     'home.cert.desc':
       'Complete any course 100% and get a shareable Certificate of Completion — with a unique certificate ID. Download it or share on LinkedIn to show your learning.',
-    'home.cert.bullets': ['Auto-unlocks on course completion', 'Unique verifiable certificate ID', 'Download / share on LinkedIn'],
+    'home.cert.bullets': ['✓ Auto-unlocks on course completion', '✓ Unique verifiable certificate ID', '✓ Download / share on LinkedIn'],
     'home.cert.cta': 'Earn a certificate →',
 
     // Home — courses
@@ -248,28 +214,6 @@ const DICT = {
     'dash.publicProfile': '🔗 Public profile',
     'dash.keepLearning': 'Keep learning',
     'dash.buildResume': '📄 Build resume',
-    'dash.streak': 'day streak',
-    'dash.xpLevel': 'total XP · Level',
-    'dash.weeklyRank': "on this week's leaderboard",
-    'dash.notRanked': 'not ranked this week',
-    'dash.badgesUnlocked': 'badges unlocked',
-    'dash.continueLearning': 'Continue learning',
-    'dash.resume': 'Resume →',
-    'dash.yourRoadmap': 'Your roadmap',
-    'dash.viewRoadmap': 'View full roadmap →',
-    'dash.pickRoadmap': 'Pick a roadmap to get a step-by-step path.',
-    'dash.locked': 'Locked',
-    'dash.badges': 'Badges',
-    'dash.viewAllBadges': 'View all',
-    'dash.weeklyLeaderboard': 'Weekly leaderboard',
-    'dash.you': 'You',
-    'dash.seeFullLeaderboard': 'See full leaderboard →',
-    'dash.certificates': 'Certificates',
-    'dash.noCertificates': 'Complete a course to earn your first certificate.',
-    'dash.revisionDue': 'Revision due today',
-    'dash.revisionCount': 'flashcards due for revision.',
-    'dash.noRevision': "You're all caught up — nothing due right now.",
-    'dash.startRevision': 'Start revision →',
   },
 };
 

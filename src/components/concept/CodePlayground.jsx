@@ -93,28 +93,24 @@ export default function CodePlayground({ code: initialCode, language = 'javascri
   const run = mode === 'html' ? runHtml : runJs;
 
   return (
-    <div className="overflow-hidden rounded-[20px]" style={{ background: 'var(--color-ink)' }}>
-      <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
-        <span className="h-2.5 w-2.5 rounded-full bg-[#f87171]" />
-        <span className="h-2.5 w-2.5 rounded-full bg-[#fbbf24]" />
-        <span className="h-2.5 w-2.5 rounded-full bg-[#34d399]" />
-        <span className="ml-2 font-mono text-xs text-slate-400">
-          playground.{mode === 'html' ? 'html' : 'js'}
+    <div className="overflow-hidden rounded-2xl border border-slate-200">
+      <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-2">
+        <span className="flex items-center gap-2 text-xs font-medium text-slate-500">
+          <span>▶</span> Interactive playground · {mode === 'html' ? 'HTML' : 'JavaScript'}
         </span>
-        <div className="ml-auto flex gap-2">
+        <div className="flex gap-2">
           <button
             onClick={reset}
-            className="rounded-md px-2.5 py-1 text-xs font-medium text-slate-400 hover:bg-white/10"
+            className="rounded-md px-3 py-1 text-xs font-medium text-slate-500 hover:bg-slate-200"
           >
             Reset
           </button>
           <button
             onClick={run}
             disabled={running}
-            className="rounded-md px-4 py-1.5 text-xs font-bold text-white disabled:opacity-50"
-            style={{ background: 'var(--color-accent-green)' }}
+            className="rounded-md bg-indigo-600 px-4 py-1 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
           >
-            {running ? 'Running…' : `▶ ${mode === 'html' ? 'Preview' : 'Run'}`}
+            {running ? 'Running…' : mode === 'html' ? 'Preview' : 'Run'}
           </button>
         </div>
       </div>
@@ -124,11 +120,11 @@ export default function CodePlayground({ code: initialCode, language = 'javascri
         onChange={(e) => setCode(e.target.value)}
         spellCheck={false}
         rows={Math.min(16, Math.max(6, code.split('\n').length + 1))}
-        className="w-full resize-y bg-transparent p-5 font-mono text-[13.5px] leading-[1.8] text-slate-100 outline-none"
+        className="w-full resize-y bg-slate-900 p-4 font-mono text-sm leading-relaxed text-slate-100 outline-none"
       />
 
       {ran && (
-        <div className="border-t border-white/10">
+        <div className="border-t border-slate-200">
           {mode === 'html' ? (
             <iframe
               ref={iframeRef}
@@ -137,7 +133,7 @@ export default function CodePlayground({ code: initialCode, language = 'javascri
               className="h-64 w-full bg-white"
             />
           ) : (
-            <div className="max-h-64 overflow-auto p-4 font-mono text-sm">
+            <div className="max-h-64 overflow-auto bg-slate-950 p-4 font-mono text-sm">
               {output.length === 0 && running && <span className="text-slate-500">Running…</span>}
               {output.map((line, i) => (
                 <div
@@ -149,7 +145,7 @@ export default function CodePlayground({ code: initialCode, language = 'javascri
                       ? 'whitespace-pre-wrap text-amber-400'
                       : line.kind === 'muted'
                       ? 'whitespace-pre-wrap text-slate-500'
-                      : 'whitespace-pre-wrap text-[#86efac]'
+                      : 'whitespace-pre-wrap text-slate-100'
                   }
                 >
                   {line.text}

@@ -8,24 +8,24 @@ const DIFF_ORDER = ['easy', 'medium', 'hard'];
 
 const DIFF_META = {
   easy: {
-    dot: 'bg-accent-green',
-    chip: 'bg-accent-green-tint text-accent-green-ink',
-    bar: 'bg-accent-green',
+    dot: 'bg-emerald-500',
+    chip: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+    bar: 'bg-emerald-500',
   },
   medium: {
     dot: 'bg-amber-500',
-    chip: 'bg-amber-tint text-amber-ink',
+    chip: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
     bar: 'bg-amber-500',
   },
   hard: {
     dot: 'bg-red-500',
-    chip: 'bg-red-100 text-red-700',
+    chip: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300',
     bar: 'bg-red-500',
   },
 };
 
 function metaFor(d) {
-  return DIFF_META[d] || { dot: 'bg-muted-soft', chip: 'bg-line-soft text-muted', bar: 'bg-muted-soft' };
+  return DIFF_META[d] || { dot: 'bg-slate-400', chip: 'bg-slate-100 text-slate-500', bar: 'bg-slate-400' };
 }
 
 /* Runnable snippet shown under an answer, with its expected output. */
@@ -34,9 +34,9 @@ function CodeExample({ example, label, outputLabel }) {
   if (!example?.code) return null;
 
   return (
-    <div className="mt-5 overflow-hidden rounded-2xl" style={{ background: 'var(--color-ink)' }}>
-      <div className="flex items-center gap-2 border-b border-white/10 px-3.5 py-2.5">
-        <span className="text-[10.5px] font-bold uppercase tracking-wider text-slate-400">{label}</span>
+    <div className="mt-5 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">
+      <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-3.5 py-1.5 dark:border-slate-700 dark:bg-slate-800/60">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{label}</span>
         <button
           type="button"
           onClick={() => {
@@ -44,20 +44,20 @@ function CodeExample({ example, label, outputLabel }) {
             setCopied(true);
             setTimeout(() => setCopied(false), 1400);
           }}
-          className="ml-auto rounded-md px-2 py-0.5 text-[11px] font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white"
+          className="ml-auto rounded-md px-2 py-0.5 text-[11px] font-semibold text-slate-500 transition hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-200"
         >
           {copied ? '✓' : '⧉'}
         </button>
       </div>
 
-      <pre className="overflow-x-auto px-3.5 py-3 font-mono text-[12px] leading-relaxed text-slate-200">
+      <pre className="overflow-x-auto bg-slate-900 px-3.5 py-3 font-mono text-[12px] leading-relaxed text-slate-200">
         <code>{example.code}</code>
       </pre>
 
       {example.output && (
-        <div className="border-t border-white/10 px-3.5 py-2 font-mono text-[11.5px] leading-relaxed">
+        <div className="border-t border-slate-700 bg-slate-950 px-3.5 py-2 font-mono text-[11.5px] leading-relaxed">
           <span className="text-slate-500">{outputLabel} › </span>
-          <span className="whitespace-pre-wrap text-[#86efac]">{example.output}</span>
+          <span className="whitespace-pre-wrap text-emerald-400">{example.output}</span>
         </div>
       )}
     </div>
@@ -73,43 +73,43 @@ function DeepDive({ sections, pick }) {
   return (
     <div className="mt-5">
       <div className="flex items-center gap-2">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-brand">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
           {pick(
             `Step by step — ${sections.length} steps`,
             `Step by step — ${sections.length} steps`
           )}
         </span>
-        <span className="h-px flex-1 bg-brand-tint" />
+        <span className="h-px flex-1 bg-indigo-100 dark:bg-indigo-900/60" />
       </div>
 
-      <ol className="mt-4 space-y-6 border-l-2 border-brand-tint pl-5">
+      <ol className="mt-4 space-y-6 border-l-2 border-indigo-100 pl-5 dark:border-indigo-900/50">
         {sections.map((sec, i) => (
           <li key={i} className="relative">
             {/* Step marker sitting on the timeline */}
-            <span className="absolute -left-[27px] top-0.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-brand text-[10px] font-bold text-white">
+            <span className="absolute -left-[27px] top-0.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white">
               {i + 1}
             </span>
 
             {(sec.heading?.en || sec.heading?.hi) && (
-              <h3 className="text-[15px] font-bold leading-snug text-ink">
+              <h3 className="text-[15px] font-bold leading-snug text-slate-900 dark:text-slate-100">
                 {pick(sec.heading.hi || sec.heading.en, sec.heading.en || sec.heading.hi)}
               </h3>
             )}
 
             {(sec.body?.en || sec.body?.hi) && (
-              <p className="mt-1.5 whitespace-pre-line text-[14px] leading-relaxed text-ink-soft">
+              <p className="mt-1.5 whitespace-pre-line text-[14px] leading-relaxed text-slate-700 dark:text-slate-300">
                 {pick(sec.body.hi || sec.body.en, sec.body.en || sec.body.hi)}
               </p>
             )}
 
             {sec.diagram && (
-              <pre className="mt-3 overflow-x-auto rounded-lg border border-line bg-line-soft px-3.5 py-3 font-mono text-[11.5px] leading-[1.55] text-ink-soft">
+              <pre className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-3 font-mono text-[11.5px] leading-[1.55] text-slate-600 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400">
                 <code>{sec.diagram}</code>
               </pre>
             )}
 
             {sec.code && (
-              <pre className="mt-3 overflow-x-auto rounded-lg px-3.5 py-3 font-mono text-[12px] leading-relaxed text-slate-200" style={{ background: 'var(--color-ink)' }}>
+              <pre className="mt-3 overflow-x-auto rounded-lg bg-slate-900 px-3.5 py-3 font-mono text-[12px] leading-relaxed text-slate-200">
                 <code>{sec.code}</code>
               </pre>
             )}
@@ -129,22 +129,22 @@ function Answer({ english, hinglish, isRecap, pick, compact }) {
     <div className={compact ? '' : 'mt-6'}>
       {isRecap && (
         <div className="mb-2 flex items-center gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
             {pick('Ek line mein', 'In short')}
           </span>
-          <span className="h-px flex-1 bg-line" />
+          <span className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
         </div>
       )}
 
       {english && (
-        <p className={`${compact ? 'text-sm' : 'text-[15px]'} leading-relaxed text-ink-soft`}>
+        <p className={`${compact ? 'text-sm' : 'text-[15px]'} leading-relaxed text-slate-700 dark:text-slate-300`}>
           {english}
         </p>
       )}
 
       {hinglish && (
-        <div className="mt-3 rounded-xl border border-amber-tint-2 bg-amber-tint p-4 text-sm leading-relaxed text-ink-soft">
-          <span className="font-semibold text-amber-ink">Hinglish: </span>
+        <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900 dark:border-amber-900/40 dark:bg-amber-900/20 dark:text-amber-200">
+          <span className="font-semibold">Hinglish: </span>
           {hinglish}
         </div>
       )}
@@ -213,7 +213,7 @@ export default function InterviewQuestionsBrowser({ questions }) {
       {/* ── Toolbar ───────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative min-w-[200px] flex-1">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
               <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
             </svg>
@@ -226,7 +226,7 @@ export default function InterviewQuestionsBrowser({ questions }) {
               `${questions.length} questions mein search karo…`,
               `Search ${questions.length} questions…`
             )}
-            className="w-full rounded-xl border border-line bg-card py-2.5 pl-9 pr-3 text-sm text-ink outline-none transition placeholder:text-muted-soft focus:border-brand focus:ring-4 focus:ring-brand-tint"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800/60 dark:focus:bg-slate-800"
           />
         </div>
 
@@ -238,8 +238,8 @@ export default function InterviewQuestionsBrowser({ questions }) {
               onClick={() => setFreq(f.key)}
               className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
                 freq === f.key
-                  ? 'bg-brand text-white'
-                  : 'border border-line text-ink-soft hover:border-brand/40 hover:text-brand'
+                  ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/25'
+                  : 'border border-slate-200 text-slate-600 hover:border-indigo-300 hover:text-indigo-600 dark:border-slate-700 dark:text-slate-400'
               }`}
             >
               {f.label}
@@ -250,46 +250,46 @@ export default function InterviewQuestionsBrowser({ questions }) {
 
       {/* ── Result summary ────────────────────────────────── */}
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm">
-        <span className="font-medium text-muted">
+        <span className="font-medium text-slate-500 dark:text-slate-400">
           {filtered.length} {filtered.length === 1 ? pick('question mila', 'question') : pick('questions mile', 'questions')}
         </span>
         {DIFF_ORDER.map((d) =>
           counts[d] > 0 ? (
-            <span key={d} className="flex items-center gap-1.5 text-xs text-muted">
+            <span key={d} className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
               <span className={`h-2 w-2 rounded-full ${metaFor(d).dot}`} />
               <span className="capitalize">{d}</span>
-              <span className="font-semibold text-ink-soft">{counts[d]}</span>
+              <span className="font-semibold text-slate-700 dark:text-slate-300">{counts[d]}</span>
             </span>
           ) : null
         )}
       </div>
 
       {filtered.length === 0 ? (
-        <p className="mt-6 rounded-3xl border border-dashed border-line p-10 text-center text-muted">
+        <p className="mt-6 rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500 dark:border-slate-700">
           {pick('Kuch nahi mila. Doosra search ya filter try karo.', 'Nothing matched. Try another search or filter.')}
         </p>
       ) : (
         <>
           {/* ── Desktop: two-pane ───────────────────────────── */}
-          <div className="lv-card mt-5 hidden overflow-hidden lg:grid lg:grid-cols-[minmax(300px,2fr)_3fr]">
+          <div className="mt-5 hidden overflow-hidden rounded-2xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(300px,2fr)_3fr] dark:border-slate-700 dark:bg-slate-900">
             {/* List */}
             <div
               ref={listRef}
               tabIndex={0}
               onKeyDown={onListKeyDown}
-              className="max-h-[70vh] overflow-y-auto border-r border-line outline-none focus:ring-2 focus:ring-inset focus:ring-brand/30"
+              className="max-h-[70vh] overflow-y-auto border-r border-slate-200 outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500/30 dark:border-slate-700"
             >
               {DIFF_ORDER.map((level) => {
                 const group = filtered.filter((q) => q.difficulty === level);
                 if (group.length === 0) return null;
                 return (
                   <div key={level}>
-                    <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-line-soft bg-line-soft/95 px-4 py-1.5 backdrop-blur">
+                    <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-slate-100 bg-slate-50/95 px-4 py-1.5 backdrop-blur dark:border-slate-800 dark:bg-slate-800/95">
                       <span className={`h-1.5 w-1.5 rounded-full ${metaFor(level).dot}`} />
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                         {level}
                       </span>
-                      <span className="text-[11px] font-semibold text-muted-soft">{group.length}</span>
+                      <span className="text-[11px] font-semibold text-slate-400">{group.length}</span>
                     </div>
                     {group.map((q) => {
                       const on = q.id === selectedId;
@@ -299,16 +299,18 @@ export default function InterviewQuestionsBrowser({ questions }) {
                           type="button"
                           data-qid={q.id}
                           onClick={() => setSelectedId(q.id)}
-                          className={`flex w-full items-start gap-2.5 border-b border-line-soft px-4 py-3 text-left transition ${
+                          className={`flex w-full items-start gap-2.5 border-b border-slate-100 px-4 py-3 text-left transition dark:border-slate-800 ${
                             on
-                              ? 'bg-brand-tint shadow-[inset_3px_0_0_0_var(--color-brand)]'
-                              : 'hover:bg-line-soft'
+                              ? 'bg-indigo-50 shadow-[inset_3px_0_0_0_#4f46e5] dark:bg-indigo-950/40'
+                              : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
                           }`}
                         >
                           <span className={`mt-1.5 h-1.5 w-1.5 flex-none rounded-full ${metaFor(q.difficulty).dot}`} />
                           <span
                             className={`text-sm leading-snug ${
-                              on ? 'font-bold text-brand-dark' : 'text-ink-soft'
+                              on
+                                ? 'font-semibold text-indigo-700 dark:text-indigo-300'
+                                : 'text-slate-700 dark:text-slate-300'
                             }`}
                           >
                             {q.question}
@@ -322,19 +324,19 @@ export default function InterviewQuestionsBrowser({ questions }) {
             </div>
 
             {/* Detail */}
-            <div className="max-h-[70vh] overflow-y-auto bg-brand-tint/25 p-7">
+            <div className="max-h-[70vh] overflow-y-auto bg-slate-50/40 p-7 dark:bg-slate-900/40">
               {selected && (
                 <>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${metaFor(selected.difficulty).chip}`}>
                       {selected.difficulty}
                     </span>
-                    <span className="rounded-full bg-line-soft px-2.5 py-0.5 text-xs font-medium capitalize text-ink-soft">
+                    <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium capitalize text-slate-600 dark:bg-slate-800 dark:text-slate-400">
                       {selected.frequency}
                     </span>
                   </div>
 
-                  <h2 className="mt-3 text-xl font-bold leading-snug text-ink">
+                  <h2 className="mt-3 text-xl font-bold leading-snug text-slate-900 dark:text-slate-100">
                     {selected.question}
                   </h2>
 
@@ -359,7 +361,7 @@ export default function InterviewQuestionsBrowser({ questions }) {
 
                   {selected.visual && <ConceptAnimation type={selected.visual} />}
 
-                  <p className="mt-6 border-t border-line pt-3 text-xs text-muted-soft">
+                  <p className="mt-6 border-t border-slate-200 pt-3 text-xs text-slate-400 dark:border-slate-800">
                     {pick('Tip: list mein ↑ ↓ arrow keys use karo.', 'Tip: use ↑ ↓ arrow keys in the list.')}
                   </p>
                 </>
@@ -368,40 +370,40 @@ export default function InterviewQuestionsBrowser({ questions }) {
           </div>
 
           {/* ── Mobile: accordion ───────────────────────────── */}
-          <div className="lv-card mt-5 overflow-hidden lg:hidden">
+          <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white lg:hidden dark:border-slate-700 dark:bg-slate-900">
             {DIFF_ORDER.map((level) => {
               const group = filtered.filter((q) => q.difficulty === level);
               if (group.length === 0) return null;
               return (
                 <div key={level}>
-                  <div className="flex items-center gap-2 border-b border-line-soft bg-line-soft px-4 py-1.5">
+                  <div className="flex items-center gap-2 border-b border-slate-100 bg-slate-50 px-4 py-1.5 dark:border-slate-800 dark:bg-slate-800">
                     <span className={`h-1.5 w-1.5 rounded-full ${metaFor(level).dot}`} />
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                       {level}
                     </span>
-                    <span className="text-[11px] font-semibold text-muted-soft">{group.length}</span>
+                    <span className="text-[11px] font-semibold text-slate-400">{group.length}</span>
                   </div>
                   {group.map((q) => {
                     const open = openId === q.id;
                     return (
-                      <div key={q.id} className="border-b border-line-soft">
+                      <div key={q.id} className="border-b border-slate-100 dark:border-slate-800">
                         <button
                           type="button"
                           onClick={() => setOpenId(open ? null : q.id)}
                           className={`flex w-full items-start gap-2.5 px-4 py-3 text-left transition ${
-                            open ? 'bg-brand-tint' : ''
+                            open ? 'bg-indigo-50 dark:bg-indigo-950/40' : ''
                           }`}
                         >
                           <span className={`mt-1.5 h-1.5 w-1.5 flex-none rounded-full ${metaFor(q.difficulty).dot}`} />
                           <span
                             className={`flex-1 text-sm font-medium leading-snug ${
-                              open ? 'text-brand-dark' : 'text-ink'
+                              open ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-800 dark:text-slate-200'
                             }`}
                           >
                             {q.question}
                           </span>
                           <span
-                            className={`mt-0.5 flex-none text-muted transition-transform ${open ? 'rotate-180' : ''}`}
+                            className={`mt-0.5 flex-none text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`}
                           >
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                               <path d="m6 9 6 6 6-6" />
@@ -409,7 +411,7 @@ export default function InterviewQuestionsBrowser({ questions }) {
                           </span>
                         </button>
                         {open && (
-                          <div className="bg-brand-tint/40 px-4 pb-4 pt-1">
+                          <div className="bg-slate-50/60 px-4 pb-4 pt-1 dark:bg-slate-800/40">
                             <DeepDive sections={q.deepDive} pick={pick} />
                             <Answer
                               english={q.english}

@@ -5,8 +5,6 @@ import Concept from '@/models/Concept';
 import Course from '@/models/Course';
 import InterviewQuestion from '@/models/InterviewQuestion';
 import ConceptReader from '@/components/concept/ConceptReader';
-import ConceptOutline from '@/components/concept/ConceptOutline';
-import ConceptRightRail from '@/components/concept/ConceptRightRail';
 import { SITE_URL } from '@/lib/site';
 
 export const revalidate = 3600;
@@ -87,10 +85,6 @@ export default async function ConceptPage({ params }) {
   if (!data) notFound();
   const { concept, course, siblings } = data;
 
-  const index = siblings.findIndex((s) => s.slug === concept.slug);
-  const prevSibling = index > 0 ? siblings[index - 1] : null;
-  const nextSibling = index >= 0 && index < siblings.length - 1 ? siblings[index + 1] : null;
-
   // Structured data: the article + (if any) an FAQ from interview questions.
   const jsonLd = [
     {
@@ -119,48 +113,55 @@ export default async function ConceptPage({ params }) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-10">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-
-      {course && (
-        <div className="flex items-center gap-1.5 text-[13px] font-semibold text-muted">
-          <Link href="/courses" className="hover:text-brand">Courses</Link>
-          <span>›</span>
-          <Link href={`/courses/${course.slug}`} className="hover:text-brand">{course.title}</Link>
-          <span>›</span>
-          <span className="text-ink">{concept.title}</span>
-        </div>
-      )}
-
-      <div className="mt-5 grid gap-7 lg:grid-cols-[240px_1fr_280px] lg:items-start lg:gap-7">
-        {/* Outline — course structure so the reader never feels lost */}
-        {course && (
-          <ConceptOutline course={course} siblings={siblings} currentSlug={concept.slug} />
-        )}
+      <div className="grid gap-10 lg:grid-cols-[260px_1fr]">
+        {/* Sidebar — course structure so the reader never feels lost */}
+        <aside className="hidden lg:block">
+          <div className="sticky top-24">
+            {course && (
+              <Link
+                href={`/courses/${course.slug}`}
+                className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-indigo-600"
+              >
+                <span>{course.icon}</span> {course.title}
+              </Link>
+            )}
+            <nav className="space-y-1 border-l border-slate-200 pl-3 text-sm">
+              {siblings.map((s) => {
+                const active = s.slug === concept.slug;
+                return (
+                  <Link
+                    key={s._id}
+                    href={`/concepts/${s.slug}`}
+                    className={`block rounded-md px-2 py-1.5 ${
+                      active
+                        ? 'bg-indigo-50 font-medium text-indigo-600'
+                        : 'text-slate-600 hover:text-indigo-600'
+                    }`}
+                  >
+                    {s.title}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+        </aside>
 
         <div className="min-w-0">
-          <ConceptReader concept={concept} course={course} />
-
-          <div className="mt-8 flex items-center justify-between gap-3">
-            {prevSibling ? (
-              <Link href={`/concepts/${prevSibling.slug}`} className="lv-btn lv-btn-ghost">
-                ← {prevSibling.title}
-              </Link>
-            ) : <span />}
-            {nextSibling ? (
-              <Link href={`/concepts/${nextSibling.slug}`} className="lv-btn lv-btn-primary">
-                {nextSibling.title} →
-              </Link>
-            ) : <span />}
-          </div>
+          {course && (
+            <Link
+              href={`/courses/${course.slug}`}
+              className="mb-4 inline-block text-sm text-slate-500 hover:text-indigo-600 lg:hidden"
+            >
+              ← {course.title}
+            </Link>
+          )}
+          <ConceptReader concept={concept} />
         </div>
-
-        {course && (
-          <ConceptRightRail courseId={course._id} totalConcepts={siblings.length} conceptId={concept._id} />
-        )}
       </div>
     </div>
   );

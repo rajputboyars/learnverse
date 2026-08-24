@@ -99,8 +99,8 @@ export default async function InterviewQuestionsPage({ searchParams }) {
   if (!questions) {
     return (
       <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-bold text-ink">Interview Questions</h1>
-        <p className="mt-2 text-muted">
+        <h1 className="text-3xl font-bold">Interview Questions</h1>
+        <p className="mt-2 text-slate-600 dark:text-slate-400">
           <L
             hi="Course choose karo, phir apni preparation shuru karo."
             en="Pick a course below to browse questions or jump straight into a mock interview."
@@ -108,7 +108,7 @@ export default async function InterviewQuestionsPage({ searchParams }) {
         </p>
 
         {courses.length === 0 ? (
-          <p className="mt-10 text-center text-muted">
+          <p className="mt-10 text-center text-slate-500">
             <L hi="Abhi koi course nahi hai." en="No courses available yet." />
           </p>
         ) : (
@@ -116,15 +116,18 @@ export default async function InterviewQuestionsPage({ searchParams }) {
             {courses.map((c) => {
               const qCount = countMap[c._id.toString()] || 0;
               return (
-                <div key={c.slug} className="lv-card flex flex-col p-6 transition hover:border-brand/40">
+                <div
+                  key={c.slug}
+                  className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-6 transition hover:border-indigo-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
+                >
                   {/* Icon */}
                   <div className="text-5xl">{c.icon || '📘'}</div>
 
                   {/* Title + count */}
-                  <h2 className="mt-4 text-lg font-bold text-ink">
+                  <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-slate-100">
                     {c.title}
                   </h2>
-                  <p className="mt-1 text-sm text-muted">
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     {qCount}{' '}
                     <L hi="questions" en="questions" />
                   </p>
@@ -134,10 +137,16 @@ export default async function InterviewQuestionsPage({ searchParams }) {
 
                   {/* Actions */}
                   <div className="mt-5 flex gap-2">
-                    <Link href={`/interview-questions?course=${c.slug}`} className="lv-btn lv-btn-primary flex-1 justify-center py-2.5 text-sm">
+                    <Link
+                      href={`/interview-questions?course=${c.slug}`}
+                      className="flex-1 rounded-xl bg-indigo-600 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-700"
+                    >
                       <L hi="Questions Dekho" en="View Questions" />
                     </Link>
-                    <Link href={`/mock-interview/${c.slug}`} className="lv-btn lv-btn-ghost flex-1 justify-center py-2.5 text-sm">
+                    <Link
+                      href={`/mock-interview/${c.slug}`}
+                      className="flex-1 rounded-xl border border-slate-200 py-2.5 text-center text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                    >
                       🎤 Mock
                     </Link>
                   </div>
@@ -154,17 +163,20 @@ export default async function InterviewQuestionsPage({ searchParams }) {
   return (
     <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
       {/* Back + breadcrumb */}
-      <Link href="/interview-questions" className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-brand">
+      <Link
+        href="/interview-questions"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-indigo-600"
+      >
         ← <L hi="Saare courses" en="All courses" />
       </Link>
 
       {/* Heading */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-ink">
+          <h1 className="text-3xl font-bold">
             {activeCourse ? `${activeCourse.icon} ${activeCourse.title}` : 'Interview Questions'}
           </h1>
-          <p className="mt-1 text-muted">
+          <p className="mt-1 text-slate-600 dark:text-slate-400">
             <L
               hi="Real questions, asaan jawab — English aur Hinglish dono mein."
               en="Real questions, simple answers — in both English and Hinglish."
@@ -172,7 +184,10 @@ export default async function InterviewQuestionsPage({ searchParams }) {
           </p>
         </div>
         {activeCourse && (
-          <Link href={`/mock-interview/${activeCourse.slug}`} className="lv-btn lv-btn-primary">
+          <Link
+            href={`/mock-interview/${activeCourse.slug}`}
+            className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+          >
             🎤 <L hi="Mock Interview Shuru Karo" en="Start Mock Interview" />
           </Link>
         )}
@@ -180,16 +195,16 @@ export default async function InterviewQuestionsPage({ searchParams }) {
 
       {/* Level filter */}
       <div className="mt-6">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">Level</p>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Level</p>
         <div className="flex flex-wrap gap-2">
           {LEVELS.map((l) => (
             <Link
               key={l}
               href={hrefFor({ course, difficulty: l })}
-              className={`rounded-full px-4 py-1.5 text-sm font-semibold capitalize transition ${
+              className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize transition ${
                 difficulty === l
-                  ? 'bg-brand text-white'
-                  : 'border border-line text-ink-soft hover:border-brand/40 hover:text-brand'
+                  ? 'bg-indigo-600 text-white'
+                  : 'border border-slate-200 text-slate-600 hover:border-indigo-300 hover:text-indigo-600 dark:border-slate-700 dark:text-slate-400'
               }`}
             >
               {l === 'all' ? <L hi="Sab" en="All" /> : l}
@@ -201,7 +216,7 @@ export default async function InterviewQuestionsPage({ searchParams }) {
       {questions.length > 0 && <InterviewQuestionsBrowser questions={questions} />}
 
       {questions.length === 0 ? (
-        <p className="mt-4 rounded-3xl border border-dashed border-line p-10 text-center text-muted">
+        <p className="mt-4 rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500 dark:border-slate-700">
           <L
             hi="Is filter ke liye koi question nahi mila. Doosra level try karo."
             en="No questions for this filter. Try another level."

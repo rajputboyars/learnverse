@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Course from '@/models/Course';
 import Concept from '@/models/Concept';
-import { requireUser } from '@/lib/guards';
-import { awardXP } from '@/services/xp';
 
 // GET /api/practice?courseSlug=...&limit=12
 // Aggregates quiz questions across a course's concepts for a self-test.
@@ -29,7 +27,6 @@ export async function GET(request) {
           options: q.options,
           correctIndex: q.correctIndex,
           explanation: q.explanation || '',
-          conceptId: c._id.toString(),
           conceptTitle: c.title,
           conceptSlug: c.slug,
         });
@@ -48,25 +45,4 @@ export async function GET(request) {
     total: pool.length,
     questions: pool.slice(0, limit),
   });
-}
-
-// POST /api/practice  { conceptIds: [...] } → award quiz XP for the concepts
-// whose questions the learner answered correctly. awardXP is idempotent per
-// (user, concept, 'quiz_passed'), so re-practising never double-awards.
-export async function POST(request) {
-  const { session, error } = await requireUser();
-  if (error) return error;
-  const { conceptIds } = await request.json();
-  if (!Array.isArray(conceptIds) || conceptIds.length === 0) {
-    return NextResponse.json({ gained: 0 });
-  }
-
-  let gained = 0;
-  let totalXP = 0;
-  for (const conceptId of [...new Set(conceptIds)]) {
-    const result = await awardXP(session.user.id, conceptId, 'quiz_passed');
-    if (result?.gained) gained += result.gained;
-    if (result?.totalXP) totalXP = result.totalXP;
-  }
-  return NextResponse.json({ gained, totalXP });
 }

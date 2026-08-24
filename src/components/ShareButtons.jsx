@@ -32,29 +32,29 @@ export default function ShareButtons({ title = 'Learnverse', text = '' }) {
 
   return (
     <div className="my-6 flex flex-wrap items-center gap-2">
-      <span className="text-sm font-medium text-muted">Share:</span>
+      <span className="text-sm font-medium text-slate-500">Share:</span>
       <button
         onClick={() => open(`https://wa.me/?text=${shareText}%20${encodeURIComponent(url())}`)}
-        className="rounded-full border border-line px-3 py-1.5 text-sm text-ink-soft hover:bg-accent-green-tint hover:text-accent-green-ink"
+        className="rounded-full border border-slate-200 px-3 py-1.5 text-sm hover:bg-green-50 hover:text-green-700"
       >
         🟢 WhatsApp
       </button>
       <button
         onClick={() => open(`https://twitter.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(url())}`)}
-        className="rounded-full border border-line px-3 py-1.5 text-sm text-ink-soft hover:bg-line-soft"
+        className="rounded-full border border-slate-200 px-3 py-1.5 text-sm hover:bg-slate-100"
       >
         𝕏 Twitter
       </button>
       <button
         onClick={() => open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url())}`)}
-        className="rounded-full border border-line px-3 py-1.5 text-sm text-ink-soft hover:bg-brand-tint hover:text-brand-dark"
+        className="rounded-full border border-slate-200 px-3 py-1.5 text-sm hover:bg-blue-50 hover:text-blue-700"
       >
         in LinkedIn
       </button>
-      <button onClick={copy} className="rounded-full border border-line px-3 py-1.5 text-sm text-ink-soft hover:bg-line-soft">
+      <button onClick={copy} className="rounded-full border border-slate-200 px-3 py-1.5 text-sm hover:bg-slate-100">
         {copied ? '✓ Copied' : '🔗 Copy link'}
       </button>
-      <button onClick={nativeShare} className="rounded-full border border-line px-3 py-1.5 text-sm text-ink-soft hover:bg-line-soft sm:hidden">
+      <button onClick={nativeShare} className="rounded-full border border-slate-200 px-3 py-1.5 text-sm hover:bg-slate-100 sm:hidden">
         ↗ Share
       </button>
     </div>

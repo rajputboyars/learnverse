@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Course from '@/models/Course';
 import InterviewQuestion from '@/models/InterviewQuestion';
-import { requireUser } from '@/lib/guards';
-import { awardXP } from '@/services/xp';
 
 // GET /api/mock-interview?courseSlug=...&limit=10
 export async function GET(request) {
@@ -19,7 +17,7 @@ export async function GET(request) {
     courseId: course._id,
     status: { $in: ['approved', 'published'] },
   })
-    .select('question answer difficulty conceptId')
+    .select('question answer difficulty')
     .lean();
 
   // shuffle
@@ -36,24 +34,6 @@ export async function GET(request) {
       difficulty: q.difficulty,
       english: q.answer?.english || '',
       hinglish: q.answer?.hinglish || '',
-      conceptId: q.conceptId ? q.conceptId.toString() : null,
     })),
   });
-}
-
-// POST /api/mock-interview  { conceptId }  → rating a question "Got it" counts
-// as understanding that concept, so it awards the same XP as reading it
-// (reuses awardXP's existing per-concept idempotency — no double-dipping).
-export async function POST(request) {
-  const { session, error } = await requireUser();
-  if (error) return error;
-  const { conceptId } = await request.json();
-  if (!conceptId) {
-    return NextResponse.json({ error: 'conceptId required' }, { status: 400 });
-  }
-  const result = await awardXP(session.user.id, conceptId, 'concept_read');
-  if (result.error) {
-    return NextResponse.json({ error: result.error }, { status: 404 });
-  }
-  return NextResponse.json(result);
 }
