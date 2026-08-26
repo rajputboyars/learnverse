@@ -44,6 +44,62 @@ const DICT = {
     'home.cta.interview': 'Interview questions',
     'home.langPick': 'Apni language choose karo:',
 
+    // Home — hero banner (dashboard layout)
+    'home.hero.title': 'Concept seekho. Phir ',
+    'home.hero.titleHl': 'interview question ka jawab do.',
+    'home.hero.sub':
+      'Daily-life analogies, chalne wala code, ek quiz, aur wahi sawaal jo interview mein poocha jaata hai — har concept, English ya Hinglish mein.',
+    'home.hero.ctaPrimary': 'Free mein shuru karo',
+    'home.hero.ctaSecondary': 'Courses dekho',
+    'home.hero.readIn': 'Padho',
+    'home.stats.concepts': 'concepts, dono zubaan mein',
+    'home.stats.questions': 'interview questions',
+    'home.stats.challenges': 'code challenges',
+    'home.stats.free': 'Free',
+    'home.stats.freeNote': 'koi paywall nahi',
+
+    // Home — greeting + cockpit
+    'home.greet.title': 'Wapas aa gaye — chalo, 10 minute.',
+    'home.greet.sub': 'Aaj ka pick neeche hai. Streak zinda rakho.',
+    'home.today.label': 'Aaj ka concept',
+    'home.today.read': 'Padho + run karo',
+    'home.today.quiz': 'Quiz do',
+    'home.today.drill': 'Question drill karo',
+    'home.streak.title': 'Tumhari streak',
+    'home.streak.days': 'din',
+    'home.streak.goal': 'Aaj ka goal',
+    'home.streak.xp': 'XP',
+    'home.continue.title': 'Jahan chhoda tha wahin se',
+    'home.continue.all': 'Sab courses',
+    'home.continue.empty': 'Abhi koi course shuru nahi kiya. Neeche se ek chuno.',
+    'home.rank.title': 'Is hafte',
+    'home.rank.resets': 'Monday ko reset',
+    'home.rank.you': 'Tum',
+    'home.rank.empty': 'Is hafte abhi tak koi XP nahi.',
+    'home.quick.challenges': 'Challenges',
+    'home.quick.revision': 'Revision',
+    'home.quick.discussions': 'Discussions',
+    'home.quick.resume': 'Resume',
+    'home.quick.certificates': 'Certificates',
+
+    // Home — explore + interview prep
+    'home.explore.title': 'Kuch naya shuru karo',
+    'home.explore.sub': 'Har course concept → quiz → interview question tak le jaata hai.',
+    'home.explore.all': 'Sab',
+    'home.explore.open': 'Course kholo',
+    'home.prep.badge': 'Interview prep',
+    'home.prep.title': 'Har concept ke doosri taraf ek sawaal khada hai',
+    'home.prep.sub':
+      'Answers English aur Hinglish dono mein, course aur level se filter karo, aur har sawaal apne concept se juda hua hai.',
+    'home.prep.browse': 'Questions dekho',
+    'home.prep.mock': 'Mock interview shuru karo',
+    'home.prep.empty': 'Abhi koi interview question add nahi hua.',
+
+    // Home — signed-out invite
+    'home.join.title': 'Streak, XP aur progress save karne ke liye account banao',
+    'home.join.sub': 'Free hai. Har concept jo padhoge woh yahin track hota rahega.',
+    'home.join.cta': 'Free account banao',
+
     // Home — concept of the day
     'home.cotd.label': 'Concept of the Day',
     'home.cotd.go': 'Aaj seekho',
@@ -145,6 +201,62 @@ const DICT = {
     'home.cta.explore': 'Explore courses',
     'home.cta.interview': 'Interview questions',
     'home.langPick': 'Choose your language:',
+
+    // Home — hero banner (dashboard layout)
+    'home.hero.title': 'Learn the concept. Then answer the ',
+    'home.hero.titleHl': 'interview question.',
+    'home.hero.sub':
+      'Daily-life analogies, code you can run, a quiz, and the exact question it turns into — every concept, in English or Hinglish.',
+    'home.hero.ctaPrimary': 'Start learning free',
+    'home.hero.ctaSecondary': 'Browse courses',
+    'home.hero.readIn': 'Read in',
+    'home.stats.concepts': 'concepts, both languages',
+    'home.stats.questions': 'interview questions',
+    'home.stats.challenges': 'code challenges',
+    'home.stats.free': 'Free',
+    'home.stats.freeNote': 'no paywall, ever',
+
+    // Home — greeting + cockpit
+    'home.greet.title': 'Welcome back — ten minutes is enough.',
+    'home.greet.sub': 'Today\u2019s pick is below. Keep the streak alive.',
+    'home.today.label': 'Today\u2019s concept',
+    'home.today.read': 'Read + run',
+    'home.today.quiz': 'Take the quiz',
+    'home.today.drill': 'Drill the question',
+    'home.streak.title': 'Your streak',
+    'home.streak.days': 'days',
+    'home.streak.goal': 'Today\u2019s goal',
+    'home.streak.xp': 'XP',
+    'home.continue.title': 'Pick up where you left off',
+    'home.continue.all': 'All courses',
+    'home.continue.empty': 'No course started yet. Pick one below.',
+    'home.rank.title': 'This week',
+    'home.rank.resets': 'resets Monday',
+    'home.rank.you': 'You',
+    'home.rank.empty': 'No XP scored this week yet.',
+    'home.quick.challenges': 'Challenges',
+    'home.quick.revision': 'Revision',
+    'home.quick.discussions': 'Discussions',
+    'home.quick.resume': 'Resume',
+    'home.quick.certificates': 'Certificates',
+
+    // Home — explore + interview prep
+    'home.explore.title': 'Start something new',
+    'home.explore.sub': 'Every course runs concept \u2192 quiz \u2192 interview question, all the way through.',
+    'home.explore.all': 'All',
+    'home.explore.open': 'Open course',
+    'home.prep.badge': 'Interview prep',
+    'home.prep.title': 'Every concept has a question waiting on the other side',
+    'home.prep.sub':
+      'Answers in English and Hinglish, filtered by course and level, each one linked back to the concept it came from.',
+    'home.prep.browse': 'Browse questions',
+    'home.prep.mock': 'Start a mock interview',
+    'home.prep.empty': 'No interview questions added yet.',
+
+    // Home — signed-out invite
+    'home.join.title': 'Create an account to keep your streak, XP and progress',
+    'home.join.sub': 'It\u2019s free. Everything you read from here on gets tracked.',
+    'home.join.cta': 'Create a free account',
 
     // Home — concept of the day
     'home.cotd.label': 'Concept of the Day',
