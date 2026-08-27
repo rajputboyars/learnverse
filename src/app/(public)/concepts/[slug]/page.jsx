@@ -1,12 +1,11 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { connectDB } from '@/lib/db';
 import Concept from '@/models/Concept';
 import Course from '@/models/Course';
+import Topic from '@/models/Topic';
 import InterviewQuestion from '@/models/InterviewQuestion';
-import ConceptReader from '@/components/concept/ConceptReader';
+import ConceptLayout from '@/components/concept/ConceptLayout';
 import { SITE_URL } from '@/lib/site';
-import Icon from '@/components/Icon';
 
 export const revalidate = 3600;
 
@@ -59,12 +58,13 @@ async function getData(slug) {
   const concept = await Concept.findOne({ slug, status: 'published' }).lean();
   if (!concept) return null;
 
-  const [course, siblings, interviewQuestions] = await Promise.all([
+  const [course, siblings, topics, interviewQuestions] = await Promise.all([
     Course.findById(concept.courseId).select('title slug icon').lean(),
     Concept.find({ courseId: concept.courseId, status: 'published' })
       .sort({ order: 1 })
-      .select('title slug')
+      .select('title slug topicId')
       .lean(),
+    Topic.find({ courseId: concept.courseId }).sort({ order: 1 }).select('title').lean(),
     InterviewQuestion.find({
       conceptId: concept._id,
       status: { $in: ['approved', 'published'] },
@@ -73,10 +73,41 @@ async function getData(slug) {
       .lean(),
   ]);
 
+  // Course nav, grouped by topic — a flat list of 30 siblings tells the reader
+  // nothing about where they are.
+  const byTopic = {};
+  for (const s of siblings) {
+    const key = s.topicId?.toString() || 'none';
+    (byTopic[key] ||= []).push({
+      id: s._id.toString(),
+      title: s.title,
+      slug: s.slug,
+    });
+  }
+  const nav = topics
+    .map((t) => ({
+      id: t._id.toString(),
+      title: t.title,
+      items: byTopic[t._id.toString()] || [],
+    }))
+    .filter((g) => g.items.length > 0);
+  if (byTopic.none?.length) nav.push({ id: 'none', title: '', items: byTopic.none });
+
+  // Position in the course, and the neighbours either side of it.
+  const index = siblings.findIndex((s) => s.slug === concept.slug);
+  const at = (i) =>
+    i >= 0 && i < siblings.length
+      ? { title: siblings[i].title, slug: siblings[i].slug }
+      : null;
+
   return {
     concept: serialize({ ...concept, interviewQuestions }),
     course: course ? serialize(course) : null,
-    siblings: siblings.map(serialize),
+    nav,
+    topicTitle: nav.find((g) => g.items.some((i) => i.slug === concept.slug))?.title || '',
+    position: { index: index + 1, total: siblings.length },
+    prev: at(index - 1),
+    next: at(index + 1),
   };
 }
 
@@ -84,7 +115,7 @@ export default async function ConceptPage({ params }) {
   const { slug } = await params;
   const data = await getData(slug).catch(() => null);
   if (!data) notFound();
-  const { concept, course, siblings } = data;
+  const { concept, course, nav, topicTitle, position, prev, next } = data;
 
   // Structured data: the article + (if any) an FAQ from interview questions.
   const jsonLd = [
@@ -114,56 +145,20 @@ export default async function ConceptPage({ params }) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-10">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="grid gap-10 lg:grid-cols-[260px_1fr]">
-        {/* Sidebar — course structure so the reader never feels lost */}
-        <aside className="hidden lg:block">
-          <div className="sticky top-24">
-            {course && (
-              <Link
-                href={`/courses/${course.slug}`}
-                className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-indigo-600"
-              >
-                <Icon name={course.icon} brand className="h-4 w-4" /> {course.title}
-              </Link>
-            )}
-            <nav className="space-y-1 border-l border-slate-200 pl-3 text-sm">
-              {siblings.map((s) => {
-                const active = s.slug === concept.slug;
-                return (
-                  <Link
-                    key={s._id}
-                    href={`/concepts/${s.slug}`}
-                    className={`block rounded-md px-2 py-1.5 ${
-                      active
-                        ? 'bg-indigo-50 font-medium text-indigo-600'
-                        : 'text-slate-600 hover:text-indigo-600'
-                    }`}
-                  >
-                    {s.title}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-        </aside>
-
-        <div className="min-w-0">
-          {course && (
-            <Link
-              href={`/courses/${course.slug}`}
-              className="mb-4 inline-block text-sm text-slate-500 hover:text-indigo-600 lg:hidden"
-            >
-              <Icon name="arrow-left" className="mr-1.5 h-3 w-3" />{course.title}
-            </Link>
-          )}
-          <ConceptReader concept={concept} />
-        </div>
-      </div>
-    </div>
+      <ConceptLayout
+        concept={concept}
+        course={course}
+        nav={nav}
+        topicTitle={topicTitle}
+        position={position}
+        prev={prev}
+        next={next}
+      />
+    </>
   );
 }

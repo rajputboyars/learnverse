@@ -1,26 +1,81 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { connectDB } from '@/lib/db';
 import Course from '@/models/Course';
 import Topic from '@/models/Topic';
 import Concept from '@/models/Concept';
-import L from '@/components/L';
-import Icon from '@/components/Icon';
+import InterviewQuestion from '@/models/InterviewQuestion';
+import CourseView from '@/components/CourseView';
 
 export const revalidate = 3600;
+
+// Ordered levels — the page reads as a beginner → advanced path.
+const LEVELS = [
+  { key: 'beginner', label: 'Beginner' },
+  { key: 'intermediate', label: 'Intermediate' },
+  { key: 'advanced', label: 'Advanced' },
+];
 
 async function getCourse(slug) {
   await connectDB();
   const course = await Course.findOne({ slug, status: 'published' }).lean();
   if (!course) return null;
-  const [topics, concepts] = await Promise.all([
+
+  const [topics, concepts, questionCount, questionPreview] = await Promise.all([
     Topic.find({ courseId: course._id }).sort({ order: 1 }).lean(),
     Concept.find({ courseId: course._id, status: 'published' })
       .sort({ order: 1 })
       .select('title slug topicId difficulty order')
       .lean(),
+    InterviewQuestion.countDocuments({
+      courseId: course._id,
+      status: { $in: ['approved', 'published'] },
+    }),
+    InterviewQuestion.find({ courseId: course._id, status: { $in: ['approved', 'published'] } })
+      .sort({ createdAt: -1 })
+      .limit(2)
+      .select('question')
+      .lean(),
   ]);
-  return { course, topics, concepts };
+
+  const conceptsByTopic = {};
+  for (const c of concepts) {
+    const key = c.topicId?.toString() || 'none';
+    (conceptsByTopic[key] ||= []).push({
+      id: c._id.toString(),
+      title: c.title,
+      slug: c.slug,
+      difficulty: c.difficulty,
+    });
+  }
+
+  // Group topics by level, dropping levels this course does not use.
+  const levels = LEVELS.map((lvl) => ({
+    ...lvl,
+    topics: topics
+      .filter((t) => (t.level || 'beginner') === lvl.key)
+      .map((t) => ({
+        id: t._id.toString(),
+        title: t.title,
+        description: t.description || '',
+        concepts: conceptsByTopic[t._id.toString()] || [],
+      })),
+  })).filter((lvl) => lvl.topics.length > 0);
+
+  return {
+    course: {
+      slug: course.slug,
+      title: course.title,
+      description: course.description,
+      difficulty: course.difficulty,
+      icon: course.icon,
+    },
+    levels,
+    totals: { concepts: concepts.length, topics: topics.length },
+    questions: {
+      count: questionCount,
+      preview: questionPreview.map((q) => ({ id: q._id.toString(), question: q.question })),
+    },
+  };
 }
 
 export async function generateStaticParams() {
@@ -59,118 +114,13 @@ export default async function CoursePage({ params }) {
   const { slug } = await params;
   const data = await getCourse(slug).catch(() => null);
   if (!data) notFound();
-  const { course, topics, concepts } = data;
-
-  const conceptsByTopic = {};
-  for (const c of concepts) {
-    const key = c.topicId?.toString() || 'none';
-    (conceptsByTopic[key] ||= []).push(c);
-  }
-
-  // Group topics by level for a beginner → intermediate → advanced path.
-  const LEVELS = [
-    { key: 'beginner', label: 'Beginner', icon: 'seedling' },
-    { key: 'intermediate', label: 'Intermediate', icon: 'rocket' },
-    { key: 'advanced', label: 'Advanced', icon: 'brain' },
-  ];
-  const topicsByLevel = {};
-  for (const t of topics) {
-    const lvl = t.level || 'beginner';
-    (topicsByLevel[lvl] ||= []).push(t);
-  }
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
-      <Link href="/courses" className="text-sm text-slate-500 hover:text-indigo-600">
-        <Icon name="arrow-left" className="mr-1.5 h-3 w-3" /><L hi="Saare courses" en="All courses" />
-      </Link>
-
-      <div className="mt-4 flex items-start gap-4">
-        <Icon name={course.icon} brand className="h-12 w-12 text-indigo-600" />
-        <div>
-          <h1 className="text-3xl font-bold">{course.title}</h1>
-          <p className="mt-2 text-slate-600">{course.description}</p>
-          <span className="mt-2 inline-block text-sm capitalize text-slate-400">
-            {course.difficulty} · {concepts.length} <L hi="concepts" en="concepts" />
-          </span>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Link
-              href={`/practice/${slug}`}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
-            >
-              <Icon name="brain" className="h-4 w-4" /> <L hi="Practice quiz" en="Practice quiz" />
-            </Link>
-            <Link
-              href={`/mock-interview/${slug}`}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
-            >
-              <Icon name="microphone" className="h-4 w-4" /> <L hi="Mock interview" en="Mock interview" />
-            </Link>
-            <Link
-              href={`/courses/${slug}/discuss`}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:border-indigo-300 hover:text-indigo-600"
-            >
-              <Icon name="comments" className="h-4 w-4" /> <L hi="Discussion board" en="Discussion board" />
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-10 space-y-12">
-        {topics.length === 0 && (
-          <p className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
-            <L hi="Is course mein abhi koi topic add nahi hua." en="No topics added to this course yet." />
-          </p>
-        )}
-        {LEVELS.map((lvl) => {
-          const levelTopics = topicsByLevel[lvl.key] || [];
-          if (levelTopics.length === 0) return null;
-          return (
-            <div key={lvl.key}>
-              <div className="mb-5 flex items-center gap-2">
-                <Icon name={lvl.icon} className="h-6 w-6 text-indigo-600" />
-                <h2 className="text-2xl font-bold">{lvl.label}</h2>
-                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-500">
-                  {levelTopics.length} <L hi="topics" en="topics" />
-                </span>
-              </div>
-              <div className="space-y-8">
-                {levelTopics.map((t) => {
-                  const list = conceptsByTopic[t._id.toString()] || [];
-                  return (
-                    <section key={t._id.toString()}>
-                      <h3 className="text-lg font-semibold">{t.title}</h3>
-                      {t.description && (
-                        <p className="mt-1 text-sm text-slate-500">{t.description}</p>
-                      )}
-                      <div className="mt-3 divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200">
-                        {list.length === 0 && (
-                          <p className="p-4 text-sm text-slate-400"><L hi="Jald aa raha hai…" en="Coming soon…" /></p>
-                        )}
-                        {list.map((c, i) => (
-                          <Link
-                            key={c._id.toString()}
-                            href={`/concepts/${c.slug}`}
-                            className="flex items-center justify-between px-4 py-3.5 transition hover:bg-slate-50"
-                          >
-                            <span className="flex items-center gap-3">
-                              <span className="grid h-7 w-7 place-items-center rounded-full bg-slate-100 text-xs font-medium text-slate-500">
-                                {i + 1}
-                              </span>
-                              <span className="font-medium">{c.title}</span>
-                            </span>
-                            <span className="text-xs capitalize text-slate-400">{c.difficulty}</span>
-                          </Link>
-                        ))}
-                      </div>
-                    </section>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+    <CourseView
+      course={data.course}
+      levels={data.levels}
+      totals={data.totals}
+      questions={data.questions}
+    />
   );
 }

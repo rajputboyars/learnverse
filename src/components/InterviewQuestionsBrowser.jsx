@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { useLang } from './LanguageProvider';
 import ConceptAnimation from './ConceptAnimation';
 import Icon from '@/components/Icon';
@@ -153,13 +154,18 @@ function Answer({ english, hinglish, isRecap, pick, compact }) {
   );
 }
 
-export default function InterviewQuestionsBrowser({ questions }) {
+export default function InterviewQuestionsBrowser({ questions, levelLinks = [], initialQuestionId = null }) {
   const { pick } = useLang();
+
+  // A question can be linked to directly from search or the start-here strip.
+  const landed = initialQuestionId && questions.some((q) => q.id === initialQuestionId);
 
   const [search, setSearch] = useState('');
   const [freq, setFreq] = useState('all');
-  const [selectedId, setSelectedId] = useState(questions[0]?.id || null);
-  const [openId, setOpenId] = useState(null); // mobile accordion
+  const [selectedId, setSelectedId] = useState(
+    landed ? initialQuestionId : questions[0]?.id || null
+  );
+  const [openId, setOpenId] = useState(landed ? initialQuestionId : null); // mobile accordion
   const listRef = useRef(null);
 
   // Filter (questions arrive already sorted easy → medium → hard)
@@ -175,6 +181,14 @@ export default function InterviewQuestionsBrowser({ questions }) {
       );
     });
   }, [questions, search, freq]);
+
+  // Bring a deep-linked question into view on first paint.
+  useEffect(() => {
+    if (!landed) return;
+    listRef.current
+      ?.querySelector(`[data-qid="${initialQuestionId}"]`)
+      ?.scrollIntoView({ block: 'center' });
+  }, [landed, initialQuestionId]);
 
   // Keep selection valid as filters change
   useEffect(() => {
@@ -228,6 +242,26 @@ export default function InterviewQuestionsBrowser({ questions }) {
             className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-800/60 dark:focus:bg-slate-800"
           />
         </div>
+
+        {levelLinks.length > 0 && (
+          <div className="flex items-center gap-1.5">
+            {levelLinks.map((l) => (
+              <Link
+                key={l.key}
+                href={l.href}
+                className={`rounded-full px-3.5 py-1.5 text-xs font-semibold capitalize transition ${
+                  l.active
+                    ? 'bg-slate-900 text-white dark:bg-slate-700'
+                    : 'border border-slate-200 text-slate-600 hover:border-indigo-300 hover:text-indigo-600 dark:border-slate-700 dark:text-slate-400'
+                }`}
+              >
+                {l.key === 'all' ? pick('Sab', 'All') : l.key}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        <span className="hidden h-6 w-px bg-slate-200 sm:block dark:bg-slate-700" />
 
         <div className="flex items-center gap-1.5">
           {freqChips.map((f) => (

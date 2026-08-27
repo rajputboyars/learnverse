@@ -1,11 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import CodeBlock from './CodeBlock';
 import CodePlayground from './CodePlayground';
-import BookmarkButton from './BookmarkButton';
 import CommentsSection from './CommentsSection';
 import Reactions from './Reactions';
 import ShareButtons from '../ShareButtons';
@@ -15,164 +13,200 @@ import Icon from '../Icon';
 
 const RUNNABLE = new Set(['javascript', 'html']);
 
-export default function ConceptReader({ concept }) {
+// Roughly 200 words a minute, floored at one — a hint, not a promise.
+function readingTime(text = '') {
+  return Math.max(1, Math.round(text.trim().split(/\s+/).length / 200));
+}
+
+// The article itself. Completion state and the mark-done action live in
+// ConceptLayout, which renders them in the reading bar; this component keeps
+// the reading.
+export default function ConceptReader({ concept, done, marking, onMarkDone, showToast, lang, setLang }) {
   const { data: session } = useSession();
-  const { lang: uiLang, t } = useLang();
-  const [done, setDone] = useState(false);
-  const [marking, setMarking] = useState(false);
-  const [toast, setToast] = useState(null);
+  const { t } = useLang();
 
   const hasHinglish = !!concept.explanation?.hinglish;
-  // Content language follows the global top-bar toggle ('hi' = Hinglish).
-  const showHinglish = uiLang === 'hi' && hasHinglish;
+  const showHinglish = lang === 'hi' && hasHinglish;
   const explanation = showHinglish
     ? concept.explanation.hinglish
     : concept.explanation?.english || '';
 
-  // Load whether this concept is already completed by the user.
-  useEffect(() => {
-    if (!session?.user) return;
-    fetch('/api/me/stats')
-      .then((r) => r.json())
-      .then((d) => {
-        const p = d.progress?.find((x) => x.conceptId === concept._id);
-        if (p?.read) setDone(true);
-      })
-      .catch(() => {});
-  }, [session, concept._id]);
-
-  function showToast(msg) {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3000);
-  }
-
-  async function markDone() {
-    if (!session?.user) {
-      showToast(t('reader.loginToClaim'));
-      return;
-    }
-    setMarking(true);
-    const res = await fetch('/api/progress', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ conceptId: concept._id }),
-    });
-    const data = await res.json();
-    setMarking(false);
-    if (res.ok) {
-      setDone(true);
-      if (data.gained) {
-        showToast(`+${data.gained} XP! ${data.currentStreak}-day streak`);
-      }
-    }
-  }
+  const minutes = readingTime(explanation);
 
   return (
     <article className="relative">
-      {toast && (
-        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-lg">
-          {toast}
-        </div>
-      )}
 
-      <header className="mb-6">
-        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
-          <span className="rounded-full bg-slate-100 px-2.5 py-1 font-medium text-slate-600 capitalize">
+      {/* ══════════ Title block ══════════ */}
+      <header className="flex flex-col gap-3.5">
+        <div className="flex flex-wrap items-center gap-1.5 text-xs">
+          <span className="rounded-full bg-slate-100 px-2.5 py-1 font-semibold capitalize text-slate-600">
             {concept.difficulty}
           </span>
-          {concept.tags?.map((t) => (
-            <span key={t} className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-500">
-              #{t}
+          {concept.tags?.map((tag) => (
+            <span key={tag} className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-500">
+              #{tag}
             </span>
           ))}
         </div>
-        <div className="flex items-start justify-between gap-4">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{concept.title}</h1>
-          <div className="shrink-0 pt-1">
-            <BookmarkButton conceptId={concept._id} />
-          </div>
+
+        <h1 className="text-3xl font-extrabold leading-[1.14] tracking-tight sm:text-[40px]">
+          {concept.title}
+        </h1>
+
+        <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
+          <span className="flex items-center gap-1.5">
+            <Icon name="clock" className="h-3.5 w-3.5" />
+            {minutes} min read
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Icon name="bolt" className="h-3.5 w-3.5" />
+            +{concept.xpReward || 10} XP
+          </span>
+          {concept.interviewQuestions?.length > 0 && (
+            <span className="flex items-center gap-1.5">
+              <Icon name="briefcase" className="h-3.5 w-3.5" />
+              {concept.interviewQuestions.length}{' '}
+              {lang === 'hi'
+                ? 'sawaal'
+                : concept.interviewQuestions.length === 1
+                  ? 'question'
+                  : 'questions'}
+            </span>
+          )}
+        </div>
+
+        {/* Language: a real control, not a note. Bilingual reading is the point. */}
+        <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5">
+          <Icon name="globe" className="h-4 w-4 shrink-0 text-indigo-600" />
+          <span className="text-sm text-slate-500">
+            {hasHinglish
+              ? lang === 'hi'
+                ? 'Padho apni bhasha mein'
+                : 'Read it in your own language'
+              : lang === 'hi'
+                ? 'Ye concept sirf English mein hai'
+                : 'This concept is English only'}
+          </span>
+          {hasHinglish && (
+            <span className="ml-auto flex gap-1 rounded-full bg-slate-100 p-1">
+              <button
+                type="button"
+                onClick={() => setLang('en')}
+                className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
+                  lang === 'en' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'
+                }`}
+              >
+                English
+              </button>
+              <button
+                type="button"
+                onClick={() => setLang('hi')}
+                className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
+                  lang === 'hi' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'
+                }`}
+              >
+                Hinglish
+              </button>
+            </span>
+          )}
         </div>
       </header>
 
-      {/* Reading in — language follows the global top-bar toggle (the USP). */}
-      <div className="mb-6 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-500">
-        <Icon name="globe" className="h-3.5 w-3.5" />
-        <span>
-          <span className="font-semibold text-indigo-600">{showHinglish ? 'Hinglish' : 'English'}</span>
-          {' · '}{t('reader.langNote')}
-        </span>
-        {!hasHinglish && uiLang === 'hi' && (
-          <span className="text-slate-400">(English only)</span>
-        )}
+      {/* ══════════ Explanation ══════════ */}
+      <div id="explanation" className="prose-content mt-7 text-[17px] leading-[1.75] text-slate-700">
+        {explanation}
       </div>
 
-      {/* Explanation */}
-      <div className="prose-content text-[15px] text-slate-700">{explanation}</div>
-
-      {/* Daily-life example — own coloured block, visually distinct (USP) */}
+      {/* ══════════ Daily-life example ══════════ */}
       {concept.dailyLifeExample && (
-        <div className="my-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:p-6">
-          <div className="mb-2 flex items-center gap-2 font-semibold text-amber-800">
-            <Icon name="lightbulb" className="h-5 w-5" /> {t('reader.dailyExample')}
+        <section id="daily-example" className="mt-7 flex gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:p-6">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-amber-100">
+            <Icon name="lightbulb" className="h-4 w-4 text-amber-600" />
+          </span>
+          <div className="flex flex-col gap-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-amber-700">
+              {t('reader.dailyExample')}
+            </h2>
+            <p className="prose-content text-[15.5px] leading-[1.7] text-amber-900">
+              {concept.dailyLifeExample}
+            </p>
           </div>
-          <p className="prose-content text-[15px] text-amber-900">
-            {concept.dailyLifeExample}
-          </p>
-        </div>
+        </section>
       )}
 
-      {/* Code — runnable playground for JS/HTML, static block otherwise */}
+      {/* ══════════ Code ══════════ */}
       {concept.codeExample && (
-        <div className="my-8">
-          <h2 className="mb-3 text-lg font-semibold">{t('reader.codeExample')}</h2>
+        <section id="code-example" className="mt-7">
+          <h2 className="mb-3 flex items-center gap-2 text-lg font-bold">
+            <Icon name="code" className="h-4 w-4 text-indigo-600" />
+            {t('reader.codeExample')}
+          </h2>
           {RUNNABLE.has(concept.codeLanguage) ? (
             <CodePlayground code={concept.codeExample} language={concept.codeLanguage} />
           ) : (
             <CodeBlock code={concept.codeExample} language={concept.codeLanguage} />
           )}
-        </div>
+        </section>
       )}
 
-      {/* Key points */}
+      {/* ══════════ Key points ══════════ */}
       {concept.keyPoints?.length > 0 && (
-        <div className="my-8 rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
-          <h2 className="mb-3 text-lg font-semibold">{t('reader.keyPoints')}</h2>
-          <ul className="space-y-2 text-[15px] text-slate-700">
+        <section id="key-points" className="mt-7 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
+            <Icon name="lightbulb" className="h-4 w-4 text-indigo-600" />
+            {t('reader.keyPoints')}
+          </h2>
+          <ul className="flex flex-col gap-3">
             {concept.keyPoints.map((k, i) => (
-              <li key={i} className="flex gap-2">
-                <Icon name="arrow-right" className="mt-1.5 h-3 w-3 shrink-0 text-indigo-600" />
+              <li key={i} className="flex gap-3 text-[15px] leading-[1.65] text-slate-700">
+                <span className="w-5 shrink-0 text-sm font-semibold text-indigo-600">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
                 <span>{k}</span>
               </li>
             ))}
           </ul>
-        </div>
+        </section>
       )}
 
-      {/* Quiz */}
-      <div className="my-8">
-        <Quiz
-          conceptId={concept._id}
-          quiz={concept.quiz}
-          onPassed={(reward) =>
-            showToast(`Quiz passed! +${reward.gained} XP`)
-          }
-        />
-      </div>
+      {/* ══════════ Quiz ══════════ */}
+      {concept.quiz?.length > 0 && (
+        <section id="quiz" className="mt-7">
+          <Quiz
+            conceptId={concept._id}
+            quiz={concept.quiz}
+            onPassed={(reward) => showToast(`Quiz passed! +${reward.gained} XP`)}
+          />
+        </section>
+      )}
 
-      {/* Mark done */}
-      <div className="my-8 flex flex-col items-start gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
-        {done ? (
-          <span className="inline-flex items-center gap-2 font-semibold text-green-700">
-            <Icon name="check-circle" className="h-4 w-4" />
-            {t('reader.completed')}
-          </span>
-        ) : (
+      {/* ══════════ Completion ══════════ */}
+      <section className="mt-7 flex flex-col items-start gap-4 rounded-2xl border border-green-200 bg-green-50 p-5 sm:flex-row sm:items-center sm:p-6">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-green-100">
+          <Icon name={done ? 'check-circle' : 'check'} className="h-5 w-5 text-green-600" />
+        </span>
+        <div className="flex flex-1 flex-col gap-1">
+          <p className="font-bold">
+            {done
+              ? t('reader.completed')
+              : lang === 'hi'
+                ? 'Padh liya? Mark kar do.'
+                : 'Read it? Mark it done.'}
+          </p>
+          <p className="text-sm text-slate-600">
+            {lang === 'hi'
+              ? `+${concept.xpReward || 10} XP, streak zinda, aur course progress badhega.`
+              : `+${concept.xpReward || 10} XP, your streak stays alive, and the course bar moves.`}
+          </p>
+        </div>
+        {!done && (
           <button
-            onClick={markDone}
+            type="button"
+            onClick={onMarkDone}
             disabled={marking}
-            className="rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-50"
+            className="rounded-xl bg-green-600 px-6 py-3 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-50"
           >
-            {marking ? t('reader.saving') : `${t('reader.markDone')} (+${concept.xpReward || 10} XP)`}
+            {marking ? t('reader.saving') : t('reader.markDone')}
           </button>
         )}
         {!session?.user && (
@@ -183,38 +217,52 @@ export default function ConceptReader({ concept }) {
             {t('reader.loginToSave')}
           </span>
         )}
-      </div>
+      </section>
 
-      {/* Interview questions linked to this concept */}
+      {/* ══════════ Interview questions ══════════ */}
       {concept.interviewQuestions?.length > 0 && (
-        <div className="my-8">
-          <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold"><Icon name="briefcase" className="h-4 w-4 text-indigo-600" />{t('reader.interviewHeading')}</h2>
-          <div className="space-y-3">
+        <section id="interview" className="mt-7">
+          <h2 className="mb-3 flex items-center gap-2 text-lg font-bold">
+            <Icon name="briefcase" className="h-4 w-4 text-indigo-600" />
+            {t('reader.interviewHeading')}
+            <span className="ml-auto text-sm font-normal text-slate-400">
+              {concept.interviewQuestions.length}
+            </span>
+          </h2>
+          <div className="flex flex-col gap-2.5">
             {concept.interviewQuestions.map((q) => (
-              <details
-                key={q._id}
-                className="rounded-xl border border-slate-200 bg-white p-4"
-              >
-                <summary className="cursor-pointer font-medium">{q.question}</summary>
-                <p className="prose-content mt-3 text-sm text-slate-600">
-                  {showHinglish && q.answer?.hinglish
-                    ? q.answer.hinglish
-                    : q.answer?.english}
+              <details key={q._id} className="group rounded-2xl border border-slate-200 bg-white p-4 sm:px-5">
+                <summary className="flex cursor-pointer items-start gap-3 font-semibold">
+                  <span className="flex-1">{q.question}</span>
+                  <Icon
+                    name="chevron-down"
+                    className="mt-1 h-3.5 w-3.5 shrink-0 text-slate-400 transition group-open:rotate-180"
+                  />
+                </summary>
+                <p className="prose-content mt-3 border-t border-slate-100 pt-3 text-[15px] leading-[1.7] text-slate-600">
+                  {showHinglish && q.answer?.hinglish ? q.answer.hinglish : q.answer?.english}
                 </p>
               </details>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
-      {/* Reactions */}
-      <Reactions conceptId={concept._id} />
+      {/* ══════════ Reactions + share ══════════ */}
+      <div className="mt-7 flex flex-wrap items-center gap-4 border-y border-slate-200 py-4">
+        <Reactions conceptId={concept._id} />
+        <div className="ml-auto">
+          <ShareButtons
+            title={`${concept.title} — Learnverse`}
+            text={`Check out "${concept.title}" on Learnverse`}
+          />
+        </div>
+      </div>
 
-      {/* Share */}
-      <ShareButtons title={`${concept.title} — Learnverse`} text={`Check out "${concept.title}" on Learnverse`} />
-
-      {/* Community Q&A */}
-      <CommentsSection conceptId={concept._id} />
+      {/* ══════════ Discussion ══════════ */}
+      <section id="discussion" className="mt-7">
+        <CommentsSection conceptId={concept._id} />
+      </section>
     </article>
   );
 }
