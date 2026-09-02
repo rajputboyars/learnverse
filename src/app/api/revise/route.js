@@ -60,6 +60,11 @@ export async function GET(request) {
         keyPoints: c.keyPoints || [],
         dailyLifeExample: c.dailyLifeExample || '',
         hint: (c.explanation?.english || '').slice(0, 140),
+        // The card's own schedule, so the UI can show what each rating costs
+        // instead of four coloured words with no visible consequence.
+        intervalDays: r.intervalDays,
+        ease: r.ease,
+        reps: r.reps,
       };
     })
     .filter(Boolean);
