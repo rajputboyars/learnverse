@@ -177,6 +177,253 @@ const beginner = [
     ],
   },
   {
+    title: 'Project Setup — From Repo to Live URL',
+    level: 'beginner',
+    description: 'Boilerplate se apna project banao, GitHub ko site se jodo, content source lagao aur pehla page live karo.',
+    concepts: [
+      {
+        title: 'Start from the Boilerplate, Not from Scratch',
+        difficulty: 'easy',
+        tags: ['eds', 'setup', 'boilerplate', 'github'],
+        explanation: {
+          english:
+            "🎬 WHERE EVERY EDS PROJECT STARTS\n\nThere is no `create-eds-app` command. Every project begins as a copy of one repository Adobe maintains: `adobe/aem-boilerplate`. You open it on GitHub and press \"Use this template\" — not Fork.\n\n──────────\n\n🤔 WHY TEMPLATE AND NOT FORK?\nA fork stays tied to the original: its history is upstream's history, and GitHub treats it as a contribution to that project. A template copy is yours from commit one — clean history, your `main` branch, your permissions. You are not planning to send your homepage back to Adobe as a pull request, so a template is the right relationship.\n\n📂 WHAT YOU GET\nA working site, not an empty folder: `blocks/` with a handful of ready blocks, `styles/` for global CSS, `scripts/` for the loading logic, and the small config files that tell the pipeline where your content lives. It renders a real page the moment it is connected.\n\n🌐 WHY KEEP IT PUBLIC\nThe delivery pipeline has to read your code. A public repo means that just works; a private one is possible but adds configuration you do not want while learning. There is nothing secret in an EDS repo anyway — it is HTML, CSS and vanilla JS, and the content is not in it.\n\n⚠️ ONE THING TO GET RIGHT\nCreate the repo under the account or organisation that will actually own the site. The owner name becomes part of your site's URL, and moving it later means the URL changes too.",
+          hinglish:
+            "🎬 HAR EDS PROJECT YAHIN SE SHURU HOTA HAI\n\nKoi `create-eds-app` command nahi hai. Har project ek hi repository ki copy se shuru hota hai jo Adobe maintain karta hai: `adobe/aem-boilerplate`. GitHub pe use kholo aur \"Use this template\" dabao — Fork nahi.\n\n──────────\n\n🤔 TEMPLATE KYUN, FORK KYUN NAHI?\nFork original se juda rehta hai: uski history upstream ki history hai, aur GitHub use us project mein contribution samajhta hai. Template copy pehle commit se tumhari hai — saaf history, tumhara `main` branch, tumhari permissions. Tum apna homepage Adobe ko pull request mein wapas nahi bhej rahe, isliye template hi sahi rishta hai.\n\n📂 MILTA KYA HAI\nEk chalti hui site, khaali folder nahi: `blocks/` mein kuch ready blocks, `styles/` global CSS ke liye, `scripts/` loading logic ke liye, aur chhoti config files jo pipeline ko batati hain ki content kahan rehta hai. Jaise hi connect hota hai, ek asli page render kar deta hai.\n\n🌐 PUBLIC KYUN RAKHO\nDelivery pipeline ko tumhara code padhna hota hai. Public repo mein ye seedha kaam karta hai; private bhi ho sakta hai par usme extra configuration lagti hai jo seekhte waqt nahi chahiye. Waise bhi EDS repo mein secret kuch hota nahi — HTML, CSS aur vanilla JS hai, aur content to usme hai hi nahi.\n\n⚠️ EK CHEEZ SAHI KARO\nRepo us account ya organisation ke neeche banao jo asli mein site ka maalik hoga. Owner ka naam tumhari site ke URL ka hissa banta hai, aur baad mein move karoge to URL bhi badal jayega.",
+        },
+        dailyLifeExample:
+          'Socho tum ek naya dhaba khol rahe ho. Do raaste hain: khaali plot lekar neev se sab banao, ya ek ready-made shop lo jisme kitchen, counter aur bijli pehle se lagi hai — bas menu aur naam apna lagana hai. "Use this template" doosra raasta hai. Aur "fork" us shop ko kiraye pe lene jaisa hai jahan malik ka naam kaagaz pe rehta hai — chal to jayegi, par woh tumhari nahi hai.',
+        codeExample:
+          '# 1) On GitHub, open the boilerplate\n#    https://github.com/adobe/aem-boilerplate\n#    Click "Use this template" -> "Create a new repository"\n\n# 2) Owner  = the account/org that will own the site\n#    Name   = your project name (it shows up in the URL)\n#    Visibility = Public\n\n# 3) Now it exists as your own repo:\n#    https://github.com/<owner>/<repo>\n\n# Nothing is running yet — the repo is only half the site.\n# Content is the other half, and it lives somewhere else entirely.',
+        keyPoints: [
+          'Every EDS project starts as a template copy of `adobe/aem-boilerplate` — there is no scaffolding CLI',
+          'Use "Use this template", not Fork: you want clean history and your own main branch',
+          'Keep it public while learning — the delivery pipeline needs to read the code, and nothing in the repo is secret',
+          'The repo owner name becomes part of your site URL, so create it in the right account from the start',
+        ],
+        quiz: [
+          {
+            question: 'Why does the EDS getting-started path use "Use this template" instead of "Fork"?',
+            options: [
+              'Forking is disabled on the boilerplate repository',
+              'A template copy gives you clean history and your own repo, rather than a fork tied to the upstream project',
+              'Forks cannot be made public',
+              'Forking would copy the content as well as the code',
+            ],
+            correctIndex: 1,
+            explanation:
+              'A fork is meant for contributing back upstream. You want an independent project, which is exactly what a template copy gives you.',
+          },
+          {
+            question: 'What does a fresh boilerplate repo contain?',
+            options: [
+              'An empty folder structure you have to fill in',
+              'A working starter site — blocks, global styles, loading scripts and config',
+              'A compiled bundle of the Adobe website',
+              'Your page content as Markdown files',
+            ],
+            correctIndex: 1,
+            explanation:
+              'The boilerplate renders a real page as soon as it is connected. Content, though, is never in the repo.',
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'How do you start a new AEM Edge Delivery Services project, and why that way?',
+            difficulty: 'easy',
+            frequency: 'common',
+            answer: {
+              english:
+                "You create your repository from Adobe's `aem-boilerplate` using GitHub's \"Use this template\", rather than forking or scaffolding with a CLI — there is no generator for EDS. A template copy gives you an independent repo with its own history and main branch, which is what you want since you are building your own site rather than contributing back to Adobe. Keeping the repo public keeps the delivery pipeline's access simple, and the owner account matters because it becomes part of the site's URL.",
+              hinglish:
+                "Tum apni repository Adobe ke `aem-boilerplate` se banate ho GitHub ke \"Use this template\" se — fork ya kisi CLI scaffolding se nahi, kyunki EDS ke liye koi generator hai hi nahi. Template copy tumhe ek independent repo deti hai apni history aur main branch ke saath, jo tumhe chahiye kyunki tum apni site bana rahe ho, Adobe ko contribute nahi kar rahe. Repo public rakhne se delivery pipeline ka access simple rehta hai, aur owner account isliye maayne rakhta hai kyunki wahi site ke URL ka hissa banta hai.",
+            },
+          },
+        ],
+      },
+      {
+        title: 'AEM Code Sync — How a GitHub Repo Becomes a Website',
+        difficulty: 'easy',
+        tags: ['eds', 'setup', 'code-sync', 'deployment', 'urls'],
+        explanation: {
+          english:
+            "🔌 THE MISSING WIRE\n\nYou now own a repo full of blocks and styles. Nothing is serving it. The piece that connects the two is a GitHub App called AEM Code Sync, installed on your repository.\n\nOnce installed, it watches your repo. Every push to a branch tells the delivery pipeline that new code exists, and the pipeline picks it up. There is no build server to configure, no deploy command, no CI file to write — the install *is* the deployment setup.\n\n⚠️ Install it on ONE repository, not all of them. GitHub offers \"All repositories\" by default; pick \"Only select repositories\" and choose this project. There is no benefit to granting access to code that is not an EDS site.\n\n──────────\n\n🌐 THE URL SCHEME — READ THIS TWICE\n\nYour site is immediately reachable at a URL built from three things you already know:\n\n    https://<branch>--<repo>--<owner>.aem.page\n\nThat is BRANCH, then repo, then owner, joined by double hyphens. `main--my-site--priya.aem.page` is the main branch of `my-site` owned by `priya`.\n\nThe same triple exists on a second domain:\n\n    .aem.page  ->  preview — what authors see before publishing\n    .aem.live  ->  production — what the public sees\n\n💡 WHY THIS IS CLEVER\nBranch is part of the hostname, so every branch is its own full environment for free. Push a branch called `redesign` and `redesign--my-site--priya.aem.page` exists — a complete, shareable preview of that work, with no staging server to provision and nothing to tear down afterwards.\n\n🏢 ON GITHUB ENTERPRISE\nSelf-hosted GitHub sits behind a firewall, so the sync service needs to be let in: allow `3.227.118.73`. On github.com this does not apply.",
+          hinglish:
+            "🔌 GAYAB TAAR\n\nAb tumhare paas blocks aur styles wali repo hai. Use serve koi nahi kar raha. Dono ko jodne wala tukda ek GitHub App hai — AEM Code Sync — jo tumhari repository pe install hota hai.\n\nInstall hote hi wo tumhari repo pe nazar rakhta hai. Kisi bhi branch pe har push delivery pipeline ko batata hai ki naya code aa gaya hai, aur pipeline use utha leti hai. Koi build server configure nahi karna, koi deploy command nahi, koi CI file nahi likhni — install karna hi deployment setup hai.\n\n⚠️ Ise EK repository pe install karo, sab pe nahi. GitHub default mein \"All repositories\" deta hai; \"Only select repositories\" chuno aur yahi project select karo. Jo code EDS site hai hi nahi, uspe access dene ka koi fayda nahi.\n\n──────────\n\n🌐 URL KA FORMULA — ISE DO BAAR PADHO\n\nTumhari site turant ek URL pe milne lagti hai jo teen cheezon se banta hai jo tum already jaante ho:\n\n    https://<branch>--<repo>--<owner>.aem.page\n\nYaani BRANCH, phir repo, phir owner — double hyphen se jude hue. `main--my-site--priya.aem.page` matlab `priya` ki `my-site` ka main branch.\n\nYahi teen cheezein ek doosre domain pe bhi hain:\n\n    .aem.page  ->  preview — publish se pehle authors ko jo dikhta hai\n    .aem.live  ->  production — public ko jo dikhta hai\n\n💡 YE CHATUR KYUN HAI\nBranch hostname ka hissa hai, isliye har branch apne aap ek poora environment ban jaata hai — muft mein. `redesign` naam ki branch push karo aur `redesign--my-site--priya.aem.page` exist karne lagta hai — us kaam ka poora, share karne layak preview, bina koi staging server banaye aur baad mein hataye.\n\n🏢 GITHUB ENTERPRISE PE\nSelf-hosted GitHub firewall ke peeche hota hai, isliye sync service ko andar aane dena padta hai: `3.227.118.73` ko allow karo. github.com pe ye zaroorat nahi.",
+        },
+        dailyLifeExample:
+          'Socho society ka gate. Tumne flat le liya (repo), par guard ko abhi tak nahi pata ki tum yahan rehte ho — koi courier andar nahi aayega. Code Sync install karna guard ko batane jaisa hai: "flat 402, naam Priya." Aur address ka format bhi wahi hai — flat number, phir building, phir society: `main--my-site--priya`. Naya kamra banao (nayi branch), uska apna address apne aap ban jaata hai.',
+        codeExample:
+          '# Install the GitHub App on your repo (one time)\n#   https://github.com/apps/aem-code-sync/installations/new\n#   -> "Only select repositories" -> pick <repo>\n\n# Your URLs now exist, built from branch--repo--owner:\n#   https://main--my-site--priya.aem.page    (preview)\n#   https://main--my-site--priya.aem.live    (production)\n\n# Any branch gets its own environment, free:\ngit checkout -b redesign\ngit push origin redesign\n#   https://redesign--my-site--priya.aem.page\n\n# GitHub Enterprise only: allowlist the sync service\n#   3.227.118.73',
+        keyPoints: [
+          'The AEM Code Sync GitHub App is what connects your repo to the delivery pipeline — installing it is the whole deploy setup',
+          'Grant it access to one repository, not all of them',
+          'URLs are `<branch>--<repo>--<owner>` — double hyphens, branch first',
+          '`.aem.page` is preview, `.aem.live` is production; every branch gets its own environment for free',
+        ],
+        quiz: [
+          {
+            question: 'What is the URL of the `main` branch of repo `shop` owned by `acme`, in preview?',
+            options: [
+              'https://acme--shop--main.aem.page',
+              'https://main--shop--acme.aem.page',
+              'https://acme.aem.page/shop/main',
+              'https://shop--acme.aem.live/main',
+            ],
+            correctIndex: 1,
+            explanation:
+              'The order is branch, repo, owner, joined by double hyphens — and .aem.page is the preview domain.',
+          },
+          {
+            question: 'What do you have to configure to deploy after installing AEM Code Sync?',
+            options: [
+              'A CI workflow file and a build server',
+              'Nothing — pushing to the branch is the deployment',
+              'An FTP target for the built assets',
+              'A Docker image for the site',
+            ],
+            correctIndex: 1,
+            explanation:
+              'There is no build step to configure. The app watches pushes and the pipeline picks the code up.',
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'How does code get from a GitHub repository onto a live EDS site, and how are the URLs formed?',
+            difficulty: 'easy',
+            frequency: 'common',
+            answer: {
+              english:
+                'You install the AEM Code Sync GitHub App on the repository; from then on a push to any branch is the deployment — there is no build server or CI pipeline to configure. Sites are addressed as `<branch>--<repo>--<owner>`, joined by double hyphens, on two domains: `.aem.page` for preview and `.aem.live` for production. Because the branch is part of the hostname, every branch is automatically its own shareable environment with nothing to provision or tear down.',
+              hinglish:
+                'Tum repository pe AEM Code Sync GitHub App install karte ho; uske baad kisi bhi branch pe push hi deployment hai — koi build server ya CI pipeline configure nahi karna. Sites ka address hota hai `<branch>--<repo>--<owner>`, double hyphen se juda, do domains pe: preview ke liye `.aem.page` aur production ke liye `.aem.live`. Kyunki branch hostname ka hissa hai, har branch apne aap ek share karne layak environment ban jaati hai — na kuch banana padta hai, na baad mein hataana.',
+            },
+          },
+        ],
+      },
+      {
+        title: 'Connecting the Content Source and Going Live',
+        difficulty: 'easy',
+        tags: ['eds', 'setup', 'content-source', 'publishing'],
+        explanation: {
+          english:
+            "🧩 THE SECOND HALF\n\nCode is connected. The site still has nothing to say, because in EDS content never lives in the repo. Setup finishes by telling the project two things: WHO can administer the site, and WHERE the content comes from.\n\nThe content source is a document location — a da.live space, a Google Drive folder, or a SharePoint site. Whichever you pick, the deal is the same: a folder of documents becomes a tree of pages. A document called `about` in the root becomes the `/about` page. Folders become path segments. There is no separate step where someone maps documents to routes; the folder structure IS the site structure.\n\n──────────\n\n🚦 PREVIEW AND PUBLISH ARE TWO STATES, NOT TWO SYSTEMS\nOnce content is connected, every document exists in two forms. Previewing takes the current document and makes it visible on `.aem.page`. Publishing promotes that same version to `.aem.live`. Nothing is copied between servers and no approval software is involved — an author moves a document between two states.\n\nThis is why authors need no CMS training. Editing is editing a document. Preview is a button. Publish is another button.\n\n✅ FINISHING SETUP\nWhen the administrators and the content source are set, completing setup connects everything and the site is genuinely live. From that moment the two halves are joined: code from GitHub, content from documents, served together at the edge.",
+          hinglish:
+            "🧩 DOOSRA AADHA HISSA\n\nCode jud gaya. Site ke paas abhi bhi kehne ko kuch nahi hai, kyunki EDS mein content kabhi repo mein nahi rehta. Setup do cheezein batakar poora hota hai: site ko administer KAUN karega, aur content KAHAN se aayega.\n\nContent source ek document location hai — ek da.live space, ek Google Drive folder, ya ek SharePoint site. Jo bhi chuno, sauda ek hi hai: documents ka folder pages ka tree ban jaata hai. Root mein `about` naam ka document `/about` page ban jaata hai. Folders path segments ban jaate hain. Documents ko routes se map karne ka koi alag step nahi hai; folder structure hi site structure hai.\n\n──────────\n\n🚦 PREVIEW AUR PUBLISH DO STATES HAIN, DO SYSTEM NAHI\nContent judte hi har document do roopon mein hota hai. Preview karna current document ko `.aem.page` pe dikha deta hai. Publish karna usi version ko `.aem.live` pe pahuncha deta hai. Servers ke beech kuch copy nahi hota aur koi approval software beech mein nahi hai — author bas ek document ko do states ke beech ghumata hai.\n\nIsiliye authors ko CMS ki training nahi chahiye. Edit karna matlab document edit karna. Preview ek button hai. Publish doosra button.\n\n✅ SETUP POORA KARNA\nJab administrators aur content source set ho jaayein, setup complete karte hi sab kuch jud jaata hai aur site sach mein live ho jaati hai. Us pal se dono aadhe hisse mil jaate hain: GitHub se code, documents se content, edge pe saath serve hote hue.",
+        },
+        dailyLifeExample:
+          'Shaadi ka card socho. Printing press (code) ne design, font aur border pehle se taiyar kar rakhe hain. Naam, tareekh aur jagah (content) ek alag kaagaz pe likhe hain jo tum press ko dete ho. Setup poora karna matlab press ko batana ki "naam wala kaagaz mere ghar se aayega, is pate se." Preview matlab press ka bheja hua sample dekhna, publish matlab bolna "ab 500 chhaap do."',
+        codeExample:
+          '# Content source is a document location, not a database:\n#\n#   da.live space   |   Google Drive folder   |   SharePoint site\n#\n# Folder structure == site structure\n#\n#   /index            ->  https://main--my-site--priya.aem.live/\n#   /about            ->  .../about\n#   /blog/first-post  ->  .../blog/first-post\n#\n# Two states, same document:\n#   Preview  ->  .aem.page   (authors check it)\n#   Publish  ->  .aem.live   (public sees it)',
+        keyPoints: [
+          'Setup asks for two things: who administers the site, and where content comes from',
+          'The content source is a document location — da.live, Google Drive or SharePoint',
+          'Folder structure becomes URL structure; there is no route mapping step',
+          'Preview and publish are two states of the same document, not two servers',
+        ],
+        quiz: [
+          {
+            question: 'A document named `careers` sits in the root of the content source. What URL does it become?',
+            options: [
+              '/pages/careers after you map it in a config file',
+              '/careers — the folder structure is the site structure',
+              'It needs a route added to the repo first',
+              'It is not reachable until a developer creates a block for it',
+            ],
+            correctIndex: 1,
+            explanation:
+              'Documents map to paths directly. Nobody wires up routes in EDS.',
+          },
+          {
+            question: 'What is the difference between preview and publish in EDS?',
+            options: [
+              'Two separate servers content is copied between',
+              'Two states of the same document — one visible on .aem.page, the other on .aem.live',
+              'Preview is for developers, publish is for designers',
+              'Publish rebuilds the site from source',
+            ],
+            correctIndex: 1,
+            explanation:
+              'No copying, no approval software — an author moves a document between two states.',
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'In EDS, how does a document in the content source become a page at a URL?',
+            difficulty: 'easy',
+            frequency: 'common',
+            answer: {
+              english:
+                'The content source is a document location — a da.live space, Google Drive folder or SharePoint site — and its folder structure is taken directly as the site structure: a document called `about` in the root serves at `/about`, and folders become path segments. There is no route configuration step. Each document then exists in two states rather than on two servers: previewing exposes it on the `.aem.page` host, publishing promotes the same version to `.aem.live`.',
+              hinglish:
+                'Content source ek document location hai — da.live space, Google Drive folder ya SharePoint site — aur uska folder structure hi site structure maan liya jaata hai: root mein `about` naam ka document `/about` pe serve hota hai, aur folders path segments ban jaate hain. Route configure karne ka koi step hai hi nahi. Phir har document do servers pe nahi, do states mein hota hai: preview use `.aem.page` pe dikhata hai, publish usi version ko `.aem.live` pe pahuncha deta hai.',
+            },
+          },
+        ],
+      },
+      {
+        title: 'Authoring in da.live — Documents Without Google Docs',
+        difficulty: 'medium',
+        tags: ['eds', 'authoring', 'da-live', 'content'],
+        explanation: {
+          english:
+            "✍️ ADOBE'S OWN AUTHORING SURFACE\n\nEDS was born on Google Docs and SharePoint, and both still work. But depending on someone else's word processor has costs: you inherit their sharing model, their permissions, and their idea of what a table is. `da.live` is Adobe's own document authoring environment, built for this pipeline specifically.\n\nThe mental model does not change. You still write documents. Headings are still headings, a table is still a block, and the folder tree is still the site tree. What changes is that the editor knows it is authoring a website — so it can show block names properly, preview and publish from the same surface, and avoid the little formatting surprises that come from a general-purpose word processor.\n\n──────────\n\n🔁 THE AUTHORING LOOP\n1. Open the document in da.live and edit it like a document.\n2. Preview — see it rendered by your real blocks on `.aem.page`.\n3. Publish — the same version goes to `.aem.live`.\n\n🧩 WHERE SIDEKICK FITS\nSidekick is the browser extension that puts those same preview and publish actions on the page itself, so an author working inside the live site does not have to go back to the authoring tool to push a change. Same two states, reached from wherever the author already is.\n\n💡 THE POINT TO HOLD ON TO\nWhichever surface you choose — da.live, Google Drive, SharePoint — your blocks do not care. They receive the same generic HTML from the pipeline either way. The authoring tool is a swappable front door, not part of your code.",
+          hinglish:
+            "✍️ ADOBE KA APNA AUTHORING SURFACE\n\nEDS Google Docs aur SharePoint pe paida hua tha, aur dono ab bhi chalte hain. Par kisi aur ke word processor pe depend karne ki keemat hai: unka sharing model, unki permissions, aur table kya hota hai iska unka idea — sab tumhe virasat mein milta hai. `da.live` Adobe ka apna document authoring environment hai, khaas isi pipeline ke liye bana.\n\nSoch ka tareeka nahi badalta. Tum ab bhi documents hi likhte ho. Headings ab bhi headings hain, table ab bhi ek block hai, aur folder tree ab bhi site tree hai. Farak ye hai ki editor ko pata hai ki wo ek website author kar raha hai — isliye wo block ke naam theek se dikha sakta hai, usi jagah se preview aur publish kar sakta hai, aur woh chhoti-chhoti formatting surprises bacha sakta hai jo general-purpose word processor se aati hain.\n\n──────────\n\n🔁 AUTHORING KA CHAKKAR\n1. da.live mein document kholo aur use document ki tarah edit karo.\n2. Preview — apne asli blocks se render hua page `.aem.page` pe dekho.\n3. Publish — wahi version `.aem.live` pe chala jaata hai.\n\n🧩 SIDEKICK KAHAN FIT HOTA HAI\nSidekick wo browser extension hai jo yahi preview aur publish actions page pe hi le aata hai, taaki live site ke andar kaam karta author change push karne ke liye wapas authoring tool mein na jaaye. Wahi do states, bas wahin se pahunch jaate hain jahan author pehle se hai.\n\n💡 YAAD RAKHNE WALI BAAT\nTum koi bhi surface chuno — da.live, Google Drive, SharePoint — tumhare blocks ko farak nahi padta. Unhe pipeline se wahi generic HTML milta hai. Authoring tool ek badla ja sakne wala darwaza hai, tumhare code ka hissa nahi.",
+        },
+        dailyLifeExample:
+          'Socho tum invitation ka text likh rahe ho. Pehle tum WhatsApp pe likhte the aur press wale ko bhejte the — chal jaata tha, par kabhi emoji ajeeb aa jaata, kabhi line break gayab. Ab press ne apna form de diya hai: wahi text, par form ko pata hai ki isse card banna hai, isliye woh pehle hi dikha deta hai ki chhapne pe kaisa lagega. Tumhara likhna wahi hai — bas kaagaz badla hai.',
+        codeExample:
+          '# Same pipeline, different front doors:\n#\n#   da.live        ->  Adobe\'s own document authoring\n#   Google Drive   ->  Docs, the original path\n#   SharePoint     ->  Word, common in enterprises\n#\n# All three produce the same generic HTML for your blocks:\n#\n#   <div class="cards">\n#     <div><div>...</div></div>\n#   </div>\n#\n# Your decorate() never learns which one it came from.\n#\n# Author loop:  edit  ->  Preview (.aem.page)  ->  Publish (.aem.live)',
+        keyPoints: [
+          'da.live is Adobe\'s own authoring environment, built for this pipeline — Google Drive and SharePoint still work',
+          'The model is unchanged: documents, headings, tables-as-blocks, folder tree as site tree',
+          'Preview and publish are available from the authoring tool and, via Sidekick, from the live page itself',
+          'Blocks receive the same generic HTML whichever authoring surface is used — it is a swappable front door',
+        ],
+        quiz: [
+          {
+            question: 'If a team moves from Google Drive to da.live, what has to change in the blocks?',
+            options: [
+              'Every decorate() needs a source check',
+              'Nothing — the pipeline hands blocks the same generic HTML either way',
+              'The CSS has to be rewritten for the new table markup',
+              'Blocks must be rebuilt with a da.live adapter',
+            ],
+            correctIndex: 1,
+            explanation:
+              'The authoring surface is a front door. Your code sees the pipeline output, not the tool that produced the document.',
+          },
+          {
+            question: 'What does the Sidekick extension add for an author?',
+            options: [
+              'A code editor for blocks inside the browser',
+              'Preview and publish actions on the live page itself, without returning to the authoring tool',
+              'A way to edit CSS in production',
+              'Automatic translation of content',
+            ],
+            correctIndex: 1,
+            explanation:
+              'Same two states as always — Sidekick just brings them to where the author already is.',
+          },
+        ],
+        interviewQuestions: [
+          {
+            question: 'EDS supports Google Drive, SharePoint and da.live as content sources. What does that choice change for a developer?',
+            difficulty: 'medium',
+            frequency: 'common',
+            answer: {
+              english:
+                'Almost nothing, and that is the design. Whichever surface authors use, the pipeline normalises the document into the same generic HTML — rows and cells for blocks, headings and paragraphs for everything else — so `decorate()` never knows or asks where the content was written. The choice is an authoring-experience and governance decision: da.live is purpose-built for this pipeline, while Drive and SharePoint bring an organisation\'s existing permissions and habits. Developers only feel it in edge cases where a word processor mangles formatting.',
+              hinglish:
+                'Lagbhag kuch nahi, aur design hi yahi hai. Authors koi bhi surface use karein, pipeline document ko usi generic HTML mein normalise kar deti hai — blocks ke liye rows aur cells, baaki sab ke liye headings aur paragraphs — isliye `decorate()` ko kabhi pata hi nahi chalta ki content kahan likha gaya tha. Chunaav authoring experience aur governance ka faisla hai: da.live khaas isi pipeline ke liye bana hai, jabki Drive aur SharePoint organisation ki maujooda permissions aur aadatein saath laate hain. Developers ko sirf un edge cases mein farak dikhta hai jahan word processor formatting bigaad deta hai.',
+            },
+          },
+        ],
+      },
+    ],
+  },
+  {
     title: 'Local Development',
     level: 'beginner',
     description: 'Local mein EDS project chalana, aur blocks/sections ka basic mental model.',
