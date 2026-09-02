@@ -22,11 +22,15 @@ export default async function ChallengesPage() {
     } catch {}
   }
 
+  // The prompt already lives in the data and was never rendered — it is the
+  // one thing that tells you what a challenge actually asks.
   const challenges = CHALLENGES.map((c) => ({
     slug: c.slug,
     title: c.title,
     difficulty: c.difficulty,
     xp: c.xp,
+    prompt: c.prompt.replace(/`/g, ''),
+    tests: (c.tests.match(/assertEqual/g) || []).length,
   }));
 
   return (

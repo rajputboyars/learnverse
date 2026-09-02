@@ -21,6 +21,7 @@ export default function Navbar() {
   const { t } = useLang();
   const [open, setOpen] = useState(false);
   const [courses, setCourses] = useState([]);
+  const [qSummary, setQSummary] = useState(null);
 
   // Fetch courses once for the "Courses" / "Interview" hover dropdowns
   useEffect(() => {
@@ -31,6 +32,15 @@ export default function Navbar() {
       .catch(() => {});
     return () => { alive = false; };
   }, []);
+
+  // Counts for the Interview panel — fetched once, the first time it opens.
+  function loadQuestionSummary() {
+    if (qSummary) return;
+    fetch('/api/interview-questions/summary')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d?.levels) setQSummary(d); })
+      .catch(() => {});
+  }
 
   const NAV_LINKS = [
     { href: '/courses',            label: t('nav.courses') },
@@ -117,21 +127,9 @@ export default function Navbar() {
         {/* `relative` makes this the positioning context for the full-width dropdowns */}
         <nav className={`${SHELL} relative flex h-11 items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-300`}>
 
-          {/* Courses */}
+          {/* Courses — grouped by level, not 45 tiles in a scrolling grid */}
           <NavDropdown href="/courses" label={t('nav.courses')}>
-            <DropdownGrid
-              empty={courses.length === 0}
-              emptyLabel={t('home.courses.empty')}
-              items={courses}
-              hrefFor={(c) => `/courses/${c.slug}`}
-              keyFor={(c) => c._id || c.slug}
-              icon={(c) => c.icon}
-              title={(c) => c.title}
-              sub={(c) => c.difficulty}
-              subClass="capitalize"
-              footerHref="/courses"
-              footerLabel={t('home.courses.viewAll')}
-            />
+            <CoursesPanel courses={courses} emptyLabel={t('home.courses.empty')} />
           </NavDropdown>
 
           <NavLink href="/challenges">{t('nav.challenges')}</NavLink>
@@ -150,21 +148,9 @@ export default function Navbar() {
             />
           </NavDropdown>
 
-          {/* Interview — practice by course */}
-          <NavDropdown href="/interview-questions" label={t('nav.interview')}>
-            <DropdownGrid
-              empty={courses.length === 0}
-              emptyLabel={t('home.courses.empty')}
-              items={courses}
-              hrefFor={(c) => `/interview-questions?course=${c.slug}`}
-              keyFor={(c) => c._id || c.slug}
-              icon={(c) => c.icon}
-              title={(c) => c.title}
-              sub={(c) => c.difficulty}
-              subClass="capitalize"
-              footerHref="/interview-questions"
-              footerLabel={t('nav.interview')}
-            />
+          {/* Interview — by level and by weight, not a copy of the course list */}
+          <NavDropdown href="/interview-questions" label={t('nav.interview')} onOpen={loadQuestionSummary}>
+            <InterviewPanel summary={qSummary} courses={courses} />
           </NavDropdown>
 
           <NavLink href="/leaderboard">{t('nav.leaderboard')}</NavLink>
@@ -257,7 +243,7 @@ function NavLink({ href, children, className = '' }) {
    spans the shell width and can never push the page into a horizontal scroll.
    JS-controlled (not pure CSS :hover) so a click can close it immediately on
    navigation instead of leaving it hovering over the new page. */
-function NavDropdown({ href, label, children }) {
+function NavDropdown({ href, label, children, onOpen }) {
   const [open, setOpen] = useState(false);
   const closeTimer = useRef(null);
   const pathname = usePathname();
@@ -271,6 +257,7 @@ function NavDropdown({ href, label, children }) {
 
   function openNow() {
     clearTimeout(closeTimer.current);
+    onOpen?.();
     setOpen(true);
   }
   function closeSoon() {
@@ -321,7 +308,196 @@ function NavDropdown({ href, label, children }) {
   );
 }
 
-/* ── Reusable dropdown grid ── */
+
+/* -- Courses panel: three level columns of compact rows --
+   45 courses in one flat grid is a search result, not a menu. Grouping by the
+   level the learner is at makes the list scannable without scrolling a panel
+   that closes the moment the pointer leaves it. */
+const LEVEL_COLUMNS = [
+  { key: 'beginner', label: 'Beginner', dot: 'bg-emerald-500' },
+  { key: 'intermediate', label: 'Intermediate', dot: 'bg-amber-500' },
+  { key: 'advanced', label: 'Advanced', dot: 'bg-red-500' },
+];
+const PER_COLUMN = 6;
+
+function CoursesPanel({ courses = [], emptyLabel = '', onNavigate }) {
+  if (courses.length === 0) {
+    return <p className="px-2 py-6 text-center text-sm text-slate-400">{emptyLabel}</p>;
+  }
+
+  return (
+    <div className="flex flex-col gap-5 lg:flex-row">
+      <div className="grid flex-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:pr-6">
+        {LEVEL_COLUMNS.map((col) => {
+          const all = courses.filter((c) => (c.difficulty || 'beginner') === col.key);
+          if (all.length === 0) return null;
+          const shown = all.slice(0, PER_COLUMN);
+          const rest = all.length - shown.length;
+
+          return (
+            <div key={col.key} className="flex flex-col gap-0.5">
+              <p className="flex items-center gap-2 px-2.5 pb-2">
+                <span className={`h-1.5 w-1.5 rounded-full ${col.dot}`} />
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                  {col.label}
+                </span>
+                <span className="ml-auto text-[10.5px] text-slate-300">{all.length}</span>
+              </p>
+
+              {shown.map((c) => (
+                <Link
+                  key={c._id || c.slug}
+                  href={`/courses/${c.slug}`}
+                  onClick={onNavigate}
+                  className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 transition-colors hover:bg-indigo-50/70 dark:hover:bg-slate-800/70"
+                >
+                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-slate-50 dark:bg-slate-800">
+                    <Icon name={c.icon} brand className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="truncate text-[13.5px] font-medium text-slate-700 dark:text-slate-300">
+                    {c.title}
+                  </span>
+                </Link>
+              ))}
+
+              {rest > 0 && (
+                <Link
+                  href="/courses"
+                  onClick={onNavigate}
+                  className="px-2.5 py-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+                >
+                  + {rest} more
+                </Link>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex gap-2.5 lg:w-[280px] lg:shrink-0 lg:flex-col lg:border-l lg:border-slate-100 lg:pl-6 dark:lg:border-slate-800">
+        <Link
+          href="/courses"
+          onClick={onNavigate}
+          className="flex flex-1 items-center gap-3 rounded-xl border border-slate-200 px-3.5 py-3 transition hover:border-indigo-300 dark:border-slate-700"
+        >
+          <Icon name="book" className="h-4 w-4 shrink-0 text-indigo-600" />
+          <span className="flex-1 truncate text-[13.5px] font-semibold">All {courses.length} courses</span>
+          <Icon name="arrow-right" className="h-3 w-3 shrink-0 text-slate-300" />
+        </Link>
+        <Link
+          href="/roadmaps"
+          onClick={onNavigate}
+          className="flex flex-1 items-center gap-3 rounded-xl border border-slate-200 px-3.5 py-3 transition hover:border-indigo-300 dark:border-slate-700"
+        >
+          <Icon name="map" className="h-4 w-4 shrink-0 text-indigo-600" />
+          <span className="flex-1 truncate text-[13.5px] font-semibold">Follow a roadmap</span>
+          <Icon name="arrow-right" className="h-3 w-3 shrink-0 text-slate-300" />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* -- Interview panel: by level, then by weight --
+   It used to render the same 45 course tiles as the Courses panel. Counts come
+   from /api/interview-questions/summary, fetched the first time the panel
+   opens; until they land the rows still work, just without numbers. */
+const Q_LEVELS = [
+  { key: 'easy', label: 'Easy', dot: 'bg-emerald-500', tint: 'bg-emerald-50' },
+  { key: 'medium', label: 'Medium', dot: 'bg-amber-500', tint: 'bg-amber-50' },
+  { key: 'hard', label: 'Hard', dot: 'bg-red-500', tint: 'bg-red-50' },
+];
+
+function InterviewPanel({ summary, courses = [], onNavigate }) {
+  const top = summary?.topCourses?.length
+    ? summary.topCourses
+    : courses.slice(0, 9).map((c) => ({ title: c.title, slug: c.slug, icon: c.icon, n: null }));
+
+  return (
+    <div className="flex flex-col gap-5 lg:flex-row">
+      <div className="flex flex-col gap-0.5 lg:w-[300px] lg:shrink-0 lg:border-r lg:border-slate-100 lg:pr-6 dark:lg:border-slate-800">
+        <p className="px-2.5 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          By level
+        </p>
+        {Q_LEVELS.map((l) => (
+          <Link
+            key={l.key}
+            href={`/interview-questions?difficulty=${l.key}`}
+            onClick={onNavigate}
+            className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 transition-colors hover:bg-indigo-50/70 dark:hover:bg-slate-800/70"
+          >
+            <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-lg ${l.tint} dark:bg-slate-800`}>
+              <span className={`h-2 w-2 rounded-full ${l.dot}`} />
+            </span>
+            <span className="flex-1 text-[13.5px] font-medium text-slate-700 dark:text-slate-300">{l.label}</span>
+            {summary && (
+              <span className="text-[11px] text-slate-400">{summary.levels[l.key].toLocaleString()}</span>
+            )}
+          </Link>
+        ))}
+
+        <p className="px-2.5 pb-2 pt-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          Practice
+        </p>
+        <Link
+          href="/courses"
+          onClick={onNavigate}
+          className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 transition-colors hover:bg-indigo-50/70 dark:hover:bg-slate-800/70"
+        >
+          <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-indigo-50 dark:bg-slate-800">
+            <Icon name="microphone" className="h-3.5 w-3.5 text-indigo-600" />
+          </span>
+          <span className="flex-1 text-[13.5px] font-medium text-slate-700 dark:text-slate-300">Mock interview</span>
+        </Link>
+        <Link
+          href="/revise"
+          onClick={onNavigate}
+          className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 transition-colors hover:bg-indigo-50/70 dark:hover:bg-slate-800/70"
+        >
+          <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-indigo-50 dark:bg-slate-800">
+            <Icon name="repeat" className="h-3.5 w-3.5 text-indigo-600" />
+          </span>
+          <span className="flex-1 text-[13.5px] font-medium text-slate-700 dark:text-slate-300">Revision deck</span>
+        </Link>
+      </div>
+
+      <div className={`flex-1 ${top.length === 0 ? 'hidden' : ''}`}>
+        <p className="flex items-center gap-2 px-2.5 pb-2">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            Most questions
+          </span>
+          <Link
+            href="/interview-questions"
+            onClick={onNavigate}
+            className="ml-auto text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+          >
+            All {summary?.courseCount || courses.length} courses &rarr;
+          </Link>
+        </p>
+        <div className="grid gap-x-4 gap-y-0.5 sm:grid-cols-2 lg:grid-cols-3">
+          {top.map((c) => (
+            <Link
+              key={c.slug}
+              href={`/interview-questions?course=${c.slug}`}
+              onClick={onNavigate}
+              className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 transition-colors hover:bg-indigo-50/70 dark:hover:bg-slate-800/70"
+            >
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-slate-50 dark:bg-slate-800">
+                <Icon name={c.icon} brand className="h-3.5 w-3.5" />
+              </span>
+              <span className="truncate text-[13.5px] font-medium text-slate-700 dark:text-slate-300">
+                {c.title}
+              </span>
+              {c.n !== null && <span className="ml-auto text-[11px] text-slate-400">{c.n}</span>}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -- Reusable dropdown grid -- */
 function DropdownGrid({
   items = [], empty = false, emptyLabel = '',
   hrefFor, keyFor, icon, title, sub, subClass = '',
