@@ -38,11 +38,24 @@ loadEnv();
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/learnverse';
 
+// Connection strings carry passwords; this script prints the target, so mask
+// the credentials before anything reaches a terminal or a log.
+function safeUri(uri) {
+  return String(uri).replace(/\/\/[^@/]*@/, '//***:***@');
+}
+
 /* ── args ── */
 const args = process.argv.slice(2);
+
+// Takes every token up to the next flag, so a multi-word value survives
+// `npm run sync-topic -- --topic Project Setup`, where the shell and npm
+// between them drop the quotes.
 function arg(name, fallback = null) {
   const i = args.indexOf(`--${name}`);
-  return i >= 0 && args[i + 1] && !args[i + 1].startsWith('--') ? args[i + 1] : fallback;
+  if (i < 0) return fallback;
+  const parts = [];
+  for (let j = i + 1; j < args.length && !args[j].startsWith('--'); j++) parts.push(args[j]);
+  return parts.length ? parts.join(' ') : fallback;
 }
 const COURSE_SLUG = arg('course');
 const TOPIC_MATCH = arg('topic');
@@ -88,14 +101,14 @@ async function run() {
     process.exit(1);
   }
 
-  console.log(`Connecting to ${MONGODB_URI}`);
+  console.log(`Connecting to ${safeUri(MONGODB_URI)}`);
   try {
     await mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 8000 });
   } catch {
     console.error(
       [
         '',
-        `Could not reach MongoDB at ${MONGODB_URI}.`,
+        `Could not reach MongoDB at ${safeUri(MONGODB_URI)}.`,
         'Start it, or point MONGODB_URI at the right database, then run this again.',
         'Nothing was changed.',
       ].join('\n')
