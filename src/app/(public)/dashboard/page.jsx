@@ -45,7 +45,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex gap-2">
             <Link href="/login" className="rounded-lg border border-indigo-300 px-4 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 dark:border-indigo-700 dark:text-indigo-300">Login</Link>
-            <Link href="/signup" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Sign up free</Link>
+            <Link href="/register" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Sign up free</Link>
           </div>
         </div>
       )}
