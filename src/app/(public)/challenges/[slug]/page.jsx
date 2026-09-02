@@ -1,11 +1,9 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
 import { connectDB } from '@/lib/db';
 import ChallengeCompletion from '@/models/ChallengeCompletion';
-import { getChallenge } from '@/lib/challenges';
+import { CHALLENGES, getChallenge } from '@/lib/challenges';
 import ChallengeRunner from '@/components/ChallengeRunner';
-import Icon from '@/components/Icon';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,6 +18,11 @@ export default async function ChallengePage({ params }) {
   const challenge = getChallenge(slug);
   if (!challenge) notFound();
 
+  // Position in the set, and where to go once this one passes — the page used
+  // to be a dead end after a green run.
+  const idx = CHALLENGES.findIndex((c) => c.slug === slug);
+  const nextChallenge = CHALLENGES[idx + 1] || null;
+
   const session = await auth();
   let completed = false;
   if (session?.user) {
@@ -30,14 +33,11 @@ export default async function ChallengePage({ params }) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-12">
-      <Link href="/challenges" className="text-sm text-slate-500 hover:text-indigo-600"><Icon name="arrow-left" className="mr-1.5 h-3 w-3" />All challenges</Link>
-      <h1 className="mt-3 text-2xl font-bold">
-        {challenge.title} <span className="text-sm font-normal capitalize text-slate-400">· {challenge.difficulty}</span>
-      </h1>
-      <div className="mt-6">
-        <ChallengeRunner challenge={challenge} initiallyCompleted={completed} />
-      </div>
-    </div>
+    <ChallengeRunner
+      challenge={challenge}
+      initiallyCompleted={completed}
+      position={{ index: idx + 1, total: CHALLENGES.length }}
+      next={nextChallenge ? { slug: nextChallenge.slug, title: nextChallenge.title, xp: nextChallenge.xp } : null}
+    />
   );
 }
