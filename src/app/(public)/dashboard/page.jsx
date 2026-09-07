@@ -142,6 +142,16 @@ export default function DashboardPage() {
                 <span className="text-sm font-semibold text-amber-700">View certificate <Icon name="arrow-right" className="h-3 w-3" /></span>
               </Link>
             ))}
+            {/* A finished course is the one moment worth offering a post for. */}
+            <Link
+              href={`/create?topic=${encodeURIComponent(`I finished the ${data.completedCourses[0].title} course`)}`}
+              className="flex items-center justify-between rounded-2xl border border-indigo-200 bg-indigo-50 p-4 hover:border-indigo-300"
+            >
+              <span className="flex items-center gap-2 font-medium text-indigo-900">
+                <Icon name="share" className="h-4 w-4" />Share what you finished
+              </span>
+              <span className="text-sm font-semibold text-indigo-700">Write a post <Icon name="arrow-right" className="h-3 w-3" /></span>
+            </Link>
           </div>
         </div>
       )}

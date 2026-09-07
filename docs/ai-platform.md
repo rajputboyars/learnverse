@@ -386,3 +386,59 @@ useless to someone in IST. The chart is labelled *your local time*.
 
 `LearningSession` — startedAt, lastBeatAt, capped `seconds`, kind, concept and
 course, plus the browser-local date/hour/weekday.
+
+---
+
+# Post generator (phase 8)
+
+`/create` — turn learning into a post for LinkedIn, Instagram, X or Reddit.
+
+## Nothing is published on the user's behalf
+
+Learnverse holds no social credentials and posts nowhere. The output is text the
+user reads, edits and copies; publishing stays their action on their own account.
+The composer says so, and every draft ends with a reminder to check that each
+claim is one they would stand behind.
+
+## Grounded starting points
+
+The "start from something you did" list comes from `/api/me/achievements`, which
+derives every item from a stored record: a course actually finished, a streak of
+at least three days actually held, a volume milestone actually crossed, an
+analysis actually run. An account with no history gets an empty list and a nudge
+to go and do something — never a fabricated milestone, because the fastest way to
+embarrass someone publicly is to hand them an achievement they did not earn.
+
+A demo-mode result is offered as *a topic to write about* ("what I have been
+reading about…") rather than as a finding to assert, since its content is sample
+data.
+
+The prompt itself instructs the model to claim nothing the user did not supply —
+no invented job offers, numbers or company names — and bans the usual AI tells.
+
+## Per-platform output
+
+One template, four shapes: LinkedIn gets hook → learning → insight → takeaway →
+reflection → question → hashtags; Instagram a caption plus 5-7 carousel slides;
+X a standalone post plus a 4-7 post thread; Reddit a title and body with a
+reminder to read the subreddit's rules.
+
+## Drafts
+
+Saved drafts store the **edited** text, so a draft reopens as the user left it
+rather than as the model wrote it, and carry an `edited` flag plus the source
+label of the run that produced them. Drafts are per-user and private.
+
+## Routes added
+
+| Route | What |
+|---|---|
+| `GET /api/me/achievements` | real milestones and recent insights, as post seeds |
+| `GET/POST /api/posts` | list drafts (`?platform=`), save one |
+| `PATCH/DELETE /api/posts/[id]` | edit or delete your own draft |
+| `/create` | composer + saved drafts; accepts `?platform=` `?topic=` `?points=` |
+
+## Model added
+
+`SocialPost` — platform, topic, tone, hook, body, thread, slides, hashtags,
+notes, originating result, provider/model/source, and whether the user edited it.
