@@ -258,3 +258,73 @@ Approve and reject both send the author a `system` notification.
 
 Acting on a prompt closes the reports waiting on it — resolved on a rejection,
 dismissed on an approval — and clears its report count.
+
+---
+
+# Skill trends and history (phase 6)
+
+Rankings recorded over time, at `/trends`, built from snapshots an admin captures.
+
+## The rule
+
+**History is recorded, never reconstructed.** A snapshot exists only because
+someone captured it on a given day. Movement is measured by comparing two real
+snapshots — with one snapshot the page says "no earlier snapshot to compare
+against" and shows no change indicators at all. Nothing back-fills a previous
+rank, and the chart plots points only where a snapshot exists rather than
+interpolating the days between.
+
+## Measured movement vs the model's estimate
+
+These are two different things and the schema keeps them apart:
+
+| Field | Meaning |
+|---|---|
+| `change` / `previousRank` | measured between two stored snapshots — this platform's own record |
+| `claimedPreviousRank` | what the model *said* the previous rank was, in a single result |
+
+The claimed value is shown only inside a skill's history panel, explicitly
+attributed to the model. It never drives an arrow in the table.
+
+## Source labelling
+
+Every snapshot carries `ai` / `manual` / `live` / `demo` and it is displayed
+wherever the ranking is. Capturing a demo-mode result keeps the `demo` label —
+sample data cannot be laundered into real trend data by filing it.
+
+## Why capture is admin-only
+
+`/trends` is presented as the platform's own recorded history, so it cannot be
+open to anyone who runs an analysis — otherwise the public ranking is whatever
+the last visitor's model happened to say. A learner's own runs stay in their
+personal results; an admin decides what enters the record, and a snapshot is
+only visible once published.
+
+## Comparison windows
+
+`?compare=previous|30|90` picks the most recent snapshot at least that many days
+older. When nothing qualifies, the answer is no comparison — not the nearest
+available substitute.
+
+## Models added
+
+| Model | Holds |
+|---|---|
+| `TrendSnapshot` | one captured ranking: scope, capturedAt, source, provider/model, origin result, published flag |
+| `SkillTrend` | one skill's position within one snapshot; flat, so a skill's history is one indexed query |
+
+Snapshots are comparable only within a `scopeKey` (industry + location +
+experience level), so a fresher ranking is never compared against a senior one.
+
+## Routes added
+
+| Route | What |
+|---|---|
+| `GET /api/trends` | published ranking for a scope + available scopes; `?scope=` `?compare=` |
+| `GET /api/trends/history` | one skill's recorded positions in one scope |
+| `GET /api/admin/trends` | snapshots, plus uncaptured trending-skills results |
+| `POST /api/admin/trends` | capture from a result, or enter a ranking by hand |
+| `PATCH /api/admin/trends/[id]` | publish / hide / annotate |
+| `DELETE /api/admin/trends/[id]` | delete a snapshot and its skill rows |
+| `/trends` | public rankings, movement, per-skill history chart |
+| `/admin/trends` | capture and manage snapshots |
