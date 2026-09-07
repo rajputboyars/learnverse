@@ -44,6 +44,7 @@ export default function Navbar() {
 
   const NAV_LINKS = [
     { href: '/courses',            label: t('nav.courses') },
+    { href: '/ai',                 label: 'AI Tools' },
     { href: '/challenges',         label: t('nav.challenges') },
     { href: '/roadmaps',           label: t('nav.roadmaps') },
     { href: '/interview-questions',label: t('nav.interview') },
@@ -130,6 +131,11 @@ export default function Navbar() {
           {/* Courses — grouped by level, not 45 tiles in a scrolling grid */}
           <NavDropdown href="/courses" label={t('nav.courses')}>
             <CoursesPanel courses={courses} emptyLabel={t('home.courses.empty')} />
+          </NavDropdown>
+
+          {/* AI Tools — the quick actions, prompt library and settings live here */}
+          <NavDropdown href="/ai" label="AI Tools">
+            <AIPanel />
           </NavDropdown>
 
           <NavLink href="/challenges">{t('nav.challenges')}</NavLink>
@@ -308,6 +314,37 @@ function NavDropdown({ href, label, children, onOpen }) {
   );
 }
 
+
+/* -- AI Tools panel --
+   Static by design: these are app surfaces, not content, so there is nothing to
+   fetch and the panel opens instantly. */
+const AI_LINKS = [
+  { href: '/ai', icon: 'sparkles', title: 'Quick Actions', sub: 'Trends, job market, roadmaps — one click each' },
+  { href: '/ai?tab=learning', icon: 'book-open', title: 'Learning help', sub: 'Compare courses, find resources, explain a topic' },
+  { href: '/ai?tab=create', icon: 'share', title: 'Create a post', sub: 'Turn what you learned into a LinkedIn or X post' },
+  { href: '/settings/ai', icon: 'plug', title: 'AI connections', sub: 'Bring your own Claude, OpenAI or Gemini key' },
+];
+
+function AIPanel({ onNavigate }) {
+  return (
+    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+      {AI_LINKS.map((l) => (
+        <Link
+          key={l.href}
+          href={l.href}
+          onClick={onNavigate}
+          className="flex gap-3 rounded-xl border border-slate-200 px-3.5 py-3 transition hover:border-indigo-300 dark:border-slate-700"
+        >
+          <Icon name={l.icon} className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600" />
+          <span className="min-w-0">
+            <span className="block truncate text-[13.5px] font-semibold">{l.title}</span>
+            <span className="mt-0.5 block text-xs text-slate-500">{l.sub}</span>
+          </span>
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 /* -- Courses panel: three level columns of compact rows --
    45 courses in one flat grid is a search result, not a menu. Grouping by the

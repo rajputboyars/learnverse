@@ -26,6 +26,9 @@ import {
   faChartColumn, faCircle, faCircleDot, faSquare, faScrewdriverWrench, faShip,
   faTrainSubway, faTriangleExclamation, faTowerBroadcast, faWind, faGlobe,
   faHeart, faStar, faThumbtack, faTable, faSitemap, faPhone, faCaretUp,
+  faFlask, faPlug, faSliders, faTrash, faPlus, faMinus, faPen, faEye,
+  faArrowTrendUp, faArrowTrendDown, faSpinner, faFilter,
+  faChevronRight, faFlag, faPaperPlane, faSquareCheck, faHourglassHalf,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -59,6 +62,7 @@ export const ICONS = {
   check: faCheck,
   'check-circle': faCircleCheck,
   'chevron-down': faChevronDown,
+  'chevron-right': faChevronRight,
   circle: faCircle,
   'circle-dot': faCircleDot,
   clock: faClock,
@@ -139,6 +143,23 @@ export const ICONS = {
   wrench: faScrewdriverWrench,
   x: faXmark,
   'x-circle': faCircleXmark,
+  // AI platform additions
+  flask: faFlask,
+  plug: faPlug,
+  sliders: faSliders,
+  trash: faTrash,
+  plus: faPlus,
+  minus: faMinus,
+  pen: faPen,
+  eye: faEye,
+  'trend-up': faArrowTrendUp,
+  'trend-down': faArrowTrendDown,
+  spinner: faSpinner,
+  filter: faFilter,
+  flag: faFlag,
+  send: faPaperPlane,
+  'square-check': faSquareCheck,
+  hourglass: faHourglassHalf,
   // brands used by share buttons / course + roadmap cards
   aws: faAws,
   broadcast: faTowerBroadcast,

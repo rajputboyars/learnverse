@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
 import Icon from '@/components/Icon';
+import AIQuickActions from '@/components/ai/AIQuickActions';
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -85,6 +86,19 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* AI quick actions — the shortest path from "I wonder…" to an answer. */}
+      <div className="mt-10">
+        <AIQuickActions
+          limit={6}
+          subheading="One click, no prompt writing. Your answer comes back structured and saveable."
+        />
+        <div className="mt-4">
+          <Link href="/ai" className="text-sm font-semibold text-indigo-600 hover:underline">
+            All AI tools <Icon name="arrow-right" className="h-3 w-3" />
+          </Link>
+        </div>
+      </div>
 
       {/* Badges */}
       {data && data.badges && (
