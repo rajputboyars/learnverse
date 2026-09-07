@@ -43,8 +43,12 @@ export async function buildAnalytics(userId) {
   const weeks = bucketByWeek(activityDates, 12, now);
   const months = bucketByMonth(activityDates, 12, now);
 
+  // Both sides of this set must come from the same clock. Progress rows carry
+  // no timezone, so they can only be keyed by the server's; keying sessions by
+  // the browser's `localDate` instead would let one evening of study count as
+  // two active days whenever the two clocks disagree about the date.
   const activeDayKeys = new Set(activityDates.map((d) => dayKey(d)));
-  for (const s of sessions) if (s.localDate) activeDayKeys.add(s.localDate);
+  for (const s of sessions) if (s.startedAt) activeDayKeys.add(dayKey(new Date(s.startedAt)));
 
   const last30 = activityDates.filter((d) => now - d <= 30 * DAY).length;
   const previous30 = activityDates.filter((d) => now - d > 30 * DAY && now - d <= 60 * DAY).length;
