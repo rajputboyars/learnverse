@@ -231,9 +231,7 @@ export default async function InterviewQuestionsPage({ searchParams }) {
             <span className="truncate font-medium text-slate-600">{activeCourse.title}</span>
           </nav>
 
-          {/* The hero only makes sense when there is no player below it. */}
-          {questions.length === 0 && (
-            <header className={`${SHELL} pt-3.5`}>
+          <header className={`${SHELL} pt-3.5`}>
             <div className="relative overflow-hidden rounded-3xl bg-slate-900 dark:bg-slate-950">
               <span
                 aria-hidden
@@ -284,7 +282,6 @@ export default async function InterviewQuestionsPage({ searchParams }) {
               </div>
             </div>
           </header>
-          )}
 
           <div className={SHELL}>
             {questions.length > 0 ? (

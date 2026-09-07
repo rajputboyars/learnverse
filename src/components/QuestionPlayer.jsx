@@ -360,12 +360,6 @@ export default function QuestionPlayer({ course, questions, sources = [], startI
               </span>
               Autoplay
             </button>
-            <Link
-              href={`/mock-interview/${course.slug}`}
-              className="hidden rounded-xl border border-slate-200 px-3.5 py-2 text-[12px] font-semibold text-slate-600 hover:bg-slate-50 sm:block"
-            >
-              {pick('Mock', 'Mock')}
-            </Link>
           </span>
         </div>
 
