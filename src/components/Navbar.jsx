@@ -43,6 +43,7 @@ export default function Navbar() {
   }
 
   const NAV_LINKS = [
+    { href: '/feed',               label: 'Feed' },
     { href: '/courses',            label: t('nav.courses') },
     { href: '/ai',                 label: 'AI Tools' },
     { href: '/prompts',            label: 'Prompt Library' },
@@ -132,6 +133,8 @@ export default function Navbar() {
       <div className="hidden border-t border-slate-100 bg-white/60 dark:border-slate-800 dark:bg-slate-900/60 sm:block">
         {/* `relative` makes this the positioning context for the full-width dropdowns */}
         <nav className={`${SHELL} relative flex h-11 items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-300`}>
+
+          <NavLink href="/feed">Feed</NavLink>
 
           {/* Courses — grouped by level, not 45 tiles in a scrolling grid */}
           <NavDropdown href="/courses" label={t('nav.courses')}>

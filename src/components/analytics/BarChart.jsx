@@ -24,7 +24,10 @@ export default function BarChart({ data, valueKey = 'count', format, height = 14
           const pct = max ? (value / max) * 100 : 0;
           const isHigh = highlight != null && i === highlight;
           return (
-            <div key={i} className="group relative flex flex-1 flex-col justify-end">
+            // h-full matters: the bar's height is a percentage, and a
+            // percentage resolves against the parent. Without it the parent
+            // sizes to its content under `items-end` and every bar collapses.
+            <div key={i} className="group relative flex h-full flex-1 flex-col justify-end">
               <div
                 title={`${d.label ?? d.hour}: ${fmt(value)}`}
                 style={{ height: `${Math.max(pct, value > 0 ? 4 : 1)}%` }}

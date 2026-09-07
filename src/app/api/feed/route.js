@@ -1,0 +1,171 @@
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import { connectDB } from '@/lib/db';
+import Concept from '@/models/Concept';
+import Course from '@/models/Course';
+import Prompt from '@/models/Prompt';
+import UserProgress from '@/models/UserProgress';
+import UserStats from '@/models/UserStats';
+
+/**
+ * The learning feed.
+ *
+ * The scroll is the point: short cards, one idea each, something to *do* on
+ * most of them. What separates it from a social feed is what it is made of —
+ * every card is a piece of learning, a real milestone or a prompt, so scrolling
+ * for ten minutes leaves you with something rather than nothing.
+ *
+ * Two deliberate limits, because an endless feed is easy to make unhealthy:
+ *   - It ends. `hasMore` goes false when the content runs out; there is no
+ *     recycling of the same cards to keep the scroll alive forever.
+ *   - Signed-in learners see concepts they have NOT read first, so the feed
+ *     moves them forward instead of showing them their own past.
+ */
+
+const PAGE = 8;
+
+export async function GET(req) {
+  await connectDB();
+  const params = new URL(req.url).searchParams;
+  const page = Math.max(0, Number(params.get('page')) || 0);
+  const filter = params.get('filter') || 'all';
+
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  // What this learner has already read — used to push new material forward,
+  // never to hide things entirely.
+  const readIds = userId
+    ? (await UserProgress.find({ userId, read: true }).select('conceptId').lean()).map((p) =>
+        p.conceptId.toString()
+      )
+    : [];
+  const readSet = new Set(readIds);
+
+  // ── Concepts: the backbone of the feed ───────────────────────────────────
+  // Unread first for a signed-in learner, then everything else. Sorted by a
+  // stable key so pagination never repeats or skips a card.
+  const conceptQuery = { status: 'published' };
+  const concepts = await Concept.find(conceptQuery)
+    .select('title slug explanation dailyLifeExample keyPoints quiz difficulty courseId tags')
+    .sort({ _id: 1 })
+    .lean();
+
+  const courses = await Course.find({ status: 'published' }).select('title slug icon').lean();
+  const courseById = Object.fromEntries(courses.map((c) => [c._id.toString(), c]));
+
+  const unread = concepts.filter((c) => !readSet.has(c._id.toString()));
+  const ordered = userId ? [...unread, ...concepts.filter((c) => readSet.has(c._id.toString()))] : concepts;
+
+  const conceptCards = ordered.map((c) => {
+    const course = courseById[c.courseId?.toString()];
+    const teaser =
+      c.dailyLifeExample?.trim() ||
+      c.explanation?.english?.trim() ||
+      c.explanation?.hinglish?.trim() ||
+      '';
+    return {
+      type: 'concept',
+      id: c._id.toString(),
+      title: c.title,
+      slug: c.slug,
+      teaser: teaser.slice(0, 260),
+      hasDailyLifeExample: Boolean(c.dailyLifeExample?.trim()),
+      keyPoints: (c.keyPoints || []).slice(0, 3),
+      difficulty: c.difficulty,
+      tags: (c.tags || []).slice(0, 3),
+      course: course ? { title: course.title, slug: course.slug, icon: course.icon } : null,
+      read: readSet.has(c._id.toString()),
+      // One question, pulled out of the concept's own quiz, answerable inline.
+      quickQuestion: c.quiz?.length
+        ? {
+            question: c.quiz[0].question,
+            options: c.quiz[0].options,
+            // The answer is never sent — grading happens on the server.
+          }
+        : null,
+    };
+  });
+
+  // ── Community milestones ─────────────────────────────────────────────────
+  // Built from the same public stats the leaderboard already shows, so nothing
+  // new about anyone becomes visible here.
+  const streakers = await UserStats.find({ currentStreak: { $gte: 3 } })
+    .sort({ currentStreak: -1 })
+    .limit(12)
+    .select('name currentStreak longestStreak level conceptsCompleted')
+    .lean();
+
+  const milestoneCards = streakers.map((s) => ({
+    type: 'milestone',
+    id: `streak-${s._id}`,
+    name: s.name || 'A learner',
+    streak: s.currentStreak,
+    level: s.level,
+    conceptsCompleted: s.conceptsCompleted,
+    isYou: userId ? s.userId?.toString() === userId : false,
+  }));
+
+  // ── Prompts worth trying ─────────────────────────────────────────────────
+  const prompts = await Prompt.find({ status: 'verified' })
+    .sort({ usageCount: -1 })
+    .limit(12)
+    .select('title slug description category difficulty usageCount')
+    .lean();
+
+  const promptCards = prompts.map((p) => ({
+    type: 'prompt',
+    id: p._id.toString(),
+    title: p.title,
+    slug: p.slug,
+    description: p.description,
+    category: p.category,
+    difficulty: p.difficulty,
+    usageCount: p.usageCount,
+  }));
+
+  // ── An AI action, dropped in occasionally ────────────────────────────────
+  const actionCards = [
+    { type: 'action', id: 'action-trending', templateId: 'trending-skills', title: 'Which skills are actually in demand?', cta: 'Analyze Trending Skills', icon: 'chart-line' },
+    { type: 'action', id: 'action-explain', templateId: 'explain-topic', title: 'Stuck on something? Get it explained your way.', cta: 'Explain a Topic', icon: 'lightbulb' },
+    { type: 'action', id: 'action-roadmap', templateId: 'learning-roadmap', title: 'Turn your goal into a week-by-week plan', cta: 'Generate Roadmap', icon: 'map' },
+  ];
+
+  // ── Interleave ───────────────────────────────────────────────────────────
+  // A rhythm rather than a random shuffle: mostly concepts, with a milestone,
+  // a prompt or an AI action breaking the pattern often enough to stay
+  // interesting but never so often that the feed stops being about learning.
+  const mixed = [];
+  let ci = 0;
+  let mi = 0;
+  let pi = 0;
+  let ai = 0;
+
+  const sourceLeft = () => ci < conceptCards.length;
+  while (sourceLeft()) {
+    mixed.push(conceptCards[ci++]);
+    if (!sourceLeft()) break;
+    mixed.push(conceptCards[ci++]);
+
+    if (mi < milestoneCards.length && mixed.length % 7 < 3) mixed.push(milestoneCards[mi++]);
+    if (pi < promptCards.length && mixed.length % 11 < 3) mixed.push(promptCards[pi++]);
+    if (ai < actionCards.length && mixed.length % 13 < 3) mixed.push(actionCards[ai++]);
+  }
+
+  const filtered =
+    filter === 'concepts'
+      ? mixed.filter((c) => c.type === 'concept')
+      : filter === 'community'
+        ? mixed.filter((c) => c.type === 'milestone')
+        : mixed;
+
+  const start = page * PAGE;
+  const items = filtered.slice(start, start + PAGE);
+
+  return NextResponse.json({
+    items,
+    page,
+    hasMore: start + PAGE < filtered.length,
+    total: filtered.length,
+  });
+}
