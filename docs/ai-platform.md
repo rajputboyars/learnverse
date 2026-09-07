@@ -442,3 +442,46 @@ label of the run that produced them. Drafts are per-user and private.
 
 `SocialPost` — platform, topic, tone, hook, body, thread, slides, hashtags,
 notes, originating result, provider/model/source, and whether the user edited it.
+
+---
+
+# Share cards (phase 9)
+
+`/cards` — a downloadable 1080×1080 image of something the learner actually did.
+
+## Built in the browser, from real records
+
+Cards are SVG strings (`src/lib/cards/render.js`) rendered client-side and
+converted to PNG by drawing the same SVG onto a canvas. No screenshot library, no
+upload: the image never leaves the browser, and what downloads is exactly what
+was previewed. The SVG references nothing external, so the canvas cannot taint
+and export cannot fail on a blocked resource.
+
+Only system fonts are used. A webfont would not load during the canvas
+conversion, so a card that looked right on screen would download in a different
+typeface.
+
+## Thresholds, not encouragement
+
+Cards are offered only once the milestone is real: a streak of **three days or
+more**, **ten or more** concepts, a course that is genuinely finished. A demo-mode
+insight never becomes a card, because a card is a public claim and its content is
+sample data. An account with nothing to show gets an empty state that says so.
+
+## Text safety
+
+`esc()` XML-escapes every value — a course title containing `&` or `<` would
+otherwise produce a broken SVG that renders as nothing. Long text is wrapped by
+estimated advance width and truncated with an ellipsis rather than allowed to
+overflow the card; the headline limit (20 characters at 68px) was set by
+rendering the widest realistic title and looking at it, after the first estimate
+overflowed.
+
+## Routes added
+
+| Route | What |
+|---|---|
+| `/cards` | pick a milestone, preview, recolour, download, share, copy caption |
+
+Reuses `GET /api/me/achievements` from phase 8 — one definition of "what this
+person actually did", shared by the composer and the cards.

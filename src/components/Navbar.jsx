@@ -49,6 +49,7 @@ export default function Navbar() {
     { href: '/trends',             label: 'Trends' },
     { href: '/analytics',          label: 'Analytics' },
     { href: '/create',             label: 'Create a post' },
+    { href: '/cards',              label: 'Share cards' },
     { href: '/challenges',         label: t('nav.challenges') },
     { href: '/roadmaps',           label: t('nav.roadmaps') },
     { href: '/interview-questions',label: t('nav.interview') },
@@ -328,6 +329,7 @@ const AI_LINKS = [
   { href: '/trends', icon: 'chart-line', title: 'Skill Trends', sub: 'Rankings recorded over time, with real movement' },
   { href: '/analytics', icon: 'chart', title: 'My Analytics', sub: 'Your streaks, rhythm and time — you vs your previous self' },
   { href: '/create', icon: 'share', title: 'Create a post', sub: 'Turn what you learned into a LinkedIn, X or Reddit post' },
+  { href: '/cards', icon: 'medal', title: 'Share cards', sub: 'A clean image of a streak, a finished course, a finding' },
   { href: '/prompts/submit', icon: 'pen', title: 'Submit a prompt', sub: 'Share one that helped you — reviewed before publishing' },
   { href: '/settings/ai', icon: 'plug', title: 'AI connections', sub: 'Bring your own Claude, OpenAI or Gemini key' },
 ];
