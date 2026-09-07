@@ -5,18 +5,22 @@ import Topic from '@/models/Topic';
 import Concept from '@/models/Concept';
 import InterviewQuestion from '@/models/InterviewQuestion';
 import User from '@/models/User';
+import Prompt from '@/models/Prompt';
+import PromptReport from '@/models/PromptReport';
 
 async function getCounts() {
   try {
     await connectDB();
-    const [courses, topics, concepts, questions, users] = await Promise.all([
+    const [courses, topics, concepts, questions, users, queue, reports] = await Promise.all([
       Course.countDocuments(),
       Topic.countDocuments(),
       Concept.countDocuments(),
       InterviewQuestion.countDocuments(),
       User.countDocuments(),
+      Prompt.countDocuments({ status: { $in: ['pending', 'ai_reviewed'] } }),
+      PromptReport.countDocuments({ status: 'open' }),
     ]);
-    return { courses, topics, concepts, questions, users };
+    return { courses, topics, concepts, questions, users, queue, reports };
   } catch {
     return null;
   }
@@ -51,7 +55,33 @@ export default async function AdminDashboard() {
         </div>
       )}
 
-      <div className="mt-8 flex gap-3">
+      {/* Anything actually waiting on a human gets surfaced here rather than
+          sitting unseen in a sub-page. */}
+      {counts && (counts.queue > 0 || counts.reports > 0) && (
+        <div className="mt-6 flex flex-wrap gap-3">
+          {counts.queue > 0 && (
+            <Link
+              href="/admin/prompts"
+              className="flex items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900 hover:border-amber-400"
+            >
+              {counts.queue} prompt{counts.queue === 1 ? '' : 's'} waiting for review →
+            </Link>
+          )}
+          {counts.reports > 0 && (
+            <Link
+              href="/admin/reports"
+              className="flex items-center gap-2 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm font-medium text-red-800 hover:border-red-400"
+            >
+              {counts.reports} open report{counts.reports === 1 ? '' : 's'} →
+            </Link>
+          )}
+        </div>
+      )}
+
+      <div className="mt-8 flex flex-wrap gap-3">
+        <Link href="/admin/analytics" className="rounded-lg border border-slate-200 px-5 py-2.5 font-semibold hover:bg-slate-50">
+          Platform analytics
+        </Link>
         <Link href="/admin/concepts/new" className="rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white hover:bg-indigo-700">
           + Add concept
         </Link>
