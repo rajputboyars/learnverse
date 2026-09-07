@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "seed": "node scripts/seed.mjs",
-    "sync-topic": "node scripts/sync-topic.mjs"
+    "sync-topic": "node scripts/sync-topic.mjs",
+    "seed:prompts": "node scripts/seed-prompts.mjs"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.3.1",

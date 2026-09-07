@@ -45,6 +45,7 @@ export default function Navbar() {
   const NAV_LINKS = [
     { href: '/courses',            label: t('nav.courses') },
     { href: '/ai',                 label: 'AI Tools' },
+    { href: '/prompts',            label: 'Prompt Library' },
     { href: '/challenges',         label: t('nav.challenges') },
     { href: '/roadmaps',           label: t('nav.roadmaps') },
     { href: '/interview-questions',label: t('nav.interview') },
@@ -320,14 +321,15 @@ function NavDropdown({ href, label, children, onOpen }) {
    fetch and the panel opens instantly. */
 const AI_LINKS = [
   { href: '/ai', icon: 'sparkles', title: 'Quick Actions', sub: 'Trends, job market, roadmaps — one click each' },
-  { href: '/ai?tab=learning', icon: 'book-open', title: 'Learning help', sub: 'Compare courses, find resources, explain a topic' },
+  { href: '/prompts', icon: 'book-open', title: 'Prompt Library', sub: 'Prompts that worked, ready to run or copy' },
   { href: '/ai?tab=create', icon: 'share', title: 'Create a post', sub: 'Turn what you learned into a LinkedIn or X post' },
+  { href: '/prompts/submit', icon: 'pen', title: 'Submit a prompt', sub: 'Share one that helped you — reviewed before publishing' },
   { href: '/settings/ai', icon: 'plug', title: 'AI connections', sub: 'Bring your own Claude, OpenAI or Gemini key' },
 ];
 
 function AIPanel({ onNavigate }) {
   return (
-    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
       {AI_LINKS.map((l) => (
         <Link
           key={l.href}

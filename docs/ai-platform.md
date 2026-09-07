@@ -126,3 +126,74 @@ never invented out of nothing.
 | `GET/PATCH/DELETE /api/ai/results/[id]` | one result; PATCH toggles `saved` |
 | `/ai` | AI Tools hub — quick actions plus your results |
 | `/settings/ai` | AI connections |
+
+---
+
+# Prompt Library (phase 4)
+
+A browsable library of prompts that people can run, copy, save, rate and report,
+plus a submission path for community prompts.
+
+## Setup
+
+```bash
+npm run seed:prompts
+```
+
+Upserts the 12 official starter prompts by slug. Safe to re-run — it updates the
+official set and never touches community submissions, ratings or counters.
+
+## Variables
+
+Library prompts are plain text with `{{placeholder}}` markers
+(`src/lib/prompts/variables.js`). The run form is generated from them, so any
+submitted prompt becomes runnable with no bespoke UI. Matching is
+case-insensitive, and an unfilled placeholder stays as written rather than
+becoming the string `undefined`.
+
+## Running a library prompt
+
+`runLibraryPrompt()` goes through the same provider resolution, storage and
+labelling as the built-in templates. Library output is free text — the author
+decides its shape — so results are stored with `outputFormat: 'text'` and
+`templateId: "library:<promptId>"`, which keeps library runs and template runs
+distinct in the results list and in usage analytics.
+
+`usageCount` increments only on real model runs, never on demo runs, so the
+library's popularity signal reflects actual use.
+
+## Moderation gate
+
+Submissions are created with `status: 'pending'` and are **never** publicly
+listed. The listing route hard-filters on `status: 'verified'`; the detail route
+returns an unverified prompt only to its author or an admin. The status pipeline
+(`pending → ai_reviewed → verified | rejected`) is modelled now; the AI
+validation and admin review that drive it are phase 5.
+
+## Models added
+
+| Model | Holds |
+|---|---|
+| `Prompt` | body, category, tags, difficulty, origin, author, review status, usage/save/report counters, rating totals |
+| `SavedPrompt` | one row per (user, prompt) |
+| `PromptRating` | one rating per user per prompt, so a changed rating adjusts rather than double-counts |
+| `PromptReport` | one open report per user per prompt, with reason and detail |
+
+## Routes added
+
+| Route | What |
+|---|---|
+| `GET /api/prompts` | verified listing; `?q=` `?category=` `?sort=` `?saved=1` `?mine=1` |
+| `POST /api/prompts` | submit a prompt into the review queue |
+| `GET /api/prompts/[id]` | detail by slug **or** id, with the body |
+| `POST /api/prompts/[id]/save` | toggle saved |
+| `POST /api/prompts/[id]/rate` | rate 1-5 |
+| `POST /api/prompts/[id]/report` | flag for review |
+| `POST /api/prompts/[id]/run` | run it through the provider layer |
+| `/prompts` | library — search, categories, sort, Library/Saved/My submissions |
+| `/prompts/[slug]` | detail, run panel, rating, share, report |
+| `/prompts/submit` | submission form with live variable detection |
+
+Note: the dynamic segment is `[id]` for all of these because Next.js allows only
+one param name per segment, and the action routes address prompts by id. The
+detail route accepts either form.
