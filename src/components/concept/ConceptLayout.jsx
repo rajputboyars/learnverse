@@ -7,6 +7,7 @@ import ConceptReader from './ConceptReader';
 import BookmarkButton from './BookmarkButton';
 import { useLang } from '../LanguageProvider';
 import Icon from '../Icon';
+import LearningTimer from '../LearningTimer';
 
 const SHELL = 'mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8';
 
@@ -82,6 +83,10 @@ export default function ConceptLayout({ concept, course, nav, topicTitle, positi
 
   return (
     <div className="bg-slate-50 pb-16">
+      {/* Records time on this page so analytics can report real hours rather
+          than estimating them from completion timestamps. */}
+      <LearningTimer kind="concept" conceptId={concept._id} courseId={course?._id} />
+
       {toast && (
         <div className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-lg sm:bottom-6">
           {toast}

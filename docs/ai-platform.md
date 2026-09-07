@@ -328,3 +328,61 @@ experience level), so a fresher ranking is never compared against a senior one.
 | `DELETE /api/admin/trends/[id]` | delete a snapshot and its skill rows |
 | `/trends` | public rankings, movement, per-skill history chart |
 | `/admin/trends` | capture and manage snapshots |
+
+---
+
+# Learning analytics (phase 7)
+
+`/analytics` — streaks, rhythm, self-comparison and time, computed only from
+records that exist.
+
+## Time had to be recorded, not estimated
+
+The spec asks for learning hours and most-productive-time. Neither could be
+derived from the existing data: `UserProgress` says *that* a concept was
+completed, never for how long. Rather than infer hours from completion
+timestamps and present the guess as measurement, time is now recorded.
+
+`LearningTimer` (mounted on concept pages) counts only while the tab is
+**visible** and posts a heartbeat each minute. The server caps every beat at 90
+seconds and starts a new session after a 5-minute gap, and a session's total is
+the sum of capped increments — never end-minus-start. A tab left open overnight
+therefore cannot become eight hours of study.
+
+Because tracking began the day this shipped, the page states the date it started
+and never implies the totals cover a user's earlier learning. The same
+distinction is passed to the model in `ctx.learning.timeTracking`, including an
+explicit instruction not to estimate hours when nothing is recorded.
+
+## Two classes of number, kept apart
+
+| Kind | Source | Covers |
+|---|---|---|
+| Activity — concepts, quizzes, streaks, active days | `UserProgress`, `UserStats` | the user's whole history |
+| Time — hours, hour-of-day, session length | `LearningSession` | only since tracking began |
+
+## No baseline means no percentage
+
+`changePct()` returns `null` when the previous period is zero, and
+`ComparisonTile` renders "No earlier period to compare against yet." A first week
+of activity is not a +100% improvement, and showing one would be the same kind of
+invention the trends page refuses to make.
+
+## Local time
+
+Hour-of-day and weekday are recorded from the **browser's** local clock, because
+the server cannot know the reader's timezone and "you study most at 16:00 UTC" is
+useless to someone in IST. The chart is labelled *your local time*.
+
+## Routes added
+
+| Route | What |
+|---|---|
+| `POST /api/me/session` | heartbeat; extends the open session, capped |
+| `GET /api/me/analytics` | the full analytics payload |
+| `/analytics` | charts, self-comparison, time, and the AI reading of the same numbers |
+
+## Model added
+
+`LearningSession` — startedAt, lastBeatAt, capped `seconds`, kind, concept and
+course, plus the browser-local date/hour/weekday.

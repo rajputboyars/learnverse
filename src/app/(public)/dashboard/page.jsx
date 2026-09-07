@@ -201,6 +201,9 @@ export default function DashboardPage() {
         <Link href="/courses" className="rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white hover:bg-indigo-700">
           {t('dash.keepLearning')}
         </Link>
+        <Link href="/analytics" className="rounded-lg border border-slate-200 px-5 py-2.5 font-semibold hover:bg-slate-50">
+          <Icon name="chart" className="mr-1.5 h-3.5 w-3.5" />My analytics
+        </Link>
         <Link href="/leaderboard" className="rounded-lg border border-slate-200 px-5 py-2.5 font-semibold hover:bg-slate-50">
           {t('nav.leaderboard')}
         </Link>

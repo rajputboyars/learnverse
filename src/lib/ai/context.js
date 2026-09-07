@@ -3,6 +3,7 @@ import UserStats from '@/models/UserStats';
 import UserProgress from '@/models/UserProgress';
 import Concept from '@/models/Concept';
 import Course from '@/models/Course';
+import LearningSession from '@/models/LearningSession';
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -56,6 +57,21 @@ export async function buildLearningContext(userId) {
     byWeekday[d] = (byWeekday[d] || 0) + 1;
   }
 
+  // Recorded page time, when there is any. Kept in its own object with the date
+  // tracking began, so the model can see that these hours cover a window rather
+  // than the learner's whole history — and say so.
+  const sessions = await LearningSession.find({ userId })
+    .select('seconds localHour localWeekday startedAt')
+    .lean();
+  const trackedSeconds = sessions.reduce((sum, s) => sum + (s.seconds || 0), 0);
+  const hourTotals = {};
+  for (const s of sessions) {
+    if (Number.isInteger(s.localHour)) {
+      hourTotals[s.localHour] = (hourTotals[s.localHour] || 0) + (s.seconds || 0);
+    }
+  }
+  const busiestHour = Object.entries(hourTotals).sort((a, b) => b[1] - a[1])[0];
+
   return {
     totalXP: stats?.totalXP || 0,
     weeklyXP: stats?.weeklyXP || 0,
@@ -63,6 +79,19 @@ export async function buildLearningContext(userId) {
     currentStreak: stats?.currentStreak || 0,
     longestStreak: stats?.longestStreak || 0,
     conceptsCompleted: stats?.conceptsCompleted || 0,
+    timeTracking: sessions.length
+      ? {
+          trackingStarted: sessions.reduce(
+            (earliest, s) => (!earliest || s.startedAt < earliest ? s.startedAt : earliest),
+            null
+          ),
+          totalMinutes: Math.round(trackedSeconds / 60),
+          sessions: sessions.length,
+          averageSessionMinutes: Math.round(trackedSeconds / 60 / sessions.length),
+          busiestLocalHour: busiestHour ? Number(busiestHour[0]) : null,
+          note: 'Page time has only been recorded since trackingStarted — it does not cover earlier learning.',
+        }
+      : { note: 'No page time has been recorded for this learner yet. Do not estimate hours.' },
     quizzesPassed: progress.filter((p) => p.quizPassed).length,
     activityLast7Days: inLast(7),
     activityLast30Days: inLast(30),
