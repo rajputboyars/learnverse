@@ -22,6 +22,7 @@ export default async function AdminLayout({ children }) {
           <Link href="/admin/concepts" className="block rounded-md px-3 py-2 hover:bg-slate-100">Concepts</Link>
           <Link href="/admin/concepts/new" className="block rounded-md px-3 py-2 hover:bg-slate-100">+ New concept</Link>
           <Link href="/admin/interview-questions" className="block rounded-md px-3 py-2 hover:bg-slate-100">Interview Qs</Link>
+          <Link href="/admin/prompts" className="block rounded-md px-3 py-2 hover:bg-slate-100">Prompt moderation</Link>
           <Link href="/" className="mt-4 block rounded-md px-3 py-2 text-slate-400 hover:bg-slate-100"><Icon name="arrow-left" className="mr-1.5 h-3 w-3" />Back to site</Link>
         </nav>
       </aside>

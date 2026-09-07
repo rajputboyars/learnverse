@@ -190,11 +190,37 @@ export default function PromptDetailPage({ params }) {
       {prompt.status !== 'verified' && (
         <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
           <p className="font-semibold">
-            {prompt.status === 'rejected' ? 'This submission was rejected.' : 'This prompt is still in review.'}
+            {prompt.status === 'rejected'
+              ? 'This submission was rejected.'
+              : prompt.status === 'ai_reviewed'
+                ? 'Automated checks passed — waiting for a human review.'
+                : 'This prompt is in the review queue.'}
           </p>
           <p className="mt-1">
-            {prompt.reviewNote || 'Only you and the admins can see it until it is verified.'}
+            {prompt.reviewNote || 'Only you and the admins can see it until it is published.'}
           </p>
+
+          {/* The automated review, shown to the author so a rejection is not a
+              black box and a weak prompt can be fixed and resubmitted. */}
+          {prompt.aiReview?.verdict && (
+            <div className="mt-3 rounded-xl border border-amber-300 bg-white/60 p-3">
+              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
+                <Icon name="robot" className="h-3 w-3" />
+                Automated check — {prompt.aiReview.verdict}
+              </p>
+              <p className="mt-1.5">{prompt.aiReview.summary}</p>
+              {!!prompt.aiReview.flags?.length && (
+                <ul className="mt-2 space-y-1">
+                  {prompt.aiReview.flags.map((f, i) => (
+                    <li key={i}>
+                      <span className="font-medium capitalize">{f.type}</span>
+                      {f.detail ? ` — ${f.detail}` : ''}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
         </div>
       )}
 

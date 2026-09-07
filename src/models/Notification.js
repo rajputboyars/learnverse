@@ -4,7 +4,9 @@ const NotificationSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // recipient
     actorName: { type: String, default: 'Someone' },
-    type: { type: String, enum: ['reply', 'upvote'], default: 'reply' },
+    // 'system' covers platform messages with no human actor, such as a
+    // moderation decision on a submitted prompt.
+    type: { type: String, enum: ['reply', 'upvote', 'system'], default: 'reply' },
     message: { type: String, required: true },
     link: { type: String, default: '/' },
     read: { type: Boolean, default: false },

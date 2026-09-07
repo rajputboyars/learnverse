@@ -58,6 +58,18 @@ const PromptSchema = new mongoose.Schema(
     reviewedAt: { type: Date, default: null },
     reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
 
+    // The automated first pass. Advisory only — it can reject, but a human is
+    // what turns a prompt into a public one.
+    aiReview: {
+      verdict: { type: String, enum: ['clean', 'concerns', 'reject', ''], default: '' },
+      scores: { type: mongoose.Schema.Types.Mixed, default: {} },
+      flags: { type: [mongoose.Schema.Types.Mixed], default: [] },
+      summary: { type: String, default: '' },
+      model: { type: String, default: '' },
+      checkedAt: { type: Date, default: null },
+      error: { type: String, default: '' },
+    },
+
     usageCount: { type: Number, default: 0 },
     saveCount: { type: Number, default: 0 },
     reportCount: { type: Number, default: 0 },

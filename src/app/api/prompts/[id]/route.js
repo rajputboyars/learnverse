@@ -51,6 +51,9 @@ export async function GET(_req, { params }) {
       expectedResult: doc.expectedResult,
       exampleOutput: doc.exampleOutput,
       reviewNote: isOwner || isAdmin ? doc.reviewNote : '',
+      // The automated review is feedback for the author, not public commentary
+      // on somebody else's submission.
+      aiReview: isOwner || isAdmin ? doc.aiReview : null,
       myRating: myRating?.value || 0,
       isOwner: Boolean(isOwner),
     },

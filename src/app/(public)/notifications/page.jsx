@@ -62,7 +62,10 @@ export default function NotificationsPage() {
               href={n.link}
               className={`flex items-start gap-3 px-4 py-3 hover:bg-slate-50 ${n.read ? '' : 'bg-indigo-50/40'}`}
             >
-              <Icon name={n.type === 'upvote' ? 'caret-up' : 'comments'} className="h-4 w-4 text-indigo-600" />
+              <Icon
+                name={n.type === 'upvote' ? 'caret-up' : n.type === 'system' ? 'bell' : 'comments'}
+                className="h-4 w-4 text-indigo-600"
+              />
               <div className="min-w-0">
                 <p className="text-sm text-slate-700">
                   <b>{n.actorName}</b> {n.message}

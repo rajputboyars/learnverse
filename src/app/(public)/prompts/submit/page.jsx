@@ -63,7 +63,7 @@ export default function SubmitPromptPage() {
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body?.error || 'Could not submit that');
-      setDone(body.prompt);
+      setDone({ ...body.prompt, review: body.review });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -82,17 +82,38 @@ export default function SubmitPromptPage() {
   }
 
   if (done) {
+    const rejected = done.status === 'rejected';
     return (
       <div className={`${SHELL} py-12`}>
-        <div className="rounded-2xl border border-green-200 bg-green-50 p-6">
-          <p className="flex items-center gap-2 text-lg font-bold text-green-900">
-            <Icon name="check-circle" className="h-5 w-5" />Submitted
+        <div className={`rounded-2xl border p-6 ${rejected ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'}`}>
+          <p className={`flex items-center gap-2 text-lg font-bold ${rejected ? 'text-red-900' : 'text-green-900'}`}>
+            <Icon name={rejected ? 'x-circle' : 'check-circle'} className="h-5 w-5" />
+            {rejected ? 'Not accepted' : 'Submitted'}
           </p>
-          <p className="mt-2 text-sm text-green-800">
-            “{done.title}” is in the review queue. It gets checked for harmful content, spam and
-            quality before it goes public — you will find it under <strong>My submissions</strong>
-            {' '}in the library with its current status.
+          <p className={`mt-2 text-sm ${rejected ? 'text-red-800' : 'text-green-800'}`}>
+            {rejected ? (
+              <>
+                “{done.title}” did not pass the automated safety check, so it was not added to the
+                queue. You can edit it and submit again.
+              </>
+            ) : (
+              <>
+                “{done.title}” is in the review queue. It gets checked for harmful content, spam and
+                quality before it goes public — you will find it under <strong>My submissions</strong>
+                {' '}in the library with its current status.
+              </>
+            )}
           </p>
+
+          {done.review?.summary && (
+            <div className="mt-3 rounded-xl border border-slate-200 bg-white/70 p-3 text-sm text-slate-700">
+              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <Icon name="robot" className="h-3 w-3" />
+                Automated check — {done.review.verdict}
+              </p>
+              <p className="mt-1.5">{done.review.summary}</p>
+            </div>
+          )}
           <div className="mt-4 flex flex-wrap gap-2">
             <Link href="/prompts" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
               Back to the library

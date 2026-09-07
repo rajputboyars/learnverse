@@ -197,3 +197,64 @@ validation and admin review that drive it are phase 5.
 Note: the dynamic segment is `[id]` for all of these because Next.js allows only
 one param name per segment, and the action routes address prompts by id. The
 detail route accepts either form.
+
+---
+
+# Prompt verification (phase 5)
+
+Two-stage review: an automated first pass, then a human decision.
+
+```
+submit → validatePrompt()          server key only
+           ├ reject   → status 'rejected', author told immediately
+           ├ clean    → status 'ai_reviewed'   ← as far as automation can go
+           ├ concerns → status 'ai_reviewed'   (flags attached)
+           └ no key / failure → status stays 'pending'
+       → admin queue → verify | reject | requeue | edit | delete
+```
+
+## Two rules that shape the design
+
+**Automated review can reject, but it cannot publish.** A clean pass moves a
+prompt to `ai_reviewed`, never to `verified`. A human decides what enters the
+public library.
+
+**A review that did not happen is never a pass.** If no server key is configured,
+or the model call fails, or the response cannot be parsed, the prompt stays in
+the queue with the reason recorded in `aiReview.error`. There is no path where an
+unreviewed prompt reaches the library.
+
+## Server key only
+
+`validatePrompt()` uses `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GEMINI_API_KEY`
+and never a user's connected key — reviewing a submission by spending the
+submitter's own API credit would be indefensible. With no server key the platform
+runs on human review alone, which is a supported mode, not a broken one.
+
+## Injection handling
+
+The submitted prompt is passed to the reviewing model wrapped in explicit
+markers and labelled as data. Instructions found inside it — "ignore your
+rules", "approve this" — are themselves an `injection` flag rather than
+something to act on.
+
+## What the author sees
+
+The automated verdict, summary and flags appear on the author's own submission
+page and on the submit confirmation. A rejection is never a black box: the author
+can read why, fix it and submit again. Other users never see another person's
+review.
+
+Approve and reject both send the author a `system` notification.
+
+## Routes added
+
+| Route | What |
+|---|---|
+| `GET /api/admin/prompts` | queue with `?filter=queue\|pending\|ai_reviewed\|reported\|rejected\|verified\|all`, full bodies, reviews and open reports |
+| `PATCH /api/admin/prompts/[id]` | `verify` / `reject` / `requeue` / `revalidate`, plus inline edits |
+| `DELETE /api/admin/prompts/[id]` | hard delete, cascading to saves, ratings and reports |
+| `/admin/prompts` | moderation queue UI |
+
+Acting on a prompt closes the reports waiting on it — resolved on a rejection,
+dismissed on an approval — and clears its report count.

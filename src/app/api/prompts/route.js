@@ -6,6 +6,10 @@ import SavedPrompt from '@/models/SavedPrompt';
 import { requireUser } from '@/lib/guards';
 import { slugify } from '@/lib/slug';
 import { publicPrompt } from '@/lib/prompts/serialize';
+import { statusFromReview, validatePrompt } from '@/lib/prompts/validate';
+
+// Submissions run an automated review inline, which means a model call.
+export const maxDuration = 60;
 
 const SORTS = {
   popular: { usageCount: -1, createdAt: -1 },
@@ -120,5 +124,33 @@ export async function POST(req) {
     status: 'pending',
   });
 
-  return NextResponse.json({ prompt: publicPrompt(doc) }, { status: 201 });
+  // Automated first pass. It runs inline so the author gets an immediate answer
+  // when it rejects something obvious, and any failure simply leaves the prompt
+  // pending for a human — a review that did not happen is never a pass.
+  try {
+    const review = await validatePrompt(doc);
+    if (review) {
+      doc.aiReview = review;
+      doc.status = statusFromReview(review);
+      if (review.verdict === 'reject') {
+        doc.reviewNote = review.summary;
+        doc.reviewedAt = new Date();
+      }
+      await doc.save();
+    }
+  } catch (err) {
+    console.error('[prompts/validate]', err);
+    doc.aiReview = { error: 'Automated review could not run', checkedAt: new Date() };
+    await doc.save();
+  }
+
+  return NextResponse.json(
+    {
+      prompt: publicPrompt(doc),
+      review: doc.aiReview?.verdict
+        ? { verdict: doc.aiReview.verdict, summary: doc.aiReview.summary }
+        : null,
+    },
+    { status: 201 }
+  );
 }
