@@ -26,11 +26,21 @@ export default function FeedPage() {
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
           {/* The feed itself, on the left where the eye starts. */}
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold">Your feed</h1>
-            <p className="mt-1 text-sm text-slate-600">
-              One idea per card, a question to try, and something to do next. Scroll as long as you
-              like — it ends.
-            </p>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h1 className="text-2xl font-bold">Your feed</h1>
+                <p className="mt-1 text-sm text-slate-600">
+                  One idea per card, a question to try, and something to do next. Scroll as long as
+                  you like — it ends.
+                </p>
+              </div>
+              <Link
+                href="/swipe"
+                className="shrink-0 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-semibold text-indigo-700 hover:border-indigo-300"
+              >
+                <Icon name="layers" className="mr-1.5 h-3 w-3" />Swipe cards
+              </Link>
+            </div>
             <div className="mt-6">
               <LearningFeed />
             </div>

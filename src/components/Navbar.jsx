@@ -44,6 +44,7 @@ export default function Navbar() {
 
   const NAV_LINKS = [
     { href: '/feed',               label: 'Feed' },
+    { href: '/swipe',              label: 'Swipe cards' },
     { href: '/courses',            label: t('nav.courses') },
     { href: '/ai',                 label: 'AI Tools' },
     { href: '/prompts',            label: 'Prompt Library' },
@@ -135,6 +136,7 @@ export default function Navbar() {
         <nav className={`${SHELL} relative flex h-11 items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-300`}>
 
           <NavLink href="/feed">Feed</NavLink>
+          <NavLink href="/swipe">Swipe</NavLink>
 
           {/* Courses — grouped by level, not 45 tiles in a scrolling grid */}
           <NavDropdown href="/courses" label={t('nav.courses')}>
