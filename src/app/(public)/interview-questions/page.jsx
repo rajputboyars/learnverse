@@ -2,8 +2,10 @@ import Link from 'next/link';
 import { connectDB } from '@/lib/db';
 import InterviewQuestion from '@/models/InterviewQuestion';
 import Course from '@/models/Course';
+import Concept from '@/models/Concept';
 import L from '@/components/L';
-import InterviewQuestionsBrowser from '@/components/InterviewQuestionsBrowser';
+import QuestionPlayer from '@/components/QuestionPlayer';
+import { sourcesForCourse } from '@/lib/sources';
 import Icon from '@/components/Icon';
 
 export const revalidate = 3600;
@@ -156,6 +158,15 @@ async function getCourseData(courseSlug, difficulty) {
     ]),
   ]);
 
+  // Only 13.5% of questions carry a conceptId today, so this resolves what it
+  // can and the card simply omits the concept link for the rest.
+  const conceptIds = [...new Set(rows.map((r) => r.conceptId?.toString()).filter(Boolean))];
+  const concepts = conceptIds.length
+    ? await Concept.find({ _id: { $in: conceptIds } }).select('title slug').lean()
+    : [];
+  const conceptById = {};
+  for (const c of concepts) conceptById[c._id.toString()] = c;
+
   const questions = rows
     .sort((a, b) => (DIFFICULTY_RANK[a.difficulty] ?? 1) - (DIFFICULTY_RANK[b.difficulty] ?? 1))
     .map((q) => ({
@@ -169,6 +180,8 @@ async function getCourseData(courseSlug, difficulty) {
         ? { code: q.codeExample.code, output: q.codeExample.output || '' }
         : null,
       visual: q.visual || '',
+      conceptSlug: conceptById[q.conceptId?.toString()]?.slug || null,
+      conceptTitle: conceptById[q.conceptId?.toString()]?.title || null,
       deepDive: (q.deepDive || [])
         .filter((d) => d?.body?.en || d?.body?.hi || d?.code || d?.diagram)
         .map((d) => ({
@@ -218,7 +231,6 @@ export default async function InterviewQuestionsPage({ searchParams }) {
             <span className="truncate font-medium text-slate-600">{activeCourse.title}</span>
           </nav>
 
-          {/* Compact course header */}
           <header className={`${SHELL} pt-3.5`}>
             <div className="relative overflow-hidden rounded-3xl bg-slate-900 dark:bg-slate-950">
               <span
@@ -273,15 +285,14 @@ export default async function InterviewQuestionsPage({ searchParams }) {
 
           <div className={SHELL}>
             {questions.length > 0 ? (
-              <InterviewQuestionsBrowser
-                questions={questions}
-                initialQuestionId={qid}
-                levelLinks={LEVELS.map((l) => ({
-                  key: l,
-                  href: hrefFor({ course, difficulty: l }),
-                  active: difficulty === l,
-                }))}
-              />
+              <div className="-mx-4 sm:-mx-6 lg:-mx-8">
+                <QuestionPlayer
+                  course={activeCourse}
+                  questions={questions}
+                  sources={sourcesForCourse(activeCourse.slug)}
+                  startId={qid}
+                />
+              </div>
             ) : (
               <p className="mt-6 rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500">
                 <L
