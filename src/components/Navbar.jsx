@@ -83,7 +83,7 @@ export default function Navbar() {
           <ThemeToggle />
 
           {session?.user ? (
-            <div className="hidden items-center gap-1 sm:flex">
+            <div className="hidden items-center gap-1 md:flex">
               {session.user.role === 'admin' && (
                 <Link
                   href="/admin/dashboard"
@@ -103,7 +103,7 @@ export default function Navbar() {
               </button>
             </div>
           ) : (
-            <div className="hidden items-center gap-1 sm:flex">
+            <div className="hidden items-center gap-1 md:flex">
               <Link
                 href="/login"
                 className="whitespace-nowrap rounded-md px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -123,7 +123,7 @@ export default function Navbar() {
           <button
             onClick={() => setOpen((o) => !o)}
             aria-label="Menu"
-            className="rounded-md p-2 text-lg hover:bg-slate-100 dark:hover:bg-slate-800 sm:hidden"
+            className="rounded-md p-2 text-lg hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden"
           >
             <Icon name={open ? 'x' : 'bars'} />
           </button>
@@ -131,24 +131,27 @@ export default function Navbar() {
       </div>
 
       {/* ══════════ Sub header (secondary nav) ══════════ */}
-      <div className="hidden border-t border-slate-100 bg-white/60 dark:border-slate-800 dark:bg-slate-900/60 sm:block">
+      <div className="hidden border-t border-slate-100 bg-white/60 dark:border-slate-800 dark:bg-slate-900/60 md:block">
         {/* `relative` makes this the positioning context for the full-width dropdowns */}
         <nav className={`${SHELL} relative flex h-11 items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-300`}>
 
           <NavLink href="/feed">Feed</NavLink>
-          <NavLink href="/swipe">Swipe</NavLink>
 
           {/* Courses — grouped by level, not 45 tiles in a scrolling grid */}
           <NavDropdown href="/courses" label={t('nav.courses')}>
             <CoursesPanel courses={courses} emptyLabel={t('home.courses.empty')} />
           </NavDropdown>
 
+          {/* Practice — the four ways to drill, which were four separate top-level
+              links competing with everything else for room. */}
+          <NavDropdown href="/swipe" label="Practice">
+            <LinkPanel links={PRACTICE_LINKS} />
+          </NavDropdown>
+
           {/* AI Tools — the quick actions, prompt library and settings live here */}
           <NavDropdown href="/ai" label="AI Tools">
             <AIPanel />
           </NavDropdown>
-
-          <NavLink href="/challenges">{t('nav.challenges')}</NavLink>
 
           {/* Roadmaps */}
           <NavDropdown href="/roadmaps" label={t('nav.roadmaps')}>
@@ -169,15 +172,16 @@ export default function Navbar() {
             <InterviewPanel summary={qSummary} courses={courses} />
           </NavDropdown>
 
-          <NavLink href="/leaderboard">{t('nav.leaderboard')}</NavLink>
-          <NavLink href="/resume">{t('nav.resume')}</NavLink>
-          {session?.user && <NavLink href="/revise">{t('nav.revise')}</NavLink>}
+          {/* Progress — where you stand and what you show for it. */}
+          <NavDropdown href="/dashboard" label="Progress">
+            <LinkPanel links={session?.user ? PROGRESS_LINKS : PROGRESS_LINKS.filter((l) => !l.authed)} />
+          </NavDropdown>
         </nav>
       </div>
 
       {/* ══════════ Mobile drawer ══════════ */}
       {open && (
-        <div className="border-t border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900 sm:hidden">
+        <div className="border-t border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900 md:hidden">
           <div className="mb-3">
             <SearchBox placeholder={t('nav.search')} className="w-full" />
           </div>
@@ -338,6 +342,43 @@ const AI_LINKS = [
   { href: '/prompts/submit', icon: 'pen', title: 'Submit a prompt', sub: 'Share one that helped you — reviewed before publishing' },
   { href: '/settings/ai', icon: 'plug', title: 'AI connections', sub: 'Bring your own Claude, OpenAI or Gemini key' },
 ];
+
+const PRACTICE_LINKS = [
+  { href: '/swipe?deck=concepts', icon: 'layers', title: 'Swipe concepts', sub: 'One idea per card, flick through them' },
+  { href: '/swipe?deck=quiz', icon: 'question', title: 'Swipe quiz', sub: 'Answer first, read after' },
+  { href: '/challenges', icon: 'code', title: 'Code challenges', sub: 'Small problems you run in the browser' },
+  { href: '/revise', icon: 'repeat', title: 'Revise', sub: 'Spaced repetition of what you have read' },
+];
+
+const PROGRESS_LINKS = [
+  { href: '/dashboard', icon: 'chart', title: 'Dashboard', sub: 'XP, streak, courses in progress', authed: true },
+  { href: '/analytics', icon: 'chart-line', title: 'My analytics', sub: 'Your rhythm, and you vs your previous self', authed: true },
+  { href: '/leaderboard', icon: 'trophy', title: 'Leaderboard', sub: 'Weekly and all-time standings' },
+  { href: '/cards', icon: 'medal', title: 'Share cards', sub: 'An image of something you actually did', authed: true },
+  { href: '/resume', icon: 'file', title: 'Resume', sub: 'Build one from what you have learned' },
+];
+
+/* Shared renderer for the simple link panels (Practice, Progress, AI Tools). */
+function LinkPanel({ links, onNavigate }) {
+  return (
+    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+      {links.map((l) => (
+        <Link
+          key={l.href}
+          href={l.href}
+          onClick={onNavigate}
+          className="flex gap-3 rounded-xl border border-slate-200 px-3.5 py-3 transition hover:border-indigo-300 dark:border-slate-700"
+        >
+          <Icon name={l.icon} className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600" />
+          <span className="min-w-0">
+            <span className="block truncate text-[13.5px] font-semibold">{l.title}</span>
+            <span className="mt-0.5 block text-xs text-slate-500">{l.sub}</span>
+          </span>
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 function AIPanel({ onNavigate }) {
   return (
