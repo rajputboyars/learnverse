@@ -136,8 +136,11 @@ export default function Navbar() {
         <nav className={`${SHELL} relative flex h-11 items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-300`}>
 
           <NavLink href="/feed">Feed</NavLink>
+          <NavLink href="/swipe">Swipe</NavLink>
 
-          {/* Courses — grouped by level, not 45 tiles in a scrolling grid */}
+          {/* Courses — grouped by level, not 45 tiles in a scrolling grid.
+              The rail also carries the roadmaps, which had their own slot until
+              the row ran out of room; they were already advertised here. */}
           <NavDropdown href="/courses" label={t('nav.courses')}>
             <CoursesPanel courses={courses} emptyLabel={t('home.courses.empty')} />
           </NavDropdown>
@@ -151,20 +154,6 @@ export default function Navbar() {
           {/* AI Tools — the quick actions, prompt library and settings live here */}
           <NavDropdown href="/ai" label="AI Tools">
             <AIPanel />
-          </NavDropdown>
-
-          {/* Roadmaps */}
-          <NavDropdown href="/roadmaps" label={t('nav.roadmaps')}>
-            <DropdownGrid
-              items={ROADMAPS}
-              hrefFor={(r) => `/roadmaps/${r.slug}`}
-              keyFor={(r) => r.slug}
-              icon={(r) => r.icon}
-              title={(r) => r.title}
-              sub={(r) => r.duration}
-              footerHref="/roadmaps"
-              footerLabel={t('nav.roadmaps')}
-            />
           </NavDropdown>
 
           {/* Interview — by level and by weight, not a copy of the course list */}
@@ -344,9 +333,9 @@ const AI_LINKS = [
 ];
 
 const PRACTICE_LINKS = [
-  { href: '/swipe?deck=concepts', icon: 'layers', title: 'Swipe concepts', sub: 'One idea per card, flick through them' },
   { href: '/swipe?deck=quiz', icon: 'question', title: 'Swipe quiz', sub: 'Answer first, read after' },
   { href: '/challenges', icon: 'code', title: 'Code challenges', sub: 'Small problems you run in the browser' },
+  { href: '/roadmaps', icon: 'map', title: 'Roadmaps', sub: 'A staged path from where you are to a role' },
   { href: '/revise', icon: 'repeat', title: 'Revise', sub: 'Spaced repetition of what you have read' },
 ];
 
@@ -476,10 +465,35 @@ function CoursesPanel({ courses = [], emptyLabel = '', onNavigate }) {
           <span className="flex-1 truncate text-[13.5px] font-semibold">All {courses.length} courses</span>
           <Icon name="arrow-right" className="h-3 w-3 shrink-0 text-slate-300" />
         </Link>
+        <div className="hidden flex-1 rounded-xl border border-slate-200 px-3.5 py-3 lg:block dark:border-slate-700">
+          <Link
+            href="/roadmaps"
+            onClick={onNavigate}
+            className="flex items-center gap-3 hover:text-indigo-600"
+          >
+            <Icon name="map" className="h-4 w-4 shrink-0 text-indigo-600" />
+            <span className="flex-1 truncate text-[13.5px] font-semibold">Follow a roadmap</span>
+            <Icon name="arrow-right" className="h-3 w-3 shrink-0 text-slate-300" />
+          </Link>
+          <div className="mt-2 flex flex-wrap gap-1">
+            {ROADMAPS.slice(0, 6).map((r) => (
+              <Link
+                key={r.slug}
+                href={`/roadmaps/${r.slug}`}
+                onClick={onNavigate}
+                className="rounded-md px-1.5 py-0.5 text-xs text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-slate-800"
+              >
+                {r.title}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Below lg the rail is a row, where the tag list would not fit. */}
         <Link
           href="/roadmaps"
           onClick={onNavigate}
-          className="flex flex-1 items-center gap-3 rounded-xl border border-slate-200 px-3.5 py-3 transition hover:border-indigo-300 dark:border-slate-700"
+          className="flex flex-1 items-center gap-3 rounded-xl border border-slate-200 px-3.5 py-3 transition hover:border-indigo-300 lg:hidden dark:border-slate-700"
         >
           <Icon name="map" className="h-4 w-4 shrink-0 text-indigo-600" />
           <span className="flex-1 truncate text-[13.5px] font-semibold">Follow a roadmap</span>
