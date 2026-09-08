@@ -163,6 +163,28 @@ button:disabled {
 .dark .border-red-400 { border-color: #b91c1c !important; }
 
 /*
+ * A focus ring that cannot be switched off by accident.
+ *
+ * 50 places in the app carry `outline-none`, which removes the browser's ring
+ * and leaves `focus:border-indigo-400` as the only indicator. That border is a
+ * 1px colour shift at best, and in dark mode it never appears at all: the
+ * remap layer sets `.dark .border-slate-200` with !important, which a plain
+ * focus utility cannot beat. Keyboard users were left with no visible focus.
+ *
+ * :focus-visible rather than :focus, so a mouse click does not draw a ring;
+ * !important so the utilities above cannot remove it again.
+ */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid #4f46e5 !important;
+  outline-offset: 2px !important;
+  border-radius: inherit;
+}
+
+.dark :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline-color: #a5b4fc !important;
+}
+
+/*
  * Respect a system-level request for less motion.
  *
  * The app animates a fair amount — cards thrown off a deck, spinners, pulsing
