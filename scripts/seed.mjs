@@ -22,6 +22,7 @@ import * as reduxCourse from './content/redux.mjs';
 import * as gitCourse from './content/git.mjs';
 import * as restapiCourse from './content/restapi.mjs';
 import * as dockerCourse from './content/docker.mjs';
+import * as jahiaCourse from './content/jahia.mjs';
 import * as sqlCourse from './content/sql.mjs';
 import * as mysqlCourse from './content/mysql.mjs';
 import * as pythonCourse from './content/python.mjs';
@@ -54,6 +55,7 @@ import * as englishSpeakingCourse from './content/english-speaking.mjs';
 import * as edsCourse from './content/eds.mjs';
 
 const COURSES = [
+  jahiaCourse,
   javascriptCourse,
   htmlCourse,
   html5Course,
@@ -118,6 +120,7 @@ const CODE_LANG = {
   git: 'bash',
   restapi: 'javascript',
   docker: 'dockerfile',
+  jahia: 'javascript',
   sql: 'sql',
   mysql: 'sql',
   python: 'python',
