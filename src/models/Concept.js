@@ -32,7 +32,8 @@ const ConceptSchema = new mongoose.Schema(
       english: { type: String, default: '' },
       hinglish: { type: String, default: '' },
     },
-    dailyLifeExample: { type: String, default: '' }, // the desi analogy
+    // The desi analogy. String (legacy, Hinglish) or { english, hinglish }.
+    dailyLifeExample: { type: mongoose.Schema.Types.Mixed, default: '' },
     codeExample: { type: String, default: '' },
     codeLanguage: { type: String, default: 'javascript' },
     keyPoints: [{ type: String }],

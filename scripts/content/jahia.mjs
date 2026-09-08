@@ -19,8 +19,12 @@ export function slugify(text) {
 export const course = {
   title: 'Jahia DXP',
   slug: 'jahia',
-  description:
-    'Jahia seekho zero se — JCR content repository, node types, modules, views, GraphQL, caching aur production deployment. English + Hinglish, desi examples aur code ke saath.',
+  description: {
+    english:
+      'Learn Jahia from zero — the JCR content repository, node types, modules, views, GraphQL, caching and production deployment. In English and Hinglish, with everyday examples and code.',
+    hinglish:
+      'Jahia seekho zero se — JCR content repository, node types, modules, views, GraphQL, caching aur production deployment. English + Hinglish, desi examples aur code ke saath.',
+  },
   icon: 'layers',
   tags: ['jahia', 'dxp', 'cms', 'jcr', 'java', 'headless'],
   difficulty: 'intermediate',
@@ -35,7 +39,10 @@ const beginner = [
   {
     title: 'Jahia Fundamentals',
     level: 'beginner',
-    description: 'Jahia kya hai, aur ek DXP normal CMS se alag kaise hai.',
+    description: {
+      english: 'What Jahia is, and how a DXP differs from an ordinary CMS.',
+      hinglish: 'Jahia kya hai, aur ek DXP normal CMS se alag kaise hai.',
+    },
     concepts: [
       {
         title: 'What Jahia Is — CMS vs DXP',
@@ -47,8 +54,12 @@ const beginner = [
           hinglish:
             "📖 KAHANI\n\nEk company ek simple website se shuru karti hai. Marketing ko developer ko bulaye bina text edit karna hai, toh wo ek CMS install karte hain. Kaam chal jaata hai.\n\nPhir demands badhti hain. Site chaar languages mein chahiye. Logged-in customers ke liye alag homepage. Ek mobile app jise wahi content API se chahiye. Legal ko page live hone se pehle approve karna hai. Ek campaign Friday raat 12 baje launch hona chahiye, bina kisi ke jaage.\n\nEk simple CMS pehli cheez kar leta hai. DXP wahan chahiye jab ye saari cheezein ek saath aa jaayein.\n\n──────────\n\n❓ WHAT — Jahia hai kya?\nJahia ek Java-based Digital Experience Platform hai. Iske center mein ek content repository (JCR) hai jo har page, har component aur har image ko ek tree mein nodes ki tarah rakhta hai. Us core ke aas-paas wo cheezein hain jo ek bade site ko sach mein chahiye: multilingual content, staging aur publication, roles aur permissions, workflows, personalisation, aur GraphQL API taaki wahi content website, app ya kiosk sabko feed kare.\n\n🤔 WHY — ye matter kyun karta hai?\nCMS ye jawab deta hai ki \"is page ko edit kaise karun?\". DXP ye jawab deta hai ki \"pachaas log, chaar languages mein, teen channels pe, isko safely edit-approve-schedule kaise karein?\". Agar project ek blog hai toh DXP zyada hai. Agar ek bank ki public site hai legal review aur chhe markets ke saath, toh yahi point hai.\n\n⚙️ HOW — sab jodta kaise hai?\nJahia ek Java server ki tarah chalta hai. Tumhara kaam usko MODULES ki shakl mein jaata hai — self-contained bundles jisme content definitions, views aur code hote hain. Editors jContent mein kaam karte hain. Content repository mein rehta hai, tumhare module mein nahi — isiliye ek hi module kai sites ko serve kar sakta hai.",
         },
-        dailyLifeExample:
-          'Socho ek chhota dhaba: ek cook, ek menu, jo chahe wo badal do. Wahi CMS hai. Ab socho ek badi restaurant chain: har sheher ka alag menu, har dish ko FSSAI approval, kitchen-app aur Zomato dono ko wahi menu chahiye, aur naya menu Diwali ki raat 12 baje live hona chahiye. Us chain ko sirf ek menu-board nahi, ek poora system chahiye — wahi DXP hai. Jahia us chain ka system hai.',
+        dailyLifeExample: {
+          english:
+            "Think of a small roadside dhaba: one cook, one menu, change whatever you like. That is a CMS. Now think of a large restaurant chain: a different menu per city, food-safety approval on every dish, the kitchen app and the delivery app both needing the same menu, and a new menu that must go live at midnight on Diwali. That chain does not need a menu board — it needs a whole system. That is a DXP, and Jahia is the system.",
+          hinglish:
+            'Socho ek chhota dhaba: ek cook, ek menu, jo chahe wo badal do. Wahi CMS hai. Ab socho ek badi restaurant chain: har sheher ka alag menu, har dish ko FSSAI approval, kitchen-app aur Zomato dono ko wahi menu chahiye, aur naya menu Diwali ki raat 12 baje live hona chahiye. Us chain ko sirf ek menu-board nahi, ek poora system chahiye — wahi DXP hai. Jahia us chain ka system hai.',
+        },
         codeExample:
           '# A Jahia site, from the outside in\n#\n#   Jahia server (Java)\n#     └── site: "medica.com"\n#           ├── pages          → nodes in the JCR\n#           ├── content        → nodes in the JCR\n#           └── uses modules   → your code + definitions\n#\n# Your module is the deployable unit:\n#\n#   my-module/\n#     settings/definition.cnd   # what content types exist\n#     src/components/           # how they render\n#     package.json              # module metadata\n#\n# Editors never touch this. They work in jContent, and the\n# content they create is stored in the repository.',
         keyPoints: [
@@ -107,8 +118,12 @@ const beginner = [
           hinglish:
             "Jahia pages ko database tables mein nahi rakhta jaise WordPress posts ko rows mein rakhta hai. Wo ek TREE rakhta hai. Wo tree hai JCR — Java Content Repository, hierarchical content rakhne ka ek standard (JSR-283).\n\nHar ek cheez ek NODE hai: site ek node hai, page uske neeche ek node, us page pe ek text component page ke neeche ek node, aur upload kiya PDF bhi ek node. Har node ke paas hota hai:\n\n• ek PATH, jaise `/sites/mySite/home/banner`\n• ek PRIMARY TYPE, jo batata hai wo hai kya (`jnt:page`, `jnt:bigText`)\n• PROPERTIES, asli values (title, body, link)\n• CHILDREN, uske andar ke nodes\n\nEk baar tree dikh gaya, toh Jahia ka bahut kuch samajh aa jaata hai. Page move karna matlab node move karna. Permissions ek node pe lagti hain aur children ko inherit hoti hain, bilkul folders ki tarah. Query matlab tree pe chalna.\n\nSabse zyada time ye switch leta hai: \"ye kis table mein hai?\" poochna band karo, aur \"ye tree mein kahan baithta hai aur iska type kya hai?\" poochna shuru karo.",
         },
-        dailyLifeExample:
-          'Apne phone ka file manager socho. Ek folder ke andar folder, uske andar photo. Photo ka ek path hai, ek type hai (JPEG), aur properties hain (date, size). Tum upar wale folder ko lock kar do toh andar sab lock. JCR bilkul yahi hai — bas photos ki jagah pages, banners aur text components rakhe hain.',
+        dailyLifeExample: {
+          english:
+            "Think of the file manager on your phone. A folder inside a folder, and a photo inside that. The photo has a path, a type (JPEG) and properties (date, size). Lock the folder above and everything inside is locked. The JCR is exactly this — only instead of photos it holds pages, banners and text components.",
+          hinglish:
+            'Apne phone ka file manager socho. Ek folder ke andar folder, uske andar photo. Photo ka ek path hai, ek type hai (JPEG), aur properties hain (date, size). Tum upar wale folder ko lock kar do toh andar sab lock. JCR bilkul yahi hai — bas photos ki jagah pages, banners aur text components rakhe hain.',
+        },
         codeExample:
           "// A page and its content, as a tree\n//\n// /sites/medica\n//   └── home                    jnt:page\n//         ├── banner            jnt:bigText\n//         ├── intro             jnt:text\n//         └── cards             jnt:contentList\n//               ├── card-1      mynt:serviceCard\n//               └── card-2      mynt:serviceCard\n//\n// In a server component you receive the current node and read it:\n\nexport default function ServiceCard({ currentNode }) {\n  const title = currentNode.getProperty('jcr:title').getString();\n  const path = currentNode.getPath();      // /sites/medica/home/cards/card-1\n  const type = currentNode.getPrimaryNodeTypeName(); // mynt:serviceCard\n\n  return <h3>{title}</h3>;\n}",
         keyPoints: [
@@ -150,8 +165,12 @@ const beginner = [
           hinglish:
             "Ye sabse kaam ki cheez hai shuru mein samajhne ke liye, kyunki isse \"maine badla toh tha, kuch hua hi nahi\" wali poori category ki confusion khatam ho jaati hai.\n\nJahia content tree ki DO copies rakhta hai:\n\n• **default** — editing workspace. Author jo bhi likhta hai pehle yahan aata hai. Editing team ke bahar koi nahi dekhta.\n• **live** — published workspace. Visitors ko yahi milta hai.\n\nEk edit sirf `default` badalta hai. Wo `live` tab pahunchta hai jab koi use PUBLISH karta hai. Tab tak public site purana version dikhati rehti hai — aur yahi chahiye: aadha likha page kabhi leak nahi hota.\n\nPublication har node ke liye alag hoti hai aur children tak cascade ho sakti hai. Jahia track karta hai kaunse nodes mein unpublished changes hain, isiliye jContent page ko \"modified\" marker ke saath dikha paata hai.\n\nToh jab koi change live site pe nahi dikhta, sawaal lagbhag kabhi \"code toota hai kya?\" nahi hota. Sawaal ye hai: main kaunsa workspace dekh raha hoon, aur kya ye node publish hua hai?",
         },
-        dailyLifeExample:
-          'Ek newspaper socho. Reporter draft likhta hai, editor kaat-chhaant karta hai — ye sab andar office mein chalta hai (default). Jab tak print button nahi dabta, sheher ko kal ka hi akhbaar dikhta hai (live). Draft badalne se sheher ka akhbaar nahi badalta. Publish dabane se badalta hai.',
+        dailyLifeExample: {
+          english:
+            "Think of a newspaper. The reporter writes a draft and the editor cuts it about — all of it inside the office (default). Until someone presses print, the city still reads yesterday’s paper (live). Changing the draft does not change the city’s paper. Pressing publish does.",
+          hinglish:
+            'Ek newspaper socho. Reporter draft likhta hai, editor kaat-chhaant karta hai — ye sab andar office mein chalta hai (default). Jab tak print button nahi dabta, sheher ko kal ka hi akhbaar dikhta hai (live). Draft badalne se sheher ka akhbaar nahi badalta. Publish dabane se badalta hai.',
+        },
         codeExample:
           "// Which workspace am I reading?\n//\n//   default → editing / preview\n//   live    → what the public sees\n//\n// In a server component the render context knows:\n\nexport default function Debug({ renderContext, currentNode }) {\n  const workspace = currentNode.getSession().getWorkspace().getName();\n  const isEditMode = renderContext.isEditMode();\n\n  // Handy while debugging \"why is my change not showing?\"\n  return <small>{workspace}{isEditMode ? ' (edit mode)' : ''}</small>;\n}\n\n// Checklist when a change does not appear on the live site:\n//   1. Did you publish the node?\n//   2. Did you publish its PARENT, if the node is new?\n//   3. Are you looking at live, or at a preview URL?\n//   4. Only then: is it a cache?",
         keyPoints: [
@@ -204,7 +223,10 @@ const beginner = [
   {
     title: 'Your First Jahia Module',
     level: 'beginner',
-    description: 'Local setup, module ka structure, aur build-deploy loop.',
+    description: {
+      english: 'Local setup, the shape of a module, and the build-deploy loop.',
+      hinglish: 'Local setup, module ka structure, aur build-deploy loop.',
+    },
     concepts: [
       {
         title: 'Running Jahia Locally with Docker',
@@ -216,8 +238,12 @@ const beginner = [
           hinglish:
             "Jahia ek Java server hai jiske peeche ek database hota hai. Use haath se laptop pe install karna pehle din ke liye bura idea hai. Docker Compose isi se bachata hai: ek file Jahia container aur uska database describe karti hai, aur ek command dono uthata hai.\n\nJis loop mein tum rahoge:\n\n1. `docker compose up --wait` — Jahia start karo aur healthy hone tak wait karo. Pehla run dheema hota hai; poora platform khul raha hota hai.\n2. Local URL kholo aur compose file wale credentials se login karo.\n3. Apna module build karke us chalte server mein deploy karo.\n4. Edit, redeploy, refresh.\n\nPehle din do cheezein jaan lo. Ek, `--wait` matter karta hai: uske bina command Jahia ke ready hone se pehle hi return ho jaata hai aur tumhara pehla deploy bina wajah fail hota hai. Do, Jahia apni state ek volume mein rakhta hai, isliye container band karne se content nahi jaata — par `docker compose down -v` se jaata hai, kyunki `-v` volumes delete kar deta hai.",
         },
-        dailyLifeExample:
-          'Docker Compose ek shaadi ka tent-house order hai: tent, kursi, light, generator — sab ek phone call pe lag jaata hai, sahi tareeke se juda hua. Tum ek-ek cheez alag se kirai pe nahi lete. Aur `down -v` matlab tent ke saath saara saamaan bhi wapas bhej dena — agli baar zero se.',
+        dailyLifeExample: {
+          english:
+            "Docker Compose is like ordering the whole setup for a wedding: tent, chairs, lights, generator — it all arrives on one phone call, wired up correctly. You do not rent each piece separately. And `down -v` is sending the equipment back along with the tent — next time you start from nothing.",
+          hinglish:
+            'Docker Compose ek shaadi ka tent-house order hai: tent, kursi, light, generator — sab ek phone call pe lag jaata hai, sahi tareeke se juda hua. Tum ek-ek cheez alag se kirai pe nahi lete. Aur `down -v` matlab tent ke saath saara saamaan bhi wapas bhej dena — agli baar zero se.',
+        },
         codeExample:
           '# Start the platform and wait until it is genuinely ready\ndocker compose up --wait\n\n# Watch it come up (the first boot takes a few minutes)\ndocker compose logs -f jahia\n\n# Stop, keeping your content\ndocker compose down\n\n# Stop AND delete the volumes — content is gone, fresh start\ndocker compose down -v\n\n# Common first-day errors\n#  "connection refused" on deploy → Jahia was not ready; use --wait\n#  port already in use            → something else holds 8080\n#  out of memory                  → give Docker Desktop more RAM',
         keyPoints: [
@@ -255,8 +281,12 @@ const beginner = [
           hinglish:
             "Jahia module wo unit hai jise tum build aur deploy karte ho. Jo bhi tum likhte ho ek module ke andar rehta hai, aur ek site modules enable karke features on karti hai.\n\nEk JavaScript module (Jahia 8.2 style) ke teen hisse naam lene layak hain:\n\n• **Definitions** — ek `.cnd` file jo batati hai tumhara module kaunse content types add karta hai. Yahi contract hai: ki ek `serviceCard` hota hai aur uske paas title, image aur link hote hain.\n• **Views** — wo components jo ek node ko HTML banate hain. Jahia JS module mein ye React components hote hain, server aur client mein bante.\n• **Metadata** — `package.json` mein module ka naam, version aur Jahia-specific fields hote hain jo server ko batate hain ki wo dekh kya raha hai.\n\nClassic Java module wahi idea hai alag kapdon mein: npm ki jagah Maven, React ki jagah JSP ya Freemarker, `src/main/resources` mein `definitions.cnd`.\n\nJo rule modules ko saaf rakhta hai: ek module ko apne content types AUR unke views dono ka maalik hona chahiye. Agar doosre module ko tumhare node type ke andar ka pata hona pade render karne ke liye, toh boundary galat jagah hai.",
         },
-        dailyLifeExample:
-          'Module ek tiffin service ke dabbe jaisa hai: dabbe ke andar khana bhi hai aur uska label bhi ("dal, roti, sabzi"). Label (CND) batata hai andar kya hai, khana (views) wo hai jo tum khaate ho. Agar label kisi aur dabbe mein rakha ho toh poora system confuse ho jaata hai — isiliye definition aur view saath rehte hain.',
+        dailyLifeExample: {
+          english:
+            "A module is like a tiffin box from a lunch service: the food is inside and so is the label (\"dal, roti, sabzi\"). The label (the CND) says what is in there; the food (the views) is what you actually eat. Put the label on a different box and the whole system is confused — which is why a type and its views stay together.",
+          hinglish:
+            'Module ek tiffin service ke dabbe jaisa hai: dabbe ke andar khana bhi hai aur uska label bhi ("dal, roti, sabzi"). Label (CND) batata hai andar kya hai, khana (views) wo hai jo tum khaate ho. Agar label kisi aur dabbe mein rakha ho toh poora system confuse ho jaata hai — isiliye definition aur view saath rehte hain.',
+        },
         codeExample:
           "// A JavaScript module, laid out\n//\n// my-module/\n//   package.json                  ← name, version, Jahia metadata\n//   settings/\n//     definition.cnd              ← the content types this module adds\n//     locales/\n//       en.json                   ← UI labels for editors\n//   src/\n//     components/\n//       ServiceCard.server.tsx    ← renders on the server\n//       Carousel.client.tsx       ← ships JS to the browser\n//   vite.config.ts\n//\n// The convention that carries the most meaning:\n//   *.server.tsx → runs in Jahia, can read the JCR, no browser JS\n//   *.client.tsx → hydrates in the browser, for real interactivity\n//\n// Reach for .client only when the component genuinely needs\n// state, events or browser APIs. Everything else is cheaper\n// and faster as a server component.",
         keyPoints: [
@@ -298,8 +328,12 @@ const beginner = [
           hinglish:
             "Jahia module edit karna simple React app jaisa nahi hai jahan save karte hi browser reload ho jaata hai. Tumhara code package hokar ek chalte Java server ko dena padta hai, tab kuch badalta hai.\n\nLoop:\n\n1. **Watch** — `yarn dev` (ya `yarn watch`) save pe rebuild karta hai. Isse source compile ho jaata hai, par khud-ba-khud Jahia mein nahi jaata.\n2. **Package** — build ek deployable artefact banata hai, aam taur pe `.tgz`.\n3. **Deploy** — `yarn deploy` us artefact ko chalte Jahia mein bhejta hai aur server module ka naya version uthata hai.\n4. **Refresh** — Jahia mein page reload karo.\n\nDo aadatein yahan ghante bachati hain. Ek, jab change na dikhe toh iss order mein check karo: build pass hua, deploy pass hua, Jahia mein module ka version wahi hai jo abhi banaya, aur uske BAAD cache pe shak karo. Do, Jahia ka log ek doosre terminal mein khula rakho — jo module start hone mein fail hota hai wo wahin bolta hai, aur kahin nahi; aur silent failure bilkul \"mere change ne kuch nahi kiya\" jaisa dikhta hai.",
         },
-        dailyLifeExample:
-          'Ye tiffin bhejne jaisa hai, ghar pe khaana banane jaisa nahi. Ghar pe bana, chakh liya — turant. Yahan khana banao (build), dabba pack karo (package), delivery bhejo (deploy), tab jaake doosri taraf plate mein aata hai. Beech ka koi bhi step ruk gaya toh doosri taraf purana khana hi rehta hai.',
+        dailyLifeExample: {
+          english:
+            "This is like sending a tiffin, not cooking at home. At home you cook, you taste, done — immediately. Here you cook (build), pack the box (package), send the delivery (deploy), and only then does it reach the plate at the other end. If any step in between stalls, the other end is still eating yesterday’s food.",
+          hinglish:
+            'Ye tiffin bhejne jaisa hai, ghar pe khaana banane jaisa nahi. Ghar pe bana, chakh liya — turant. Yahan khana banao (build), dabba pack karo (package), delivery bhejo (deploy), tab jaake doosri taraf plate mein aata hai. Beech ka koi bhi step ruk gaya toh doosri taraf purana khana hi rehta hai.',
+        },
         codeExample:
           '# Install once\nyarn install\n\n# Rebuild on every save\nyarn dev\n\n# Package the module (type-check + build + pack)\nyarn build\n\n# Push it into the running Jahia\nyarn deploy\n\n# Keep this open in another terminal — module start failures\n# appear here and nowhere in the browser\ndocker compose logs -f jahia\n\n# When a change does not appear, in this order:\n#   1. did the build actually succeed?\n#   2. did the deploy actually succeed?\n#   3. is the deployed version the one you just built?\n#   4. only now, suspect a cache',
         keyPoints: [
@@ -338,7 +372,10 @@ const intermediate = [
   {
     title: 'Defining Content Types',
     level: 'intermediate',
-    description: 'CND file, properties, aur mixins — apna content model banao.',
+    description: {
+      english: 'The CND file, properties and mixins — building your own content model.',
+      hinglish: 'CND file, properties, aur mixins — apna content model banao.',
+    },
     concepts: [
       {
         title: 'Reading and Writing a CND File',
@@ -350,8 +387,12 @@ const intermediate = [
           hinglish:
             "`.cnd` file wahan hai jahan tum declare karte ho ki content hai kya. CND matlab Compact Node type Definition — node types describe karne ka ek chhota syntax.\n\nEk definition ke chaar hisse hote hain:\n\n• **Namespace** — `<mynt='http://example.com/mynt/1.0'>` tumhare types ko ek prefix deta hai taaki Jahia ke apne types se kabhi takraaye nahi.\n• **Node type name aur supertypes** — `[mynt:serviceCard] > jnt:content` kehta hai tumhara type ek content hai, aur uske saath aane wala sab inherit karta hai.\n• **Properties** — fields, har ek ka type: `- title (string)`.\n• **Child node definitions** — jab type ke andar plain values ki jagah doosre nodes hote hain.\n\nDo flags practice mein sabse zyada kaam karte hain. `mandatory` us value ke bina node save hone hi nahi deta. `i18n` property ko translatable banata hai, taaki har language apni value rakhe — aur ise bhoolna sabse common content-model bug hai, kyunki sab kuch perfect chalta hai jab tak doosri language nahi aati.\n\nCND ko schema migration ki tarah socho, config file ki tarah nahi. Purani shape pe save hua content definition badalne se khud ko dobara nahi likhta.",
         },
-        dailyLifeExample:
-          'CND ek form ka design hai — jaise bank ka account opening form. Usme likha hota hai kaunse khaane hain (naam, pata, PAN), kaunsa bharna zaroori hai (mandatory), aur kaunsa har bhaasha mein alag chahiye. Form design badalne se pehle se bhare hue forms apne aap nahi badal jaate — unhe alag se handle karna padta hai.',
+        dailyLifeExample: {
+          english:
+            "A CND is the design of a form — like a bank’s account opening form. It says which boxes exist (name, address, PAN), which must be filled (mandatory), and which need a version per language. Redesigning the form does not change the forms people already filled in; those have to be handled separately.",
+          hinglish:
+            'CND ek form ka design hai — jaise bank ka account opening form. Usme likha hota hai kaunse khaane hain (naam, pata, PAN), kaunsa bharna zaroori hai (mandatory), aur kaunsa har bhaasha mein alag chahiye. Form design badalne se pehle se bhare hue forms apne aap nahi badal jaate — unhe alag se handle karna padta hai.',
+        },
         codeExample:
           "// settings/definition.cnd\n\n<mynt = 'http://example.com/mynt/1.0'>\n<jnt = 'http://www.jahia.org/jahia/nt/1.0'>\n<jmix = 'http://www.jahia.org/jahia/mix/1.0'>\n\n// A card the editor can drop on a page.\n[mynt:serviceCard] > jnt:content, jmix:droppableContent\n  // i18n → each language keeps its own value. Forget this and the\n  // French site silently shows English text.\n  - title (string) mandatory i18n\n  - summary (string, textarea) i18n\n  - link (string, choicelist[nodes='/sites'])\n  - featured (boolean) = false\n\n// A container that only accepts those cards.\n[mynt:serviceList] > jnt:content\n  + * (mynt:serviceCard)",
         keyPoints: [
@@ -408,8 +449,12 @@ const intermediate = [
           hinglish:
             "Primary type batata hai node HAI kya. Mixin batata hai wo aur KYA KAR SAKTA hai. Ek node ka ek hi primary type hota hai, aur mixins jitne chaaho.\n\nYe isliye matter karta hai kyunki content models bagal mein badhte hain. Koi SEO fields maangta hai pages, articles aur product listings pe. Wahi teen properties teen types mein daalna matlab teen jagah badalna aur teen jagah drift hone ka mauka. Mixin unhe ek baar add karta hai aur har type kehta hai mujhe chahiye.\n\nJahia ke apne kai mixins hain, `jmix:` prefix ke saath. Do se turant paala padega:\n\n• `jmix:droppableContent` — tumhare type ko aisi cheez banata hai jise editor sach mein page pe drop kar sake. Ise bhool jaao aur tumhara sundar component picker mein kabhi nahi aayega.\n• `jmix:navMenuItem` — node ko aisa mark karta hai jise navigation dikhaye.\n\nApne mixins bhi bana sakte ho, aur unhe un types pe laga sakte ho jo tumhare nahi hain — isi tarah ek module built-in Jahia type mein field jodta hai bina fork kiye.\n\nDesign rule: agar \"kya cheez YAHI hai?\" ka jawab nahi hai, par \"kya iske paas ye BHI hai?\" ka jawab haan hai — toh wo mixin hai.",
         },
-        dailyLifeExample:
-          'Aadmi ek hai — wo "doctor" hai (primary type). Par wo cricket bhi khelta hai aur gaadi bhi chalata hai (mixins). Tum uske liye "doctor-jo-cricket-khelta-hai" naam ka naya category nahi banate. Waise hi page "page" hi rehta hai, bas usme SEO wali capability jud jaati hai.',
+        dailyLifeExample: {
+          english:
+            "A person is one thing — he is a \"doctor\" (primary type). He also plays cricket and drives a car (mixins). You do not invent a new category called \"doctor-who-plays-cricket\". In the same way a page stays a page, and simply gains an SEO capability.",
+          hinglish:
+            'Aadmi ek hai — wo "doctor" hai (primary type). Par wo cricket bhi khelta hai aur gaadi bhi chalata hai (mixins). Tum uske liye "doctor-jo-cricket-khelta-hai" naam ka naya category nahi banate. Waise hi page "page" hi rehta hai, bas usme SEO wali capability jud jaati hai.',
+        },
         codeExample:
           "// One mixin, reused by three types\n\n[mymix:seo] mixin\n  - metaTitle (string) i18n\n  - metaDescription (string, textarea) i18n\n  - noIndex (boolean) = false\n\n[mynt:article]  > jnt:content, mymix:seo, jmix:droppableContent\n  - headline (string) mandatory i18n\n\n[mynt:landing]  > jnt:page, mymix:seo\n\n// Attach a mixin to a type you do NOT own, so a built-in\n// Jahia type gains your field without forking it:\n[jnt:page] > jmix:seo\n\n// Without jmix:droppableContent the type exists, validates,\n// and never shows up in the editor's content picker — a\n// confusing hour for everyone who has hit it.",
         keyPoints: [
@@ -453,8 +498,12 @@ const intermediate = [
           hinglish:
             "Jab Jahia ek node render karta hai toh use chunna padta hai ki kaunsa component use banaye. Wo choice view resolution hai, aur ise samajhne se rendering jaadu se lookup ban jaati hai.\n\nJahia ye poochta hai, isi order mein:\n\n1. Node ka type kya hai? (`mynt:serviceCard`)\n2. Kaunsa view maanga gaya? Har view ka ek NAAM hota hai; default wale ka naam literally `default` hai. Template koi naam wala view maang sakta hai — `hero`, `teaser`, `card`.\n3. Us type aur view naam ke liye koi component registered hai?\n4. Nahi hai toh type hierarchy mein UPAR jao. `mynt:serviceCard` ka view nahi? Uske supertype ka try karo. Isiliye bina apne view wala type bhi kuch na kuch render kar deta hai.\n\nYahi wo cheez hai jisse ek node teen jagah teen tarah se render hota hai bina ek bhi `if` ke. Article apne URL pe full page banta hai, list mein `teaser`, carousel mein `card` — wahi content node, teen registered views.\n\nPractical natija: jab galat markup aaye, sawaal ye hai ki kaunsa VIEW resolve hua, na ki kaunsa component tumhe lagta hai tumne likha tha.",
         },
-        dailyLifeExample:
-          'Ek hi insaan ke teen photo: passport size (ID ke liye), full family photo (album ke liye), aur thumbnail (WhatsApp DP). Insaan wahi hai, presentation alag — jagah ke hisaab se. View naam wahi decide karta hai ki kaunsi photo nikalni hai.',
+        dailyLifeExample: {
+          english:
+            "Three photos of the same person: passport size (for an ID), a full family photo (for the album), and a thumbnail (for a chat profile). Same person, different presentation for each place. The view name is what decides which photo comes out.",
+          hinglish:
+            'Ek hi insaan ke teen photo: passport size (ID ke liye), full family photo (album ke liye), aur thumbnail (WhatsApp DP). Insaan wahi hai, presentation alag — jagah ke hisaab se. View naam wahi decide karta hai ki kaunsi photo nikalni hai.',
+        },
         codeExample:
           "// Three views of one node type\n//\n//   ServiceCard.default.server.tsx  → full rendering\n//   ServiceCard.teaser.server.tsx   → compact, for lists\n//   ServiceCard.card.server.tsx     → image-led, for carousels\n//\n// The default view:\n\nexport default function ServiceCard({ currentNode }) {\n  const title = currentNode.getProperty('title').getString();\n  return (\n    <article className=\"service-card\">\n      <h3>{title}</h3>\n    </article>\n  );\n}\n\n// A parent asks for a specific view when rendering children.\n// Same node, different component, no conditional logic:\n//\n//   <Render node={child} view=\"teaser\" />\n//\n// If no view matches, Jahia walks UP the type hierarchy —\n// which is why an unstyled fallback appears instead of an error.",
         keyPoints: [
@@ -492,7 +541,10 @@ const intermediate = [
   {
     title: 'Getting Content Out',
     level: 'intermediate',
-    description: 'GraphQL, queries aur headless Jahia.',
+    description: {
+      english: 'GraphQL, queries and headless Jahia.',
+      hinglish: 'GraphQL, queries aur headless Jahia.',
+    },
     concepts: [
       {
         title: 'The GraphQL API',
@@ -504,8 +556,12 @@ const intermediate = [
           hinglish:
             "Jahia apni repository ko GraphQL pe expose karta hai, aur yahi use headless backend ki tarah use karne layak banata hai. Ek mobile app, ek Next.js front end ya partner system wahi content padh sakta hai jo website render karti hai — bina ek line Java ke.\n\nKyunki repository ek tree hai, API bhi wahi shakl rakhti hai. Tum node maangte ho path ya id se, phir uske properties aur children mein andar jaate ho. Tum WORKSPACE bhi chunte ho — published content ke liye `LIVE`, working copy ke liye `EDIT` — wahi purana farak, ab query argument ki tarah.\n\nJo cheez jaldi samajh lena chahiye: GraphQL bilkul wahi fields deta hai jo tum maangte ho. Yahi uska faayda hai. Chalis articles ki list jise sirf title aur link chahiye, use title aur link maangna chahiye, poora node nahi. Tree-shaped repository pe tight query aur lazy query ka farak chhota nahi hota.\n\nAuthentication bhi matter karta hai. Published content aksar anonymously padha ja sakta hai; editing workspace ka kuch bhi credentials maangta hai, kyunki wo unpublished maal hai.",
         },
-        dailyLifeExample:
-          'Restaurant mein waiter se "poora kitchen dikha do" nahi kehte — tum wahi mangwate ho jo khaana hai. GraphQL wahi waiter hai jo bilkul utna hi laata hai jitna tumne bola. REST mein aksar poori thali aa jaati hai aur tum aadhi chhod dete ho.',
+        dailyLifeExample: {
+          english:
+            "You do not tell a waiter \"bring me the entire kitchen\" — you order exactly what you want to eat. GraphQL is that waiter: it brings precisely what you asked for. With REST the whole thali often arrives and you leave half of it.",
+          hinglish:
+            'Restaurant mein waiter se "poora kitchen dikha do" nahi kehte — tum wahi mangwate ho jo khaana hai. GraphQL wahi waiter hai jo bilkul utna hi laata hai jitna tumne bola. REST mein aksar poori thali aa jaati hai aur tum aadhi chhod dete ho.',
+        },
         codeExample:
           "# Read published children of a page\nquery ServiceCards {\n  jcr(workspace: LIVE) {\n    nodeByPath(path: \"/sites/medica/home/services\") {\n      children {\n        nodes {\n          uuid\n          name\n          # ask for exactly the fields you render, nothing more\n          title: property(name: \"title\", language: \"en\") { value }\n          summary: property(name: \"summary\", language: \"en\") { value }\n        }\n      }\n    }\n  }\n}\n\n# workspace: LIVE  → published, safe for the public API\n# workspace: EDIT  → unpublished drafts, requires credentials\n#\n# Fetch it from a front end like any GraphQL endpoint:\n#   POST /modules/graphql   { query, variables }",
         keyPoints: [
@@ -544,8 +600,12 @@ const intermediate = [
           hinglish:
             "Jahia module ke andar aksar GraphQL ki zaroorat hi nahi hoti. Server component pehle se Jahia ke andar chal raha hai aur repository uski pahunch mein hai, toh wo nodes seedha padh sakta hai — na network hop, na serialisation.\n\nServer component ko jo cheezein milti hain, wahi kaam ki hain:\n\n• `currentNode` — jo node render ho raha hai. Uski properties padho.\n• `renderContext` — aas-paas ka request: current site, language, edit mode ya live.\n• Session — jab sach mein current node se aage jaana ho.\n\nJo discipline pages ko tez rakhta hai: sankuchit fetch karo. Jo component teen items dhoondhne ke liye poora site tree chalta hai, wo tumhare laptop pe test content ke saath chal jaayega aur asli site pe hazaaron nodes ke saath baith jaayega. Utna hi subtree maango jitna chahiye, filter JavaScript mein nahi query mein karo, aur result pe cap lagao.\n\nAur yaad rakho tum kis taraf ho. Server component ka JCR padhna sasta hai aur cached hai. Wahi logic client component mein namumkin hai — browser ke paas repository hai hi nahi — toh wo data props ki tarah ya GraphQL call se jaana padega.",
         },
-        dailyLifeExample:
-          'Godown ke andar khade hokar saamaan uthana (server component) aur bahar se phone karke mangwana (GraphQL) — dono se saamaan milta hai. Andar khade ho toh phone karna bewakoofi hai. Par poore godown ke har dabbe kholkar teen cheez dhoondhna, andar khade hokar bhi, bewakoofi hi hai.',
+        dailyLifeExample: {
+          english:
+            "Picking up goods while standing inside the warehouse (a server component) and phoning an order in from outside (GraphQL) both get you the goods. If you are already standing inside, phoning is silly. But opening every box in the warehouse to find three items is silly too, even from the inside.",
+          hinglish:
+            'Godown ke andar khade hokar saamaan uthana (server component) aur bahar se phone karke mangwana (GraphQL) — dono se saamaan milta hai. Andar khade ho toh phone karna bewakoofi hai. Par poore godown ke har dabbe kholkar teen cheez dhoondhna, andar khade hokar bhi, bewakoofi hi hai.',
+        },
         codeExample:
           "// ServiceList.server.tsx — reads directly, no network call\n\nexport default function ServiceList({ currentNode, renderContext }) {\n  const language = renderContext.getMainResourceLocale().getLanguage();\n\n  // Narrow: only this node's children, only what renders.\n  const cards = [];\n  const children = currentNode.getNodes();\n  while (children.hasNext()) {\n    const node = children.nextNode();\n    if (!node.isNodeType('mynt:serviceCard')) continue;\n    cards.push({\n      id: node.getIdentifier(),\n      title: node.getProperty('title').getString(),\n    });\n    if (cards.length >= 12) break; // cap it — real sites are big\n  }\n\n  return (\n    <ul>\n      {cards.map((c) => <li key={c.id}>{c.title}</li>)}\n    </ul>\n  );\n}\n\n// A client component cannot do this. Pass the data down as props:\n//   <Carousel client:load items={cards} />",
         keyPoints: [
@@ -587,8 +647,12 @@ const intermediate = [
           hinglish:
             "Jahia language ko content ka ek dimension maanta hai, site ki copy nahi. Ek node har `i18n` property ke liye har language ki value rakhta hai. Page tree same rehta hai; shabd alag hote hain.\n\nIs design ke kuch natije hain jo milne se pehle jaan lena behtar hai:\n\n• Ek node ek language mein ho sakta hai aur doosri mein nahi. Jahia mein language fallback hai taaki missing translation pe kuch na kuch dikhe — kaam ka bhi hai, aur isi wajah se French page mahinon tak chupchaap English dikhata rehta hai.\n• Publication har language ki alag hoti hai. English publish karne se French publish nahi hota.\n• Editors ke UI labels content se alag hote hain. Wo tumhare module ki locale files mein rehte hain, repository mein nahi.\n\nMulti-site iske saath chalta hai. Ek Jahia kai sites host kar sakta hai, har ek ka apna tree, apni languages aur apne enabled modules — jabki modules khud share hote hain. Content ko module se bahar rakhne ka yahi faayda hai: wahi component code teen brands render karta hai.",
         },
-        dailyLifeExample:
-          'Ek train ka board socho jisme wahi station ka naam Hindi, English aur Marathi mein likha hai. Station ek hi hai (node), naam teen bhaasha mein (i18n values). Agar Marathi wala hissa khaali chhod diya jaaye toh log English padh lenge — kaam chal jaata hai, par kisi ne kaam adhoora chhoda hai.',
+        dailyLifeExample: {
+          english:
+            "Think of a railway station board with the same station name written in Hindi, English and Marathi. There is one station (the node) and three versions of the name (the i18n values). Leave the Marathi blank and people will read the English — it works, and somebody has left the job half done.",
+          hinglish:
+            'Ek train ka board socho jisme wahi station ka naam Hindi, English aur Marathi mein likha hai. Station ek hi hai (node), naam teen bhaasha mein (i18n values). Agar Marathi wala hissa khaali chhod diya jaaye toh log English padh lenge — kaam chal jaata hai, par kisi ne kaam adhoora chhoda hai.',
+        },
         codeExample:
           "// Reading the current language in a server component\nexport default function Greeting({ renderContext }) {\n  const lang = renderContext.getMainResourceLocale().getLanguage(); // 'en' | 'fr'\n  return <p>{lang === 'fr' ? 'Bonjour' : 'Hello'}</p>;\n}\n\n// Editor-facing labels are NOT content — they live in the module:\n//\n//   settings/locales/en.json\n//   {\n//     \"mynt_serviceCard\": { \"name\": \"Service card\",\n//                           \"title\": \"Card title\" }\n//   }\n//\n// Publication is per language. Publishing 'en' leaves 'fr'\n// unpublished, and the fallback will keep showing English\n// until someone notices — check both before calling it done.",
         keyPoints: [
@@ -630,7 +694,10 @@ const advanced = [
   {
     title: 'Caching and Performance',
     level: 'advanced',
-    description: 'Jahia ka HTML cache — kaise kaam karta hai aur kaise phansata hai.',
+    description: {
+      english: "Jahia's HTML cache — how it works and how it catches you out.",
+      hinglish: 'Jahia ka HTML cache — kaise kaam karta hai aur kaise phansata hai.',
+    },
     concepts: [
       {
         title: 'The HTML Fragment Cache',
@@ -642,8 +709,12 @@ const advanced = [
           hinglish:
             "Jahia poore pages cache nahi karta. Wo FRAGMENTS cache karta hai — alag-alag components ka rendered output — aur unse page jodta hai. Isi design ki wajah se busy site tez rehti hai aur phir bhi per-user content dikha paati hai: mehnga shared hissa ek baar cache hota hai, personal hissa nahi.\n\nEk fragment ki cache key un cheezon se banti hai jinhe uska output badalna chahiye: node, view, language, workspace, user ki permissions. Alag permissions wale do visitors ko alag key milti hai — yahi cached fragment ko galat aadmi tak restricted content pahunchane se rokta hai.\n\nJo failure mode pehchanni hai: aisa component jiska output kisi aisi cheez pe depend karta hai jo key mein NAHI hai. Current time padho, request parameter padho, ya random value — pehla render cache ho jaata hai aur sabko wahi milta hai; tumhara component akele mein sahi hai aur production mein galat.\n\nToh har component se poochne wala sawaal ye nahi ki \"ye tez hai kya?\", balki ye ki \"iska output kis-kis pe depend karta hai, aur kya wo sab uski cache key ka hissa hai?\"",
         },
-        dailyLifeExample:
-          'Dhaba mein dal pehle se bani rakhi hoti hai (cached fragment) — sabko wahi milti hai, turant. Roti order pe banti hai. Ab socho cook ne "aaj ka special" bhi pehle se bana ke rakh diya, par special har ghante badalna tha — sabko subah wala hi milta rahega. Wahi hota hai jab output kisi aisi cheez pe depend kare jo key mein nahi hai.',
+        dailyLifeExample: {
+          english:
+            "At a dhaba the dal is made in advance (a cached fragment) — everyone gets the same pot, instantly. Rotis are made per order. Now imagine the cook also pre-made \"today’s special\", but the special was meant to change every hour: everyone keeps getting the morning one. That is what happens when output depends on something the cache key does not know about.",
+          hinglish:
+            'Dhaba mein dal pehle se bani rakhi hoti hai (cached fragment) — sabko wahi milti hai, turant. Roti order pe banti hai. Ab socho cook ne "aaj ka special" bhi pehle se bana ke rakh diya, par special har ghante badalna tha — sabko subah wala hi milta rahega. Wahi hota hai jab output kisi aisi cheez pe depend kare jo key mein nahi hai.',
+        },
         codeExample:
           "// ❌ Output depends on time, but time is not in the cache key.\n// The first render is cached and served to everyone, for hours.\nexport default function Countdown() {\n  const left = deadline - Date.now();\n  return <span>{left} ms left</span>;\n}\n\n// ✅ Options, in order of preference:\n//\n// 1. Move it to the client, where each visitor computes it\n//    <Countdown client:load deadline={deadline} />\n//\n// 2. Make the varying thing part of the key, if it is a real\n//    content dimension (node, view, language, permissions).\n//\n// 3. Only if neither fits: mark the fragment non-cacheable —\n//    and accept that it now costs a render on every request.\n//\n// Debugging: compare the SAME page as two users with different\n// permissions. Identical output where it should differ means a\n// key is missing a dimension.",
         keyPoints: [
@@ -698,8 +769,12 @@ const advanced = [
           hinglish:
             "Governance hi zyadatar wajah hoti hai ki project DXP chunta hai, aur Jahia mein wo teen ideas pe tikta hai.\n\n**Permissions** alag-alag adhikaar hain — ye node padho, edit karo, publish karo.\n\n**Roles** permissions ko ek bundle mein baandhte hain jise kisi insaan ko diya ja sake: editor, reviewer, site administrator. Tum roles assign karte ho, kachchi permissions nahi, kyunki sau nodes pe kachchi permissions mahine bhar mein bekaabu ho jaati hain.\n\n**ACLs** ek role ko ek principal (user ya group) se tree ke ek point pe jodte hain. Aur kyunki content ek tree hai, wo assignment neeche tak INHERIT hota hai. Ek section pe editing do aur wo neeche sab pe lagu ho jaata hai, jab tak neeche koi use override na kare.\n\nWorkflow iske upar baithta hai. Publication approval maang sakti hai: author submit karta hai, reviewer approve karta hai, tabhi content live pahunchta hai. \"Legal ko pehle dekhna hai\" ke peeche yahi mechanism hai, aur isiliye governed site mein publication ek button nahi, ek request hai.\n\nJo debugging instinct banani chahiye: jab kisi se kuch na ho paaye, user se shuru mat karo. Node se shuru karo, tree mein upar chalo, aur dhoondho ki inherited role asal mein aa kahan se raha hai.",
         },
-        dailyLifeExample:
-          'Society ka access socho: gate ki chaabi (permission), "resident" ya "guard" ka tag (role), aur kis floor se kaunsa tag chalega (ACL tree pe). Fourth floor ka access diya toh uske saare flats pe lagu — jab tak kisi ek flat pe alag rule na ho. Aur society ke bahar poster lagane se pehle secretary ki approval chahiye — wahi workflow hai.',
+        dailyLifeExample: {
+          english:
+            "Think of access in a housing society: the gate key (a permission), the \"resident\" or \"guard\" tag (a role), and which floor a tag works on (an ACL on the tree). Give access to the fourth floor and it covers every flat on it — unless one flat has its own rule. And putting up a poster outside needs the secretary’s approval, which is the workflow.",
+          hinglish:
+            'Society ka access socho: gate ki chaabi (permission), "resident" ya "guard" ka tag (role), aur kis floor se kaunsa tag chalega (ACL tree pe). Fourth floor ka access diya toh uske saare flats pe lagu — jab tak kisi ek flat pe alag rule na ho. Aur society ke bahar poster lagane se pehle secretary ki approval chahiye — wahi workflow hai.',
+        },
         codeExample:
           "// Permissions inherit down the tree\n//\n//   /sites/medica                 → 'reader' for everyone\n//     /home                       ↓ inherits\n//     /careers                    → 'editor' for hr-team\n//       /careers/jobs             ↓ inherits editor from /careers\n//       /careers/salaries         → override: hr-leads only\n//\n// Checking a right before rendering an action:\nexport default function EditLink({ currentNode, renderContext }) {\n  const canEdit = currentNode.hasPermission('jcr:write');\n  if (!canEdit) return null;\n  return <a href={editUrl}>Edit</a>;\n}\n\n// Never rely on hiding a control for security. The check that\n// matters is the one Jahia enforces on the node itself — hiding\n// the link is a courtesy to the user, not a protection.\n//\n// Debugging \"why can't they edit?\": start at the NODE, walk UP,\n// find where the role is granted or overridden.",
         keyPoints: [
@@ -741,8 +816,12 @@ const advanced = [
           hinglish:
             "Jahia ka change bhejne ka matlab hai do cheezein bhejna jo alag raftaar se chalti hain: MODULES, jo code hain, aur CONTENT, jo editors ka hai. In dono ko gadd-madd karna hi zyadatar deployment ka dard hai.\n\nModules aam software practice follow karte hain: version do, CI mein build karo, artefact deploy karo, aur pichhla version dobara deploy karke rollback kar sako. Kyunki module apne content definitions saath laata hai, deploy karna ek schema change bhi hai — isiliye jo definition koi property hataati ya rename karti hai, wo database migration jitni hi ehtiyaat maangti hai, us content ke plan ke saath jo purani shape mein pehle se pada hai.\n\nContent module ke saath safar nahi karta. Environments alag ho jaate hain: production mein asli pages hain jo staging ne kabhi dekhe hi nahi. Testing ke liye production ka content dump neeche staging pe laana normal hai; staging ka content upar production pe dhakelna aam taur pe nahi.\n\nEk release checklist jo apni jagah kamati hai: module version badha kya, CND change ko maujooda content ke hisaab se review kiya kya, rollback version hai kya, aur caches ka dhyan rakha kya — kyunki deploy ke baad ek purana fragment bilkul toote hue release jaisa dikhta hai.",
         },
-        dailyLifeExample:
-          'Restaurant ka renovation socho. Kitchen ke equipment (module) tum badalte ho — plan ke saath, raat mein, purana equipment side mein rakhkar taaki wapas laga sako. Par grahakon ke orders aur bookings (content) tum staging se copy karke nahi laate. Dono alag cheezein hain, alag rules ke saath.',
+        dailyLifeExample: {
+          english:
+            "Think of renovating a restaurant. You replace the kitchen equipment (the module) with a plan, overnight, keeping the old equipment aside so you can put it back. But you do not copy customers’ orders and bookings (the content) over from another branch. Two different things, with two different sets of rules.",
+          hinglish:
+            'Restaurant ka renovation socho. Kitchen ke equipment (module) tum badalte ho — plan ke saath, raat mein, purana equipment side mein rakhkar taaki wapas laga sako. Par grahakon ke orders aur bookings (content) tum staging se copy karke nahi laate. Dono alag cheezein hain, alag rules ke saath.',
+        },
         codeExample:
           '# A CI pipeline for a Jahia module\n\n# 1. Verify\nyarn install --frozen-lockfile\nyarn lint\nyarn build          # type-check + build + package\n\n# 2. Version — the artefact must be identifiable\n#    1.4.2 → 1.4.3 on every deployable change\n\n# 3. Deploy to an environment\nyarn deploy --target staging\n\n# 4. Verify after deploy, in this order:\n#    - module version in Jahia matches the build\n#    - the Jahia log shows the module STARTED, not just installed\n#    - a page using the changed component renders in LIVE\n\n# Rollback = redeploy the previous version. Keep it to hand.\n\n# Content moves the other way:\n#   production → staging   (a realistic copy to test against)\n#   staging → production   (almost never)',
         keyPoints: [

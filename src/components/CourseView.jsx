@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useLang } from './LanguageProvider';
 import Icon from '@/components/Icon';
+import { pickText } from '@/lib/content';
 
 const SHELL = 'mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8';
 
@@ -25,7 +26,7 @@ const DIFFICULTY_TINT = {
 // the caller's own progress, which arrives from /api/me/stats after mount.
 // Signed out (or before that lands) it renders as a plain, honest syllabus.
 export default function CourseView({ course, levels, totals, questions }) {
-  const { pick } = useLang();
+  const { pick, lang } = useLang();
   const { status } = useSession();
   const [readIds, setReadIds] = useState(null);
   const [onlyUnread, setOnlyUnread] = useState(false);
@@ -126,7 +127,7 @@ export default function CourseView({ course, levels, totals, questions }) {
                 </div>
               </div>
 
-              <p className="max-w-3xl leading-relaxed text-slate-400">{course.description}</p>
+              <p className="max-w-3xl leading-relaxed text-slate-400">{pickText(course.description, lang)}</p>
 
               <div className="mt-1 flex flex-wrap items-center gap-3">
                 {resume && tracking && readCount > 0 ? (
@@ -295,7 +296,9 @@ export default function CourseView({ course, levels, totals, questions }) {
                       <div className="flex flex-wrap items-start gap-4 px-5 pb-4 pt-5 sm:px-6">
                         <div className="flex flex-1 flex-col gap-1.5">
                           <h3 className="font-bold">{t.title}</h3>
-                          {t.description && <p className="text-sm text-slate-500">{t.description}</p>}
+                          {pickText(t.description, lang) && (
+                            <p className="text-sm text-slate-500">{pickText(t.description, lang)}</p>
+                          )}
                         </div>
                         {tracking && (
                           <span className="flex shrink-0 items-center gap-2.5 pt-1">

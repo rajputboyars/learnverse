@@ -10,6 +10,7 @@ import ShareButtons from '../ShareButtons';
 import Quiz from './Quiz';
 import { useLang } from '../LanguageProvider';
 import Icon from '../Icon';
+import { pickText } from '@/lib/content';
 
 const RUNNABLE = new Set(['javascript', 'html']);
 
@@ -118,7 +119,7 @@ export default function ConceptReader({ concept, done, marking, onMarkDone, show
       </div>
 
       {/* ══════════ Daily-life example ══════════ */}
-      {concept.dailyLifeExample && (
+      {pickText(concept.dailyLifeExample, lang) && (
         <section id="daily-example" className="mt-7 flex gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:p-6">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-amber-100">
             <Icon name="lightbulb" className="h-4 w-4 text-amber-600" />
@@ -128,7 +129,7 @@ export default function ConceptReader({ concept, done, marking, onMarkDone, show
               {t('reader.dailyExample')}
             </h2>
             <p className="prose-content text-[15.5px] leading-[1.7] text-amber-900">
-              {concept.dailyLifeExample}
+              {pickText(concept.dailyLifeExample, lang)}
             </p>
           </div>
         </section>

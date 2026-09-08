@@ -9,7 +9,7 @@ import AIQuickActions from '@/components/ai/AIQuickActions';
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
-  const { t } = useLang();
+  const { t, pick } = useLang();
   const [data, setData] = useState(null);
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export default function DashboardPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold">{isGuest ? 'Dashboard' : `${t('dash.greeting')} ${session.user.name?.split(' ')[0]}`}</h1>
-          <p className="mt-2 text-slate-600">{isGuest ? 'Login karke apni progress dekho.' : t('dash.sub')}</p>
+          <p className="mt-2 text-slate-600">{isGuest ? pick('Login karke apni progress dekho.', 'Log in to see your progress.') : t('dash.sub')}</p>
         </div>
         {!isGuest && (
           <Link href={`/u/${session.user.id}`} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
@@ -167,7 +167,10 @@ export default function DashboardPage() {
           <p className="mt-3 text-slate-400">Loading…</p>
         ) : data.courseProgress.length === 0 ? (
           <p className="mt-3 rounded-2xl border border-dashed border-slate-300 p-6 text-center text-slate-500">
-            Abhi koi course start nahi kiya. <Link href="/courses" className="font-semibold text-indigo-600 underline">Explore courses</Link>
+            {pick('Abhi koi course start nahi kiya.', 'You have not started a course yet.')}{' '}
+            <Link href="/courses" className="font-semibold text-indigo-600 underline">
+              {pick('Courses dekho', 'Explore courses')}
+            </Link>
           </p>
         ) : (
           <div className="mt-4 space-y-3">
@@ -197,7 +200,7 @@ export default function DashboardPage() {
           <p className="mt-3 text-slate-400">Loading…</p>
         ) : data.bookmarks.length === 0 ? (
           <p className="mt-3 rounded-2xl border border-dashed border-slate-300 p-6 text-center text-slate-500">
-            Koi bookmark nahi. Kisi concept pe <Icon name="tag" className="h-3.5 w-3.5" /> Bookmark dabao taaki yahan save ho.
+            {pick('Koi bookmark nahi. Kisi concept pe Bookmark dabao taaki yahan save ho.', 'No bookmarks yet. Hit Bookmark on any concept and it will be saved here.')}
           </p>
         ) : (
           <div className="mt-4 divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200">

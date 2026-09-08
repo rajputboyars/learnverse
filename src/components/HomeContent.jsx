@@ -7,6 +7,7 @@ import { useLang } from './LanguageProvider';
 import HomeLearnerPanels from './HomeLearnerPanels';
 import HomeWeeklyRank from './HomeWeeklyRank';
 import Icon from '@/components/Icon';
+import { pickText } from '@/lib/content';
 
 // Keep in sync with Navbar/Footer so every edge lines up.
 const SHELL = 'mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8';
@@ -22,7 +23,7 @@ const QUICK_ACTIONS = [
 const LEVELS = ['beginner', 'intermediate', 'advanced'];
 
 export default function HomeContent({ courses, daily, stats, questions }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { status } = useSession();
   const [level, setLevel] = useState('all');
 
@@ -231,7 +232,7 @@ export default function HomeContent({ courses, daily, stats, questions }) {
                     {c.difficulty}
                   </span>
                 </span>
-                <span className="line-clamp-2 text-sm text-slate-600">{c.description}</span>
+                <span className="line-clamp-2 text-sm text-slate-600">{pickText(c.description, lang)}</span>
                 <span className="mt-auto border-t border-slate-100 pt-3 text-xs font-semibold text-indigo-600">
                   {t('home.explore.open')} <Icon name="arrow-right" className="h-3 w-3" />
                 </span>

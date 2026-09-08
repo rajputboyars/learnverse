@@ -4,7 +4,8 @@ const CourseSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
-    description: { type: String, default: '' },
+    // String (legacy, Hinglish) or { english, hinglish }. See lib/content.js.
+    description: { type: mongoose.Schema.Types.Mixed, default: '' },
     thumbnail: { type: String, default: '' },
     icon: { type: String, default: 'book' },
     tags: [{ type: String }],

@@ -103,10 +103,10 @@ async function run() {
   let courseDoc = await Course.findOne({ slug: course.slug });
   if (courseDoc) {
     plan.course = 'update';
-    if (!DRY) {
-      Object.assign(courseDoc, course);
-      await courseDoc.save();
-    }
+    // $set, not Object.assign + save(). A bilingual description is an object on
+    // a Mixed/unknown path, and Mongoose cannot detect a change there — save()
+    // skips it and the write silently does nothing.
+    if (!DRY) await Course.updateOne({ _id: courseDoc._id }, { $set: course });
   } else {
     plan.course = 'create';
     if (!DRY) courseDoc = await Course.create(course);
@@ -139,10 +139,16 @@ async function run() {
         });
       }
     } else if (!DRY) {
-      topicDoc.description = topic.description || '';
-      topicDoc.level = topic.level || 'beginner';
-      topicDoc.order = topicOrder;
-      await topicDoc.save();
+      await Topic.updateOne(
+        { _id: topicDoc._id },
+        {
+          $set: {
+            description: topic.description || '',
+            level: topic.level || 'beginner',
+            order: topicOrder,
+          },
+        }
+      );
     }
     if (DRY) {
       console.log(`[dry] topic: ${topic.title} (${topic.concepts.length} concepts)`);
@@ -175,8 +181,7 @@ async function run() {
 
       if (conceptDoc) {
         plan.updated += 1;
-        Object.assign(conceptDoc, fields);
-        await conceptDoc.save();
+        await Concept.updateOne({ _id: conceptDoc._id }, { $set: fields });
       } else {
         plan.concepts += 1;
         conceptDoc = await Concept.create({

@@ -9,7 +9,8 @@ const TopicSchema = new mongoose.Schema(
     },
     title: { type: String, required: true },
     slug: { type: String, required: true },
-    description: { type: String, default: '' },
+    // String (legacy, Hinglish) or { english, hinglish }. See lib/content.js.
+    description: { type: mongoose.Schema.Types.Mixed, default: '' },
     level: {
       type: String,
       enum: ['beginner', 'intermediate', 'advanced'],

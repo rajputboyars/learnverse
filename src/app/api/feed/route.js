@@ -6,6 +6,7 @@ import Course from '@/models/Course';
 import Prompt from '@/models/Prompt';
 import UserProgress from '@/models/UserProgress';
 import UserStats from '@/models/UserStats';
+import { pickText } from '@/lib/content';
 
 /**
  * The learning feed.
@@ -164,12 +165,12 @@ export async function GET(req) {
         title: c.title,
         slug: c.slug,
         teaser: {
-          english: (c.explanation?.english || '').trim().slice(0, 260),
+          english: (pickText(c.dailyLifeExample, 'en') || c.explanation?.english || '').trim().slice(0, 260),
           // The daily-life example is a single field written in Hinglish, so it
           // leads the Hinglish card and never appears on the English one.
-          hinglish: (c.dailyLifeExample || c.explanation?.hinglish || '').trim().slice(0, 260),
+          hinglish: (pickText(c.dailyLifeExample, 'hi') || c.explanation?.hinglish || '').trim().slice(0, 260),
         },
-        hasDailyLifeExample: Boolean(c.dailyLifeExample?.trim()),
+        hasDailyLifeExample: Boolean(pickText(c.dailyLifeExample, 'hi').trim()),
         keyPoints: (c.keyPoints || []).slice(0, 3),
         difficulty: c.difficulty,
         tags: (c.tags || []).slice(0, 3),
