@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import Icon from '@/components/Icon';
 import PromptRunner from '@/components/ai/PromptRunner';
-import { ErrorState, SkeletonCard } from '@/components/ui/States';
+import { EmptyState, ErrorState, SkeletonCard } from '@/components/ui/States';
 import { ActionCard, ConceptCard, MilestoneCard, PromptCard } from './FeedCards';
 
 const FILTERS = [
@@ -130,7 +130,7 @@ export default function LearningFeed() {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4" aria-live="polite" aria-busy={loading}>
         {items.map((item) => {
           if (item.type === 'concept') {
             return <ConceptCard key={item.id} item={item} onOpenQuiz={recordAnswer} />;
@@ -155,8 +155,22 @@ export default function LearningFeed() {
         {/* The sentinel that drives the infinite scroll. */}
         <div ref={sentinel} aria-hidden className="h-1" />
 
+        {/* Nothing matched the filter — which is not the same as reaching the
+            end of the feed, and should not claim to be. */}
+        {!loading && !error && items.length === 0 && (
+          <EmptyState
+            icon="filter"
+            title={filter === 'community' ? 'No community activity yet' : 'Nothing here yet'}
+            description={
+              filter === 'community'
+                ? 'Streak cards appear once learners get going. Check back in a few days.'
+                : 'There is no content for this filter right now.'
+            }
+          />
+        )}
+
         {/* It ends, on purpose. */}
-        {!hasMore && !loading && (
+        {!hasMore && !loading && items.length > 0 && (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-6 py-10 text-center">
             <Icon name="check-circle" className="mx-auto h-7 w-7 text-green-500" />
             <p className="mt-3 font-semibold text-slate-700">That is the whole feed.</p>

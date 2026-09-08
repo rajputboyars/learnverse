@@ -31,10 +31,18 @@ export function inputBlock(template, inputs) {
     .join('\n');
 }
 
-/** Fills missing optional inputs with their declared defaults. */
+/**
+ * Fills missing *optional* inputs with their declared defaults.
+ *
+ * Required fields are deliberately skipped. They carry a default so the form
+ * opens pre-filled, but a learner who clears one is telling us they want to
+ * choose — quietly restoring the default there would answer a question they did
+ * not ask, and the required marker beside the field would be a lie.
+ */
 export function withDefaults(template, inputs = {}) {
   const out = { ...inputs };
   for (const field of template.inputs) {
+    if (field.required) continue;
     if ((out[field.name] === undefined || out[field.name] === '') && field.default !== undefined) {
       out[field.name] = field.default;
     }

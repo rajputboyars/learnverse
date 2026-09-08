@@ -104,6 +104,8 @@ export default function PromptLibraryPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search prompts…"
+            aria-label="Search prompts"
+            type="search"
             className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-indigo-400"
           />
         </div>
@@ -111,6 +113,7 @@ export default function PromptLibraryPage() {
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value)}
+          aria-label="Sort prompts"
           className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400"
         >
           <option value="popular">Most used</option>
@@ -138,6 +141,7 @@ export default function PromptLibraryPage() {
 
       {/* Results */}
       <div className="mt-8">
+        <h2 className="sr-only">Prompts</h2>
         {state.loading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (

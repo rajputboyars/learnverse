@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Icon from '@/components/Icon';
 import { ErrorState, LoginGate, SkeletonCard } from '@/components/ui/States';
@@ -34,17 +34,57 @@ export default function PromptRunner({ template, templates = [], initialInputs =
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [template?.id]);
 
-  // Escape closes, and the page behind must not scroll under the dialog.
+  const dialogRef = useRef(null);
+
+  // Escape closes, the page behind must not scroll, and focus belongs inside
+  // the dialog while it is open — otherwise Tab walks the page underneath and a
+  // keyboard or screen-reader user is silently operating a page they cannot see.
   useEffect(() => {
-    function onKey(e) {
-      if (e.key === 'Escape') onClose?.();
+    const opener = document.activeElement;
+
+    function focusables() {
+      return [...(dialogRef.current?.querySelectorAll(
+        'a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
+      ) || [])].filter((el) => el.offsetParent !== null);
     }
+
+    // Move focus in, but to the dialog itself rather than the first control, so
+    // a screen reader reads the title before the form.
+    dialogRef.current?.focus();
+
+    function onKey(e) {
+      if (e.key === 'Escape') {
+        onClose?.();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+
+      const items = focusables();
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+
+      // Wrap at both ends, and pull focus back if it has escaped the dialog.
+      if (!dialogRef.current.contains(document.activeElement)) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+      } else if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
     document.addEventListener('keydown', onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = prev;
+      // Put the caller back where they were.
+      if (opener instanceof HTMLElement) opener.focus();
     };
   }, [onClose]);
 
@@ -109,10 +149,12 @@ export default function PromptRunner({ template, templates = [], initialInputs =
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-4 backdrop-blur-sm sm:p-8">
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label={active.title}
-        className="w-full max-w-4xl rounded-2xl border border-slate-200 bg-white shadow-xl"
+        tabIndex={-1}
+        className="w-full max-w-4xl rounded-2xl border border-slate-200 bg-white shadow-xl outline-none"
       >
         {/* Header */}
         <div className="flex items-start justify-between gap-4 border-b border-slate-100 p-5">

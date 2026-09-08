@@ -162,6 +162,43 @@ button:disabled {
 .dark .border-red-300 { border-color: #991b1b !important; }
 .dark .border-red-400 { border-color: #b91c1c !important; }
 
+/*
+ * Respect a system-level request for less motion.
+ *
+ * The app animates a fair amount — cards thrown off a deck, spinners, pulsing
+ * skeletons, sliding drawers. For someone with vestibular sensitivity that is
+ * not decoration, it is a reason to close the tab. Movement is reduced to
+ * near-instant rather than removed, so state changes are still visible.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Skip link: the header carries a lot of navigation, and a keyboard user
+ * should not have to tab through all of it on every page. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+}
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+  background: #4f46e5;
+  color: #fff;
+  padding: 0.625rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+}
+
 /* Print: hide site chrome so certificates print cleanly */
 @media print {
   header,
