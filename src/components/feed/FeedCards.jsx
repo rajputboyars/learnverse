@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Icon from '@/components/Icon';
+import { useLang } from '@/components/LanguageProvider';
 
 /**
  * The cards the feed is made of. Each one is a single idea with one obvious
@@ -14,6 +15,13 @@ const CARD = 'rounded-2xl border border-slate-200 bg-white p-5';
 
 /* ── A concept, with one question you can answer without leaving the feed ── */
 export function ConceptCard({ item, onOpenQuiz }) {
+  const { lang } = useLang();
+  // The card follows the header's language switch. Only the Hinglish side
+  // carries the daily-life example, because that field is written in Hinglish.
+  const hinglish = lang === 'hi';
+  const teaser = hinglish ? item.teaser.hinglish || item.teaser.english : item.teaser.english || item.teaser.hinglish;
+  const showExampleLabel = hinglish && item.hasDailyLifeExample;
+
   const [choice, setChoice] = useState(null);
   const [result, setResult] = useState(null);
   const [checking, setChecking] = useState(false);
@@ -63,13 +71,13 @@ export function ConceptCard({ item, onOpenQuiz }) {
         <Link href={`/concepts/${item.slug}`} className="hover:text-indigo-600">{item.title}</Link>
       </h2>
 
-      {item.teaser && (
+      {teaser && (
         <p className="prose-content mt-2 text-[15px] leading-relaxed text-slate-600">
-          {item.hasDailyLifeExample && (
+          {showExampleLabel && (
             <span className="mr-1.5 font-semibold text-amber-600">Real-life example —</span>
           )}
-          {item.teaser}
-          {item.teaser.length >= 260 && '…'}
+          {teaser}
+          {teaser.length >= 260 && '…'}
         </p>
       )}
 

@@ -3,9 +3,15 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Icon from '@/components/Icon';
+import { useLang } from '@/components/LanguageProvider';
 
 /* ── Concept face: one idea, its desi example, and the points worth keeping ── */
 export function ConceptFace({ item }) {
+  const { lang } = useLang();
+  const hinglish = lang === 'hi';
+  const teaser = hinglish ? item.teaser.hinglish || item.teaser.english : item.teaser.english || item.teaser.hinglish;
+  const showExampleLabel = hinglish && item.hasDailyLifeExample;
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -27,13 +33,13 @@ export function ConceptFace({ item }) {
 
       <h2 className="mt-3 text-2xl font-bold leading-tight">{item.title}</h2>
 
-      {item.teaser && (
+      {teaser && (
         <p className="prose-content mt-3 text-[15px] leading-relaxed text-slate-600">
-          {item.hasDailyLifeExample && (
+          {showExampleLabel && (
             <span className="mr-1.5 font-semibold text-amber-600">Real-life example —</span>
           )}
-          {item.teaser}
-          {item.teaser.length >= 260 && '…'}
+          {teaser}
+          {teaser.length >= 260 && '…'}
         </p>
       )}
 

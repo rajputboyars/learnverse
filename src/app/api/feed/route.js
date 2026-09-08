@@ -153,18 +153,22 @@ export async function GET(req) {
       if (!c) return null; // deleted between ordering and hydration
 
       const course = courseById[c.courseId?.toString()];
-      const teaser =
-        c.dailyLifeExample?.trim() ||
-        c.explanation?.english?.trim() ||
-        c.explanation?.hinglish?.trim() ||
-        '';
 
+      // Both languages go to the client, which picks by the reader's toggle.
+      // Choosing here would freeze the card in whichever language the server
+      // preferred — which is exactly what made the header switch look broken on
+      // the feed.
       return {
         type: 'concept',
         id: c._id.toString(),
         title: c.title,
         slug: c.slug,
-        teaser: teaser.slice(0, 260),
+        teaser: {
+          english: (c.explanation?.english || '').trim().slice(0, 260),
+          // The daily-life example is a single field written in Hinglish, so it
+          // leads the Hinglish card and never appears on the English one.
+          hinglish: (c.dailyLifeExample || c.explanation?.hinglish || '').trim().slice(0, 260),
+        },
         hasDailyLifeExample: Boolean(c.dailyLifeExample?.trim()),
         keyPoints: (c.keyPoints || []).slice(0, 3),
         difficulty: c.difficulty,

@@ -43,6 +43,22 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/*
+ * Tailwind v4's reset no longer gives buttons a pointer cursor, so every
+ * button in the app read as unclickable — reported first on the header's
+ * language switch. One rule beats sprinkling cursor-pointer everywhere.
+ */
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']),
+label[for],
+summary {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 /* Readable long-form content (concept explanations) */
 .prose-content {
   line-height: 1.75;
@@ -80,6 +96,71 @@ body {
 .dark .text-slate-400 { color: #64748b !important; }
 .dark .text-amber-900 { color: #fcd9a8 !important; }
 .dark .bg-white\/80 { background-color: rgba(17, 24, 39, 0.85) !important; }
+
+/*
+ * Translucent surfaces.
+ *
+ * Tailwind compiles `bg-white/90` to its own class, so the `.dark .bg-white`
+ * rule above never touches it — which left the feed's sticky filter bar and the
+ * phone tab bar sitting as bright strips on a dark page. Each opacity step
+ * needs its own remap.
+ */
+.dark .bg-white\/95 { background-color: rgba(17, 24, 39, 0.95) !important; }
+.dark .bg-white\/90 { background-color: rgba(17, 24, 39, 0.9) !important; }
+.dark .bg-white\/70 { background-color: rgba(17, 24, 39, 0.75) !important; }
+.dark .bg-white\/60 { background-color: rgba(17, 24, 39, 0.6) !important; }
+.dark .bg-white\/50 { background-color: rgba(17, 24, 39, 0.5) !important; }
+.dark .bg-slate-50\/95 { background-color: rgba(15, 23, 42, 0.95) !important; }
+.dark .bg-slate-50\/90 { background-color: rgba(15, 23, 42, 0.9) !important; }
+.dark .bg-slate-50\/60 { background-color: rgba(15, 23, 42, 0.6) !important; }
+.dark .bg-slate-50\/50 { background-color: rgba(15, 23, 42, 0.5) !important; }
+.dark .bg-slate-50\/40 { background-color: rgba(15, 23, 42, 0.4) !important; }
+
+/*
+ * Tinted panels and the text on them.
+ *
+ * The backgrounds above are remapped to deep tints, but the ink written on them
+ * was not — so an indigo-900 heading on an indigo-50 panel became dark blue on
+ * dark blue. Each tint family gets a light foreground to match its dark ground.
+ */
+.dark .bg-indigo-100 { background-color: #312e81 !important; }
+.dark .bg-indigo-200 { background-color: #3730a3 !important; }
+.dark .bg-green-100 { background-color: #14532d !important; }
+.dark .bg-amber-100 { background-color: #78350f !important; }
+.dark .bg-amber-200 { background-color: #92400e !important; }
+.dark .bg-red-100 { background-color: #7f1d1d !important; }
+
+.dark .text-indigo-900 { color: #c7d2fe !important; }
+.dark .text-indigo-800 { color: #c7d2fe !important; }
+.dark .text-indigo-700 { color: #a5b4fc !important; }
+.dark .text-indigo-600 { color: #a5b4fc !important; }
+
+.dark .text-green-900 { color: #bbf7d0 !important; }
+.dark .text-green-800 { color: #bbf7d0 !important; }
+.dark .text-green-700 { color: #86efac !important; }
+.dark .text-green-600 { color: #4ade80 !important; }
+
+.dark .text-amber-800 { color: #fcd9a8 !important; }
+.dark .text-amber-700 { color: #fbbf24 !important; }
+.dark .text-amber-600 { color: #fbbf24 !important; }
+
+.dark .text-red-900 { color: #fecaca !important; }
+.dark .text-red-800 { color: #fecaca !important; }
+.dark .text-red-700 { color: #fca5a5 !important; }
+.dark .text-red-600 { color: #f87171 !important; }
+
+/* Tinted borders, so a panel's edge does not glow brighter than its fill. */
+.dark .border-indigo-200 { border-color: #3730a3 !important; }
+.dark .border-indigo-300 { border-color: #4338ca !important; }
+.dark .border-indigo-400 { border-color: #4f46e5 !important; }
+.dark .border-green-200 { border-color: #14532d !important; }
+.dark .border-green-300 { border-color: #166534 !important; }
+.dark .border-green-400 { border-color: #16a34a !important; }
+.dark .border-amber-300 { border-color: #92400e !important; }
+.dark .border-amber-400 { border-color: #b45309 !important; }
+.dark .border-red-200 { border-color: #7f1d1d !important; }
+.dark .border-red-300 { border-color: #991b1b !important; }
+.dark .border-red-400 { border-color: #b91c1c !important; }
 
 /* Print: hide site chrome so certificates print cleanly */
 @media print {
