@@ -1,7 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Icon from '@/components/Icon';
 import SwipeDeck from '@/components/swipe/SwipeDeck';
@@ -15,9 +16,26 @@ const SECTIONS = [
   { id: 'quiz', label: 'Quiz', icon: 'question', blurb: 'Answer first, read after. No XP — this is practice.' },
 ];
 
+// The deck lives in the URL so the phone tab bar can point straight at either
+// one, and so a shared link opens the deck it promised.
 export default function SwipePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-50" />}>
+      <Swipe />
+    </Suspense>
+  );
+}
+
+function Swipe() {
   const { status } = useSession();
-  const [section, setSection] = useState('concepts');
+  const router = useRouter();
+  const params = useSearchParams();
+  const section = params.get('deck') === 'quiz' ? 'quiz' : 'concepts';
+
+  function setSection(next) {
+    router.replace(`/swipe?deck=${next}`, { scroll: false });
+  }
+
   const [decks, setDecks] = useState({ concepts: null, quiz: null });
   const [error, setError] = useState('');
   const [score, setScore] = useState({ tried: 0, right: 0 });

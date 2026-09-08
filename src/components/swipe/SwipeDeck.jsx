@@ -27,6 +27,7 @@ export default function SwipeDeck({ items, renderCard, onSave, onSkip, onEmpty, 
   const [saved, setSaved] = useState([]);
 
   const startRef = useRef({ x: 0, y: 0 });
+  const axisRef = useRef(null); // 'x' once the gesture is committed to a swipe
   const cardRef = useRef(null);
 
   const current = items[index];
@@ -72,17 +73,35 @@ export default function SwipeDeck({ items, renderCard, onSave, onSkip, onEmpty, 
     // Let taps on buttons inside the card (quiz options) behave normally.
     if (e.target.closest('button, a')) return;
     startRef.current = { x: e.clientX, y: e.clientY };
+    axisRef.current = null; // undecided until the finger has moved a little
     setDrag({ x: 0, y: 0, active: true });
-    cardRef.current?.setPointerCapture?.(e.pointerId);
   }
 
   function onPointerMove(e) {
     if (!drag.active || flying) return;
-    setDrag({
-      x: e.clientX - startRef.current.x,
-      y: e.clientY - startRef.current.y,
-      active: true,
-    });
+    const dx = e.clientX - startRef.current.x;
+    const dy = e.clientY - startRef.current.y;
+
+    // Decide once, after ~8px of travel, whether this gesture is a horizontal
+    // swipe or a vertical scroll of the card's own content. Without this lock a
+    // thumb sliding down the card drags it sideways at the same time.
+    if (!axisRef.current && Math.abs(dx) + Math.abs(dy) > 8) {
+      axisRef.current = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+      // Once it is ours, capture the pointer so the card keeps receiving moves
+      // even if the finger strays outside it. Capture throws if the pointer is
+      // already gone, and an exception here would abandon the drag mid-swipe —
+      // the capture is an optimisation, not a requirement.
+      if (axisRef.current === 'x') {
+        try {
+          cardRef.current?.setPointerCapture?.(e.pointerId);
+        } catch {
+          /* no active pointer; the drag still works without capture */
+        }
+      }
+    }
+    if (axisRef.current !== 'x') return; // leave vertical scrolling alone
+
+    setDrag({ x: dx, y: dy, active: true });
   }
 
   function onPointerUp() {
@@ -90,6 +109,14 @@ export default function SwipeDeck({ items, renderCard, onSave, onSkip, onEmpty, 
     if (drag.x < -THRESHOLD) commit('left');
     else if (drag.x > THRESHOLD) commit('right');
     else setDrag({ x: 0, y: 0, active: false }); // snap back
+    axisRef.current = null;
+  }
+
+  // A cancelled pointer (the browser took the gesture, the call came in) is not
+  // a decision — put the card back rather than committing a half-swipe.
+  function onPointerCancel() {
+    axisRef.current = null;
+    setDrag({ x: 0, y: 0, active: false });
   }
 
   if (!current) {
@@ -145,15 +172,20 @@ export default function SwipeDeck({ items, renderCard, onSave, onSkip, onEmpty, 
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
+          onPointerCancel={onPointerCancel}
           role="group"
           aria-label={`Card ${index + 1} of ${items.length}. Swipe left to save, right for next.`}
-          className={`absolute inset-x-0 top-0 z-20 h-full touch-none overflow-hidden rounded-3xl border bg-white shadow-lg ${
+          className={`absolute inset-x-0 top-0 z-20 h-full overflow-hidden rounded-3xl border bg-white shadow-lg ${
             drag.active ? 'cursor-grabbing' : 'cursor-grab'
           } ${
             x < -20 ? 'border-indigo-400' : x > 20 ? 'border-slate-300' : 'border-slate-200'
           }`}
           style={{
+            // pan-y, not none: the browser keeps vertical scrolling of the card
+            // body while horizontal movement stays ours. With the default
+            // (auto) it claims a one-finger drag for scrolling and cancels the
+            // pointer stream, which is why only a two-finger drag used to work.
+            touchAction: 'pan-y',
             transform: `translate(${x}px, ${flying ? -40 : drag.y * 0.15}px) rotate(${rotate}deg)`,
             transition: drag.active ? 'none' : 'transform 260ms ease-out, opacity 260ms ease-out',
             opacity: flying ? 0 : 1,
@@ -173,7 +205,12 @@ export default function SwipeDeck({ items, renderCard, onSave, onSkip, onEmpty, 
             Next<Icon name="arrow-right" className="ml-1.5 h-3.5 w-3.5" />
           </div>
 
-          <div className="h-full overflow-y-auto thin-scroll p-6">{renderCard(current)}</div>
+          <div
+            style={{ touchAction: 'pan-y' }}
+            className="h-full overflow-y-auto thin-scroll p-6"
+          >
+            {renderCard(current)}
+          </div>
         </div>
       </div>
 
