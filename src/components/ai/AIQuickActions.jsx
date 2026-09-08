@@ -66,7 +66,7 @@ export default function AIQuickActions({ limit, category, heading = 'What do you
               </span>
               <h3 className="mt-3 font-semibold">{t.title}</h3>
               <p className="mt-1 flex-1 text-sm text-slate-500">{t.short}</p>
-              <p className="mt-3 text-xs text-slate-400">
+              <p className="mt-3 text-xs text-slate-500">
                 You give: {t.inputs.slice(0, 3).map((i) => i.label.toLowerCase()).join(', ')}
               </p>
               <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600">

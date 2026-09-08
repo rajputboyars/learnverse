@@ -36,7 +36,7 @@ export function ConceptFace({ item }) {
       {teaser && (
         <p className="prose-content mt-3 text-[15px] leading-relaxed text-slate-600">
           {showExampleLabel && (
-            <span className="mr-1.5 font-semibold text-amber-600">Real-life example —</span>
+            <span className="mr-1.5 font-semibold text-amber-700">Real-life example —</span>
           )}
           {teaser}
           {teaser.length >= 260 && '…'}
@@ -61,7 +61,7 @@ export function ConceptFace({ item }) {
         >
           Read it properly <Icon name="arrow-right" className="h-3 w-3" />
         </Link>
-        <p className="mt-2 text-xs text-slate-400">Opens the full concept — that is where XP is earned.</p>
+        <p className="mt-2 text-xs text-slate-500">Opens the full concept — that is where XP is earned.</p>
       </div>
     </div>
   );

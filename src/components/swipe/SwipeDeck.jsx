@@ -223,7 +223,7 @@ export default function SwipeDeck({ items, renderCard, onSave, onSkip, onEmpty, 
         >
           <Icon name="bookmark" className="h-5 w-5" />
         </button>
-        <span className="text-xs text-slate-400">
+        <span className="text-xs text-slate-500">
           {saved.length} saved
         </span>
         <button

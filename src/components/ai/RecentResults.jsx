@@ -68,7 +68,7 @@ export default function RecentResults({ savedOnly = false, limit = 10 }) {
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 <SourceBadge source={r.source} />
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-slate-500">
                   {new Date(r.createdAt).toLocaleDateString()}
                 </span>
                 <Icon name="chevron-down" className={`h-3 w-3 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />

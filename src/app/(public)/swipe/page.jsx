@@ -129,7 +129,7 @@ function Swipe() {
                 <Icon name={s.icon} className="h-3.5 w-3.5" />
                 {s.label}
               </span>
-              <span className="mt-0.5 block text-xs opacity-70">
+              <span className={`mt-0.5 block text-xs ${section === s.id ? 'text-indigo-700' : 'text-slate-500'}`}>
                 {decks[s.id] ? `${decks[s.id].length} cards` : 'loading…'}
               </span>
             </button>

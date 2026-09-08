@@ -71,7 +71,7 @@ export default function PromptCard({ prompt, onSaveToggled }) {
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-3 text-xs text-slate-400">
+      <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-3 text-xs text-slate-500">
         <span><Icon name="play" className="mr-1 h-3 w-3" />{prompt.usageCount} runs</span>
         {prompt.ratingCount > 0 && (
           <span><Icon name="star" className="mr-1 h-3 w-3 text-amber-400" />{prompt.rating} ({prompt.ratingCount})</span>

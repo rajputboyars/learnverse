@@ -74,7 +74,7 @@ export function ConceptCard({ item, onOpenQuiz }) {
       {teaser && (
         <p className="prose-content mt-2 text-[15px] leading-relaxed text-slate-600">
           {showExampleLabel && (
-            <span className="mr-1.5 font-semibold text-amber-600">Real-life example —</span>
+            <span className="mr-1.5 font-semibold text-amber-700">Real-life example —</span>
           )}
           {teaser}
           {teaser.length >= 260 && '…'}

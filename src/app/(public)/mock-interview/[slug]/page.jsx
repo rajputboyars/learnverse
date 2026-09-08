@@ -191,7 +191,7 @@ export default function MockInterviewPage() {
                     <span className="flex items-start gap-3">
                       <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
                       <span className="flex-1 text-sm font-medium">{n.question}</span>
-                      <span className="shrink-0 text-xs capitalize text-slate-400">{n.difficulty}</span>
+                      <span className="shrink-0 text-xs capitalize text-slate-500">{n.difficulty}</span>
                     </span>
                     <p className="pl-[18px] text-sm leading-relaxed text-slate-500">
                       {uiLang === 'hi' && n.hinglish ? n.hinglish : n.english}
@@ -306,7 +306,7 @@ export default function MockInterviewPage() {
               <button
                 type="button"
                 onClick={() => rate(false)}
-                className="flex flex-col items-center rounded-xl bg-amber-500 px-5 py-2.5 font-semibold text-white hover:bg-amber-600"
+                className="flex flex-col items-center rounded-xl bg-amber-700 px-5 py-2.5 font-semibold text-white hover:bg-amber-800"
               >
                 {pick('Aur practice chahiye', 'Needs work')}
                 <span className="text-[11px] font-normal opacity-90">

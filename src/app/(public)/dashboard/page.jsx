@@ -114,13 +114,17 @@ export default function DashboardPage() {
               <div
                 key={b.id}
                 title={b.desc}
+                // Locked badges are signalled by the padlock and the flat grey
+                // card, not by fading them out: opacity-60 dropped the label to
+                // 2.23:1, so the one badge a learner most wants to read was the
+                // hardest to.
                 className={`rounded-2xl border p-4 text-center ${
-                  b.earned ? 'border-indigo-200 bg-indigo-50' : 'border-slate-200 bg-slate-50 opacity-60'
+                  b.earned ? 'border-indigo-200 bg-indigo-50' : 'border-slate-200 bg-slate-50'
                 }`}
               >
                 <Icon name={b.earned ? b.icon : 'lock'} className={`mx-auto h-8 w-8 ${b.earned ? 'text-indigo-600' : 'text-slate-400'}`} />
-                <p className="mt-2 text-sm font-semibold">{b.name}</p>
-                <p className="mt-0.5 text-xs text-slate-500">{b.desc}</p>
+                <p className={`mt-2 text-sm font-semibold ${b.earned ? '' : 'text-slate-600'}`}>{b.name}</p>
+                <p className="mt-0.5 text-xs text-slate-600">{b.desc}</p>
               </div>
             ))}
           </div>
@@ -200,7 +204,7 @@ export default function DashboardPage() {
             {data.bookmarks.map((b) => (
               <Link key={b.slug} href={`/concepts/${b.slug}`} className="flex items-center justify-between px-4 py-3 hover:bg-slate-50">
                 <span className="font-medium">{b.title}</span>
-                <span className="text-xs capitalize text-slate-400">{b.difficulty}</span>
+                <span className="text-xs capitalize text-slate-500">{b.difficulty}</span>
               </Link>
             ))}
           </div>

@@ -65,7 +65,7 @@ export default function LeaderboardPage() {
                     )}
                   </span>
                   <span className="font-medium">{r.name}</span>
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
                     Lvl {r.level}
                   </span>
                 </span>

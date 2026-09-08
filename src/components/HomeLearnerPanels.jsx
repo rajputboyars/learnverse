@@ -104,7 +104,7 @@ export default function HomeLearnerPanels() {
                   <span className="flex items-center gap-2.5">
                     <Icon name={c.icon} brand className="h-5 w-5" />
                     <span className="font-semibold">{c.title}</span>
-                    <span className="ml-auto text-xs text-slate-400">{c.pct}%</span>
+                    <span className="ml-auto text-xs text-slate-500">{c.pct}%</span>
                   </span>
                   <span className="block h-1.5 overflow-hidden rounded-full bg-slate-100">
                     <span className="block h-1.5 rounded-full bg-indigo-600" style={{ width: `${c.pct}%` }} />

@@ -20,7 +20,7 @@ export default function Footer() {
             <Link href="/leaderboard" className="hover:text-indigo-600">{t('nav.leaderboard')}</Link>
           </div>
         </div>
-        <p className="mt-8 text-xs text-slate-400">
+        <p className="mt-8 text-xs text-slate-500">
           © {new Date().getFullYear()} Learnverse. {t('footer.built')}
         </p>
       </div>

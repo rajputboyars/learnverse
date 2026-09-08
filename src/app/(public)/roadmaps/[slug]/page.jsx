@@ -199,7 +199,7 @@ function StepCard({ step, meta, colors, globalOrder }) {
             <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${DIFFICULTY_CLASS[meta.difficulty]}`}>
               {meta.difficulty}
             </span>
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
               <Icon name="clock" className="mr-1.5 h-3 w-3" />{step.duration}
             </span>
           </div>
@@ -250,7 +250,7 @@ function ExternalStepCard({ step, colors, globalOrder }) {
           <div className="flex items-center gap-2">
             <h4 className="font-bold text-slate-900">{step.externalTitle ?? 'External Resource'}</h4>
             <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs text-slate-600">External</span>
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500"><Icon name="clock" className="mr-1 h-3 w-3" />{step.duration}</span>
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600"><Icon name="clock" className="mr-1 h-3 w-3" />{step.duration}</span>
           </div>
           <p className="text-xs text-slate-400">Step {globalOrder}</p>
         </div>

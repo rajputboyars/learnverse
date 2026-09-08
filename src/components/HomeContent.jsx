@@ -130,7 +130,7 @@ export default function HomeContent({ courses, daily, stats, questions }) {
                 {daily.difficulty}
               </span>
               {daily.course && (
-                <span className="ml-auto text-xs text-slate-400">
+                <span className="ml-auto text-xs text-slate-500">
                   <Icon name={daily.course.icon} brand className="mr-1.5 h-3 w-3" />
                   {daily.course.title}
                 </span>
@@ -281,7 +281,7 @@ export default function HomeContent({ courses, daily, stats, questions }) {
                     <span className="w-28 shrink-0 truncate text-xs font-semibold text-indigo-600">{q.course.title}</span>
                   )}
                   <span className="flex-1 text-sm">{q.question}</span>
-                  <span className="text-xs capitalize text-slate-400">{q.difficulty}</span>
+                  <span className="text-xs capitalize text-slate-500">{q.difficulty}</span>
                 </Link>
               ))
             )}
@@ -327,7 +327,7 @@ export default function HomeContent({ courses, daily, stats, questions }) {
           </ul>
           <Link
             href="/courses"
-            className="mt-auto w-fit rounded-xl bg-amber-500 px-5 py-3 text-sm font-semibold text-white hover:bg-amber-600"
+            className="mt-auto w-fit rounded-xl bg-amber-700 px-5 py-3 text-sm font-semibold text-white hover:bg-amber-800"
           >
             {t('home.cert.cta')}
           </Link>

@@ -31,7 +31,7 @@ function CourseCard({ c }) {
       <p className="mt-1 line-clamp-2 text-sm text-slate-600">{c.description}</p>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {c.tags?.slice(0, 3).map((t) => (
-          <span key={t} className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
+          <span key={t} className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
             {t}
           </span>
         ))}

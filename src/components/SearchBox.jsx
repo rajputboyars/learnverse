@@ -291,7 +291,7 @@ function ResultRow({ href, active, onHover, onSelect, left, label, badge, sublab
           {label}
         </span>
         {sublabel && (
-          <span className="text-xs capitalize text-slate-400">{sublabel}</span>
+          <span className="text-xs capitalize text-slate-500">{sublabel}</span>
         )}
       </span>
       {badge && <span className="shrink-0">{badge}</span>}

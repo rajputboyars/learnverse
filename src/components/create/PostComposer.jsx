@@ -162,7 +162,11 @@ export default function PostComposer({ initial }) {
                 <Icon name={p.icon} brand className="mt-0.5 h-4 w-4 shrink-0" />
                 <span className="min-w-0">
                   <span className="block text-sm font-semibold">{p.id}</span>
-                  <span className="mt-0.5 block text-xs text-slate-500">{p.blurb}</span>
+                  {/* On the selected card the ground is an indigo tint, where
+                      slate-500 falls under AA — the blurb follows the card. */}
+                  <span className={`mt-0.5 block text-xs ${platform === p.id ? 'text-indigo-800' : 'text-slate-500'}`}>
+                    {p.blurb}
+                  </span>
                 </span>
               </button>
             ))}

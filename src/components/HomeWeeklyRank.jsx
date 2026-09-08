@@ -27,7 +27,7 @@ export default function HomeWeeklyRank() {
     <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6">
       <div className="flex items-center">
         <h2 className="font-bold">{t('home.rank.title')}</h2>
-        <span className="ml-auto text-xs text-slate-400">{t('home.rank.resets')}</span>
+        <span className="ml-auto text-xs text-slate-500">{t('home.rank.resets')}</span>
       </div>
 
       {top.length === 0 ? (
