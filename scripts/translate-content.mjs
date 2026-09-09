@@ -66,6 +66,20 @@ if (!MONGODB_URI) {
   process.exit(1);
 }
 
+// Free-tier quota is per model per day, so the script works down this list as
+// each allowance runs out. Aliases before pinned ids, because Google retires
+// the numbered ones.
+const GEMINI_MODELS = [
+  'gemini-flash-latest',
+  'gemini-3.1-flash-lite',
+  'gemini-3.5-flash',
+  'gemini-3.7-flash',
+  'gemini-3.6-flash',
+  'gemini-3-flash-preview',
+  'gemini-3.1-flash-lite-preview',
+];
+let geminiModel = 0;
+
 /* ── the model call, kept deliberately small ── */
 const PROVIDERS = [
   {
@@ -73,35 +87,58 @@ const PROVIDERS = [
     envKey: 'GEMINI_API_KEY',
     key: () => process.env.GEMINI_API_KEY,
     async call(key, prompt) {
-      // gemini-flash-latest rather than a pinned version: Google retires the
-      // numbered ones (2.0 and 2.5 already 404 for new keys) and the alias
-      // keeps working.
-      //
-      // thinkingBudget: 0 is not optional. The current flash models spend
-      // maxOutputTokens on reasoning first, and for a one-line translation the
-      // whole budget goes to thinking — HTTP 200, zero candidate tokens, empty
-      // string. Every field would fail as an "empty translation".
-      const res = await fetch(
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent',
-        {
-          method: 'POST',
-          headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
-          body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.3,
-              maxOutputTokens: 1200,
-              thinkingConfig: { thinkingBudget: 0 },
-            },
-          }),
+      // The free tier allows only ~20 requests per DAY per model, and the
+      // quota is scoped per model — so when one runs out, moving to the next
+      // buys another allowance. Aliases first: Google retires numbered ids.
+      while (geminiModel < GEMINI_MODELS.length) {
+        const model = GEMINI_MODELS[geminiModel];
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+          {
+            method: 'POST',
+            headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
+            body: JSON.stringify({
+              contents: [{ role: 'user', parts: [{ text: prompt }] }],
+              generationConfig: {
+                temperature: 0.3,
+                maxOutputTokens: 1200,
+                // Thinking tokens come out of maxOutputTokens; on a one-line
+                // translation they consume all of it and the reply is empty.
+                thinkingConfig: { thinkingBudget: 0 },
+              },
+            }),
+          }
+        );
+
+        if (res.ok) {
+          const body = await res.json();
+          return (body.candidates?.[0]?.content?.parts || [])
+            .map((x) => x.text || '')
+            .join('')
+            .trim();
         }
-      );
-      if (!res.ok) throw new Error(`Gemini ${res.status}: ${(await res.text()).slice(0, 200)}`);
-      const body = await res.json();
-      return (body.candidates?.[0]?.content?.parts || [])
-        .map((p) => p.text || '')
-        .join('')
-        .trim();
+
+        const raw = await res.text();
+        let parsed = {};
+        try {
+          parsed = JSON.parse(raw);
+        } catch {}
+        const violations = (parsed.error?.details || []).flatMap((d) => d.violations || []);
+        const perDay = violations.some((v) => /PerDay/i.test(v.quotaId || ""));
+
+        // Out of requests for today on this model, or the model is gone:
+        // retire it and try the next one. Anything else is the caller’s to
+        // handle (a per-minute 429 is retried further up).
+        if (perDay || res.status === 404 || res.status === 400) {
+          console.log(
+            `      (${model} unavailable: ${perDay ? "daily quota spent" : res.status}, trying next model)`
+          );
+          geminiModel += 1;
+          continue;
+        }
+        throw new Error(`Gemini ${res.status}: ${raw.slice(0, 200)}`);
+      }
+      throw new Error('GEMINI_EXHAUSTED');
     },
   },
   {
@@ -216,6 +253,7 @@ async function run() {
 
   if (!DRY) console.log(`Using ${provider.name} at ~${RPM} requests/minute.`);
 
+  let exhausted = false;
   let done = 0;
   let failed = 0;
 
@@ -265,6 +303,10 @@ async function run() {
         done += 1;
         process.stdout.write(`  [${done}] ${(doc.title || doc.slug || doc._id).toString().slice(0, 46)}\n`);
       } catch (err) {
+        if (err.message === 'GEMINI_EXHAUSTED') {
+          exhausted = true;
+          break;
+        }
         failed += 1;
         console.error(`  ! ${(doc.title || doc._id).toString().slice(0, 40)} — ${err.message}`);
         // A rate limit should slow us down, not kill the run.
@@ -272,7 +314,7 @@ async function run() {
       }
       await sleep(GAP); // stay under the provider's per-minute quota
     }
-    if (done >= LIMIT) break;
+    if (done >= LIMIT || exhausted) break;
   }
 
   console.log(
