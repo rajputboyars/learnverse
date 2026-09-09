@@ -10,7 +10,9 @@ export function ConceptFace({ item }) {
   const { lang } = useLang();
   const hinglish = lang === 'hi';
   const teaser = hinglish ? item.teaser.hinglish || item.teaser.english : item.teaser.english || item.teaser.hinglish;
-  const showExampleLabel = hinglish && item.hasDailyLifeExample;
+  const showExampleLabel = Boolean(
+    hinglish ? item.hasDailyLifeExample?.hi : item.hasDailyLifeExample?.en
+  );
 
   return (
     <div className="flex h-full flex-col">

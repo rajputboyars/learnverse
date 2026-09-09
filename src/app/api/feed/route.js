@@ -6,7 +6,7 @@ import Course from '@/models/Course';
 import Prompt from '@/models/Prompt';
 import UserProgress from '@/models/UserProgress';
 import UserStats from '@/models/UserStats';
-import { pickText } from '@/lib/content';
+import { isBilingual, pickText } from '@/lib/content';
 
 /**
  * The learning feed.
@@ -165,12 +165,28 @@ export async function GET(req) {
         title: c.title,
         slug: c.slug,
         teaser: {
-          english: (pickText(c.dailyLifeExample, 'en') || c.explanation?.english || '').trim().slice(0, 260),
+          // Only a genuinely translated example may lead the English card. A
+          // legacy example is Hinglish-only, and pickText hands those back for
+          // either language so a concept page shows something rather than a
+          // blank — here that would put Hinglish straight into English mode,
+          // when a real English explanation is sitting right there.
+          english: (
+            (isBilingual(c.dailyLifeExample) ? c.dailyLifeExample.english : '') ||
+            c.explanation?.english ||
+            ''
+          )
+            .trim()
+            .slice(0, 260),
           // The daily-life example is a single field written in Hinglish, so it
           // leads the Hinglish card and never appears on the English one.
           hinglish: (pickText(c.dailyLifeExample, 'hi') || c.explanation?.hinglish || '').trim().slice(0, 260),
         },
-        hasDailyLifeExample: Boolean(pickText(c.dailyLifeExample, 'hi').trim()),
+        // Per language: a bilingual example labels both sides, a legacy one
+        // only the Hinglish side, because that is the only side it appears on.
+        hasDailyLifeExample: {
+          en: Boolean(isBilingual(c.dailyLifeExample) && c.dailyLifeExample.english?.trim()),
+          hi: Boolean(pickText(c.dailyLifeExample, 'hi').trim()),
+        },
         keyPoints: (c.keyPoints || []).slice(0, 3),
         difficulty: c.difficulty,
         tags: (c.tags || []).slice(0, 3),

@@ -20,7 +20,9 @@ export function ConceptCard({ item, onOpenQuiz }) {
   // carries the daily-life example, because that field is written in Hinglish.
   const hinglish = lang === 'hi';
   const teaser = hinglish ? item.teaser.hinglish || item.teaser.english : item.teaser.english || item.teaser.hinglish;
-  const showExampleLabel = hinglish && item.hasDailyLifeExample;
+  const showExampleLabel = Boolean(
+    hinglish ? item.hasDailyLifeExample?.hi : item.hasDailyLifeExample?.en
+  );
 
   const [choice, setChoice] = useState(null);
   const [result, setResult] = useState(null);

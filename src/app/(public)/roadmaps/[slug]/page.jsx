@@ -14,7 +14,7 @@ export async function generateMetadata({ params }) {
   if (!roadmap) return {};
   return {
     title: `${roadmap.title} Roadmap — Learnverse`,
-    description: roadmap.description,
+    description: roadmap.description.en,
   };
 }
 
@@ -55,10 +55,10 @@ export default async function RoadmapDetailPage({ params }) {
               <Icon name={roadmap.icon} brand className="h-12 w-12 text-indigo-600" />
               <div>
                 <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">{roadmap.title}</h1>
-                <p className={`mt-0.5 text-sm font-medium italic ${colors.text}`}>"{roadmap.tagline}"</p>
+                <p className={`mt-0.5 text-sm font-medium italic ${colors.text}`}>"<L hi={roadmap.tagline.hi} en={roadmap.tagline.en} />"</p>
               </div>
             </div>
-            <p className="mt-4 text-slate-700 leading-relaxed">{roadmap.description}</p>
+            <p className="mt-4 text-slate-700 leading-relaxed"><L hi={roadmap.description.hi} en={roadmap.description.en} /></p>
           </div>
         </div>
 
@@ -85,7 +85,7 @@ export default async function RoadmapDetailPage({ params }) {
             {roadmap.outcomes.map((o, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
                 <Icon name="check" className={`mt-1 h-3 w-3 shrink-0 ${colors.text}`} />
-                {o}
+                <L hi={o.hi} en={o.en} />
               </li>
             ))}
           </ul>
@@ -111,12 +111,12 @@ export default async function RoadmapDetailPage({ params }) {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-bold text-slate-900">{phase.title}</h3>
+                      <h3 className="font-bold text-slate-900"><L hi={phase.title.hi} en={phase.title.en} /></h3>
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${DIFFICULTY_CLASS[phase.level]}`}>
                         <Icon name={levelMeta.icon} className="mr-1.5 h-3.5 w-3.5" />{levelMeta.label}
                       </span>
                     </div>
-                    <p className="text-sm text-slate-500">{phase.description}</p>
+                    <p className="text-sm text-slate-500"><L hi={phase.description.hi} en={phase.description.en} /></p>
                   </div>
                 </div>
 
@@ -207,7 +207,7 @@ function StepCard({ step, meta, colors, globalOrder }) {
           {/* Why this course */}
           <p className="mt-2 text-sm text-slate-600 leading-relaxed">
             <span className="font-medium text-slate-700"><L hi="Kyun zaroori hai: " en="Why it matters: " /></span>
-            {step.why}
+            <L hi={step.why.hi} en={step.why.en} />
           </p>
 
           {/* Skills */}
@@ -258,7 +258,7 @@ function ExternalStepCard({ step, colors, globalOrder }) {
 
       <p className="text-sm text-slate-600 leading-relaxed">
         <span className="font-medium text-slate-700">Kyun zaroori hai: </span>
-        {step.why}
+        <L hi={step.why.hi} en={step.why.en} />
       </p>
 
       <p className="mt-2 text-sm text-slate-600 leading-relaxed">{step.externalDescription}</p>

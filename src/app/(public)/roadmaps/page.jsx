@@ -92,8 +92,8 @@ export default function RoadmapsPage() {
 
               {/* Title & tagline */}
               <h2 className={`mt-4 text-lg font-bold text-slate-900 transition`}>{r.title}</h2>
-              <p className="mt-1 text-sm text-slate-500 italic">"{r.tagline}"</p>
-              <p className="mt-2 line-clamp-2 text-sm text-slate-600">{r.description}</p>
+              <p className="mt-1 text-sm text-slate-500 italic">"<L hi={r.tagline.hi} en={r.tagline.en} />"</p>
+              <p className="mt-2 line-clamp-2 text-sm text-slate-600"><L hi={r.description.hi} en={r.description.en} /></p>
 
               {/* Stats row */}
               <div className="mt-4 flex items-center gap-4 text-xs text-slate-500">
