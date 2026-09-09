@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import MobileTabBar from '@/components/MobileTabBar';
@@ -15,11 +14,7 @@ export default function PublicLayout({ children }) {
       <div className="pb-14 sm:pb-0">
         <Footer />
       </div>
-      {/* The bar reads the query string (?deck=), so it needs a Suspense
-          boundary of its own during prerender. */}
-      <Suspense fallback={null}>
-        <MobileTabBar />
-      </Suspense>
+      <MobileTabBar />
     </>
   );
 }

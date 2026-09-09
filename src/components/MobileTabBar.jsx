@@ -1,7 +1,8 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import Icon from '@/components/Icon';
 import { useLang } from '@/components/LanguageProvider';
 
@@ -25,8 +26,18 @@ const TABS = [
 export default function MobileTabBar() {
   const { pick } = useLang();
   const pathname = usePathname();
-  const params = useSearchParams();
-  const deck = params.get('deck');
+
+  // The deck is read from the URL after mount rather than with
+  // useSearchParams(). useSearchParams() opts the whole component into a
+  // Suspense boundary, and on a dynamically rendered page (/challenges,
+  // /interview-questions) React streamed the bar into a hidden <div> that was
+  // never swapped in — so the bar simply did not exist on those pages. Which
+  // of two swipe decks is highlighted is not worth that risk; it settles a
+  // frame after paint instead.
+  const [deck, setDeck] = useState(null);
+  useEffect(() => {
+    setDeck(new URLSearchParams(window.location.search).get('deck'));
+  }, [pathname]);
 
   // Reading a concept, filling a form, or working through the admin area are
   // all full-attention tasks; a bar of exits across the bottom is noise there.
