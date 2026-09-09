@@ -214,7 +214,7 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <div className="mt-10 flex gap-3">
+      <div className="mt-10 flex flex-wrap gap-3">
         <Link href="/courses" className="rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white hover:bg-indigo-700">
           {t('dash.keepLearning')}
         </Link>

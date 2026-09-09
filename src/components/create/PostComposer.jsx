@@ -156,8 +156,12 @@ export default function PostComposer({ initial }) {
 
   const data = result?.data;
 
+  // grid-cols-[minmax(0,1fr)] at the base width matters: a one-column grid
+  // gives its item min-width:auto, so the nowrap `truncate` line in the
+  // milestone list below sets the column width and the whole page scrolls
+  // sideways on a phone.
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
       {/* ── Left: what to write about ───────────────────────────────────── */}
       <div className="space-y-6">
         <div>

@@ -24,7 +24,7 @@ export default function ThemeToggle() {
       onClick={toggle}
       title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
       aria-label="Toggle theme"
-      className="rounded-md p-1.5 text-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-lg hover:bg-slate-100 dark:hover:bg-slate-800"
     >
       <Icon name={dark ? 'sun' : 'moon'} className="h-4 w-4" />
     </button>

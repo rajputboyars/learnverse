@@ -26,7 +26,7 @@ export default function NotificationBell() {
   if (status !== 'authenticated') return null;
 
   return (
-    <Link href="/notifications" className="relative rounded-md p-1.5 text-lg hover:bg-slate-100 dark:hover:bg-slate-800" title="Notifications">
+    <Link href="/notifications" className="relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-lg hover:bg-slate-100 dark:hover:bg-slate-800" title="Notifications">
       <Icon name="bell" className="h-4 w-4" />
       {unread > 0 && (
         <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">

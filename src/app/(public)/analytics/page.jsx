@@ -182,7 +182,7 @@ export default function AnalyticsPage() {
           </section>
 
           {/* Activity over time */}
-          <section className="mt-10 grid gap-4 lg:grid-cols-2">
+          <section className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
             <div className="rounded-2xl border border-slate-200 bg-white p-5">
               <h3 className="font-semibold">{pick('Pichhle 12 hafte', 'Last 12 weeks')}</h3>
               <p className="mt-0.5 text-sm text-slate-500">
@@ -200,7 +200,7 @@ export default function AnalyticsPage() {
           </section>
 
           {/* Rhythm */}
-          <section className="mt-4 grid gap-4 lg:grid-cols-2">
+          <section className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
             <div className="rounded-2xl border border-slate-200 bg-white p-5">
               <h3 className="font-semibold">{pick('Kin dino tum seekhte ho', 'Which days you learn')}</h3>
               <p className="mt-0.5 text-sm text-slate-500">

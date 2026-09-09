@@ -66,7 +66,7 @@ export default function Navbar() {
       <div className={`${SHELL} flex h-14 items-center gap-3`}>
 
         {/* Logo */}
-        <Link href="/" className="flex shrink-0 items-center gap-2 text-base font-bold">
+        <Link href="/" className="flex min-h-11 shrink-0 items-center gap-2 text-base font-bold">
           <span className="grid h-7 w-7 place-items-center rounded-lg bg-indigo-600 text-sm text-white">L</span>
           <span className="hidden sm:block">Learnverse</span>
         </Link>
@@ -123,7 +123,7 @@ export default function Navbar() {
           <button
             onClick={() => setOpen((o) => !o)}
             aria-label="Menu"
-            className="rounded-md p-2 text-lg hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-lg hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden"
           >
             <Icon name={open ? 'x' : 'bars'} />
           </button>

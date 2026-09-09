@@ -174,7 +174,7 @@ export default function PromptRunner({ template, templates = [], initialInputs =
           <button
             onClick={onClose}
             aria-label={pick('Band karo', 'Close')}
-            className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600"
           >
             <Icon name="x" className="h-4 w-4" />
           </button>

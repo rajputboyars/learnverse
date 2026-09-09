@@ -8,10 +8,13 @@ export default function PublicLayout({ children }) {
     <>
       <a href="#main" className="skip-link">Skip to content</a>
       <Navbar />
-      {/* pb-16 on small screens keeps the last of the page clear of the fixed
-          tab bar, which would otherwise sit on top of it. */}
-      <main id="main" className="flex-1 pb-16 sm:pb-0">{children}</main>
-      <Footer />
+      <main id="main" className="flex-1">{children}</main>
+      {/* The bottom padding belongs on the LAST thing in the document, which is
+          the footer — not on <main>. On <main> it left the footer's own final
+          line sitting underneath the fixed tab bar, unreachable by scrolling. */}
+      <div className="pb-14 sm:pb-0">
+        <Footer />
+      </div>
       {/* The bar reads the query string (?deck=), so it needs a Suspense
           boundary of its own during prerender. */}
       <Suspense fallback={null}>

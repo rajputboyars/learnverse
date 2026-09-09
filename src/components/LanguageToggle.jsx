@@ -17,9 +17,9 @@ export default function LanguageToggle() {
           key={l.code}
           onClick={() => setLang(l.code)}
           aria-pressed={lang === l.code}
-          // min-h-8 with the wrapper padding brings the target to ~36px, which
-          // a thumb can hit; at py-1 alone it was 24px tall.
-          className={`min-h-8 min-w-9 rounded-full px-2.5 py-1 transition ${
+          // 44x44 is the thumb minimum. The text stays the same size; only the
+          // hit area grows, and the 56px header has room for it.
+          className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-full px-2.5 py-1 transition ${
             lang === l.code
               ? 'bg-indigo-600 text-white shadow-sm'
               : 'text-slate-500 hover:text-indigo-600'
