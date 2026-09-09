@@ -4,8 +4,11 @@ export class GeminiProvider extends AIProvider {
   static id = 'gemini';
   static label = 'Google Gemini';
   static icon = 'sparkles';
-  static defaultModel = 'gemini-2.0-flash';
-  static models = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-2.5-pro'];
+  // Aliases, not pinned versions. Google retires the numbered models and a
+  // pinned id starts returning 404 for new keys with no code change on our
+  // side — gemini-2.0-flash and gemini-2.5-flash both already do.
+  static defaultModel = 'gemini-flash-latest';
+  static models = ['gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-pro-latest'];
   static baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
   static docsUrl = 'https://ai.google.dev/gemini-api/docs';
   static keysUrl = 'https://aistudio.google.com/app/apikey';
@@ -24,6 +27,11 @@ export class GeminiProvider extends AIProvider {
         generationConfig: {
           temperature,
           maxOutputTokens: maxTokens,
+          // Thinking tokens are drawn from maxOutputTokens, and on a short
+          // answer they can consume the whole budget — leaving HTTP 200 with
+          // an empty candidate. Turning it off keeps Gemini's behaviour in
+          // line with the other providers, which do not think by default.
+          thinkingConfig: { thinkingBudget: 0 },
           ...(json ? { responseMimeType: 'application/json' } : {}),
         },
       }),

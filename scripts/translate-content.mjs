@@ -21,6 +21,7 @@
 //   --limit   stop after N fields (start small, read the output, then widen)
 //   --field   courseDescription | topicDescription | dailyLifeExample
 //   --provider gemini | openai | anthropic  (pick one explicitly)
+//   --rpm     requests per minute (default 10, sized for the Gemini free tier)
 //
 // It only ever touches fields that are still plain strings, so it is safe to
 // re-run and it can be stopped and resumed at any point.
@@ -54,6 +55,10 @@ const DRY = args.includes('--dry');
 const LIMIT = Number(arg('limit')) || Infinity;
 const ONLY = arg('field');
 const PROVIDER = arg('provider');
+// Requests per minute. The Gemini free tier is the binding constraint: at the
+// old four-a-second pace almost every call came back 429.
+const RPM = Number(arg('rpm')) || 10;
+const GAP = Math.ceil(60000 / RPM);
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
@@ -68,14 +73,26 @@ const PROVIDERS = [
     envKey: 'GEMINI_API_KEY',
     key: () => process.env.GEMINI_API_KEY,
     async call(key, prompt) {
+      // gemini-flash-latest rather than a pinned version: Google retires the
+      // numbered ones (2.0 and 2.5 already 404 for new keys) and the alias
+      // keeps working.
+      //
+      // thinkingBudget: 0 is not optional. The current flash models spend
+      // maxOutputTokens on reasoning first, and for a one-line translation the
+      // whole budget goes to thinking — HTTP 200, zero candidate tokens, empty
+      // string. Every field would fail as an "empty translation".
       const res = await fetch(
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent',
         {
           method: 'POST',
           headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
           body: JSON.stringify({
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.3, maxOutputTokens: 1200 },
+            generationConfig: {
+              temperature: 0.3,
+              maxOutputTokens: 1200,
+              thinkingConfig: { thinkingBudget: 0 },
+            },
           }),
         }
       );
@@ -197,6 +214,8 @@ async function run() {
     process.exit(1);
   }
 
+  if (!DRY) console.log(`Using ${provider.name} at ~${RPM} requests/minute.`);
+
   let done = 0;
   let failed = 0;
 
@@ -220,7 +239,23 @@ async function run() {
       if (done >= LIMIT) break;
       const hinglish = String(doc[target.field]);
       try {
-        const english = await provider.call(provider.key(), PROMPT(target.id, hinglish));
+        let english = '';
+        // 429 (free-tier rate limit) and 503 (model busy) are both temporary.
+        // Back off and retry rather than burning the field.
+        for (let attempt = 1; attempt <= 5; attempt += 1) {
+          try {
+            english = await provider.call(provider.key(), PROMPT(target.id, hinglish));
+            if (english) break;
+            throw new Error('empty translation');
+          } catch (err) {
+            const retryable = /(429|500|502|503|504)/.test(err.message);
+            if (!retryable || attempt === 5) throw err;
+            // A 429 is a per-minute quota, so a few seconds achieves
+            // nothing — wait out the window instead.
+            const rateLimited = err.message.includes('429');
+            await sleep(rateLimited ? attempt * 20000 : attempt * 4000);
+          }
+        }
         if (!english) throw new Error('empty translation');
 
         await target.Model.updateOne(
@@ -235,7 +270,7 @@ async function run() {
         // A rate limit should slow us down, not kill the run.
         await sleep(2000);
       }
-      await sleep(250); // be polite to the provider
+      await sleep(GAP); // stay under the provider's per-minute quota
     }
     if (done >= LIMIT) break;
   }
