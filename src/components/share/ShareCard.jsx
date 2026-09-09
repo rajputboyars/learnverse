@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import Icon from '@/components/Icon';
+import { useLang } from '@/components/LanguageProvider';
+
 import { buildCardCaption, buildCardSVG } from '@/lib/cards/render';
 
 const THEMES = ['indigo', 'slate', 'amber', 'green'];
@@ -15,6 +17,7 @@ const THEMES = ['indigo', 'slate', 'amber', 'green'];
  * blocked resource.
  */
 export default function ShareCard({ card, onClose }) {
+  const { pick } = useLang();
   const [theme, setTheme] = useState(card.theme || 'indigo');
   const [note, setNote] = useState('');
 
@@ -35,7 +38,7 @@ export default function ShareCard({ card, onClose }) {
     image.src = dataUrl;
     await new Promise((resolve, reject) => {
       image.onload = resolve;
-      image.onerror = () => reject(new Error('Could not render the card'));
+      image.onerror = () => reject(new Error(pick('Card render nahi ho paaya', 'Could not render the card')));
     });
 
     const canvas = document.createElement('canvas');
@@ -56,7 +59,7 @@ export default function ShareCard({ card, onClose }) {
       a.download = `learnverse-${card.kind}-${new Date().toISOString().slice(0, 10)}.png`;
       a.click();
       URL.revokeObjectURL(url);
-      flash('Downloaded');
+      flash(pick('Download ho gaya', 'Downloaded'));
     } catch (e) {
       flash(e.message);
     }
@@ -65,9 +68,9 @@ export default function ShareCard({ card, onClose }) {
   async function copyCaption() {
     try {
       await navigator.clipboard.writeText(buildCardCaption(themed));
-      flash('Caption copied');
+      flash(pick('Caption copy ho gaya', 'Caption copied'));
     } catch {
-      flash('Clipboard unavailable');
+      flash(pick('Clipboard available nahi hai', 'Clipboard unavailable'));
     }
   }
 
@@ -81,7 +84,12 @@ export default function ShareCard({ card, onClose }) {
         await navigator.share({ files: [file], text: buildCardCaption(themed) });
         return;
       }
-      flash('Sharing files is not supported here — downloading instead');
+      flash(
+        pick(
+          'Yahan files share nahi ho sakti — download kar rahe hain',
+          'Sharing files is not supported here — downloading instead'
+        )
+      );
       await download();
     } catch {
       /* the user dismissed the share sheet */
@@ -109,7 +117,7 @@ export default function ShareCard({ card, onClose }) {
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-slate-500">Colour</span>
+        <span className="text-xs font-medium text-slate-500">{pick('Rang', 'Colour')}</span>
         {THEMES.map((t) => (
           <button
             key={t}
@@ -125,13 +133,16 @@ export default function ShareCard({ card, onClose }) {
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <button onClick={download} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
-          <Icon name="download" className="mr-1.5 h-3.5 w-3.5" />Download PNG
+          <Icon name="download" className="mr-1.5 h-3.5 w-3.5" />
+          {pick('PNG download karo', 'Download PNG')}
         </button>
         <button onClick={share} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
-          <Icon name="share" className="mr-1.5 h-3.5 w-3.5" />Share
+          <Icon name="share" className="mr-1.5 h-3.5 w-3.5" />
+          {pick('Share karo', 'Share')}
         </button>
         <button onClick={copyCaption} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
-          <Icon name="copy" className="mr-1.5 h-3.5 w-3.5" />Copy caption
+          <Icon name="copy" className="mr-1.5 h-3.5 w-3.5" />
+          {pick('Caption copy karo', 'Copy caption')}
         </button>
         {note && <span className="text-sm text-green-700">{note}</span>}
       </div>

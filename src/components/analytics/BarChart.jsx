@@ -1,5 +1,7 @@
 'use client';
 
+import { useLang } from '@/components/LanguageProvider';
+
 /**
  * A single-series bar chart, inline SVG.
  *
@@ -11,6 +13,7 @@
  * answer, and blanking the chart would hide it.
  */
 export default function BarChart({ data, valueKey = 'count', format, height = 140, highlight }) {
+  const { pick } = useLang();
   if (!data?.length) return null;
 
   const max = Math.max(...data.map((d) => d[valueKey] || 0));
@@ -56,7 +59,11 @@ export default function BarChart({ data, valueKey = 'count', format, height = 14
           </span>
         ))}
       </div>
-      {max > 0 && <p className="mt-1 text-right text-[10px] text-slate-400">peak: {fmt(max)}</p>}
+      {max > 0 && (
+        <p className="mt-1 text-right text-[10px] text-slate-400">
+          {pick('sabse zyada:', 'peak:')} {fmt(max)}
+        </p>
+      )}
     </div>
   );
 }

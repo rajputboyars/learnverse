@@ -26,12 +26,17 @@ const SHAPE = {
 const template = {
   id: 'trending-skills',
   title: 'Trending Skills',
+  titleHi: 'Trending Skills',
   short: 'See which skills are growing in demand, and how the ranking has shifted.',
+  shortHi: 'Dekho kaunsi skills ki demand badh rahi hai, aur ranking kaise badli hai.',
   description:
     'Ranks the skills currently in demand for an industry and location, and compares each one against where it stood earlier.',
+  descriptionHi:
+    'Kisi industry aur location ke liye abhi demand mein chal rahi skills ko rank karta hai, aur har ek ko uski pehle wali jagah se compare karta hai.',
   category: 'career',
   icon: 'chart-line',
   cta: 'Analyze Trending Skills',
+  ctaHi: 'Trending Skills ka analysis karo',
   version: '1.0',
   status: 'active',
   outputFormat: 'structured',
@@ -40,22 +45,27 @@ const template = {
     {
       name: 'industry',
       label: 'Industry / field',
+      labelHi: 'Industry / field',
       type: 'text',
       required: true,
       placeholder: 'Web development, Data science, DevOps…',
+      placeholderHi: 'Web development, Data science, DevOps…',
       default: 'Web development',
     },
     {
       name: 'location',
       label: 'Location',
+      labelHi: 'Location',
       type: 'text',
       required: false,
       placeholder: 'India, Remote, Bangalore…',
+      placeholderHi: 'India, Remote, Bangalore…',
       default: 'India',
     },
     {
       name: 'experienceLevel',
       label: 'Experience level',
+      labelHi: 'Experience level',
       type: 'select',
       options: ['Student / fresher', '0-2 years', '2-5 years', '5+ years'],
       default: 'Student / fresher',
@@ -63,6 +73,7 @@ const template = {
     {
       name: 'period',
       label: 'Compare against',
+      labelHi: 'Kisse compare karein',
       type: 'select',
       options: ['Last month', 'Last 3 months', 'Last year'],
       default: 'Last year',

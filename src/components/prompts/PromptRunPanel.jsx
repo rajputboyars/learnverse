@@ -6,6 +6,7 @@ import Icon from '@/components/Icon';
 import SourceBadge from '@/components/ai/SourceBadge';
 import ResultActions from '@/components/ai/ResultActions';
 import { ErrorState, LoginGate, SkeletonCard } from '@/components/ui/States';
+import { useLang } from '@/components/LanguageProvider';
 import { fillVariables } from '@/lib/prompts/variables';
 
 /**
@@ -14,6 +15,7 @@ import { fillVariables } from '@/lib/prompts/variables';
  * be able to see exactly what will be asked on their behalf.
  */
 export default function PromptRunPanel({ prompt, authed }) {
+  const { pick } = useLang();
   const [values, setValues] = useState({});
   const [status, setStatus] = useState('idle');
   const [result, setResult] = useState(null);
@@ -32,7 +34,7 @@ export default function PromptRunPanel({ prompt, authed }) {
         body: JSON.stringify({ values }),
       });
       const body = await res.json();
-      if (!res.ok) throw new Error(body?.error || 'That did not work.');
+      if (!res.ok) throw new Error(body?.error || pick('Ye kaam nahi kiya.', 'That did not work.'));
       setResult(body);
       setStatus('done');
     } catch (e) {
@@ -41,7 +43,15 @@ export default function PromptRunPanel({ prompt, authed }) {
     }
   }
 
-  if (!authed) return <LoginGate message="Log in to run this prompt with your AI provider." />;
+  if (!authed)
+    return (
+      <LoginGate
+        message={pick(
+          'Apne AI provider se ye prompt chalane ke liye login karo.',
+          'Log in to run this prompt with your AI provider.'
+        )}
+      />
+    );
 
   return (
     <div className="space-y-5">
@@ -71,17 +81,21 @@ export default function PromptRunPanel({ prompt, authed }) {
           className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
         >
           <Icon name={status === 'running' ? 'spinner' : 'play'} spin={status === 'running'} className="mr-1.5 h-3.5 w-3.5" />
-          {status === 'running' ? 'Running…' : 'Run prompt'}
+          {status === 'running' ? pick('Chal raha hai…', 'Running…') : pick('Prompt chalao', 'Run prompt')}
         </button>
         <button
           onClick={() => setShowPrompt((s) => !s)}
           className="text-sm text-slate-500 hover:text-indigo-600"
         >
           <Icon name="eye" className="mr-1 h-3 w-3" />
-          {showPrompt ? 'Hide' : 'Preview'} what gets sent
+          {pick(
+            showPrompt ? 'Jo bheja jaayega wo chhupao' : 'Jo bheja jaayega wo dekho',
+            showPrompt ? 'Hide what gets sent' : 'Preview what gets sent'
+          )}
         </button>
         <Link href="/settings/ai" className="text-sm text-slate-500 hover:text-indigo-600">
-          <Icon name="plug" className="mr-1 h-3 w-3" />AI settings
+          <Icon name="plug" className="mr-1 h-3 w-3" />
+          {pick('AI settings', 'AI settings')}
         </Link>
       </div>
 

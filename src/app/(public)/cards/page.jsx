@@ -6,6 +6,8 @@ import { useSession } from 'next-auth/react';
 import Icon from '@/components/Icon';
 import ShareCard from '@/components/share/ShareCard';
 import { EmptyState, ErrorState, LoginGate, SkeletonCard } from '@/components/ui/States';
+import { useLang } from '@/components/LanguageProvider';
+
 
 const SHELL = 'mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8';
 
@@ -16,18 +18,24 @@ const SHELL = 'mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8';
  * one is assembled from a stored number. Nothing is rounded up, and nothing is
  * offered before it is true — a two-day streak produces no streak card.
  */
-function buildCards({ achievements, insights, stats }) {
+function buildCards({ achievements, insights, stats }, pick) {
   const cards = [];
 
   if (stats.currentStreak >= 3) {
     cards.push({
       kind: 'streak',
       theme: 'amber',
-      eyebrow: 'Learning streak',
+      eyebrow: pick('Learning streak', 'Learning streak'),
       stat: String(stats.currentStreak),
-      statLabel: `day${stats.currentStreak === 1 ? '' : 's'} in a row`,
-      headline: 'Showing up, one day at a time',
-      body: 'Consistency beats intensity. Built on Learnverse.',
+      statLabel: pick(
+        `din lagataar`,
+        `day${stats.currentStreak === 1 ? '' : 's'} in a row`
+      ),
+      headline: pick('Roz aana, ek din ek karke', 'Showing up, one day at a time'),
+      body: pick(
+        'Lagataar rehna teezi se zyada kaam aata hai. Learnverse pe bana.',
+        'Consistency beats intensity. Built on Learnverse.'
+      ),
       chips: ['#learning', '#consistency'],
     });
   }
@@ -36,11 +44,14 @@ function buildCards({ achievements, insights, stats }) {
     cards.push({
       kind: 'milestone',
       theme: 'indigo',
-      eyebrow: 'Concepts completed',
+      eyebrow: pick('Concepts poore hue', 'Concepts completed'),
       stat: String(stats.conceptsCompleted),
-      statLabel: 'concepts understood',
-      headline: 'Chipping away at the fundamentals',
-      body: 'Every one of these came with a daily-life example and a quiz.',
+      statLabel: pick('concepts samajh aaye', 'concepts understood'),
+      headline: pick('Buniyaad ek-ek karke mazboot ho rahi hai', 'Chipping away at the fundamentals'),
+      body: pick(
+        'Inme se har ek ke saath ek real-life example aur ek quiz tha.',
+        'Every one of these came with a daily-life example and a quiz.'
+      ),
       chips: ['#webdev', '#learninpublic'],
     });
   }
@@ -50,7 +61,7 @@ function buildCards({ achievements, insights, stats }) {
       cards.push({
         kind: 'course',
         theme: 'green',
-        eyebrow: 'Course completed',
+        eyebrow: pick('Course poora hua', 'Course completed'),
         headline: a.title.replace(/^Finished the /, ''),
         body: a.detail,
         chips: ['#course', '#learninpublic'],
@@ -60,7 +71,7 @@ function buildCards({ achievements, insights, stats }) {
       cards.push({
         kind: 'progress',
         theme: 'slate',
-        eyebrow: 'In progress',
+        eyebrow: pick('Chal raha hai', 'In progress'),
         headline: a.title,
         body: a.detail,
         chips: ['#learninpublic'],
@@ -74,7 +85,7 @@ function buildCards({ achievements, insights, stats }) {
     cards.push({
       kind: 'insight',
       theme: 'indigo',
-      eyebrow: 'What I found out',
+      eyebrow: pick('Maine kya jaana', 'What I found out'),
       headline: i.title,
       body: i.detail,
       chips: ['#ai', '#career'],
@@ -85,6 +96,7 @@ function buildCards({ achievements, insights, stats }) {
 }
 
 export default function CardsPage() {
+  const { pick } = useLang();
   const { data: session, status } = useSession();
   const [state, setState] = useState({ loading: true, error: '', cards: [] });
   const [selected, setSelected] = useState(null);
@@ -92,14 +104,18 @@ export default function CardsPage() {
   useEffect(() => {
     if (status !== 'authenticated') return;
     fetch('/api/me/achievements')
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Could not load your milestones'))))
+      .then((r) =>
+        r.ok
+          ? r.json()
+          : Promise.reject(new Error(pick('Tumhare milestones load nahi ho paaye', 'Could not load your milestones')))
+      )
       .then((d) => {
-        const cards = buildCards(d).map((c) => ({ ...c, name: session?.user?.name }));
+        const cards = buildCards(d, pick).map((c) => ({ ...c, name: session?.user?.name }));
         setState({ loading: false, error: '', cards });
         setSelected(cards[0] || null);
       })
       .catch((e) => setState({ loading: false, error: e.message, cards: [] }));
-  }, [status, session?.user?.name]);
+  }, [status, session?.user?.name, pick]);
 
   if (status === 'loading') {
     return <div className={`${SHELL} py-12`}><SkeletonCard lines={4} /></div>;
@@ -107,8 +123,15 @@ export default function CardsPage() {
   if (status !== 'authenticated') {
     return (
       <div className={`${SHELL} py-12`}>
-        <h1 className="text-3xl font-bold">Share cards</h1>
-        <div className="mt-6 max-w-lg"><LoginGate message="Log in to make a card from your own progress." /></div>
+        <h1 className="text-3xl font-bold">{pick('Share cards', 'Share cards')}</h1>
+        <div className="mt-6 max-w-lg">
+          <LoginGate
+            message={pick(
+              'Apni progress se card banane ke liye login karo.',
+              'Log in to make a card from your own progress.'
+            )}
+          />
+        </div>
       </div>
     );
   }
@@ -117,14 +140,17 @@ export default function CardsPage() {
     <div className={`${SHELL} py-10`}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Share cards</h1>
+          <h1 className="text-3xl font-bold">{pick('Share cards', 'Share cards')}</h1>
           <p className="mt-2 max-w-2xl text-slate-600">
-            A clean image of something you actually did. Download it, or copy the caption and post
-            it wherever you like — every number on a card comes from your own record.
+            {pick(
+              'Jo tumne sach mein kiya uski ek saaf-suthri image. Download karo, ya caption copy karke jahan chaho post karo — card ka har number tumhare apne record se aata hai.',
+              'A clean image of something you actually did. Download it, or copy the caption and post it wherever you like — every number on a card comes from your own record.'
+            )}
           </p>
         </div>
         <Link href="/create" className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
-          <Icon name="pen" className="mr-1.5 h-3.5 w-3.5" />Write a post instead
+          <Icon name="pen" className="mr-1.5 h-3.5 w-3.5" />
+          {pick('Iski jagah ek post likho', 'Write a post instead')}
         </Link>
       </div>
 
@@ -139,11 +165,14 @@ export default function CardsPage() {
         <div className="mt-8">
           <EmptyState
             icon="medal"
-            title="No cards to make yet"
-            description="Cards are built from real milestones — a finished course, a streak of three days or more, ten concepts completed. Do the thing first and the card appears here."
+            title={pick('Abhi banane ko koi card nahi', 'No cards to make yet')}
+            description={pick(
+              'Cards asli milestones se bante hain — ek poora hua course, teen ya zyada din ki streak, das concepts poore. Pehle wo kaam karo, card yahan apne aap aa jaayega.',
+              'Cards are built from real milestones — a finished course, a streak of three days or more, ten concepts completed. Do the thing first and the card appears here.'
+            )}
             action={
               <Link href="/courses" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
-                Go and learn something
+                {pick('Jao kuch seekho', 'Go and learn something')}
               </Link>
             }
           />
@@ -152,7 +181,10 @@ export default function CardsPage() {
         <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
           <div className="space-y-2">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-              {state.cards.length} card{state.cards.length === 1 ? '' : 's'} available
+              {pick(
+                `${state.cards.length} card available`,
+                `${state.cards.length} card${state.cards.length === 1 ? '' : 's'} available`
+              )}
             </h2>
             {state.cards.map((c, i) => (
               <button
@@ -176,8 +208,10 @@ export default function CardsPage() {
           <div>
             {selected && <ShareCard card={selected} />}
             <p className="mt-4 text-xs text-slate-400">
-              Cards are generated in your browser and are not uploaded anywhere. Nothing is posted
-              for you — downloading or copying is as far as this goes.
+              {pick(
+                'Cards tumhare browser mein hi bante hain, kahin upload nahi hote. Tumhari taraf se kuch post nahi hota — baat bas download ya copy tak hai.',
+                'Cards are generated in your browser and are not uploaded anywhere. Nothing is posted for you — downloading or copying is as far as this goes.'
+              )}
             </p>
           </div>
         </div>

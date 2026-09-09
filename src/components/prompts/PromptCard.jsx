@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Icon from '@/components/Icon';
+import { useLang } from '@/components/LanguageProvider';
 import VerificationBadge from './VerificationBadge';
 
 const CATEGORY_ICON = {
@@ -17,6 +18,7 @@ const CATEGORY_ICON = {
 };
 
 export default function PromptCard({ prompt, onSaveToggled }) {
+  const { pick } = useLang();
   const [saved, setSaved] = useState(prompt.saved);
   const [busy, setBusy] = useState(false);
 
@@ -49,7 +51,9 @@ export default function PromptCard({ prompt, onSaveToggled }) {
         <button
           onClick={toggleSave}
           disabled={busy}
-          aria-label={saved ? 'Remove from saved' : 'Save prompt'}
+          aria-label={
+            saved ? pick('Saved se hatao', 'Remove from saved') : pick('Prompt save karo', 'Save prompt')
+          }
           className={`rounded-lg p-2 transition-colors ${saved ? 'text-indigo-600' : 'text-slate-300 hover:text-slate-500'}`}
         >
           <Icon name="bookmark" className="h-3.5 w-3.5" />
@@ -66,17 +70,23 @@ export default function PromptCard({ prompt, onSaveToggled }) {
         </span>
         {prompt.variables.length > 0 && (
           <span className="rounded-full border border-slate-200 px-2 py-0.5 text-xs text-slate-600">
-            {prompt.variables.length} input{prompt.variables.length > 1 ? 's' : ''}
+            {prompt.variables.length}{' '}
+            {prompt.variables.length > 1 ? pick('inputs', 'inputs') : pick('input', 'input')}
           </span>
         )}
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-3 text-xs text-slate-500">
-        <span><Icon name="play" className="mr-1 h-3 w-3" />{prompt.usageCount} runs</span>
+        <span>
+          <Icon name="play" className="mr-1 h-3 w-3" />
+          {prompt.usageCount} {pick('baar chala', 'runs')}
+        </span>
         {prompt.ratingCount > 0 && (
           <span><Icon name="star" className="mr-1 h-3 w-3 text-amber-400" />{prompt.rating} ({prompt.ratingCount})</span>
         )}
-        <span className="ml-auto truncate">by {prompt.authorName}</span>
+        <span className="ml-auto truncate">
+          {pick('banaya', 'by')} {prompt.authorName}
+        </span>
       </div>
     </Link>
   );

@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import Icon from '@/components/Icon';
+import { useLang } from '@/components/LanguageProvider';
 
 // The four states every async surface in the app needs, in one place so they
 // look the same everywhere: loading, empty, error, success.
@@ -32,7 +35,12 @@ export function EmptyState({ icon = 'seedling', title, description, action }) {
   );
 }
 
-export function ErrorState({ title = 'That did not work', message, onRetry, retryLabel = 'Try again' }) {
+export function ErrorState({ title, message, onRetry, retryLabel }) {
+  const { pick } = useLang();
+  // Defaults are resolved here, not in the parameter list, so they follow the
+  // reader's language instead of freezing at whatever the module loaded with.
+  title = title || pick('Ye kaam nahi kiya', 'That did not work');
+  retryLabel = retryLabel || pick('Dobara try karo', 'Try again');
   return (
     <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4">
       <p className="flex items-center gap-2 font-semibold text-red-800">
@@ -61,16 +69,18 @@ export function SuccessNote({ children }) {
   );
 }
 
-export function LoginGate({ message = 'Log in to run this.' }) {
+export function LoginGate({ message }) {
+  const { pick } = useLang();
+  message = message || pick('Ye chalane ke liye login karo.', 'Log in to run this.');
   return (
     <div className="rounded-2xl border border-indigo-200 bg-indigo-50 px-5 py-4 text-sm">
       <p className="font-semibold text-indigo-900">{message}</p>
       <div className="mt-3 flex gap-2">
         <Link href="/login" className="rounded-lg border border-indigo-300 px-3 py-1.5 font-medium text-indigo-700 hover:bg-indigo-100">
-          Login
+          {pick('Login', 'Login')}
         </Link>
         <Link href="/register" className="rounded-lg bg-indigo-600 px-3 py-1.5 font-medium text-white hover:bg-indigo-700">
-          Sign up free
+          {pick('Free sign up', 'Sign up free')}
         </Link>
       </div>
     </div>

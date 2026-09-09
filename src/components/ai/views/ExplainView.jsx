@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import Icon from '@/components/Icon';
 import CodeBlock from '@/components/concept/CodeBlock';
+import { useLang } from '@/components/LanguageProvider';
 import { BulletList, Card, Section } from '../primitives';
 
 export default function ExplainView({ data }) {
+  const { pick } = useLang();
   return (
     <div className="space-y-8">
       <Card>
@@ -18,26 +20,26 @@ export default function ExplainView({ data }) {
         <Card className="border-amber-200 bg-amber-50">
           <p className="flex items-center gap-2 text-sm font-semibold text-amber-900">
             <Icon name="lightbulb" className="h-4 w-4" />
-            Daily-life example
+            {pick('Real-life example', 'Daily-life example')}
           </p>
           <p className="mt-2 text-sm text-amber-900">{data.dailyLifeExample}</p>
         </Card>
       )}
 
       {!!data.keyPoints?.length && (
-        <Section title="Remember this" icon="thumbtack">
+        <Section title={pick('Ye yaad rakho', 'Remember this')} icon="thumbtack">
           <BulletList items={data.keyPoints} />
         </Section>
       )}
 
       {data.code?.snippet && (
-        <Section title="In code" icon="code">
+        <Section title={pick('Code mein', 'In code')} icon="code">
           <CodeBlock code={data.code.snippet} language={data.code.language || 'javascript'} />
         </Section>
       )}
 
       {!!data.commonMistakes?.length && (
-        <Section title="Common mistakes" icon="bug">
+        <Section title={pick('Aam galtiyan', 'Common mistakes')} icon="bug">
           <div className="space-y-2">
             {data.commonMistakes.map((m, i) => (
               <Card key={i} className="p-4">
@@ -50,7 +52,7 @@ export default function ExplainView({ data }) {
       )}
 
       {!!data.checkYourself?.length && (
-        <Section title="Check yourself" icon="question">
+        <Section title={pick('Khud ko parkho', 'Check yourself')} icon="question">
           <div className="space-y-2">
             {data.checkYourself.map((q, i) => (
               <Reveal key={i} question={q.question} answer={q.answer} />
@@ -60,7 +62,7 @@ export default function ExplainView({ data }) {
       )}
 
       {!!data.nextTopics?.length && (
-        <Section title="Read next" icon="arrow-right">
+        <Section title={pick('Aage ye padho', 'Read next')} icon="arrow-right">
           <BulletList items={data.nextTopics} icon="arrow-right" />
         </Section>
       )}

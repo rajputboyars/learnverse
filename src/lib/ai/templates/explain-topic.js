@@ -2,6 +2,7 @@ import { LEARNER_SYSTEM, inputBlock, jsonInstruction } from './shared';
 
 const SHAPE = {
   title: 'the topic, named plainly',
+  titleHi: 'Koi Topic samjhao',
   oneLiner: 'the whole idea in one sentence',
   explanation: 'the main explanation, in the requested depth and language',
   dailyLifeExample: 'an everyday Indian analogy, the way Learnverse concepts do it',
@@ -16,11 +17,15 @@ const template = {
   id: 'explain-topic',
   title: 'Explain a Topic',
   short: 'Any topic, at the depth you ask for, with a desi example.',
+  shortHi: 'Koi bhi topic, jitni gehrai maango utni, ek desi example ke saath.',
   description:
     'Explains a concept the Learnverse way — plain words, a daily-life analogy, code, and a couple of questions to test yourself.',
+  descriptionHi:
+    'Kisi concept ko Learnverse ke tareeke se samjhata hai — seedhe shabd, ek rozmarra ki misaal, code, aur khud ko parakhne ke liye do sawaal.',
   category: 'learning',
   icon: 'lightbulb',
   cta: 'Explain Topic',
+  ctaHi: 'Topic samjhao',
   version: '1.0',
   status: 'active',
   outputFormat: 'structured',
@@ -29,13 +34,16 @@ const template = {
     {
       name: 'topic',
       label: 'Topic',
+      labelHi: 'Topic',
       type: 'text',
       required: true,
       placeholder: 'JavaScript event loop, database indexing, JWT…',
+      placeholderHi: 'JavaScript event loop, database indexing, JWT…',
     },
     {
       name: 'depth',
       label: 'Depth',
+      labelHi: 'Kitni gehrai',
       type: 'select',
       options: ['Explain like I am new', 'Normal', 'Deep dive', 'Interview answer'],
       default: 'Normal',
@@ -43,6 +51,7 @@ const template = {
     {
       name: 'language',
       label: 'Language',
+      labelHi: 'Bhasha',
       type: 'select',
       options: ['English', 'Hinglish'],
       default: 'English',
@@ -50,8 +59,10 @@ const template = {
     {
       name: 'context',
       label: 'Anything specific you are stuck on? (optional)',
+      labelHi: 'Kisi khaas cheez pe atke ho? (optional)',
       type: 'textarea',
       placeholder: 'I get why it is async but not why setTimeout(0) still runs late…',
+      placeholderHi: 'Async kyun hai wo samajh aaya, par setTimeout(0) phir bhi late kyun chalta hai wo nahi…',
     },
   ],
   system: LEARNER_SYSTEM,

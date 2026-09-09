@@ -1,9 +1,11 @@
 'use client';
 
 import Icon from '@/components/Icon';
+import { useLang } from '@/components/LanguageProvider';
 import { Card, Confidence, Pill, ScoreBar, Section, TableWrap } from '../primitives';
 
 export default function ComparisonView({ data }) {
+  const { pick } = useLang();
   const criteria = data.criteria || [];
   const options = data.options || [];
 
@@ -14,15 +16,15 @@ export default function ComparisonView({ data }) {
         <p className="mt-3 text-slate-700">{data.summary}</p>
       </Card>
 
-      <Section title="Side by side" icon="table">
+      <Section title={pick('Aamne-saamne', 'Side by side')} icon="table">
         <TableWrap>
           <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
             <tr>
-              <th className="px-4 py-3">Option</th>
+              <th className="px-4 py-3">{pick('Option', 'Option')}</th>
               {criteria.map((c) => (
                 <th key={c} className="px-4 py-3">{c}</th>
               ))}
-              <th className="px-4 py-3">Price</th>
+              <th className="px-4 py-3">{pick('Keemat', 'Price')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -44,14 +46,18 @@ export default function ComparisonView({ data }) {
         </TableWrap>
       </Section>
 
-      <Section title="The detail" icon="file">
+      <Section title={pick('Poori detail', 'The detail')} icon="file">
         <div className="grid gap-4 lg:grid-cols-2">
           {options.map((o, i) => (
             <Card key={i}>
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h4 className="font-semibold">{o.name}</h4>
-                  {o.bestFor && <p className="mt-0.5 text-sm text-slate-500">Best for: {o.bestFor}</p>}
+                  {o.bestFor && (
+                    <p className="mt-0.5 text-sm text-slate-500">
+                      {pick('Iske liye sabse achha:', 'Best for:')} {o.bestFor}
+                    </p>
+                  )}
                 </div>
                 {o.url && (
                   <a
@@ -60,7 +66,7 @@ export default function ComparisonView({ data }) {
                     rel="noopener noreferrer"
                     className="shrink-0 text-sm font-medium text-indigo-600 hover:underline"
                   >
-                    Visit <Icon name="external-link" className="h-3 w-3" />
+                    {pick('Kholo', 'Visit')} <Icon name="external-link" className="h-3 w-3" />
                   </a>
                 )}
               </div>
@@ -88,7 +94,7 @@ export default function ComparisonView({ data }) {
       </Section>
 
       {!!data.verdict?.length && (
-        <Section title="Which one for you" icon="target">
+        <Section title={pick('Tumhare liye kaunsa', 'Which one for you')} icon="target">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {data.verdict.map((v, i) => (
               <Card key={i} className="border-indigo-200 bg-indigo-50">

@@ -20,12 +20,17 @@ const SHAPE = {
 const template = {
   id: 'learning-roadmap',
   title: 'Create Learning Plan',
+  titleHi: 'Learning Plan banao',
   short: 'Turn a goal into a staged plan with projects and checkpoints.',
+  shortHi: 'Ek goal ko stages wale plan mein badlo, projects aur checkpoints ke saath.',
   description:
     'Builds a personal roadmap from where you are to where you want to be, with a project at every stage.',
+  descriptionHi:
+    'Tum jahan ho wahan se jahan pahunchna hai, wahan tak ka ek personal roadmap banata hai — har stage pe ek project ke saath.',
   category: 'learning',
   icon: 'map',
   cta: 'Generate Roadmap',
+  ctaHi: 'Roadmap banao',
   version: '1.0',
   status: 'active',
   outputFormat: 'structured',
@@ -35,19 +40,24 @@ const template = {
     {
       name: 'goal',
       label: 'Your goal',
+      labelHi: 'Tumhara goal',
       type: 'text',
       required: true,
       placeholder: 'Become a full-stack developer, crack a backend interview…',
+      placeholderHi: 'Full-stack developer banna, backend interview crack karna…',
     },
     {
       name: 'known',
       label: 'What you already know',
+      labelHi: 'Jo tum pehle se jaante ho',
       type: 'textarea',
       placeholder: 'HTML, CSS, some JavaScript…',
+      placeholderHi: 'HTML, CSS, thoda JavaScript…',
     },
     {
       name: 'hoursPerWeek',
       label: 'Hours per week',
+      labelHi: 'Hafte mein kitne ghante',
       type: 'select',
       options: ['2-5', '5-10', '10-20', '20+'],
       default: '5-10',
@@ -55,6 +65,7 @@ const template = {
     {
       name: 'deadline',
       label: 'Target timeline',
+      labelHi: 'Target timeline',
       type: 'select',
       options: ['1 month', '3 months', '6 months', '1 year', 'No deadline'],
       default: '3 months',

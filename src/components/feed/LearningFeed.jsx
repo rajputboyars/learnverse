@@ -6,12 +6,13 @@ import { useSession } from 'next-auth/react';
 import Icon from '@/components/Icon';
 import PromptRunner from '@/components/ai/PromptRunner';
 import { EmptyState, ErrorState, SkeletonCard } from '@/components/ui/States';
+import { useLang } from '@/components/LanguageProvider';
 import { ActionCard, ConceptCard, MilestoneCard, PromptCard } from './FeedCards';
 
 const FILTERS = [
-  { id: 'all', label: 'For you' },
-  { id: 'concepts', label: 'Concepts' },
-  { id: 'community', label: 'Community' },
+  { id: 'all', hi: 'Tumhare liye', en: 'For you' },
+  { id: 'concepts', hi: 'Concepts', en: 'Concepts' },
+  { id: 'community', hi: 'Community', en: 'Community' },
 ];
 
 /**
@@ -26,6 +27,7 @@ const FILTERS = [
  * last ten minutes actually produced, which is the opposite of losing track.
  */
 export default function LearningFeed() {
+  const { pick } = useLang();
   const { status } = useSession();
   const [filter, setFilter] = useState('all');
   const [items, setItems] = useState([]);
@@ -48,7 +50,7 @@ export default function LearningFeed() {
       setError('');
       try {
         const res = await fetch(`/api/feed?page=${nextPage}&filter=${filter}`);
-        if (!res.ok) throw new Error('Could not load the feed');
+        if (!res.ok) throw new Error(pick('Feed load nahi ho paayi', 'Could not load the feed'));
         const body = await res.json();
         setItems((prev) => (replace ? body.items : [...prev, ...body.items]));
         setHasMore(body.hasMore);
@@ -116,7 +118,7 @@ export default function LearningFeed() {
                   : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
               }`}
             >
-              {f.label}
+              {pick(f.hi, f.en)}
             </button>
           ))}
 
@@ -124,7 +126,7 @@ export default function LearningFeed() {
           {answered.tried > 0 && (
             <span className="ml-auto rounded-full border border-green-300 bg-green-50 px-3 py-1.5 text-sm font-medium text-green-800">
               <Icon name="check-circle" className="mr-1.5 h-3 w-3" />
-              {answered.right}/{answered.tried} right this session
+              {answered.right}/{answered.tried} {pick('sahi is session mein', 'right this session')}
             </span>
           )}
         </div>
@@ -160,11 +162,21 @@ export default function LearningFeed() {
         {!loading && !error && items.length === 0 && (
           <EmptyState
             icon="filter"
-            title={filter === 'community' ? 'No community activity yet' : 'Nothing here yet'}
+            title={
+              filter === 'community'
+                ? pick('Abhi koi community activity nahi', 'No community activity yet')
+                : pick('Abhi yahan kuch nahi hai', 'Nothing here yet')
+            }
             description={
               filter === 'community'
-                ? 'Streak cards appear once learners get going. Check back in a few days.'
-                : 'There is no content for this filter right now.'
+                ? pick(
+                    'Streak cards tab dikhte hain jab learners chalna shuru karte hain. Kuch din baad dekhna.',
+                    'Streak cards appear once learners get going. Check back in a few days.'
+                  )
+                : pick(
+                    'Is filter ke liye abhi koi content nahi hai.',
+                    'There is no content for this filter right now.'
+                  )
             }
           />
         )}
@@ -173,17 +185,26 @@ export default function LearningFeed() {
         {!hasMore && !loading && items.length > 0 && (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-6 py-10 text-center">
             <Icon name="check-circle" className="mx-auto h-7 w-7 text-green-500" />
-            <p className="mt-3 font-semibold text-slate-700">That is the whole feed.</p>
+            <p className="mt-3 font-semibold text-slate-700">
+              {pick('Bas, poori feed yahi thi.', 'That is the whole feed.')}
+            </p>
             <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">
-              No infinite loop of the same cards — you have seen everything there is right now.
-              {answered.tried > 0 && ` You answered ${answered.right} of ${answered.tried} questions correctly along the way.`}
+              {pick(
+                'Wahi cards baar-baar nahi ghumenge — abhi jitna tha sab dekh liya.',
+                'No infinite loop of the same cards — you have seen everything there is right now.'
+              )}
+              {answered.tried > 0 &&
+                pick(
+                  ` Raaste mein tumne ${answered.tried} mein se ${answered.right} sawaal sahi kiye.`,
+                  ` You answered ${answered.right} of ${answered.tried} questions correctly along the way.`
+                )}
             </p>
             <div className="mt-4 flex flex-wrap justify-center gap-2">
               <Link href="/courses" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
-                Pick a course properly
+                {pick('Dhang se ek course chuno', 'Pick a course properly')}
               </Link>
               <Link href="/dashboard" className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
-                Your progress
+                {pick('Tumhari progress', 'Your progress')}
               </Link>
             </div>
           </div>

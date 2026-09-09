@@ -22,10 +22,10 @@ export const TEMPLATES = [
 ];
 
 export const CATEGORIES = [
-  { id: 'career', label: 'Career' },
-  { id: 'learning', label: 'Learning' },
-  { id: 'analytics', label: 'Analytics' },
-  { id: 'create', label: 'Create' },
+  { id: 'career', label: 'Career', labelHi: 'Career' },
+  { id: 'learning', label: 'Learning', labelHi: 'Learning' },
+  { id: 'analytics', label: 'Analytics', labelHi: 'Analytics' },
+  { id: 'create', label: 'Create', labelHi: 'Banao' },
 ];
 
 export function getTemplate(id) {
@@ -46,6 +46,13 @@ export function publicTemplate(t) {
     category: t.category,
     icon: t.icon,
     cta: t.cta,
+    // Hinglish siblings, so the client can render either language without a
+    // second request. A template that has not been translated simply omits
+    // them and the UI falls back to the English above.
+    titleHi: t.titleHi,
+    shortHi: t.shortHi,
+    descriptionHi: t.descriptionHi,
+    ctaHi: t.ctaHi,
     version: t.version,
     outputFormat: t.outputFormat,
     resultView: t.resultView,

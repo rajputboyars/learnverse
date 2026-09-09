@@ -8,12 +8,28 @@ import Icon from '@/components/Icon';
 import SwipeDeck from '@/components/swipe/SwipeDeck';
 import { ConceptFace, QuizFace } from '@/components/swipe/SwipeFaces';
 import { ErrorState, SkeletonCard } from '@/components/ui/States';
+import { useLang } from '@/components/LanguageProvider';
+
 
 const SHELL = 'mx-auto w-full max-w-xl px-4 sm:px-6';
 
 const SECTIONS = [
-  { id: 'concepts', label: 'Concepts', icon: 'book-open', blurb: 'One idea per card, with a real-life example.' },
-  { id: 'quiz', label: 'Quiz', icon: 'question', blurb: 'Answer first, read after. No XP — this is practice.' },
+  {
+    id: 'concepts',
+    hi: 'Concepts',
+    en: 'Concepts',
+    icon: 'book-open',
+    blurbHi: 'Ek card mein ek idea, ek real-life example ke saath.',
+    blurbEn: 'One idea per card, with a real-life example.',
+  },
+  {
+    id: 'quiz',
+    hi: 'Quiz',
+    en: 'Quiz',
+    icon: 'question',
+    blurbHi: 'Pehle jawab do, baad mein padho. XP nahi — ye practice hai.',
+    blurbEn: 'Answer first, read after. No XP — this is practice.',
+  },
 ];
 
 // The deck lives in the URL so the phone tab bar can point straight at either
@@ -27,6 +43,7 @@ export default function SwipePage() {
 }
 
 function Swipe() {
+  const { pick } = useLang();
   const { status } = useSession();
   const router = useRouter();
   const params = useSearchParams();
@@ -48,7 +65,7 @@ function Swipe() {
   const loadMore = useCallback(async () => {
     try {
       const res = await fetch(`/api/feed?page=${pageRef.current}&filter=concepts`);
-      if (!res.ok) throw new Error('Could not load cards');
+      if (!res.ok) throw new Error(pick('Cards load nahi ho paaye', 'Could not load cards'));
       const body = await res.json();
       pageRef.current += 1;
 
@@ -78,7 +95,7 @@ function Swipe() {
   async function save(item) {
     setSavedCount((n) => n + 1);
     if (status !== 'authenticated') {
-      flash('Saved for this session — log in to keep it');
+      flash(pick('Is session ke liye save — rakhne ke liye login karo', 'Saved for this session — log in to keep it'));
       return;
     }
     try {
@@ -90,9 +107,13 @@ function Swipe() {
       const body = await res.json();
       // The endpoint toggles, so a card already bookmarked would come back
       // false — say what actually happened rather than always claiming a save.
-      flash(body.bookmarked ? 'Saved to favourites' : 'Removed from favourites');
+      flash(
+        body.bookmarked
+          ? pick('Favourites mein save ho gaya', 'Saved to favourites')
+          : pick('Favourites se hata diya', 'Removed from favourites')
+      );
     } catch {
-      flash('Could not save that');
+      flash(pick('Ye save nahi ho paaya', 'Could not save that'));
     }
   }
 
@@ -103,13 +124,17 @@ function Swipe() {
       <div className={`${SHELL} py-6`}>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold">Swipe to learn</h1>
+            <h1 className="text-2xl font-bold">{pick('Swipe karke seekho', 'Swipe to learn')}</h1>
             <p className="mt-1 text-sm text-slate-600">
-              {SECTIONS.find((s) => s.id === section).blurb}
+              {pick(
+                SECTIONS.find((s) => s.id === section).blurbHi,
+                SECTIONS.find((s) => s.id === section).blurbEn
+              )}
             </p>
           </div>
           <Link href="/feed" className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium hover:bg-slate-50">
-            <Icon name="bars" className="mr-1.5 h-3 w-3" />List view
+            <Icon name="bars" className="mr-1.5 h-3 w-3" />
+            {pick('List view', 'List view')}
           </Link>
         </div>
 
@@ -127,10 +152,12 @@ function Swipe() {
             >
               <span className="flex items-center gap-2 text-sm font-semibold">
                 <Icon name={s.icon} className="h-3.5 w-3.5" />
-                {s.label}
+                {pick(s.hi, s.en)}
               </span>
               <span className={`mt-0.5 block text-xs ${section === s.id ? 'text-indigo-700' : 'text-slate-500'}`}>
-                {decks[s.id] ? `${decks[s.id].length} cards` : 'loading…'}
+                {decks[s.id]
+                  ? pick(`${decks[s.id].length} cards`, `${decks[s.id].length} cards`)
+                  : pick('load ho raha hai…', 'loading…')}
               </span>
             </button>
           ))}
@@ -141,10 +168,10 @@ function Swipe() {
         <div className="mt-4 flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs">
           <span className="flex items-center gap-1.5 font-medium text-indigo-600">
             <Icon name="arrow-left" className="h-3 w-3" />
-            Swipe left to save
+            {pick('Save karne ke liye left swipe', 'Swipe left to save')}
           </span>
           <span className="flex items-center gap-1.5 font-medium text-slate-500">
-            Swipe right for next
+            {pick('Agle ke liye right swipe', 'Swipe right for next')}
             <Icon name="arrow-right" className="h-3 w-3" />
           </span>
         </div>
@@ -155,13 +182,13 @@ function Swipe() {
             {score.tried > 0 && (
               <span className="rounded-full border border-green-300 bg-green-50 px-3 py-1 font-medium text-green-800">
                 <Icon name="check-circle" className="mr-1 h-3 w-3" />
-                {score.right}/{score.tried} right
+                {score.right}/{score.tried} {pick('sahi', 'right')}
               </span>
             )}
             {savedCount > 0 && (
               <span className="rounded-full border border-indigo-300 bg-indigo-50 px-3 py-1 font-medium text-indigo-700">
                 <Icon name="bookmark" className="mr-1 h-3 w-3" />
-                {savedCount} saved
+                {savedCount} {pick('save kiye', 'saved')}
               </span>
             )}
           </div>
@@ -193,21 +220,29 @@ function Swipe() {
               emptyState={
                 <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
                   <Icon name="check-circle" className="mx-auto h-7 w-7 text-green-500" />
-                  <p className="mt-3 font-semibold text-slate-700">Deck finished</p>
+                  <p className="mt-3 font-semibold text-slate-700">
+                    {pick('Deck khatam', 'Deck finished')}
+                  </p>
                   <p className="mx-auto mt-1 max-w-xs text-sm text-slate-500">
                     {score.tried > 0
-                      ? `You answered ${score.right} of ${score.tried} correctly.`
-                      : 'You have been through every card in this deck.'}
+                      ? pick(
+                          `Tumne ${score.tried} mein se ${score.right} sahi kiye.`,
+                          `You answered ${score.right} of ${score.tried} correctly.`
+                        )
+                      : pick(
+                          'Is deck ke saare cards tum dekh chuke ho.',
+                          'You have been through every card in this deck.'
+                        )}
                   </p>
                   <div className="mt-4 flex flex-wrap justify-center gap-2">
                     <button
                       onClick={() => loadMore()}
                       className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
                     >
-                      Load more cards
+                      {pick('Aur cards laao', 'Load more cards')}
                     </button>
                     <Link href="/dashboard" className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50">
-                      Your progress
+                      {pick('Tumhari progress', 'Your progress')}
                     </Link>
                   </div>
                 </div>

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import Icon from '@/components/Icon';
+import { useLang } from '@/components/LanguageProvider';
 
 /**
  * The phone navigation bar.
@@ -14,14 +15,15 @@ import Icon from '@/components/Icon';
  * Hidden from `sm` up, where the header nav does this job better.
  */
 const TABS = [
-  { href: '/feed', icon: 'bars', label: 'Feed' },
-  { href: '/swipe?deck=concepts', icon: 'layers', label: 'Cards', match: (p, d) => p === '/swipe' && d !== 'quiz' },
-  { href: '/swipe?deck=quiz', icon: 'question', label: 'Quiz', match: (p, d) => p === '/swipe' && d === 'quiz' },
-  { href: '/ai', icon: 'sparkles', label: 'AI' },
-  { href: '/dashboard', icon: 'chart', label: 'You' },
+  { href: '/feed', icon: 'bars', hi: 'Feed', en: 'Feed' },
+  { href: '/swipe?deck=concepts', icon: 'layers', hi: 'Cards', en: 'Cards', match: (p, d) => p === '/swipe' && d !== 'quiz' },
+  { href: '/swipe?deck=quiz', icon: 'question', hi: 'Quiz', en: 'Quiz', match: (p, d) => p === '/swipe' && d === 'quiz' },
+  { href: '/ai', icon: 'sparkles', hi: 'AI', en: 'AI' },
+  { href: '/dashboard', icon: 'chart', hi: 'Tum', en: 'You' },
 ];
 
 export default function MobileTabBar() {
+  const { pick } = useLang();
   const pathname = usePathname();
   const params = useSearchParams();
   const deck = params.get('deck');
@@ -38,7 +40,7 @@ export default function MobileTabBar() {
 
   return (
     <nav
-      aria-label="Main"
+      aria-label={pick('Main', 'Main')}
       className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur sm:hidden dark:border-slate-800 dark:bg-slate-900/95"
       // Keep the bar clear of the home indicator on iPhones.
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
@@ -67,7 +69,7 @@ export default function MobileTabBar() {
                 }`}
               >
                 <Icon name={tab.icon} className="h-4 w-4" />
-                {tab.label}
+                {pick(tab.hi, tab.en)}
                 <span
                   aria-hidden
                   className={`h-0.5 w-6 rounded-full ${active ? 'bg-indigo-600 dark:bg-indigo-400' : 'bg-transparent'}`}

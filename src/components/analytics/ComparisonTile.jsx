@@ -1,6 +1,8 @@
 'use client';
 
 import Icon from '@/components/Icon';
+import { useLang } from '@/components/LanguageProvider';
+
 
 /**
  * This period against the one before it — the comparison the product is built
@@ -10,6 +12,7 @@ import Icon from '@/components/Icon';
  * the honest answer, not "+100%".
  */
 export default function ComparisonTile({ label, current, previous, change, unit = '' }) {
+  const { pick } = useLang();
   const noBaseline = change === null || change === undefined;
   const up = !noBaseline && change > 0;
   const flat = !noBaseline && change === 0;
@@ -24,7 +27,10 @@ export default function ComparisonTile({ label, current, previous, change, unit 
 
       {noBaseline ? (
         <p className="mt-2 text-xs text-slate-400">
-          No earlier period to compare against yet.
+          {pick(
+            'Abhi compare karne ke liye pichhla koi period nahi hai.',
+            'No earlier period to compare against yet.'
+          )}
         </p>
       ) : (
         <p
@@ -33,7 +39,10 @@ export default function ComparisonTile({ label, current, previous, change, unit 
           }`}
         >
           <Icon name={flat ? 'minus' : up ? 'trend-up' : 'trend-down'} className="h-3 w-3" />
-          {flat ? 'Same as' : `${up ? '+' : ''}${change}% vs`} the previous period
+          {pick(
+            flat ? 'Pichhle period jitna hi' : `${up ? '+' : ''}${change}% pichhle period se`,
+            flat ? 'Same as the previous period' : `${up ? '+' : ''}${change}% vs the previous period`
+          )}
           <span className="font-normal text-slate-400">({previous})</span>
         </p>
       )}

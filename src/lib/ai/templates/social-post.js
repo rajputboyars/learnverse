@@ -35,12 +35,17 @@ const PLATFORM_RULES = {
 const template = {
   id: 'social-post',
   title: 'Create a Post',
+  titleHi: 'Ek Post banao',
   short: 'Turn what you learned into a post that sounds like you.',
+  shortHi: 'Jo seekha use ek aisi post mein badlo jo tumhari lage.',
   description:
     'Generates a ready-to-paste post for LinkedIn, Instagram, X or Reddit from a topic and a few points.',
+  descriptionHi:
+    'Ek post ka draft likhta hai jo tumhari apni baat lagti hai — hook, jo seekha, jo baat obvious nahi thi, aur ek sawaal padhne wale ke liye.',
   category: 'create',
   icon: 'share',
   cta: 'Generate Post',
+  ctaHi: 'Post banao',
   version: '1.0',
   status: 'active',
   outputFormat: 'structured',
@@ -49,6 +54,7 @@ const template = {
     {
       name: 'platform',
       label: 'Platform',
+      labelHi: 'Platform',
       type: 'select',
       options: ['LinkedIn', 'Instagram', 'X / Twitter', 'Reddit'],
       default: 'LinkedIn',
@@ -57,19 +63,24 @@ const template = {
     {
       name: 'topic',
       label: 'What is the post about?',
+      labelHi: 'Post kis baare mein hai?',
       type: 'text',
       required: true,
       placeholder: 'I learned how the JavaScript event loop works',
+      placeholderHi: 'Maine seekha ki JavaScript ka event loop kaise chalta hai',
     },
     {
       name: 'points',
       label: 'Main points (optional)',
+      labelHi: 'Khaas baatein (optional)',
       type: 'textarea',
       placeholder: 'One per line — what surprised you, what clicked, what you built',
+      placeholderHi: 'Ek line mein ek — kya surprise laga, kya samajh aaya, kya banaya',
     },
     {
       name: 'tone',
       label: 'Tone',
+      labelHi: 'Tone',
       type: 'select',
       options: ['Professional', 'Personal', 'Storytelling', 'Technical', 'Short and punchy', 'Achievement'],
       default: 'Personal',
@@ -77,8 +88,10 @@ const template = {
     {
       name: 'audience',
       label: 'Who is it for?',
+      labelHi: 'Kiske liye hai?',
       type: 'text',
       placeholder: 'Other learners, recruiters, senior devs…',
+      placeholderHi: 'Doosre learners, recruiters, senior devs…',
       default: 'Other developers',
     },
   ],

@@ -1,24 +1,29 @@
 'use client';
 
 import Icon from '@/components/Icon';
+import { useLang } from '@/components/LanguageProvider';
 import { Card, Confidence, Pill, Section } from '../primitives';
 
 const EFFORT_TONE = { small: 'green', medium: 'amber', large: 'red' };
 
 export default function AnalysisView({ data }) {
+  const { pick } = useLang();
   return (
     <div className="space-y-8">
       <Card>
         <Confidence level={data.confidence} />
         <p className="mt-3 text-slate-700">{data.summary}</p>
         <p className="mt-3 text-xs text-slate-400">
-          Based on the activity this site has recorded for you — not on anything outside it.
+          {pick(
+            'Is site ne tumhari jo activity record ki hai uske aadhaar par — iske baahar kisi cheez par nahi.',
+            'Based on the activity this site has recorded for you — not on anything outside it.'
+          )}
         </p>
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
         {!!data.strengths?.length && (
-          <Section title="Working well" icon="check-circle">
+          <Section title={pick('Achha chal raha hai', 'Working well')} icon="check-circle">
             <div className="space-y-3">
               {data.strengths.map((s, i) => (
                 <Card key={i} className="border-green-200 bg-green-50 p-4">
@@ -30,7 +35,7 @@ export default function AnalysisView({ data }) {
           </Section>
         )}
         {!!data.gaps?.length && (
-          <Section title="Worth attention" icon="warning">
+          <Section title={pick('Dhyaan dene layak', 'Worth attention')} icon="warning">
             <div className="space-y-3">
               {data.gaps.map((g, i) => (
                 <Card key={i} className="p-4">
@@ -44,12 +49,16 @@ export default function AnalysisView({ data }) {
       </div>
 
       {!!data.patterns?.length && (
-        <Section title="Patterns in your activity" icon="chart">
+        <Section title={pick('Tumhari activity ke patterns', 'Patterns in your activity')} icon="chart">
           <div className="space-y-2">
             {data.patterns.map((p, i) => (
               <Card key={i} className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <p className="text-sm text-slate-700">{p.observation}</p>
-                {p.basedOn && <Pill>from: {p.basedOn}</Pill>}
+                {p.basedOn && (
+                  <Pill>
+                    {pick('se:', 'from:')} {p.basedOn}
+                  </Pill>
+                )}
               </Card>
             ))}
           </div>
@@ -57,7 +66,7 @@ export default function AnalysisView({ data }) {
       )}
 
       {!!data.nextSteps?.length && (
-        <Section title="Do this next" icon="target">
+        <Section title={pick('Ab ye karo', 'Do this next')} icon="target">
           <div className="space-y-2">
             {data.nextSteps.map((s, i) => (
               <Card key={i} className="flex flex-wrap items-start justify-between gap-3 border-indigo-200 bg-indigo-50 p-4">
@@ -65,7 +74,11 @@ export default function AnalysisView({ data }) {
                   <p className="font-semibold text-indigo-900">{s.action}</p>
                   <p className="mt-1 text-sm text-indigo-800">{s.why}</p>
                 </div>
-                {s.effort && <Pill tone={EFFORT_TONE[s.effort] || 'slate'}>{s.effort} effort</Pill>}
+                {s.effort && (
+                  <Pill tone={EFFORT_TONE[s.effort] || 'slate'}>
+                    {s.effort} {pick('mehnat', 'effort')}
+                  </Pill>
+                )}
               </Card>
             ))}
           </div>

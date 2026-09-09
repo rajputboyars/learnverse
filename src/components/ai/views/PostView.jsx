@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Icon from '@/components/Icon';
+import { useLang } from '@/components/LanguageProvider';
 import { Card, Pill, Section } from '../primitives';
 
 /**
@@ -10,6 +11,7 @@ import { Card, Pill, Section } from '../primitives';
  * exactly what is in the box.
  */
 export default function PostView({ data }) {
+  const { pick } = useLang();
   const [text, setText] = useState(data.post || '');
   const [copied, setCopied] = useState('');
 
@@ -31,12 +33,14 @@ export default function PostView({ data }) {
     <div className="space-y-8">
       {data.hook && (
         <Card className="border-indigo-200 bg-indigo-50">
-          <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Hook</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">
+            {pick('Hook', 'Hook')}
+          </p>
           <p className="mt-1 font-medium text-indigo-900">{data.hook}</p>
         </Card>
       )}
 
-      <Section title="Your post" icon="pen">
+      <Section title={pick('Tumhari post', 'Your post')} icon="pen">
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -49,14 +53,16 @@ export default function PostView({ data }) {
             className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
           >
             <Icon name={copied === 'post' ? 'check' : 'copy'} className="mr-1.5 h-3.5 w-3.5" />
-            {copied === 'post' ? 'Copied' : 'Copy post'}
+            {copied === 'post' ? pick('Copy ho gaya', 'Copied') : pick('Post copy karo', 'Copy post')}
           </button>
-          <span className="text-xs text-slate-400">{text.length} characters</span>
+          <span className="text-xs text-slate-400">
+            {text.length} {pick('characters', 'characters')}
+          </span>
         </div>
       </Section>
 
       {!!data.thread?.length && (
-        <Section title="As a thread" icon="comments">
+        <Section title={pick('Thread ki tarah', 'As a thread')} icon="comments">
           <div className="space-y-2">
             {data.thread.map((t, i) => (
               <Card key={i} className="flex items-start justify-between gap-3 p-4">
@@ -65,7 +71,7 @@ export default function PostView({ data }) {
                   onClick={() => copy(t, `t${i}`)}
                   className="shrink-0 text-xs font-medium text-indigo-600 hover:underline"
                 >
-                  {copied === `t${i}` ? 'Copied' : 'Copy'}
+                  {copied === `t${i}` ? pick('Copy ho gaya', 'Copied') : pick('Copy', 'Copy')}
                 </button>
               </Card>
             ))}
@@ -74,11 +80,13 @@ export default function PostView({ data }) {
       )}
 
       {!!data.slides?.length && (
-        <Section title="Carousel slides" icon="layers">
+        <Section title={pick('Carousel slides', 'Carousel slides')} icon="layers">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {data.slides.map((s, i) => (
               <Card key={i} className="flex aspect-square flex-col justify-center">
-                <p className="text-xs font-semibold text-slate-400">Slide {i + 1}</p>
+                <p className="text-xs font-semibold text-slate-400">
+                  {pick('Slide', 'Slide')} {i + 1}
+                </p>
                 <p className="mt-2 text-base font-bold">{s.title}</p>
                 <p className="mt-2 text-sm text-slate-600">{s.body}</p>
               </Card>
@@ -88,13 +96,13 @@ export default function PostView({ data }) {
       )}
 
       {!!data.hashtags?.length && (
-        <Section title="Hashtags" icon="hashtag">
+        <Section title={pick('Hashtags', 'Hashtags')} icon="hashtag">
           <div className="flex flex-wrap items-center gap-1.5">
             {data.hashtags.map((h) => (
               <Pill key={h} tone="indigo">{h}</Pill>
             ))}
             <button onClick={() => copy(hashtags, 'tags')} className="ml-1 text-xs font-medium text-indigo-600 hover:underline">
-              {copied === 'tags' ? 'Copied' : 'Copy all'}
+              {copied === 'tags' ? pick('Copy ho gaya', 'Copied') : pick('Sab copy karo', 'Copy all')}
             </button>
           </div>
         </Section>

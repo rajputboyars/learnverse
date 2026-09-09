@@ -1,8 +1,10 @@
 'use client';
 
+import { useLang } from '@/components/LanguageProvider';
 import { Card, Confidence, Pill, Section, TrendPill } from '../primitives';
 
 export default function JobsView({ data }) {
+  const { pick } = useLang();
   return (
     <div className="space-y-8">
       <Card>
@@ -10,18 +12,28 @@ export default function JobsView({ data }) {
         <p className="mt-3 text-slate-700">{data.summary}</p>
       </Card>
 
-      <Section title="Roles" icon="briefcase">
+      <Section title={pick('Roles', 'Roles')} icon="briefcase">
         <div className="grid gap-4 lg:grid-cols-2">
           {(data.roles || []).map((r, i) => (
             <Card key={i}>
               <div className="flex flex-wrap items-center gap-2">
                 <h4 className="font-semibold">{r.title}</h4>
                 <TrendPill trend={r.trend} />
-                {r.demand && <Pill tone="indigo">{r.demand} demand</Pill>}
-                {r.entryDifficulty && <Pill>entry: {r.entryDifficulty}</Pill>}
+                {r.demand && (
+                  <Pill tone="indigo">
+                    {r.demand} {pick('demand', 'demand')}
+                  </Pill>
+                )}
+                {r.entryDifficulty && (
+                  <Pill>
+                    {pick('entry:', 'entry:')} {r.entryDifficulty}
+                  </Pill>
+                )}
               </div>
 
-              <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Must have</p>
+              <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                {pick('Hona hi chahiye', 'Must have')}
+              </p>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {(r.mustHaveSkills || []).map((s) => (
                   <Pill key={s} tone="green">{s}</Pill>
@@ -30,7 +42,9 @@ export default function JobsView({ data }) {
 
               {!!r.niceToHaveSkills?.length && (
                 <>
-                  <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Nice to have</p>
+                  <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    {pick('Ho toh achha hai', 'Nice to have')}
+                  </p>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     {r.niceToHaveSkills.map((s) => (
                       <Pill key={s}>{s}</Pill>
@@ -47,7 +61,7 @@ export default function JobsView({ data }) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         {!!data.risingSkills?.length && (
-          <Section title="Rising" icon="trend-up">
+          <Section title={pick('Upar ja rahe hain', 'Rising')} icon="trend-up">
             <div className="space-y-2">
               {data.risingSkills.map((s, i) => (
                 <Card key={i} className="border-green-200 bg-green-50 p-4">
@@ -59,7 +73,7 @@ export default function JobsView({ data }) {
           </Section>
         )}
         {!!data.fadingSkills?.length && (
-          <Section title="Fading" icon="trend-down">
+          <Section title={pick('Dheere-dheere khatam', 'Fading')} icon="trend-down">
             <div className="space-y-2">
               {data.fadingSkills.map((s, i) => (
                 <Card key={i} className="p-4">
@@ -74,7 +88,7 @@ export default function JobsView({ data }) {
 
       {data.advice && (
         <Card className="border-indigo-200 bg-indigo-50">
-          <p className="text-sm font-semibold text-indigo-900">Advice</p>
+          <p className="text-sm font-semibold text-indigo-900">{pick('Salaah', 'Advice')}</p>
           <p className="mt-1 text-sm text-indigo-800">{data.advice}</p>
         </Card>
       )}

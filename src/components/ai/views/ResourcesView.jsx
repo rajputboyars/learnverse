@@ -1,6 +1,7 @@
 'use client';
 
 import Icon from '@/components/Icon';
+import { useLang } from '@/components/LanguageProvider';
 import { BulletList, Card, Confidence, Pill, Section } from '../primitives';
 
 const KIND_ICON = {
@@ -14,6 +15,7 @@ const KIND_ICON = {
 };
 
 export default function ResourcesView({ data }) {
+  const { pick } = useLang();
   return (
     <div className="space-y-8">
       <Card>
@@ -21,7 +23,7 @@ export default function ResourcesView({ data }) {
         <p className="mt-3 text-slate-700">{data.summary}</p>
       </Card>
 
-      <Section title="Worth your time" icon="book-open">
+      <Section title={pick('Tumhare time ke layak', 'Worth your time')} icon="book-open">
         <div className="grid gap-3 lg:grid-cols-2">
           {(data.resources || []).map((r, i) => (
             <Card key={i} className="flex gap-4">
@@ -42,7 +44,7 @@ export default function ResourcesView({ data }) {
                       rel="noopener noreferrer"
                       className="font-medium text-indigo-600 hover:underline"
                     >
-                      Open <Icon name="external-link" className="h-3 w-3" />
+                      {pick('Kholo', 'Open')} <Icon name="external-link" className="h-3 w-3" />
                     </a>
                   )}
                 </div>
@@ -53,7 +55,7 @@ export default function ResourcesView({ data }) {
       </Section>
 
       {!!data.order?.length && (
-        <Section title="Use them in this order" icon="list-check">
+        <Section title={pick('Inhe is order mein use karo', 'Use them in this order')} icon="list-check">
           <ol className="space-y-2 text-sm text-slate-700">
             {data.order.map((step, i) => (
               <li key={i} className="flex gap-3">
@@ -68,7 +70,7 @@ export default function ResourcesView({ data }) {
       )}
 
       {!!data.avoid?.length && (
-        <Section title="Skip these" icon="x-circle">
+        <Section title={pick('Inhe chhod do', 'Skip these')} icon="x-circle">
           <BulletList items={data.avoid.map((a) => `${a.name} — ${a.why}`)} icon="x" />
         </Section>
       )}

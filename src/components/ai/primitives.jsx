@@ -1,6 +1,7 @@
 'use client';
 
 import Icon from '@/components/Icon';
+import { useLang } from '@/components/LanguageProvider';
 
 // Small pieces shared by every result view, so a table, a rank arrow or a score
 // bar looks identical whichever prompt produced it.
@@ -36,6 +37,7 @@ export function TableWrap({ children }) {
 }
 
 export function RankChange({ current, previous }) {
+  const { pick } = useLang();
   if (typeof current !== 'number' || typeof previous !== 'number') {
     return <span className="text-slate-400">—</span>;
   }
@@ -44,7 +46,7 @@ export function RankChange({ current, previous }) {
     return (
       <span className="inline-flex items-center gap-1 text-slate-500">
         <Icon name="minus" className="h-3 w-3" />
-        no change
+        {pick('koi badlaav nahi', 'no change')}
       </span>
     );
   }
@@ -104,9 +106,14 @@ export function ScoreBar({ value, max = 5 }) {
 }
 
 export function Confidence({ level }) {
+  const { pick } = useLang();
   if (!level) return null;
   const tone = { high: 'green', medium: 'amber', low: 'red' }[String(level).toLowerCase()] || 'slate';
-  return <Pill tone={tone}>Model confidence: {level}</Pill>;
+  return (
+    <Pill tone={tone}>
+      {pick('Model ka confidence:', 'Model confidence:')} {level}
+    </Pill>
+  );
 }
 
 export function BulletList({ items, icon = 'circle-dot', className = '' }) {

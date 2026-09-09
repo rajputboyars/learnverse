@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Icon from '@/components/Icon';
 import SourceBadge from '@/components/ai/SourceBadge';
+import { useLang } from '@/components/LanguageProvider';
 import { ErrorState, SkeletonCard, SuccessNote } from '@/components/ui/States';
 
 const PLATFORMS = [
-  { id: 'LinkedIn', key: 'linkedin', icon: 'linkedin', blurb: 'Professional, structured, a question at the end.' },
-  { id: 'Instagram', key: 'instagram', icon: 'palette', blurb: 'Caption plus a carousel, slide by slide.' },
-  { id: 'X / Twitter', key: 'x', icon: 'twitter', blurb: 'One post, or a short thread.' },
-  { id: 'Reddit', key: 'reddit', icon: 'comments', blurb: 'A person asking or sharing, not marketing.' },
+  { id: 'LinkedIn', key: 'linkedin', icon: 'linkedin', hi: 'Professional, structured, aakhir mein ek sawaal.', en: 'Professional, structured, a question at the end.' },
+  { id: 'Instagram', key: 'instagram', icon: 'palette', hi: 'Caption aur ek carousel, slide dar slide.', en: 'Caption plus a carousel, slide by slide.' },
+  { id: 'X / Twitter', key: 'x', icon: 'twitter', hi: 'Ek post, ya ek chhota thread.', en: 'One post, or a short thread.' },
+  { id: 'Reddit', key: 'reddit', icon: 'comments', hi: 'Ek insaan poochh raha ya share kar raha hai, marketing nahi.', en: 'A person asking or sharing, not marketing.' },
 ];
 
 const TONES = ['Professional', 'Personal', 'Storytelling', 'Technical', 'Short and punchy', 'Achievement'];
@@ -25,6 +26,7 @@ const TONES = ['Professional', 'Personal', 'Storytelling', 'Technical', 'Short a
  * user copies it and publishes it themselves.
  */
 export default function PostComposer({ initial }) {
+  const { pick } = useLang();
   const [platform, setPlatform] = useState(initial?.platform || 'LinkedIn');
   const [tone, setTone] = useState('Personal');
   const [topic, setTopic] = useState(initial?.topic || '');
@@ -44,7 +46,13 @@ export default function PostComposer({ initial }) {
 
   useEffect(() => {
     fetch('/api/me/achievements')
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Could not load your milestones'))))
+      .then((r) =>
+        r.ok
+          ? r.json()
+          : Promise.reject(
+              new Error(pick('Tumhare milestones load nahi ho paaye', 'Could not load your milestones'))
+            )
+      )
       .then(setSeeds)
       .catch((e) => setSeedsError(e.message));
   }, []);
@@ -56,7 +64,7 @@ export default function PostComposer({ initial }) {
 
   async function generate() {
     if (!topic.trim()) {
-      setError('Say what the post is about first.');
+      setError(pick('Pehle batao post kis baare mein hai.', 'Say what the post is about first.'));
       setStatus('error');
       return;
     }
@@ -72,7 +80,7 @@ export default function PostComposer({ initial }) {
         }),
       });
       const body = await res.json();
-      if (!res.ok) throw new Error(body?.error || 'That did not work.');
+      if (!res.ok) throw new Error(body?.error || pick('Ye kaam nahi kiya.', 'That did not work.'));
       setResult(body);
       setText(body.data?.post || body.text || '');
       setSavedId(null);
@@ -115,9 +123,13 @@ export default function PostComposer({ initial }) {
             body: JSON.stringify(payload),
           });
       const body = await res.json();
-      if (!res.ok) throw new Error(body?.error || 'Could not save that');
+      if (!res.ok) throw new Error(body?.error || pick('Ye save nahi ho paaya', 'Could not save that'));
       if (!savedId) setSavedId(body.post.id);
-      flash(savedId ? 'Draft updated.' : 'Saved to your drafts.');
+      flash(
+        savedId
+          ? pick('Draft update ho gaya.', 'Draft updated.')
+          : pick('Tumhare drafts mein save ho gaya.', 'Saved to your drafts.')
+      );
     } catch (e) {
       flash(e.message);
     }
@@ -127,9 +139,11 @@ export default function PostComposer({ initial }) {
     const tags = (result?.data?.hashtags || []).join(' ');
     try {
       await navigator.clipboard.writeText(tags ? `${text}\n\n${tags}` : text);
-      flash('Copied — paste it into ' + platform + '.');
+      flash(
+        pick(`Copy ho gaya — ${platform} mein paste kar do.`, `Copied — paste it into ${platform}.`)
+      );
     } catch {
-      flash('Clipboard unavailable');
+      flash(pick('Clipboard available nahi hai', 'Clipboard unavailable'));
     }
   }
 
@@ -147,7 +161,7 @@ export default function PostComposer({ initial }) {
       {/* ── Left: what to write about ───────────────────────────────────── */}
       <div className="space-y-6">
         <div>
-          <h2 className="font-semibold">1. Pick a platform</h2>
+          <h2 className="font-semibold">{pick('1. Platform chuno', '1. Pick a platform')}</h2>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {PLATFORMS.map((p) => (
               <button
@@ -165,7 +179,7 @@ export default function PostComposer({ initial }) {
                   {/* On the selected card the ground is an indigo tint, where
                       slate-500 falls under AA — the blurb follows the card. */}
                   <span className={`mt-0.5 block text-xs ${platform === p.id ? 'text-indigo-800' : 'text-slate-500'}`}>
-                    {p.blurb}
+                    {pick(p.hi, p.en)}
                   </span>
                 </span>
               </button>
@@ -174,50 +188,65 @@ export default function PostComposer({ initial }) {
         </div>
 
         <div>
-          <h2 className="font-semibold">2. What is it about?</h2>
+          <h2 className="font-semibold">{pick('2. Kis baare mein hai?', '2. What is it about?')}</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Write your own topic, or start from something you actually did.
+            {pick(
+              'Apna topic likho, ya jo tumne sach mein kiya hai wahan se shuru karo.',
+              'Write your own topic, or start from something you actually did.'
+            )}
           </p>
 
           <label htmlFor="topic" className="mt-3 block text-sm font-medium text-slate-700">
-            Topic
+            {pick('Topic', 'Topic')}
           </label>
           <input
             id="topic"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="I learned how the JavaScript event loop works"
+            placeholder={pick(
+              'Maine seekha ki JavaScript ka event loop kaise chalta hai',
+              'I learned how the JavaScript event loop works'
+            )}
             className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400"
           />
 
           <label htmlFor="points" className="mt-4 block text-sm font-medium text-slate-700">
-            What you want to say (optional)
+            {pick('Kya kehna chahte ho (optional)', 'What you want to say (optional)')}
           </label>
           <textarea
             id="points"
             rows={4}
             value={points}
             onChange={(e) => setPoints(e.target.value)}
-            placeholder={'One per line — what surprised you, what finally clicked, what you built'}
+            placeholder={pick(
+              'Ek line mein ek — kya surprise laga, kya aakhir samajh aaya, kya banaya',
+              'One per line — what surprised you, what finally clicked, what you built'
+            )}
             className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400"
           />
           <p className="mt-1.5 text-xs text-slate-400">
-            The more of your own detail you give, the less generic the post. Anything you leave out,
-            the model leaves out — it will not invent achievements for you.
+            {pick(
+              'Jitni apni detail dogey, post utni hi kam generic hogi. Jo tum chhod dogey, model bhi chhod dega — wo tumhare liye achievements nahi bana dega.',
+              'The more of your own detail you give, the less generic the post. Anything you leave out, the model leaves out — it will not invent achievements for you.'
+            )}
           </p>
         </div>
 
         {/* Real milestones */}
         <div>
-          <h3 className="text-sm font-semibold text-slate-700">Start from something you did</h3>
+          <h3 className="text-sm font-semibold text-slate-700">
+            {pick('Jo tumne kiya hai wahan se shuru karo', 'Start from something you did')}
+          </h3>
           {seedsError ? (
             <p className="mt-2 text-sm text-slate-400">{seedsError}</p>
           ) : !seeds ? (
             <div className="mt-2"><SkeletonCard lines={2} /></div>
           ) : !seeds.achievements.length && !seeds.insights.length ? (
             <p className="mt-2 rounded-xl border border-dashed border-slate-300 px-4 py-4 text-sm text-slate-500">
-              Nothing to draw on yet. Finish some concepts or run an AI analysis, and your real
-              milestones will show up here as starting points.
+              {pick(
+                'Abhi kuch nahi hai. Kuch concepts poore karo ya ek AI analysis chalao — tumhare asli milestones yahan starting points ban ke aa jaayenge.',
+                'Nothing to draw on yet. Finish some concepts or run an AI analysis, and your real milestones will show up here as starting points.'
+              )}
             </p>
           ) : (
             <div className="mt-2 space-y-2">
@@ -242,7 +271,7 @@ export default function PostComposer({ initial }) {
         </div>
 
         <div>
-          <h2 className="font-semibold">3. Tone</h2>
+          <h2 className="font-semibold">{pick('3. Tone', '3. Tone')}</h2>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {TONES.map((t) => (
               <button
@@ -260,7 +289,7 @@ export default function PostComposer({ initial }) {
           </div>
 
           <label htmlFor="audience" className="mt-4 block text-sm font-medium text-slate-700">
-            Who is it for?
+            {pick('Kiske liye hai?', 'Who is it for?')}
           </label>
           <input
             id="audience"
@@ -276,7 +305,11 @@ export default function PostComposer({ initial }) {
           className="w-full rounded-lg bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
         >
           <Icon name={status === 'running' ? 'spinner' : 'sparkles'} spin={status === 'running'} className="mr-2 h-3.5 w-3.5" />
-          {status === 'running' ? 'Writing…' : result ? 'Regenerate' : 'Generate post'}
+          {status === 'running'
+            ? pick('Likh rahe hain…', 'Writing…')
+            : result
+              ? pick('Dobara banao', 'Regenerate')
+              : pick('Post banao', 'Generate post')}
         </button>
       </div>
 
@@ -287,10 +320,14 @@ export default function PostComposer({ initial }) {
         {status === 'idle' && !result && (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white/50 px-6 py-16 text-center">
             <Icon name="pen" className="mx-auto h-7 w-7 text-slate-300" />
-            <p className="mt-3 font-semibold text-slate-700">Your draft appears here</p>
+            <p className="mt-3 font-semibold text-slate-700">
+              {pick('Tumhara draft yahan aayega', 'Your draft appears here')}
+            </p>
             <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">
-              Nothing is posted anywhere. You get text to read, edit and copy — publishing it stays
-              your decision.
+              {pick(
+                'Kahin kuch post nahi hota. Tumhe padhne, edit karne aur copy karne ke liye text milta hai — publish karna tumhara faisla rehta hai.',
+                'Nothing is posted anywhere. You get text to read, edit and copy — publishing it stays your decision.'
+              )}
             </p>
           </div>
         )}
@@ -309,23 +346,30 @@ export default function PostComposer({ initial }) {
               <p className="flex gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                 <Icon name="flask" className="mt-0.5 h-4 w-4 shrink-0" />
                 <span>
-                  Demo output — connect a provider in{' '}
-                  <Link href="/settings/ai" className="font-semibold underline">AI settings</Link>{' '}
-                  for a real post.
+                  {pick('Demo output — asli post ke liye', 'Demo output — connect a provider in')}{' '}
+                  <Link href="/settings/ai" className="font-semibold underline">
+                    {pick('AI settings', 'AI settings')}
+                  </Link>{' '}
+                  {pick('mein ek provider connect karo.', 'for a real post.')}
                 </span>
               </p>
             )}
 
             {data?.hook && (
               <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Hook</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">
+                  {pick('Hook', 'Hook')}
+                </p>
                 <p className="mt-1 font-medium text-indigo-900">{data.hook}</p>
               </div>
             )}
 
             <div>
               <label htmlFor="draft" className="block text-sm font-medium text-slate-700">
-                Your post — edit it until it sounds like you
+                {pick(
+                  'Tumhari post — jab tak tumhari lagne na lage, edit karo',
+                  'Your post — edit it until it sounds like you'
+                )}
               </label>
               <textarea
                 id="draft"
@@ -336,21 +380,25 @@ export default function PostComposer({ initial }) {
               />
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <button onClick={copy} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
-                  <Icon name="copy" className="mr-1.5 h-3.5 w-3.5" />Copy
+                  <Icon name="copy" className="mr-1.5 h-3.5 w-3.5" />
+                  {pick('Copy', 'Copy')}
                 </button>
                 <button onClick={saveDraft} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
                   <Icon name={savedId ? 'check' : 'save'} className="mr-1.5 h-3.5 w-3.5" />
-                  {savedId ? 'Update draft' : 'Save draft'}
+                  {savedId ? pick('Draft update karo', 'Update draft') : pick('Draft save karo', 'Save draft')}
                 </button>
                 <button onClick={generate} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
-                  <Icon name="rotate" className="mr-1.5 h-3.5 w-3.5" />Regenerate
+                  <Icon name="rotate" className="mr-1.5 h-3.5 w-3.5" />
+                  {pick('Dobara banao', 'Regenerate')}
                 </button>
-                <span className="text-xs text-slate-400">{text.length} characters</span>
+                <span className="text-xs text-slate-400">
+                  {text.length} {pick('characters', 'characters')}
+                </span>
               </div>
             </div>
 
             {!!data?.thread?.length && (
-              <PostSection title="As a thread" icon="comments">
+              <PostSection title={pick('Thread ki tarah', 'As a thread')} icon="comments">
                 <div className="space-y-2">
                   {data.thread.map((t, i) => (
                     <div key={i} className="rounded-xl border border-slate-200 bg-white p-3 text-sm">
@@ -363,11 +411,13 @@ export default function PostComposer({ initial }) {
             )}
 
             {!!data?.slides?.length && (
-              <PostSection title="Carousel slides" icon="layers">
+              <PostSection title={pick('Carousel slides', 'Carousel slides')} icon="layers">
                 <div className="grid gap-2 sm:grid-cols-2">
                   {data.slides.map((s, i) => (
                     <div key={i} className="rounded-xl border border-slate-200 bg-white p-4">
-                      <p className="text-xs font-semibold text-slate-400">Slide {i + 1}</p>
+                      <p className="text-xs font-semibold text-slate-400">
+                        {pick('Slide', 'Slide')} {i + 1}
+                      </p>
                       <p className="mt-1.5 font-bold">{s.title}</p>
                       <p className="mt-1 text-sm text-slate-600">{s.body}</p>
                     </div>
@@ -377,7 +427,7 @@ export default function PostComposer({ initial }) {
             )}
 
             {!!data?.hashtags?.length && (
-              <PostSection title="Hashtags" icon="hashtag">
+              <PostSection title={pick('Hashtags', 'Hashtags')} icon="hashtag">
                 <p className="text-sm text-indigo-600">{data.hashtags.join(' ')}</p>
               </PostSection>
             )}
@@ -390,8 +440,10 @@ export default function PostComposer({ initial }) {
             )}
 
             <p className="text-xs text-slate-400">
-              Read it before you post it. It was written from what you typed — check that every
-              claim in it is one you would stand behind.
+              {pick(
+                'Post karne se pehle ise padho. Ye tumhare likhe hue se bana hai — dekh lo ki har baat aisi hai jiske peechhe tum khade rah sako.',
+                'Read it before you post it. It was written from what you typed — check that every claim in it is one you would stand behind.'
+              )}
             </p>
           </>
         )}

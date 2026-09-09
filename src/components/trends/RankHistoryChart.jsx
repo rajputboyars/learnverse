@@ -1,6 +1,8 @@
 'use client';
 
 import { useId } from 'react';
+import { useLang } from '@/components/LanguageProvider';
+
 
 /**
  * A skill's rank over time. Rank 1 is the *best*, so the y-axis is inverted —
@@ -12,6 +14,7 @@ import { useId } from 'react';
  * interpolation of days nobody recorded.
  */
 export default function RankHistoryChart({ history, height = 160 }) {
+  const { pick } = useLang();
   const gradientId = useId();
 
   if (!history?.length) return null;
@@ -19,7 +22,10 @@ export default function RankHistoryChart({ history, height = 160 }) {
   if (history.length === 1) {
     return (
       <p className="rounded-xl border border-dashed border-slate-300 px-4 py-6 text-center text-sm text-slate-500">
-        Only one snapshot recorded so far — there is nothing to plot a line against yet.
+        {pick(
+          'Abhi tak sirf ek hi snapshot record hua hai — line kheenchne ke liye kuch hai hi nahi.',
+          'Only one snapshot recorded so far — there is nothing to plot a line against yet.'
+        )}
       </p>
     );
   }
@@ -51,7 +57,10 @@ export default function RankHistoryChart({ history, height = 160 }) {
         viewBox={`0 0 ${width} ${height}`}
         className="h-auto w-full min-w-[20rem]"
         role="img"
-        aria-label={`Rank history across ${history.length} snapshots, best rank ${best}, worst rank ${worst}`}
+        aria-label={pick(
+          `${history.length} snapshots ka rank history, sabse achha rank ${best}, sabse kharab ${worst}`,
+          `Rank history across ${history.length} snapshots, best rank ${best}, worst rank ${worst}`
+        )}
       >
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">

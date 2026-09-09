@@ -23,12 +23,17 @@ const SHAPE = {
 const template = {
   id: 'job-market',
   title: 'Job Market Demand',
+  titleHi: 'Job Market ki Demand',
   short: 'Find out which roles and skills employers are hiring for.',
+  shortHi: 'Pata karo employers kin roles aur skills ke liye hire kar rahe hain.',
   description:
     'Breaks the market down by role: what each one demands, what is rising, what is fading, and how hard it is to break in.',
+  descriptionHi:
+    'Market ko role ke hisaab se todta hai: har ek mein kya chahiye, kya upar ja raha hai, kya khatam ho raha hai, aur ghusna kitna mushkil hai.',
   category: 'career',
   icon: 'briefcase',
   cta: 'Check Job Market',
+  ctaHi: 'Job Market dekho',
   version: '1.0',
   status: 'active',
   outputFormat: 'structured',
@@ -37,15 +42,18 @@ const template = {
     {
       name: 'role',
       label: 'Role or field',
+      labelHi: 'Role ya field',
       type: 'text',
       required: true,
       placeholder: 'Frontend, Backend, Data, DevOps…',
+      placeholderHi: 'Frontend, Backend, Data, DevOps…',
       default: 'Frontend',
     },
     { name: 'location', label: 'Location', type: 'text', default: 'India' },
     {
       name: 'experienceLevel',
       label: 'Experience level',
+      labelHi: 'Experience level',
       type: 'select',
       options: ['Student / fresher', '0-2 years', '2-5 years', '5+ years'],
       default: '0-2 years',
@@ -53,6 +61,7 @@ const template = {
     {
       name: 'companyType',
       label: 'Company type',
+      labelHi: 'Company ka type',
       type: 'select',
       options: ['Any', 'Startup', 'Product company', 'Service company', 'Remote / global'],
       default: 'Any',

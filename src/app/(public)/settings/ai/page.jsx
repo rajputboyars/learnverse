@@ -4,10 +4,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Icon from '@/components/Icon';
 import { ErrorState, LoginGate, SkeletonCard, SuccessNote } from '@/components/ui/States';
+import { useLang } from '@/components/LanguageProvider';
+
 
 const SHELL = 'mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8';
 
 export default function AIConnectionsPage() {
+  const { pick } = useLang();
   const { status } = useSession();
   const [state, setState] = useState({ loading: true, error: '', catalog: [], connections: [], encryptionReady: true });
   const [note, setNote] = useState('');
@@ -15,10 +18,16 @@ export default function AIConnectionsPage() {
   const load = useCallback(() => {
     setState((s) => ({ ...s, loading: true, error: '' }));
     fetch('/api/ai/providers')
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Could not load your AI connections'))))
+      .then((r) =>
+        r.ok
+          ? r.json()
+          : Promise.reject(
+              new Error(pick('Tumhare AI connections load nahi ho paaye', 'Could not load your AI connections'))
+            )
+      )
       .then((d) => setState({ loading: false, error: '', ...d }))
       .catch((e) => setState((s) => ({ ...s, loading: false, error: e.message })));
-  }, []);
+  }, [pick]);
 
   useEffect(() => {
     if (status === 'authenticated') load();
@@ -35,8 +44,12 @@ export default function AIConnectionsPage() {
   if (status !== 'authenticated') {
     return (
       <div className={`${SHELL} py-12`}>
-        <h1 className="text-3xl font-bold">AI connections</h1>
-        <div className="mt-6"><LoginGate message="Log in to connect an AI provider." /></div>
+        <h1 className="text-3xl font-bold">{pick('AI connections', 'AI connections')}</h1>
+        <div className="mt-6">
+          <LoginGate
+            message={pick('AI provider connect karne ke liye login karo.', 'Log in to connect an AI provider.')}
+          />
+        </div>
       </div>
     );
   }
@@ -45,21 +58,30 @@ export default function AIConnectionsPage() {
 
   return (
     <div className={`${SHELL} py-12`}>
-      <h1 className="text-3xl font-bold">AI connections</h1>
+      <h1 className="text-3xl font-bold">{pick('AI connections', 'AI connections')}</h1>
       <p className="mt-2 text-slate-600">
-        Bring your own AI provider. Your key is encrypted before it is stored, never sent to the
-        browser again, and used only for the actions you run.
+        {pick(
+          'Apna khud ka AI provider laao. Tumhari key store hone se pehle encrypt hoti hai, browser ko dobara kabhi nahi bheji jaati, aur sirf un actions ke liye use hoti hai jo tum chalate ho.',
+          'Bring your own AI provider. Your key is encrypted before it is stored, never sent to the browser again, and used only for the actions you run.'
+        )}
       </p>
 
       {note && <div className="mt-4"><SuccessNote>{note}</SuccessNote></div>}
 
       {!state.encryptionReady && !state.loading && (
         <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
-          <p className="font-semibold">This server cannot store keys yet.</p>
+          <p className="font-semibold">
+            {pick('Ye server abhi keys store nahi kar sakta.', 'This server cannot store keys yet.')}
+          </p>
           <p className="mt-1">
-            Set <code className="rounded bg-amber-100 px-1">AI_ENCRYPTION_KEY</code> in the
-            environment (see <code className="rounded bg-amber-100 px-1">.env.example</code>) and
-            restart. Until then, AI actions run in demo mode with sample data.
+            {pick('Environment mein', 'Set')}{' '}
+            <code className="rounded bg-amber-100 px-1">AI_ENCRYPTION_KEY</code>{' '}
+            {pick('set karo (dekho', 'in the environment (see')}{' '}
+            <code className="rounded bg-amber-100 px-1">.env.example</code>
+            {pick(
+              ') aur restart karo. Tab tak AI actions demo mode mein sample data ke saath chalenge.',
+              ') and restart. Until then, AI actions run in demo mode with sample data.'
+            )}
           </p>
         </div>
       )}
@@ -87,13 +109,38 @@ export default function AIConnectionsPage() {
 
       <div className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-600">
         <p className="flex items-center gap-2 font-semibold text-slate-700">
-          <Icon name="shield" className="h-4 w-4" />How your key is handled
+          <Icon name="shield" className="h-4 w-4" />
+          {pick('Tumhari key ke saath kya hota hai', 'How your key is handled')}
         </p>
         <ul className="mt-3 space-y-1.5">
-          <li>· Encrypted with AES-256-GCM before it touches the database.</li>
-          <li>· Never returned by any API — the page only ever shows a masked hint.</li>
-          <li>· Used only to run the actions you trigger, from the server.</li>
-          <li>· Deleting a connection removes the stored key immediately.</li>
+          <li>
+            ·{' '}
+            {pick(
+              'Database ko chhoone se pehle AES-256-GCM se encrypt ki jaati hai.',
+              'Encrypted with AES-256-GCM before it touches the database.'
+            )}
+          </li>
+          <li>
+            ·{' '}
+            {pick(
+              'Koi bhi API ise wapas nahi bhejti — page sirf ek masked hint dikhata hai.',
+              'Never returned by any API — the page only ever shows a masked hint.'
+            )}
+          </li>
+          <li>
+            ·{' '}
+            {pick(
+              'Sirf un actions ko chalane ke liye, server se, jo tum trigger karte ho.',
+              'Used only to run the actions you trigger, from the server.'
+            )}
+          </li>
+          <li>
+            ·{' '}
+            {pick(
+              'Connection delete karte hi store ki hui key turant hat jaati hai.',
+              'Deleting a connection removes the stored key immediately.'
+            )}
+          </li>
         </ul>
       </div>
     </div>
@@ -101,6 +148,7 @@ export default function AIConnectionsPage() {
 }
 
 function ProviderCard({ provider, connection, disabled, onChanged }) {
+  const { pick } = useLang();
   const [apiKey, setApiKey] = useState('');
   const [model, setModel] = useState(connection?.model || provider.defaultModel);
   const [busy, setBusy] = useState('');
@@ -117,7 +165,7 @@ function ProviderCard({ provider, connection, disabled, onChanged }) {
     try {
       const res = await fetch(options.url, options.init);
       const body = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(body?.error || 'That did not work');
+      if (!res.ok) throw new Error(body?.error || pick('Ye kaam nahi kiya', 'That did not work'));
       return body;
     } catch (e) {
       setError(e.message);
@@ -139,7 +187,7 @@ function ProviderCard({ provider, connection, disabled, onChanged }) {
     });
     if (body) {
       setApiKey('');
-      onChanged(`${provider.label} connected.`);
+      onChanged(pick(`${provider.label} connect ho gaya.`, `${provider.label} connected.`));
     }
   }
 
@@ -154,7 +202,7 @@ function ProviderCard({ provider, connection, disabled, onChanged }) {
     });
     if (body) {
       setTestResult(body);
-      if (body.ok) onChanged(`${provider.label} is working.`);
+      if (body.ok) onChanged(pick(`${provider.label} kaam kar raha hai.`, `${provider.label} is working.`));
       else setError(body.error);
     }
   }
@@ -176,7 +224,7 @@ function ProviderCard({ provider, connection, disabled, onChanged }) {
       url: `/api/ai/providers?provider=${provider.id}`,
       init: { method: 'DELETE' },
     });
-    if (body) onChanged(`${provider.label} disconnected.`);
+    if (body) onChanged(pick(`${provider.label} disconnect ho gaya.`, `${provider.label} disconnected.`));
   }
 
   const statusPill = connection && (
@@ -193,7 +241,11 @@ function ProviderCard({ provider, connection, disabled, onChanged }) {
         name={connection.status === 'ok' ? 'check-circle' : connection.status === 'failed' ? 'x-circle' : 'hourglass'}
         className="h-3 w-3"
       />
-      {connection.status === 'ok' ? 'Working' : connection.status === 'failed' ? 'Failed' : 'Not tested'}
+      {connection.status === 'ok'
+        ? pick('Chal raha hai', 'Working')
+        : connection.status === 'failed'
+          ? pick('Fail ho gaya', 'Failed')
+          : pick('Test nahi hua', 'Not tested')}
     </span>
   );
 
@@ -209,13 +261,20 @@ function ProviderCard({ provider, connection, disabled, onChanged }) {
               {provider.label}
               {connection?.isDefault && (
                 <span className="rounded-full border border-indigo-300 bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700">
-                  Default
+                  {pick('Default', 'Default')}
                 </span>
               )}
             </h2>
             <p className="mt-0.5 text-xs text-slate-500">
-              {connection ? `Key ${connection.keyHint} · ${connection.model}` : 'Not connected'}
-              {provider.serverKey && !connection && ' · a server key is available as fallback'}
+              {connection
+                ? `Key ${connection.keyHint} · ${connection.model}`
+                : pick('Connected nahi hai', 'Not connected')}
+              {provider.serverKey &&
+                !connection &&
+                pick(
+                  ' · fallback ke liye ek server key maujood hai',
+                  ' · a server key is available as fallback'
+                )}
             </p>
           </div>
         </div>
@@ -228,7 +287,10 @@ function ProviderCard({ provider, connection, disabled, onChanged }) {
       {error && <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {testResult?.ok && (
         <p className="mt-3 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">
-          Connection works — replied using {testResult.model}.
+          {pick(
+            `Connection kaam karta hai — ${testResult.model} se jawab aaya.`,
+            `Connection works — replied using ${testResult.model}.`
+          )}
         </p>
       )}
 
@@ -236,7 +298,7 @@ function ProviderCard({ provider, connection, disabled, onChanged }) {
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <select
             value={model}
-            onChange={(e) => patch({ model: e.target.value }, 'Model updated.')}
+            onChange={(e) => patch({ model: e.target.value }, pick('Model update ho gaya.', 'Model updated.'))}
             className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-indigo-400"
           >
             {provider.models.map((m) => (
@@ -245,31 +307,42 @@ function ProviderCard({ provider, connection, disabled, onChanged }) {
           </select>
           <button onClick={test} disabled={busy === 'test'} className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium hover:bg-slate-50 disabled:opacity-50">
             <Icon name={busy === 'test' ? 'spinner' : 'plug'} spin={busy === 'test'} className="mr-1.5 h-3.5 w-3.5" />
-            Test connection
+            {pick('Connection test karo', 'Test connection')}
           </button>
           <button
-            onClick={() => patch({ enabled: !connection.enabled }, connection.enabled ? 'Disabled.' : 'Enabled.')}
+            onClick={() =>
+              patch(
+                { enabled: !connection.enabled },
+                connection.enabled ? pick('Disable ho gaya.', 'Disabled.') : pick('Enable ho gaya.', 'Enabled.')
+              )
+            }
             className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium hover:bg-slate-50"
           >
-            {connection.enabled ? 'Disable' : 'Enable'}
+            {connection.enabled ? pick('Disable karo', 'Disable') : pick('Enable karo', 'Enable')}
           </button>
           {!connection.isDefault && (
             <button
-              onClick={() => patch({ makeDefault: true }, `${provider.label} is now your default.`)}
+              onClick={() =>
+                patch(
+                  { makeDefault: true },
+                  pick(`Ab ${provider.label} tumhara default hai.`, `${provider.label} is now your default.`)
+                )
+              }
               className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium hover:bg-slate-50"
             >
-              Make default
+              {pick('Default banao', 'Make default')}
             </button>
           )}
           <button onClick={disconnect} className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50">
-            <Icon name="trash" className="mr-1.5 h-3.5 w-3.5" />Disconnect
+            <Icon name="trash" className="mr-1.5 h-3.5 w-3.5" />
+            {pick('Disconnect karo', 'Disconnect')}
           </button>
         </div>
       ) : (
         <form onSubmit={connect} className="mt-4 flex flex-wrap items-end gap-2">
           <div className="min-w-[16rem] flex-1">
             <label htmlFor={`key-${provider.id}`} className="block text-xs font-medium text-slate-600">
-              API key
+              {pick('API key', 'API key')}
             </label>
             <input
               id={`key-${provider.id}`}
@@ -278,7 +351,7 @@ function ProviderCard({ provider, connection, disabled, onChanged }) {
               value={apiKey}
               disabled={disabled}
               onChange={(e) => setApiKey(e.target.value)}
-              placeholder="Paste your key"
+              placeholder={pick('Apni key paste karo', 'Paste your key')}
               className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 disabled:opacity-60"
             />
           </div>
@@ -298,7 +371,7 @@ function ProviderCard({ provider, connection, disabled, onChanged }) {
             className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
           >
             <Icon name={busy === 'connect' ? 'spinner' : 'plug'} spin={busy === 'connect'} className="mr-1.5 h-3.5 w-3.5" />
-            Connect
+            {pick('Connect karo', 'Connect')}
           </button>
           {provider.keysUrl && (
             <a
@@ -307,7 +380,7 @@ function ProviderCard({ provider, connection, disabled, onChanged }) {
               rel="noopener noreferrer"
               className="text-sm text-slate-500 hover:text-indigo-600"
             >
-              Get a key <Icon name="external-link" className="h-3 w-3" />
+              {pick('Ek key lo', 'Get a key')} <Icon name="external-link" className="h-3 w-3" />
             </a>
           )}
         </form>

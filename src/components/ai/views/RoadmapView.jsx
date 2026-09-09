@@ -1,21 +1,25 @@
 'use client';
 
 import Icon from '@/components/Icon';
+import { useLang } from '@/components/LanguageProvider';
 import { BulletList, Card, Pill, Section } from '../primitives';
 
 export default function RoadmapView({ data }) {
+  const { pick } = useLang();
   const stages = data.stages || [];
   return (
     <div className="space-y-8">
       <Card>
         <div className="flex flex-wrap items-center gap-2">
           {data.totalDuration && <Pill tone="indigo"><Icon name="clock" className="h-3 w-3" />{data.totalDuration}</Pill>}
-          <Pill>{stages.length} stages</Pill>
+          <Pill>
+            {stages.length} {pick('stages', 'stages')}
+          </Pill>
         </div>
         <p className="mt-3 text-slate-700">{data.summary}</p>
       </Card>
 
-      <Section title="The plan" icon="map">
+      <Section title={pick('Plan', 'The plan')} icon="map">
         <ol className="relative space-y-4 border-l border-slate-200 pl-6">
           {stages.map((s, i) => (
             <li key={i} className="relative">
@@ -40,13 +44,18 @@ export default function RoadmapView({ data }) {
                 {s.project && (
                   <p className="mt-3 flex gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm">
                     <Icon name="wrench" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
-                    <span><span className="font-medium">Build:</span> {s.project}</span>
+                    <span>
+                      <span className="font-medium">{pick('Banao:', 'Build:')}</span> {s.project}
+                    </span>
                   </p>
                 )}
                 {s.checkpoint && (
                   <p className="mt-2 flex gap-2 text-sm text-green-700">
                     <Icon name="square-check" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                    <span><span className="font-medium">Done when:</span> {s.checkpoint}</span>
+                    <span>
+                      <span className="font-medium">{pick('Poora tab jab:', 'Done when:')}</span>{' '}
+                      {s.checkpoint}
+                    </span>
                   </p>
                 )}
               </Card>
@@ -56,13 +65,17 @@ export default function RoadmapView({ data }) {
       </Section>
 
       {!!data.skipIf?.length && (
-        <Section title="Skip ahead if" icon="hand-point-up">
-          <BulletList items={data.skipIf.map((s) => `If ${s.condition} — skip “${s.skip}”`)} />
+        <Section title={pick('Aage kood jao agar', 'Skip ahead if')} icon="hand-point-up">
+          <BulletList
+            items={data.skipIf.map((s) =>
+              pick(`Agar ${s.condition} — toh “${s.skip}” chhod do`, `If ${s.condition} — skip “${s.skip}”`)
+            )}
+          />
         </Section>
       )}
 
       {!!data.risks?.length && (
-        <Section title="Where people stall" icon="warning">
+        <Section title={pick('Log kahan atak jaate hain', 'Where people stall')} icon="warning">
           <BulletList items={data.risks} icon="warning" />
         </Section>
       )}

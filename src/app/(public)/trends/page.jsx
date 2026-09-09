@@ -7,16 +7,19 @@ import SourceBadge from '@/components/ai/SourceBadge';
 import { Pill, TrendPill } from '@/components/ai/primitives';
 import RankHistoryChart from '@/components/trends/RankHistoryChart';
 import { EmptyState, ErrorState, SkeletonCard } from '@/components/ui/States';
+import { useLang } from '@/components/LanguageProvider';
+
 
 const SHELL = 'mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8';
 
 const COMPARISONS = [
-  { id: 'previous', label: 'Previous snapshot' },
-  { id: '30', label: '30+ days ago' },
-  { id: '90', label: '90+ days ago' },
+  { id: 'previous', hi: 'pichhle snapshot', en: 'Previous snapshot' },
+  { id: '30', hi: '30+ din pehle', en: '30+ days ago' },
+  { id: '90', hi: '90+ din pehle', en: '90+ days ago' },
 ];
 
 export default function TrendsPage() {
+  const { pick } = useLang();
   const [scope, setScope] = useState('');
   const [compare, setCompare] = useState('previous');
   const [state, setState] = useState({ loading: true, error: '', scopes: [], ranking: null });
@@ -27,10 +30,12 @@ export default function TrendsPage() {
     const params = new URLSearchParams({ compare });
     if (scope) params.set('scope', scope);
     fetch(`/api/trends?${params}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Could not load trend data'))))
+      .then((r) =>
+        r.ok ? r.json() : Promise.reject(new Error(pick('Trend data load nahi ho paaya', 'Could not load trend data')))
+      )
       .then((d) => setState({ loading: false, error: '', ...d }))
       .catch((e) => setState((s) => ({ ...s, loading: false, error: e.message })));
-  }, [scope, compare]);
+  }, [scope, compare, pick]);
 
   useEffect(() => {
     load();
@@ -42,15 +47,17 @@ export default function TrendsPage() {
     <div className={`${SHELL} py-10`}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Skill Trends</h1>
+          <h1 className="text-3xl font-bold">{pick('Skill Trends', 'Skill Trends')}</h1>
           <p className="mt-2 max-w-2xl text-slate-600">
-            Rankings recorded over time. Movement is measured between two snapshots that were
-            actually captured — where there is nothing to compare against, this page says so
-            instead of guessing.
+            {pick(
+              'Samay ke saath record ki gayi rankings. Movement do aise snapshots ke beech naapa jaata hai jo sach mein capture hue the — jahan compare karne ko kuch nahi hai, wahan ye page andaaza lagane ki jagah saaf keh deta hai.',
+              'Rankings recorded over time. Movement is measured between two snapshots that were actually captured — where there is nothing to compare against, this page says so instead of guessing.'
+            )}
           </p>
         </div>
         <Link href="/ai" className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
-          <Icon name="sparkles" className="mr-1.5 h-3.5 w-3.5" />Run your own analysis
+          <Icon name="sparkles" className="mr-1.5 h-3.5 w-3.5" />
+          {pick('Apna analysis chalao', 'Run your own analysis')}
         </Link>
       </div>
 
@@ -65,11 +72,14 @@ export default function TrendsPage() {
         <div className="mt-8">
           <EmptyState
             icon="chart-line"
-            title="No snapshots recorded yet"
-            description="Trend history is built from snapshots an admin captures. Until the first one is published there is genuinely nothing to show — and inventing a ranking here would be worse than an empty page."
+            title={pick('Abhi koi snapshot record nahi hua', 'No snapshots recorded yet')}
+            description={pick(
+              'Trend history un snapshots se banti hai jo ek admin capture karta hai. Jab tak pehla publish nahi hota, dikhane ko sach mein kuch nahi hai — aur yahan ek ranking bana dena khaali page se bhi bura hota.',
+              'Trend history is built from snapshots an admin captures. Until the first one is published there is genuinely nothing to show — and inventing a ranking here would be worse than an empty page.'
+            )}
             action={
               <Link href="/ai" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
-                Run a trending-skills analysis
+                {pick('Trending-skills analysis chalao', 'Run a trending-skills analysis')}
               </Link>
             }
           />
@@ -102,7 +112,7 @@ export default function TrendsPage() {
                       : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >
-                  Compare to {c.label}
+                  {pick(`${c.hi} se compare karo`, `Compare to ${c.en}`)}
                 </button>
               ))}
             </div>
@@ -112,19 +122,23 @@ export default function TrendsPage() {
           <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-4">
             <SourceBadge source={ranking.current.source} model={ranking.current.model} />
             <span className="text-sm text-slate-600">
-              Captured {new Date(ranking.current.capturedAt).toLocaleDateString()}
+              {pick('Capture hua', 'Captured')}{' '}
+              {new Date(ranking.current.capturedAt).toLocaleDateString()}
             </span>
             <span className="text-slate-300">·</span>
             {ranking.comparedTo ? (
               <span className="text-sm text-slate-600">
-                compared with the snapshot from{' '}
+                {pick('is snapshot se compare kiya gaya:', 'compared with the snapshot from')}{' '}
                 {new Date(ranking.comparedTo.capturedAt).toLocaleDateString()} (
-                {ranking.comparedTo.daysApart} days earlier)
+                {ranking.comparedTo.daysApart} {pick('din pehle', 'days earlier')})
               </span>
             ) : (
               <span className="text-sm text-amber-700">
                 <Icon name="warning" className="mr-1 h-3 w-3" />
-                No earlier snapshot to compare against — movement cannot be shown yet
+                {pick(
+                  'Compare karne ke liye pehle ka koi snapshot nahi — abhi movement nahi dikha sakte',
+                  'No earlier snapshot to compare against — movement cannot be shown yet'
+                )}
               </span>
             )}
             {ranking.current.note && (
@@ -138,11 +152,11 @@ export default function TrendsPage() {
               <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
                 <tr>
                   <th className="px-4 py-3">#</th>
-                  <th className="px-4 py-3">Skill</th>
-                  <th className="px-4 py-3">Demand</th>
-                  <th className="px-4 py-3">Direction</th>
-                  <th className="px-4 py-3">Was</th>
-                  <th className="px-4 py-3">Change</th>
+                  <th className="px-4 py-3">{pick('Skill', 'Skill')}</th>
+                  <th className="px-4 py-3">{pick('Demand', 'Demand')}</th>
+                  <th className="px-4 py-3">{pick('Dishaa', 'Direction')}</th>
+                  <th className="px-4 py-3">{pick('Pehle', 'Was')}</th>
+                  <th className="px-4 py-3">{pick('Badlaav', 'Change')}</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
@@ -165,15 +179,22 @@ export default function TrendsPage() {
             <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
               <h2 className="flex items-center gap-2 font-semibold">
                 <Icon name="trend-down" className="h-4 w-4 text-red-500" />
-                Fell out of the ranking
+                {pick('Ranking se bahar ho gaye', 'Fell out of the ranking')}
               </h2>
               <p className="mt-1 text-sm text-slate-500">
-                Ranked in the earlier snapshot, absent from the current one.
+                {pick(
+                  'Pehle wale snapshot mein ranked the, is waale mein nahi hain.',
+                  'Ranked in the earlier snapshot, absent from the current one.'
+                )}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {ranking.dropped.map((d) => (
                   <Pill key={d.skillSlug}>
-                    {d.skill} <span className="opacity-60">was #{d.previousRank}</span>
+                    {d.skill}{' '}
+                    <span className="opacity-60">
+                      {pick('pehle #', 'was #')}
+                      {d.previousRank}
+                    </span>
                   </Pill>
                 ))}
               </div>
@@ -181,9 +202,10 @@ export default function TrendsPage() {
           )}
 
           <p className="mt-6 text-xs text-slate-400">
-            Rankings labelled <strong>AI analysis</strong> are a model&rsquo;s assessment, not a
-            measured job-market index. They are recorded here so their movement over time can be
-            compared honestly, not because they are authoritative.
+            {pick(
+              'Jin rankings pe AI analysis likha hai wo ek model ka aakalan hain, koi naapa gaya job-market index nahi. Inhe yahan isliye record kiya jaata hai taaki samay ke saath inki movement imaandari se compare ho sake, isliye nahi ki ye aakhri sach hain.',
+              'Rankings labelled AI analysis are a model’s assessment, not a measured job-market index. They are recorded here so their movement over time can be compared honestly, not because they are authoritative.'
+            )}
           </p>
         </>
       )}
@@ -192,6 +214,7 @@ export default function TrendsPage() {
 }
 
 function SkillRow({ skill, scopeKey, hasComparison, open, onToggle }) {
+  const { pick } = useLang();
   const [history, setHistory] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -215,7 +238,7 @@ function SkillRow({ skill, scopeKey, hasComparison, open, onToggle }) {
             {skill.skill}
             {skill.isNew && (
               <span className="ml-2 rounded-full border border-green-300 bg-green-50 px-2 py-0.5 text-xs font-medium text-green-800">
-                new
+                {pick('naya', 'new')}
               </span>
             )}
           </p>
@@ -228,12 +251,15 @@ function SkillRow({ skill, scopeKey, hasComparison, open, onToggle }) {
         </td>
         <td className="px-4 py-3">
           {!hasComparison ? (
-            <span className="text-xs text-slate-400">no comparison yet</span>
+            <span className="text-xs text-slate-400">
+              {pick('abhi comparison nahi', 'no comparison yet')}
+            </span>
           ) : skill.change === null ? (
-            <span className="text-xs text-green-600">new entry</span>
+            <span className="text-xs text-green-600">{pick('nayi entry', 'new entry')}</span>
           ) : skill.change === 0 ? (
             <span className="inline-flex items-center gap-1 text-slate-500">
-              <Icon name="minus" className="h-3 w-3" />no change
+              <Icon name="minus" className="h-3 w-3" />
+              {pick('koi badlaav nahi', 'no change')}
             </span>
           ) : (
             <span className={`inline-flex items-center gap-1 font-medium ${skill.change > 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -244,7 +270,7 @@ function SkillRow({ skill, scopeKey, hasComparison, open, onToggle }) {
         </td>
         <td className="px-4 py-3 text-right">
           <button onClick={onToggle} className="text-xs font-medium text-indigo-600 hover:underline">
-            {open ? 'Hide' : 'History'}
+            {open ? pick('Chhupao', 'Hide') : pick('History', 'History')}
           </button>
         </td>
       </tr>
@@ -254,27 +280,38 @@ function SkillRow({ skill, scopeKey, hasComparison, open, onToggle }) {
           <td colSpan={7} className="bg-slate-50/60 px-4 py-5">
             {loading ? (
               <p className="text-sm text-slate-500">
-                <Icon name="spinner" spin className="mr-2 h-3.5 w-3.5" />Loading history…
+                <Icon name="spinner" spin className="mr-2 h-3.5 w-3.5" />
+                {pick('History load ho rahi hai…', 'Loading history…')}
               </p>
             ) : !history?.length ? (
-              <p className="text-sm text-slate-500">No recorded history for this skill yet.</p>
+              <p className="text-sm text-slate-500">
+                {pick(
+                  'Is skill ki abhi koi record ki hui history nahi hai.',
+                  'No recorded history for this skill yet.'
+                )}
+              </p>
             ) : (
               <div className="space-y-3">
                 <RankHistoryChart history={history} />
                 <p className="text-xs text-slate-400">
-                  {history.length} recorded snapshot{history.length > 1 ? 's' : ''}. Points are only
-                  plotted where a snapshot exists — the gaps between them are not filled in.
+                  {pick(
+                    `${history.length} record kiye hue snapshot${history.length > 1 ? 's' : ''}. Points sirf wahin plot hote hain jahan snapshot hai — beech ke gaps bhare nahi jaate.`,
+                    `${history.length} recorded snapshot${history.length > 1 ? 's' : ''}. Points are only plotted where a snapshot exists — the gaps between them are not filled in.`
+                  )}
                 </p>
                 {skill.claimedPreviousRank != null && (
                   <p className="text-xs text-slate-500">
                     <Icon name="robot" className="mr-1 h-3 w-3" />
-                    The model that produced the latest snapshot put this skill at #
-                    {skill.claimedPreviousRank} previously. That is its own estimate, not something
-                    this platform measured.
+                    {pick(
+                      `Jis model ne latest snapshot banaya usne is skill ko pehle #${skill.claimedPreviousRank} pe rakha tha. Ye uska apna andaaza hai, is platform ka naapa hua nahi.`,
+                      `The model that produced the latest snapshot put this skill at #${skill.claimedPreviousRank} previously. That is its own estimate, not something this platform measured.`
+                    )}
                   </p>
                 )}
                 {!!skill.roles?.length && (
-                  <p className="text-xs text-slate-500">Common roles: {skill.roles.join(' · ')}</p>
+                  <p className="text-xs text-slate-500">
+                    {pick('Aam roles:', 'Common roles:')} {skill.roles.join(' · ')}
+                  </p>
                 )}
               </div>
             )}

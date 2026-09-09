@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Icon from '@/components/Icon';
+import { useLang } from '@/components/LanguageProvider';
 
 /** Turns a structured result into readable Markdown for export and sharing. */
 function toMarkdown(result) {
@@ -19,6 +20,7 @@ function toMarkdown(result) {
 }
 
 export default function ResultActions({ result, onFollowUp, onCreatePost, onRegenerate }) {
+  const { pick } = useLang();
   const [saved, setSaved] = useState(Boolean(result.saved));
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
@@ -40,9 +42,13 @@ export default function ResultActions({ result, onFollowUp, onCreatePost, onRege
       });
       if (!res.ok) throw new Error();
       setSaved(!saved);
-      flash(!saved ? 'Saved' : 'Removed from saved');
+      flash(
+        !saved
+          ? pick('Save ho gaya', 'Saved')
+          : pick('Saved se hata diya', 'Removed from saved')
+      );
     } catch {
-      flash('Could not save that');
+      flash(pick('Ye save nahi ho paaya', 'Could not save that'));
     } finally {
       setBusy(false);
     }
@@ -51,9 +57,9 @@ export default function ResultActions({ result, onFollowUp, onCreatePost, onRege
   async function copy() {
     try {
       await navigator.clipboard.writeText(toMarkdown(result));
-      flash('Copied to clipboard');
+      flash(pick('Clipboard pe copy ho gaya', 'Copied to clipboard'));
     } catch {
-      flash('Clipboard unavailable');
+      flash(pick('Clipboard available nahi hai', 'Clipboard unavailable'));
     }
   }
 
@@ -84,17 +90,20 @@ export default function ResultActions({ result, onFollowUp, onCreatePost, onRege
       <div className="flex flex-wrap items-center gap-2">
         <button onClick={toggleSave} disabled={busy} className={btn}>
           <Icon name={saved ? 'check' : 'bookmark'} className="h-3.5 w-3.5" />
-          {saved ? 'Saved' : 'Save'}
+          {saved ? pick('Saved', 'Saved') : pick('Save karo', 'Save')}
         </button>
         <button onClick={copy} className={btn}>
-          <Icon name="copy" className="h-3.5 w-3.5" />Copy
+          <Icon name="copy" className="h-3.5 w-3.5" />
+          {pick('Copy', 'Copy')}
         </button>
         <button onClick={exportFile} className={btn}>
-          <Icon name="download" className="h-3.5 w-3.5" />Export
+          <Icon name="download" className="h-3.5 w-3.5" />
+          {pick('Export', 'Export')}
         </button>
         {onRegenerate && (
           <button onClick={onRegenerate} className={btn}>
-            <Icon name="rotate" className="h-3.5 w-3.5" />Regenerate
+            <Icon name="rotate" className="h-3.5 w-3.5" />
+            {pick('Dobara banao', 'Regenerate')}
           </button>
         )}
         {onCreatePost && result.templateId !== 'social-post' && (
@@ -102,7 +111,8 @@ export default function ResultActions({ result, onFollowUp, onCreatePost, onRege
             onClick={onCreatePost}
             className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700"
           >
-            <Icon name="share" className="h-3.5 w-3.5" />Create a post from this
+            <Icon name="share" className="h-3.5 w-3.5" />
+            {pick('Isse ek post banao', 'Create a post from this')}
           </button>
         )}
         {note && <span className="text-sm text-green-700">{note}</span>}
@@ -113,7 +123,10 @@ export default function ResultActions({ result, onFollowUp, onCreatePost, onRege
           <input
             value={followUp}
             onChange={(e) => setFollowUp(e.target.value)}
-            placeholder="Ask a follow-up about this result…"
+            placeholder={pick(
+              'Is result ke baare mein aur kuch poocho…',
+              'Ask a follow-up about this result…'
+            )}
             className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400"
           />
           <button

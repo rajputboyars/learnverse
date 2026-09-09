@@ -1,12 +1,14 @@
 'use client';
 
 import Icon from '@/components/Icon';
+import { useLang } from '@/components/LanguageProvider';
 
 /**
  * Renders a template's declared inputs. Templates own their field list, so a new
  * quick action needs no form code at all — it just declares inputs and appears.
  */
 export default function PromptForm({ template, values, onChange, disabled }) {
+  const { pick } = useLang();
   if (!template?.inputs?.length) return null;
 
   function set(name, value) {
@@ -23,7 +25,7 @@ export default function PromptForm({ template, values, onChange, disabled }) {
         return (
           <div key={field.name} className={wide ? 'sm:col-span-2' : ''}>
             <label htmlFor={id} className="block text-sm font-medium text-slate-700">
-              {field.label}
+              {pick(field.labelHi || field.label, field.label)}
               {field.required && <span className="ml-1 text-red-500">*</span>}
             </label>
 
@@ -45,7 +47,7 @@ export default function PromptForm({ template, values, onChange, disabled }) {
                 rows={3}
                 value={value}
                 disabled={disabled}
-                placeholder={field.placeholder}
+                placeholder={pick(field.placeholderHi || field.placeholder, field.placeholder)}
                 onChange={(e) => set(field.name, e.target.value)}
                 className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 disabled:opacity-60"
               />
@@ -55,7 +57,7 @@ export default function PromptForm({ template, values, onChange, disabled }) {
                 type="text"
                 value={value}
                 disabled={disabled}
-                placeholder={field.placeholder}
+                placeholder={pick(field.placeholderHi || field.placeholder, field.placeholder)}
                 onChange={(e) => set(field.name, e.target.value)}
                 className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 disabled:opacity-60"
               />
@@ -66,7 +68,10 @@ export default function PromptForm({ template, values, onChange, disabled }) {
 
       <p className="sm:col-span-2 flex items-center gap-1.5 text-xs text-slate-400">
         <Icon name="lightbulb" className="h-3 w-3" />
-        You answer a few fields; the full prompt is written for you.
+        {pick(
+          'Tum bas kuch fields bharo; pura prompt tumhare liye likh diya jaata hai.',
+          'You answer a few fields; the full prompt is written for you.'
+        )}
       </p>
     </div>
   );

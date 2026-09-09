@@ -23,12 +23,17 @@ const SHAPE = {
 const template = {
   id: 'compare-courses',
   title: 'Compare Courses',
+  titleHi: 'Courses compare karo',
   short: 'Compare platforms and courses on the things that actually matter.',
+  shortHi: 'Platforms aur courses ko un cheezon pe compare karo jo sach mein maayne rakhti hain.',
   description:
     'Scores learning options side by side — beginner friendliness, depth, projects, price, community — and says who each one suits.',
+  descriptionHi:
+    'Learning options ko aamne-saamne score karta hai — beginner ke liye kitna aasan, kitna gehra, projects, keemat, community — aur batata hai kaunsa kiske liye theek hai.',
   category: 'learning',
   icon: 'table',
   cta: 'Compare Courses',
+  ctaHi: 'Courses compare karo',
   version: '1.0',
   status: 'active',
   outputFormat: 'structured',
@@ -37,19 +42,24 @@ const template = {
     {
       name: 'topic',
       label: 'What do you want to learn?',
+      labelHi: 'Kya seekhna chahte ho?',
       type: 'text',
       required: true,
       placeholder: 'React, System design, Python for data…',
+      placeholderHi: 'React, System design, Python for data…',
     },
     {
       name: 'options',
       label: 'Specific options to compare (optional)',
+      labelHi: 'Compare karne ke liye khaas options (optional)',
       type: 'text',
       placeholder: 'Udemy, freeCodeCamp, Scrimba — leave blank to let AI pick',
+      placeholderHi: 'Udemy, freeCodeCamp, Scrimba — khaali chhodo toh AI khud chun lega',
     },
     {
       name: 'budget',
       label: 'Budget',
+      labelHi: 'Budget',
       type: 'select',
       options: ['Free only', 'Under ₹1,000', 'Under ₹5,000', 'No limit'],
       default: 'Free only',
@@ -57,6 +67,7 @@ const template = {
     {
       name: 'level',
       label: 'Your level',
+      labelHi: 'Tumhara level',
       type: 'select',
       options: ['Complete beginner', 'Some basics', 'Intermediate', 'Advanced'],
       default: 'Some basics',

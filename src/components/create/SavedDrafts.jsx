@@ -3,11 +3,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import Icon from '@/components/Icon';
 import SourceBadge from '@/components/ai/SourceBadge';
+import { useLang } from '@/components/LanguageProvider';
+
 import { EmptyState, ErrorState, SkeletonCard } from '@/components/ui/States';
 
 const PLATFORM_ICON = { linkedin: 'linkedin', instagram: 'palette', x: 'twitter', reddit: 'comments' };
 
 export default function SavedDrafts() {
+  const { pick } = useLang();
   const [state, setState] = useState({ loading: true, error: '', posts: [] });
   const [openId, setOpenId] = useState(null);
   const [draft, setDraft] = useState('');
@@ -16,7 +19,11 @@ export default function SavedDrafts() {
   const load = useCallback(() => {
     setState((s) => ({ ...s, loading: true, error: '' }));
     fetch('/api/posts')
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Could not load your drafts'))))
+      .then((r) =>
+        r.ok
+          ? r.json()
+          : Promise.reject(new Error(pick('Tumhare drafts load nahi ho paaye', 'Could not load your drafts')))
+      )
       .then((d) => setState({ loading: false, error: '', posts: d.posts }))
       .catch((e) => setState({ loading: false, error: e.message, posts: [] }));
   }, []);
@@ -41,14 +48,14 @@ export default function SavedDrafts() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ body: draft }),
     });
-    if (!res.ok) return flash('Could not save');
-    flash('Saved');
+    if (!res.ok) return flash(pick('Save nahi ho paaya', 'Could not save'));
+    flash(pick('Save ho gaya', 'Saved'));
     load();
   }
 
   async function remove(id) {
     const res = await fetch(`/api/posts/${id}`, { method: 'DELETE' });
-    if (!res.ok) return flash('Could not delete');
+    if (!res.ok) return flash(pick('Delete nahi ho paaya', 'Could not delete'));
     setOpenId(null);
     load();
   }
@@ -56,9 +63,9 @@ export default function SavedDrafts() {
   async function copy(text) {
     try {
       await navigator.clipboard.writeText(text);
-      flash('Copied');
+      flash(pick('Copy ho gaya', 'Copied'));
     } catch {
-      flash('Clipboard unavailable');
+      flash(pick('Clipboard available nahi hai', 'Clipboard unavailable'));
     }
   }
 
@@ -68,8 +75,11 @@ export default function SavedDrafts() {
     return (
       <EmptyState
         icon="pen"
-        title="No drafts yet"
-        description="Generate a post above and hit Save draft to keep it here."
+        title={pick('Abhi koi draft nahi', 'No drafts yet')}
+        description={pick(
+          'Upar ek post banao aur Save draft dabao — wo yahan rahega.',
+          'Generate a post above and hit Save draft to keep it here.'
+        )}
       />
     );
   }
@@ -83,14 +93,14 @@ export default function SavedDrafts() {
             <div className="min-w-0">
               <p className="flex items-center gap-2 font-medium">
                 <Icon name={PLATFORM_ICON[p.platform]} brand className="h-3.5 w-3.5" />
-                {p.topic || 'Untitled post'}
+                {p.topic || pick('Bina naam ki post', 'Untitled post')}
               </p>
               <p className="mt-0.5 truncate text-sm text-slate-500">{p.body.slice(0, 90)}…</p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
               {p.edited && (
                 <span className="rounded-full border border-slate-200 px-2 py-0.5 text-xs text-slate-500">
-                  edited by you
+                  {pick('tumne edit kiya', 'edited by you')}
                 </span>
               )}
               <SourceBadge source={p.source} />
@@ -109,13 +119,16 @@ export default function SavedDrafts() {
               {!!p.hashtags?.length && <p className="text-sm text-indigo-600">{p.hashtags.join(' ')}</p>}
               <div className="flex flex-wrap gap-2">
                 <button onClick={() => copy(p.hashtags?.length ? `${draft}\n\n${p.hashtags.join(' ')}` : draft)} className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700">
-                  <Icon name="copy" className="mr-1.5 h-3.5 w-3.5" />Copy
+                  <Icon name="copy" className="mr-1.5 h-3.5 w-3.5" />
+                  {pick('Copy', 'Copy')}
                 </button>
                 <button onClick={() => save(p.id)} className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium hover:bg-slate-50">
-                  <Icon name="save" className="mr-1.5 h-3.5 w-3.5" />Save changes
+                  <Icon name="save" className="mr-1.5 h-3.5 w-3.5" />
+                  {pick('Changes save karo', 'Save changes')}
                 </button>
                 <button onClick={() => remove(p.id)} className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50">
-                  <Icon name="trash" className="mr-1.5 h-3.5 w-3.5" />Delete
+                  <Icon name="trash" className="mr-1.5 h-3.5 w-3.5" />
+                  {pick('Delete karo', 'Delete')}
                 </button>
               </div>
             </div>

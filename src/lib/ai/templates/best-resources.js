@@ -21,12 +21,17 @@ const SHAPE = {
 const template = {
   id: 'best-resources',
   title: 'Best Learning Resources',
+  titleHi: 'Sabse achhe Learning Resources',
   short: 'Find the docs, courses, videos and practice worth your time.',
+  shortHi: 'Wo docs, courses, videos aur practice dhoondho jo tumhare time ke layak hain.',
   description:
     'Pulls together the resources that actually teach a topic well, sorted into the order you should use them.',
+  descriptionHi:
+    'Un resources ko ek jagah laata hai jo kisi topic ko sach mein achhe se sikhate hain, us order mein jismein tumhe unhe use karna chahiye.',
   category: 'learning',
   icon: 'book-open',
   cta: 'Find Best Resources',
+  ctaHi: 'Sabse achhe Resources dhoondho',
   version: '1.0',
   status: 'active',
   outputFormat: 'structured',
@@ -35,13 +40,16 @@ const template = {
     {
       name: 'topic',
       label: 'Topic',
+      labelHi: 'Topic',
       type: 'text',
       required: true,
       placeholder: 'JavaScript closures, Kubernetes, SQL joins…',
+      placeholderHi: 'JavaScript closures, Kubernetes, SQL joins…',
     },
     {
       name: 'level',
       label: 'Your level',
+      labelHi: 'Tumhara level',
       type: 'select',
       options: ['Complete beginner', 'Some basics', 'Intermediate', 'Advanced'],
       default: 'Some basics',
@@ -49,6 +57,7 @@ const template = {
     {
       name: 'format',
       label: 'Preferred format',
+      labelHi: 'Kaunsa format pasand hai',
       type: 'select',
       options: ['Any', 'Reading', 'Video', 'Hands-on practice'],
       default: 'Any',

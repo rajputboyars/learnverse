@@ -13,12 +13,17 @@ const SHAPE = {
 const template = {
   id: 'learning-analysis',
   title: 'My Learning Analysis',
+  titleHi: 'Meri Learning ka Analysis',
   short: 'Read your own activity back: consistency, strengths, what is slipping.',
+  shortHi: 'Apni hi activity padho: consistency, strengths, aur kya chhoot raha hai.',
   description:
     'Looks at your recorded XP, streak, completed concepts and course progress, and says what the pattern suggests.',
+  descriptionHi:
+    'Tumhare record kiye hue XP, streak, poore hue concepts aur course progress ko dekhta hai, aur batata hai ki pattern kya keh raha hai.',
   category: 'analytics',
   icon: 'chart',
   cta: 'Analyze My Progress',
+  ctaHi: 'Meri progress ka analysis karo',
   version: '1.0',
   status: 'active',
   outputFormat: 'structured',
@@ -28,12 +33,15 @@ const template = {
     {
       name: 'goal',
       label: 'What are you working towards?',
+      labelHi: 'Tum kis cheez ki taraf kaam kar rahe ho?',
       type: 'text',
       placeholder: 'First developer job, switch to backend, clear interviews…',
+      placeholderHi: 'Pehli developer job, backend mein switch, interviews clear karna…',
     },
     {
       name: 'tone',
       label: 'How direct should it be?',
+      labelHi: 'Kitni seedhi baat honi chahiye?',
       type: 'select',
       options: ['Encouraging', 'Balanced', 'Blunt'],
       default: 'Balanced',

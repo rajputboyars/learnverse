@@ -4,12 +4,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Icon from '@/components/Icon';
 import { EmptyState, ErrorState, SkeletonCard } from '@/components/ui/States';
+import { useLang } from '@/components/LanguageProvider';
 import AIResultView from './AIResultView';
 import ResultActions from './ResultActions';
 import SourceBadge from './SourceBadge';
 
 /** Your past runs, newest first. Expanding one re-renders the full structured result. */
 export default function RecentResults({ savedOnly = false, limit = 10 }) {
+  const { pick } = useLang();
   const { status } = useSession();
   const [state, setState] = useState({ loading: true, error: '', results: [] });
   const [openId, setOpenId] = useState(null);
@@ -19,10 +21,16 @@ export default function RecentResults({ savedOnly = false, limit = 10 }) {
     const params = new URLSearchParams({ limit: String(limit) });
     if (savedOnly) params.set('saved', '1');
     fetch(`/api/ai/results?${params}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Could not load your results'))))
+      .then((r) =>
+        r.ok
+          ? r.json()
+          : Promise.reject(
+              new Error(pick('Tumhare results load nahi ho paaye', 'Could not load your results'))
+            )
+      )
       .then((d) => setState({ loading: false, error: '', results: d.results }))
       .catch((e) => setState({ loading: false, error: e.message, results: [] }));
-  }, [savedOnly, limit]);
+  }, [savedOnly, limit, pick]);
 
   useEffect(() => {
     if (status === 'authenticated') load();
@@ -37,11 +45,21 @@ export default function RecentResults({ savedOnly = false, limit = 10 }) {
     return (
       <EmptyState
         icon="sparkles"
-        title={savedOnly ? 'Nothing saved yet' : 'No AI results yet'}
+        title={
+          savedOnly
+            ? pick('Abhi kuch saved nahi hai', 'Nothing saved yet')
+            : pick('Abhi koi AI result nahi hai', 'No AI results yet')
+        }
         description={
           savedOnly
-            ? 'Run an action and hit Save to keep the ones worth coming back to.'
-            : 'Run one of the quick actions above — every result you generate is kept here.'
+            ? pick(
+                'Koi action chalao aur Save dabao — jo dobara dekhne layak ho wo yahan rahega.',
+                'Run an action and hit Save to keep the ones worth coming back to.'
+              )
+            : pick(
+                'Upar wale quick actions mein se koi chalao — har result yahan save rehta hai.',
+                'Run one of the quick actions above — every result you generate is kept here.'
+              )
         }
       />
     );
@@ -63,7 +81,8 @@ export default function RecentResults({ savedOnly = false, limit = 10 }) {
                   {r.saved && <Icon name="bookmark" className="h-3 w-3 text-indigo-500" />}
                 </p>
                 <p className="mt-0.5 truncate text-sm text-slate-500">
-                  {Object.values(r.inputs || {}).filter(Boolean).slice(0, 3).join(' · ') || 'No inputs'}
+                  {Object.values(r.inputs || {}).filter(Boolean).slice(0, 3).join(' · ') ||
+                    pick('Koi input nahi', 'No inputs')}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-3">
