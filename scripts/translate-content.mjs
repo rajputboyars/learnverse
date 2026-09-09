@@ -8,13 +8,19 @@
 // There are over a thousand of them, which is too many to write by hand and
 // exactly the kind of job the platform's own AI layer exists for.
 //
-//   ANTHROPIC_API_KEY=… node scripts/translate-content.mjs --dry
-//   ANTHROPIC_API_KEY=… node scripts/translate-content.mjs --limit 20
-//   ANTHROPIC_API_KEY=… node scripts/translate-content.mjs
+//   node scripts/translate-content.mjs --dry
+//   GEMINI_API_KEY=… node scripts/translate-content.mjs --limit 20
+//   GEMINI_API_KEY=… node scripts/translate-content.mjs
+//
+// Any one of GEMINI_API_KEY, OPENAI_API_KEY or ANTHROPIC_API_KEY works. Without
+// --provider the first one set wins, in that order: Gemini first because it has
+// a free tier, Anthropic last because it is the one most likely to be sitting in
+// the environment for something else. Pass --provider to decide explicitly.
 //
 //   --dry     report what would be translated, call no model, write nothing
 //   --limit   stop after N fields (start small, read the output, then widen)
 //   --field   courseDescription | topicDescription | dailyLifeExample
+//   --provider gemini | openai | anthropic  (pick one explicitly)
 //
 // It only ever touches fields that are still plain strings, so it is safe to
 // re-run and it can be stopped and resumed at any point.
@@ -47,6 +53,7 @@ const arg = (n) => {
 const DRY = args.includes('--dry');
 const LIMIT = Number(arg('limit')) || Infinity;
 const ONLY = arg('field');
+const PROVIDER = arg('provider');
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
@@ -57,7 +64,52 @@ if (!MONGODB_URI) {
 /* ── the model call, kept deliberately small ── */
 const PROVIDERS = [
   {
+    name: 'gemini',
+    envKey: 'GEMINI_API_KEY',
+    key: () => process.env.GEMINI_API_KEY,
+    async call(key, prompt) {
+      const res = await fetch(
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+        {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.3, maxOutputTokens: 1200 },
+          }),
+        }
+      );
+      if (!res.ok) throw new Error(`Gemini ${res.status}: ${(await res.text()).slice(0, 200)}`);
+      const body = await res.json();
+      return (body.candidates?.[0]?.content?.parts || [])
+        .map((p) => p.text || '')
+        .join('')
+        .trim();
+    },
+  },
+  {
+    name: 'openai',
+    envKey: 'OPENAI_API_KEY',
+    key: () => process.env.OPENAI_API_KEY,
+    async call(key, prompt) {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          max_completion_tokens: 1200,
+          temperature: 0.3,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      });
+      if (!res.ok) throw new Error(`OpenAI ${res.status}: ${(await res.text()).slice(0, 200)}`);
+      const body = await res.json();
+      return (body.choices?.[0]?.message?.content || '').trim();
+    },
+  },
+  {
     name: 'anthropic',
+    envKey: 'ANTHROPIC_API_KEY',
     key: () => process.env.ANTHROPIC_API_KEY,
     async call(key, prompt) {
       const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -79,28 +131,26 @@ const PROVIDERS = [
       return (body.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('').trim();
     },
   },
-  {
-    name: 'openai',
-    key: () => process.env.OPENAI_API_KEY,
-    async call(key, prompt) {
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          max_completion_tokens: 1200,
-          temperature: 0.3,
-          messages: [{ role: 'user', content: prompt }],
-        }),
-      });
-      if (!res.ok) throw new Error(`OpenAI ${res.status}: ${(await res.text()).slice(0, 200)}`);
-      const body = await res.json();
-      return (body.choices?.[0]?.message?.content || '').trim();
-    },
-  },
 ];
 
 function activeProvider() {
+  // --provider is explicit and wins. Without it the first configured provider
+  // in PROVIDERS order is used, and that order puts the free tier first — a key
+  // left in .env.local should not quietly decide which service gets billed.
+  if (PROVIDER) {
+    const chosen = PROVIDERS.find((p) => p.name === PROVIDER);
+    if (!chosen) {
+      console.error(
+        `\nUnknown --provider "${PROVIDER}". Options: ${PROVIDERS.map((p) => p.name).join(', ')}.\n`
+      );
+      process.exit(1);
+    }
+    if (!chosen.key()) {
+      console.error(`\n--provider ${PROVIDER} needs ${chosen.envKey} to be set.\n`);
+      process.exit(1);
+    }
+    return chosen;
+  }
   return PROVIDERS.find((p) => p.key()) || null;
 }
 
@@ -140,7 +190,8 @@ async function run() {
   const provider = activeProvider();
   if (!DRY && !provider) {
     console.error(
-      '\nNo provider key found. Set ANTHROPIC_API_KEY or OPENAI_API_KEY, or run with --dry.\n'
+      '\nNo provider key found. Set GEMINI_API_KEY, OPENAI_API_KEY or ANTHROPIC_API_KEY,\n' +
+        'pick one with --provider, or run with --dry.\n'
     );
     await mongoose.disconnect();
     process.exit(1);
