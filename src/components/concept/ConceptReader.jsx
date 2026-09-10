@@ -11,8 +11,19 @@ import Quiz from './Quiz';
 import { useLang } from '../LanguageProvider';
 import Icon from '../Icon';
 import { pickText } from '@/lib/content';
+import JahiaLesson from '../jahia/JahiaLesson';
+import JahiaVersionBadge from '../jahia/JahiaVersionBadge';
 
 const RUNNABLE = new Set(['javascript', 'html']);
+
+const LESSON_BADGES = {
+  'hands-on': { icon: 'target', label: 'Hands-on' },
+  coding: { icon: 'code', label: 'Coding' },
+  cms: { icon: 'layers', label: 'CMS' },
+  lab: { icon: 'flask', label: 'Lab' },
+  project: { icon: 'project', label: 'Project' },
+  debugging: { icon: 'bug', label: 'Debugging' },
+};
 
 // Roughly 200 words a minute, floored at one — a hint, not a promise.
 function readingTime(text = '') {
@@ -32,13 +43,28 @@ export default function ConceptReader({ concept, done, marking, onMarkDone, show
     ? concept.explanation.hinglish
     : concept.explanation?.english || '';
 
-  const minutes = readingTime(explanation);
+  const lesson = concept.lesson || null;
+  const minutes = lesson?.minutes || readingTime(explanation);
 
   return (
     <article className="relative">
 
       {/* ══════════ Title block ══════════ */}
       <header className="flex flex-col gap-3.5">
+        {lesson && (
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            {lesson.level && (
+              <span>
+                {lang === 'hi' ? 'Level' : 'Level'} <span className="text-indigo-600">{lesson.level}</span>
+              </span>
+            )}
+            {lesson.module && (
+              <span>
+                Module <span className="text-slate-700">{lesson.stage != null ? `${String(lesson.stage).padStart(2, '0')} · ` : ''}{lesson.module}</span>
+              </span>
+            )}
+          </div>
+        )}
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
           <span className="rounded-full bg-slate-100 px-2.5 py-1 font-semibold capitalize text-slate-600">
             {concept.difficulty}
@@ -57,8 +83,14 @@ export default function ConceptReader({ concept, done, marking, onMarkDone, show
         <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
           <span className="flex items-center gap-1.5">
             <Icon name="clock" className="h-3.5 w-3.5" />
-            {minutes} min read
+            {minutes} {lesson ? 'min' : 'min read'}
           </span>
+          {lesson?.badges?.map((b) => (
+            <span key={b} className="flex items-center gap-1.5 font-semibold text-slate-500">
+              <Icon name={LESSON_BADGES[b]?.icon || 'circle'} className="h-3.5 w-3.5 text-indigo-600" />
+              {LESSON_BADGES[b]?.label || b}
+            </span>
+          ))}
           <span className="flex items-center gap-1.5">
             <Icon name="bolt" className="h-3.5 w-3.5" />
             +{concept.xpReward || 10} XP
@@ -75,6 +107,8 @@ export default function ConceptReader({ concept, done, marking, onMarkDone, show
             </span>
           )}
         </div>
+
+        {lesson && <JahiaVersionBadge version={lesson.version} scope={lesson.scope} />}
 
         {/* Language: a real control, not a note. Bilingual reading is the point. */}
         <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5">
@@ -134,6 +168,9 @@ export default function ConceptReader({ concept, done, marking, onMarkDone, show
           </div>
         </section>
       )}
+
+      {/* ══════════ Hands-on lesson (Jahia) ══════════ */}
+      {lesson && <JahiaLesson lesson={lesson} conceptId={concept._id} />}
 
       {/* ══════════ Code ══════════ */}
       {concept.codeExample && (

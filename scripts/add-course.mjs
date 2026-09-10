@@ -77,7 +77,7 @@ async function freeSlug(slugify, base, Model, ownId = null) {
 }
 
 const CODE_LANG = {
-  jahia: 'javascript',
+  jahia: 'jsx',
 };
 
 async function run() {
@@ -134,6 +134,8 @@ async function run() {
           slug: await freeSlug(slugify, `${course.slug}-${topic.title}`, Topic),
           description: topic.description || '',
           level: topic.level || 'beginner',
+          stage: topic.stage,
+          estimatedMinutes: topic.estimatedMinutes,
           order: topicOrder,
           status: 'published',
         });
@@ -145,6 +147,8 @@ async function run() {
           $set: {
             description: topic.description || '',
             level: topic.level || 'beginner',
+            stage: topic.stage,
+            estimatedMinutes: topic.estimatedMinutes,
             order: topicOrder,
           },
         }
@@ -169,9 +173,10 @@ async function run() {
         explanation: c.explanation,
         dailyLifeExample: c.dailyLifeExample || '',
         codeExample: c.codeExample || '',
-        codeLanguage: CODE_LANG[course.slug] || 'javascript',
+        codeLanguage: c.codeLanguage || CODE_LANG[course.slug] || 'javascript',
         keyPoints: c.keyPoints || [],
         quiz: c.quiz || [],
+        lesson: c.lesson,
         tags: c.tags || [],
         difficulty: c.difficulty || 'easy',
         order: conceptOrder,
@@ -194,7 +199,21 @@ async function run() {
         const exists = await Concept.db
           .collection('interviewquestions')
           .findOne({ conceptId: conceptDoc._id, question: iq.question });
-        if (exists) continue;
+        if (exists) {
+          // Refresh the answer in place — same _id, so bookmarks survive.
+          await InterviewQuestion.updateOne(
+            { _id: exists._id },
+            {
+              $set: {
+                answer: iq.answer,
+                difficulty: iq.difficulty || 'medium',
+                codeExample: iq.codeExample || undefined,
+                deepDive: iq.deepDive || [],
+              },
+            }
+          );
+          continue;
+        }
         plan.questions += 1;
         await InterviewQuestion.create({
           conceptId: conceptDoc._id,
@@ -211,6 +230,23 @@ async function run() {
           tags: c.tags || [],
           status: 'published',
         });
+      }
+    }
+  }
+
+  /* ── topics the curriculum no longer names ── */
+  // A restructure moves concepts into new topics and leaves the old topic
+  // behind, empty. Remove only those that are genuinely empty: a topic still
+  // holding a concept is never touched.
+  if (!DRY) {
+    const keep = new Set(curriculum.map((t) => t.title));
+    const stale = await Topic.find({ courseId: courseDoc._id }).select('_id title').lean();
+    for (const t of stale) {
+      if (keep.has(t.title)) continue;
+      const holding = await Concept.countDocuments({ topicId: t._id });
+      if (holding === 0) {
+        await Topic.deleteOne({ _id: t._id });
+        console.log(`removed empty topic "${t.title}"`);
       }
     }
   }

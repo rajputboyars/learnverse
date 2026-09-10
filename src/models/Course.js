@@ -21,6 +21,9 @@ const CourseSchema = new mongoose.Schema(
       default: 'programming',
     },
     status: { type: String, enum: ['draft', 'published'], default: 'draft' },
+    // Optional stricter certificate rules, e.g. { requireQuizzes: true, title,
+    // subtitle, note }. Absent: certificate on every concept read (the default).
+    certification: { type: mongoose.Schema.Types.Mixed, default: undefined },
     order: { type: Number, default: 0 },
   },
   { timestamps: true }

@@ -13,9 +13,13 @@ const TopicSchema = new mongoose.Schema(
     description: { type: mongoose.Schema.Types.Mixed, default: '' },
     level: {
       type: String,
-      enum: ['beginner', 'intermediate', 'advanced'],
+      // 'project' is a capstone band after advanced (used by the Jahia path).
+      enum: ['beginner', 'intermediate', 'advanced', 'project'],
       default: 'beginner',
     },
+    // Roadmap metadata. Both optional; courses without them render as before.
+    stage: { type: Number },
+    estimatedMinutes: { type: Number },
     order: { type: Number, default: 0 },
     status: { type: String, enum: ['draft', 'published'], default: 'published' },
   },
