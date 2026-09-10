@@ -7,15 +7,18 @@ import { useTx } from './useTx';
 
 const STAGES = [
   { key: 'problem', en: 'Problem', hi: 'Problem', icon: 'bug', tone: 'bg-red-50 text-red-700' },
-  { key: 'causes', en: 'Possible cause', hi: 'Possible cause', icon: 'question', tone: 'bg-amber-50 text-amber-700' },
-  { key: 'where', en: 'Where to check', hi: 'Kahan check karein', icon: 'search', tone: 'bg-indigo-50 text-indigo-700' },
+  { key: 'symptoms', en: 'Symptoms', hi: 'Symptoms', icon: 'eye', tone: 'bg-red-50 text-red-700' },
+  { key: 'where', en: 'How to inspect', hi: 'Kaise inspect karein', icon: 'search', tone: 'bg-indigo-50 text-indigo-700' },
+  { key: 'causes', en: 'Root cause', hi: 'Asli wajah', icon: 'question', tone: 'bg-amber-50 text-amber-700' },
   { key: 'fix', en: 'Fix', hi: 'Fix', icon: 'wrench', tone: 'bg-green-50 text-green-700' },
   { key: 'prevention', en: 'Prevention', hi: 'Aage se bachao', icon: 'shield', tone: 'bg-slate-100 text-slate-700' },
 ];
 
 /**
- * One failure, walked in order: problem → possible cause → where to check →
- * fix → prevention. Used inside lessons and by the Debugging Lab.
+ * One failure, walked as a debugging process: problem → symptoms → how to
+ * inspect → root cause → fix → prevention. Used inside lessons and by every
+ * course's error database. `symptom` (one line, shown as a terminal strip) and
+ * `symptoms` (a list) are both accepted.
  */
 export default function DebugCard({ item, showTitle = true }) {
   const { pick } = useLang();

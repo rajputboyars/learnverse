@@ -4,8 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Icon from '../Icon';
 import CodeBlock from '../concept/CodeBlock';
 import { useLang } from '../LanguageProvider';
-import { NODE_TYPES, NT_CATEGORIES, NT_SCOPES } from '@/data/jahia/nodeTypes';
-import { ntAnchor } from '@/data/jahia/search';
+import { NODE_TYPES, NT_CATEGORIES, NT_SCOPES, ntAnchor } from '@/data/jahia/nodeTypes';
 
 function Row({ label, children }) {
   return (

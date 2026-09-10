@@ -7,13 +7,14 @@ import CodeBlock from '../concept/CodeBlock';
 import { useLang } from '../LanguageProvider';
 import { useTx } from './useTx';
 import FlowDiagram from './FlowDiagram';
-import JahiaLocation from './JahiaLocation';
-import JahiaScreenshot from './JahiaScreenshot';
-import AuthorDeveloperToggle from './AuthorDeveloperToggle';
-import CmsVsCode from './CmsVsCode';
+import WhereIsThis from './WhereIsThis';
+import CourseScreenshot from './CourseScreenshot';
+import PerspectiveTabs from './PerspectiveTabs';
+import CodeResult from './CodeResult';
 import { StepList, ExpectedResult } from './LessonChecklist';
-import CndChallenge from './CndChallenge';
+import Challenge from './Challenge';
 import DebugCard from './DebugCard';
+import Lab from './Lab';
 
 // The hands-on half of a Jahia lesson, in the course's fixed order:
 // LEARN (build, objectives) → SEE (where, screenshots, three views) →
@@ -23,20 +24,46 @@ const SECTIONS = [
   { id: 'lesson-prereq', key: 'prerequisites', icon: 'list-check', en: 'Before you start', hi: 'Shuru karne se pehle' },
   { id: 'lesson-build', key: 'build', icon: 'rocket', en: "What you'll build", hi: 'Kya banaoge' },
   { id: 'lesson-objectives', key: 'objectives', icon: 'target', en: "What you'll learn", hi: 'Kya seekhoge' },
-  { id: 'lesson-where', key: 'where', icon: 'location-dot', en: 'Where is it in Jahia?', hi: 'Jahia mein kahan hai?' },
+  { id: 'lesson-why', key: 'why', icon: 'lightbulb', en: 'Why it matters', hi: 'Kyun zaroori hai' },
+  { id: 'lesson-where', key: 'where', icon: 'location-dot', en: 'Where do I find this?', hi: 'Ye kahan milega?' },
   { id: 'lesson-see', key: 'screenshots', icon: 'eye', en: 'What does it look like?', hi: 'Dikhta kaisa hai?' },
   { id: 'lesson-cards', key: 'cards', icon: 'users', en: 'Explore', hi: 'Explore karo' },
-  { id: 'lesson-views', key: 'views', icon: 'layers', en: 'Author vs developer vs JCR', hi: 'Author vs developer vs JCR' },
+  { id: 'lesson-views', key: 'views', icon: 'layers', en: 'Three perspectives', hi: 'Teen nazariye' },
   { id: 'lesson-behind', key: 'behind', icon: 'gem', en: 'What happens behind the scenes', hi: 'Parde ke peeche kya hota hai' },
   { id: 'lesson-try', key: 'steps', icon: 'hand-point-up', en: 'Try it yourself', hi: 'Khud karke dekho' },
   { id: 'lesson-code', key: 'files', icon: 'code', en: 'Code', hi: 'Code' },
   { id: 'lesson-cms', key: 'cmsVsCode', icon: 'sliders', en: 'CND → CMS field', hi: 'CND → CMS field' },
+  { id: 'lesson-result', key: 'codeResult', icon: 'eye', en: 'Code → what you see', hi: 'Code → kya dikhta hai' },
+  { id: 'lesson-lab', key: 'lab', icon: 'flask', en: 'Lab', hi: 'Lab' },
   { id: 'lesson-table', key: 'table', icon: 'table', en: 'Comparison', hi: 'Comparison' },
   { id: 'lesson-expected', key: 'expected', icon: 'check-circle', en: 'Expected result', hi: 'Expected result' },
   { id: 'lesson-mistakes', key: 'mistakes', icon: 'warning', en: 'Common mistakes', hi: 'Common galtiyan' },
   { id: 'lesson-debug', key: 'debug', icon: 'bug', en: 'Debugging', hi: 'Debugging' },
   { id: 'lesson-challenge', key: 'challenge', icon: 'puzzle', en: 'Mini challenge', hi: 'Mini challenge' },
+  { id: 'lesson-summary', key: 'summary', icon: 'list-check', en: 'Summary', hi: 'Summary' },
 ];
+
+// "Ask the AI tutor" — opens the Explain-a-Topic tool; the tutor explains,
+// it does not do the lab for you.
+function Tutor({ topic }) {
+  const { pick } = useLang();
+  const q = encodeURIComponent(topic || '');
+  return (
+    <div className="mt-8 flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white p-4">
+      <Icon name="robot" className="h-4 w-4 text-indigo-600" />
+      <span className="mr-auto text-sm font-semibold">{pick('AI tutor se poocho', 'Ask the AI tutor')}</span>
+      {[
+        { en: 'Explain simply', hi: 'Aasaan bhasha mein' },
+        { en: 'Explain professionally', hi: 'Interview level pe' },
+        { en: 'Generate practice', hi: 'Practice banao' },
+      ].map((a) => (
+        <Link key={a.en} href={`/ai?tab=learning&topic=${q}`} className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-indigo-300">
+          {pick(a.hi, a.en)}
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 function present(lesson, key) {
   const v = lesson?.[key];
@@ -109,7 +136,7 @@ function CardPicker({ cards }) {
   );
 }
 
-export default function JahiaLesson({ lesson, conceptId }) {
+export default function CourseLesson({ lesson, conceptId }) {
   const { pick } = useLang();
   const tx = useTx();
   if (!lesson) return null;
@@ -117,7 +144,7 @@ export default function JahiaLesson({ lesson, conceptId }) {
   const S = Object.fromEntries(SECTIONS.map((s) => [s.key, s]));
 
   return (
-    <div className="jahia-lesson">
+    <div className="course-lesson">
       {on('prerequisites') && (
         <Section s={S.prerequisites}>
           <div className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2">
@@ -181,9 +208,19 @@ export default function JahiaLesson({ lesson, conceptId }) {
         </Section>
       )}
 
+      {on('why') && (
+        <Section s={S.why}>
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2">
+            {(Array.isArray(lesson.why) ? lesson.why : [lesson.why]).map((w, i) => (
+              <p key={i} className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-sm leading-relaxed text-amber-900">{tx(w)}</p>
+            ))}
+          </div>
+        </Section>
+      )}
+
       {on('where') && (
         <Section s={S.where}>
-          <JahiaLocation where={lesson.where} />
+          <WhereIsThis where={lesson.where} />
         </Section>
       )}
 
@@ -191,7 +228,7 @@ export default function JahiaLesson({ lesson, conceptId }) {
         <Section s={S.screenshots}>
           <div className="flex flex-col gap-4">
             {lesson.screenshots.map((shot, i) => (
-              <JahiaScreenshot key={i} shot={shot} />
+              <CourseScreenshot key={i} shot={shot} />
             ))}
           </div>
         </Section>
@@ -205,7 +242,7 @@ export default function JahiaLesson({ lesson, conceptId }) {
 
       {on('views') && (
         <Section s={S.views}>
-          <AuthorDeveloperToggle views={lesson.views} />
+          <PerspectiveTabs views={lesson.views} />
         </Section>
       )}
 
@@ -242,7 +279,25 @@ export default function JahiaLesson({ lesson, conceptId }) {
 
       {on('cmsVsCode') && (
         <Section s={S.cmsVsCode}>
-          <CmsVsCode rows={lesson.cmsVsCode} />
+          <CodeResult rows={lesson.cmsVsCode} />
+        </Section>
+      )}
+
+      {on('codeResult') && (
+        <Section s={S.codeResult}>
+          <CodeResult
+            rows={lesson.codeResult.rows || lesson.codeResult}
+            language={lesson.codeResult.language}
+            filename={lesson.codeResult.filename}
+            codeLabel={lesson.codeResult.codeLabel}
+            resultLabel={lesson.codeResult.resultLabel}
+          />
+        </Section>
+      )}
+
+      {on('lab') && (
+        <Section s={S.lab} title={lesson.lab.title ? tx(lesson.lab.title) : undefined}>
+          <Lab lab={lesson.lab} id={conceptId} />
         </Section>
       )}
 
@@ -286,11 +341,25 @@ export default function JahiaLesson({ lesson, conceptId }) {
               <details key={i} className="group rounded-2xl border border-slate-200 bg-white p-4 sm:px-5">
                 <summary className="flex cursor-pointer items-start gap-3 font-semibold">
                   <Icon name="warning" className="mt-1 h-3.5 w-3.5 shrink-0 text-amber-600" />
-                  <span className="flex-1">{tx(m.title)}</span>
+                  <span className="flex-1">{m.wrong ? <>❌ {tx(m.wrong)}</> : tx(m.title)}</span>
                   <Icon name="chevron-down" className="mt-1 h-3.5 w-3.5 shrink-0 text-slate-400 transition group-open:rotate-180" />
                 </summary>
                 <div className="mt-3 flex flex-col gap-2 border-t border-slate-100 pt-3 text-sm leading-relaxed text-slate-600">
                   {m.detail && <p>{tx(m.detail)}</p>}
+                  {m.why && (
+                    <p>
+                      <b className="text-slate-700">{pick('Kyun? ', 'Why? ')}</b>
+                      {tx(m.why)}
+                    </p>
+                  )}
+                  {m.wrongCode && <CodeBlock code={m.wrongCode} language={m.language || 'javascript'} filename="❌ wrong" />}
+                  {m.right && (
+                    <p className="rounded-lg bg-green-50 px-3 py-2 text-green-800">
+                      <b>✅ {pick('Sahi: ', 'Correct: ')}</b>
+                      {tx(m.right)}
+                    </p>
+                  )}
+                  {m.rightCode && <CodeBlock code={m.rightCode} language={m.language || 'javascript'} filename="✅ correct" />}
                   {m.fix && (
                     <p className="rounded-lg bg-green-50 px-3 py-2 text-green-800">
                       <b>Fix: </b>
@@ -316,9 +385,24 @@ export default function JahiaLesson({ lesson, conceptId }) {
 
       {on('challenge') && (
         <Section s={S.challenge}>
-          <CndChallenge challenge={lesson.challenge} id={conceptId} />
+          <Challenge challenge={lesson.challenge} id={conceptId} />
         </Section>
       )}
+
+      {on('summary') && (
+        <Section s={S.summary}>
+          <ul className="flex flex-col gap-1.5 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+            {lesson.summary.map((s, i) => (
+              <li key={i} className="flex gap-2.5 text-[15px] text-slate-700">
+                <Icon name="check" className="mt-1.5 h-3 w-3 shrink-0 text-green-600" />
+                {tx(s)}
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      {lesson.tutor !== false && <Tutor topic={lesson.tutorTopic || lesson.module} />}
     </div>
   );
 }

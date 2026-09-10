@@ -8,7 +8,7 @@ import BookmarkButton from './BookmarkButton';
 import { useLang } from '../LanguageProvider';
 import Icon from '../Icon';
 import LearningTimer from '../LearningTimer';
-import { lessonAnchors } from '../jahia/JahiaLesson';
+import { lessonAnchors } from '../course/CourseLesson';
 
 const SHELL = 'mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8';
 

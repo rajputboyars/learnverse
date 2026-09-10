@@ -9,18 +9,22 @@ import { highlightLine } from '@/lib/highlight';
 export const CHALLENGE_STORE = 'jahia:challenges';
 
 /**
- * Fill-in-the-blank code challenge with instant feedback.
+ * Fill-in-the-blank challenge with instant feedback and progressive hints.
  *
- *   challenge = { prompt, code: '- title (____)', options: ['string', …], answer: 0, explanation, language: 'cnd' }
+ *   challenge = { prompt, code: '- title (____)', options, answer, explanation,
+ *                 language, hints: ['think about…', '…', 'try …'] }
  *
- * Solved challenges are remembered in this browser (the course hub counts
- * them); quizzes remain the server-graded part of progress.
+ * Hints unlock one at a time; "Show solution" appears only after the last
+ * hint. Solved challenges are remembered in this browser (the course hub
+ * counts them); quizzes remain the server-graded part of progress.
  */
-export default function CndChallenge({ challenge, id }) {
+export default function Challenge({ challenge, id }) {
   const { pick } = useLang();
   const tx = useTx();
   const [choice, setChoice] = useState(null);
   const [solvedBefore, setSolvedBefore] = useState(false);
+  const [hintsShown, setHintsShown] = useState(0);
+  const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
     setSolvedBefore(Boolean(readStore(CHALLENGE_STORE, {})[id]));
@@ -28,12 +32,13 @@ export default function CndChallenge({ challenge, id }) {
 
   if (!challenge) return null;
   const language = challenge.language || 'cnd';
+  const hints = challenge.hints || [];
   const answered = choice !== null;
   const correct = answered && choice === challenge.answer;
 
   function pickOption(i) {
     setChoice(i);
-    if (i === challenge.answer) {
+    if (i === challenge.answer && !revealed) {
       const all = readStore(CHALLENGE_STORE, {});
       all[id] = true;
       writeStore(CHALLENGE_STORE, all);
@@ -68,13 +73,7 @@ export default function CndChallenge({ challenge, id }) {
           return (
             <span key={i} className="block whitespace-pre">
               {highlightLine(before, language)}
-              <span
-                className={`rounded px-1 font-bold ${
-                  !answered ? 'bg-slate-700 text-amber-300' : correct ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
-                }`}
-              >
-                {filled}
-              </span>
+              <span className={`rounded px-1 font-bold ${!answered ? 'bg-slate-700 text-amber-300' : correct ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>{filled}</span>
               {highlightLine(after, language)}
             </span>
           );
@@ -84,7 +83,6 @@ export default function CndChallenge({ challenge, id }) {
       <div className="flex flex-wrap gap-2">
         {challenge.options.map((opt, i) => {
           const isPicked = choice === i;
-          const isAnswer = answered && i === challenge.answer;
           return (
             <button
               key={opt}
@@ -92,7 +90,7 @@ export default function CndChallenge({ challenge, id }) {
               onClick={() => pickOption(i)}
               disabled={answered && correct}
               className={`rounded-lg border px-3.5 py-2 font-mono text-sm font-semibold transition ${
-                isAnswer && answered && correct
+                isPicked && correct
                   ? 'border-green-300 bg-green-50 text-green-700'
                   : isPicked && !correct
                     ? 'border-red-300 bg-red-50 text-red-700'
@@ -105,16 +103,39 @@ export default function CndChallenge({ challenge, id }) {
         })}
       </div>
 
+      {!correct && (hints.length > 0 || answered) && (
+        <div className="flex flex-col gap-2">
+          {hints.slice(0, hintsShown).map((h, i) => (
+            <p key={i} className="rounded-xl bg-white px-3.5 py-2.5 text-sm text-slate-700">
+              <b className="text-amber-700">Hint {i + 1}: </b>
+              {tx(h)}
+            </p>
+          ))}
+          <div className="flex flex-wrap gap-2">
+            {hintsShown < hints.length && (
+              <button type="button" onClick={() => setHintsShown((n) => n + 1)} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">
+                💡 {pick(`Hint ${hintsShown + 1} dikhao`, `Show hint ${hintsShown + 1}`)}
+              </button>
+            )}
+            {hintsShown >= hints.length && !revealed && (
+              <button type="button" onClick={() => setRevealed(true)} className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600">
+                {pick('Solution dikhao', 'Show solution')}
+              </button>
+            )}
+          </div>
+          {revealed && (
+            <p className="rounded-xl bg-white px-3.5 py-2.5 text-sm text-slate-700">
+              <b>{pick('Solution: ', 'Solution: ')}</b>
+              <span className="font-mono">{challenge.options[challenge.answer]}</span>
+              {challenge.explanation && <> — {tx(challenge.explanation)}</>}
+            </p>
+          )}
+        </div>
+      )}
+
       {answered && (
-        <div
-          className={`flex flex-col gap-1 rounded-xl p-3.5 text-sm ${
-            correct ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
-          }`}
-          role="status"
-        >
-          <p className="font-bold">
-            {correct ? pick('Sahi jawab!', 'Correct!') : pick('Nahi — ek baar aur try karo.', 'Not quite — try another option.')}
-          </p>
+        <div className={`flex flex-col gap-1 rounded-xl p-3.5 text-sm ${correct ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`} role="status">
+          <p className="font-bold">{correct ? pick('Sahi jawab!', 'Correct!') : pick('Nahi — ek baar aur try karo.', 'Not quite — try another option.')}</p>
           {correct && challenge.explanation && <p>{tx(challenge.explanation)}</p>}
         </div>
       )}

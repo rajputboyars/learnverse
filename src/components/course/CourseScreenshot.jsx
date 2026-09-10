@@ -190,7 +190,7 @@ function Body({ shot, real }) {
  * Shows the real capture when it exists (listed in data/jahia/screenshots),
  * otherwise a drawn mockup clearly labelled as an illustration.
  */
-export default function JahiaScreenshot({ shot }) {
+export default function CourseScreenshot({ shot }) {
   const tx = useTx();
   const [full, setFull] = useState(false);
   const real = Boolean(shot.src && AVAILABLE_SCREENSHOTS.has(shot.src));

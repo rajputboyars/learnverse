@@ -4,13 +4,13 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Icon from '../Icon';
 import CodeBlock from '../concept/CodeBlock';
-import FieldMock from './FieldMock';
-import CmsVsCode from './CmsVsCode';
+import FieldMock from '../course/FieldMock';
+import CodeResult from '../course/CodeResult';
 import { useLang } from '../LanguageProvider';
-import { useTx } from './useTx';
-import { LessonLink } from './JahiaToolkit';
+import { useTx } from '../course/useTx';
+import { LessonLink } from '../course/CourseToolkit';
 import { CND_CATEGORIES, CND_ENTRIES, CHEAT_SHEET, cndById } from '@/data/jahia/cnd';
-import { ntAnchor } from '@/data/jahia/search';
+import { ntAnchor } from '@/data/jahia/nodeTypes';
 
 const TABS = [
   { key: 'reference', en: 'Reference', hi: 'Reference' },
@@ -176,12 +176,12 @@ function Explorer() {
             </button>
           ))}
         </div>
-        <CmsVsCode rows={[{ code: buildLine(spec), field: buildField(spec) }]} />
+        <CodeResult rows={[{ code: buildLine(spec), field: buildField(spec) }]} />
       </div>
 
       <div className="flex flex-col gap-2">
         <p className="font-bold">{pick('Har reference entry, CND → CMS', 'Every reference entry, CND → CMS')}</p>
-        <CmsVsCode rows={presets.map((e) => ({ code: e.example.split('\n')[0], field: e.cms, note: e.cmsNote }))} />
+        <CodeResult rows={presets.map((e) => ({ code: e.example.split('\n')[0], field: e.cms, note: e.cmsNote }))} />
       </div>
     </div>
   );

@@ -2,37 +2,38 @@ import { notFound } from 'next/navigation';
 import { connectDB } from '@/lib/db';
 import Course from '@/models/Course';
 import Concept from '@/models/Concept';
-import JahiaToolkit from '@/components/jahia/JahiaToolkit';
-import { TOOLS } from '@/data/jahia/tools';
+import CourseToolkit from '@/components/course/CourseToolkit';
+import { coursesWithToolkit, getCourseConfig, toolData, toolMeta } from '@/data/courses';
 
 export const revalidate = 3600;
 
-// The Jahia course's reference tools live beside the course rather than inside
-// a lesson: the CND reference, the node types explorer, the debugging lab and
-// the project board. Only the Jahia course has them.
-const COURSE = 'jahia';
+// A course's reference tools — references, cheat sheets, error databases,
+// project boards and course-specific tools (Jahia's CND explorer). Any course
+// with a toolkit config in data/courses gets them, with no new page.
 
 export function generateStaticParams() {
-  return Object.keys(TOOLS).map((tool) => ({ slug: COURSE, tool }));
+  return coursesWithToolkit().flatMap((slug) => toolMeta(slug).map((t) => ({ slug, tool: t.id })));
 }
 
 export async function generateMetadata({ params }) {
   const { slug, tool } = await params;
-  if (slug !== COURSE || !TOOLS[tool]) return { title: 'Not found' };
+  const config = getCourseConfig(slug);
+  const meta = toolMeta(slug).find((t) => t.id === tool);
+  if (!config || !meta) return { title: 'Not found' };
   return {
-    title: `${TOOLS[tool].title} — Jahia`,
-    description: TOOLS[tool].description,
+    title: `${meta.title} — ${config.name}`,
+    description: meta.description,
     alternates: { canonical: `/courses/${slug}/toolkit/${tool}` },
   };
 }
 
 // Lesson title → { slug, id }, so reference entries can link to the lesson
-// that teaches them, and the project board can match phases against the
-// reader's progress (which is keyed by concept id), without hard-coding either.
-async function lessonIndex() {
+// that teaches them and the project board can match milestones against the
+// reader's progress (keyed by concept id), without hard-coding either.
+async function lessonIndex(slug) {
   try {
     await connectDB();
-    const course = await Course.findOne({ slug: COURSE }).select('_id').lean();
+    const course = await Course.findOne({ slug }).select('_id').lean();
     if (!course) return {};
     const concepts = await Concept.find({ courseId: course._id, status: 'published' }).select('title slug').lean();
     return Object.fromEntries(concepts.map((c) => [c.title, { slug: c.slug, id: c._id.toString() }]));
@@ -43,7 +44,17 @@ async function lessonIndex() {
 
 export default async function ToolkitPage({ params }) {
   const { slug, tool } = await params;
-  if (slug !== COURSE || !TOOLS[tool]) notFound();
-  const lessons = await lessonIndex();
-  return <JahiaToolkit tool={tool} lessons={lessons} />;
+  const config = getCourseConfig(slug);
+  const data = config ? toolData(slug, tool) : null;
+  if (!data) notFound();
+  const lessons = await lessonIndex(slug);
+  return (
+    <CourseToolkit
+      course={{ slug, title: config.name }}
+      tools={toolMeta(slug)}
+      active={tool}
+      data={JSON.parse(JSON.stringify(data))}
+      lessons={lessons}
+    />
+  );
 }
