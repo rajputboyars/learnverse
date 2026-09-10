@@ -380,3 +380,8 @@ export const NODE_TYPES = [
     cnd: "[lv:cta] > jnt:content, jmix:editorialContent\n - label (string) i18n mandatory\n - target (weakreference, picker[type='page']) < 'jnt:page'\n - style (string, choicelist) = 'primary' autocreated < 'primary', 'secondary'",
   },
 ];
+
+/** Anchor id for a node type in the explorer (#nt-jnt-page). */
+export function ntAnchor(name) {
+  return `nt-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
+}

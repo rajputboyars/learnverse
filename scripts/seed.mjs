@@ -202,6 +202,7 @@ async function processCourse(mod, totals) {
       description: topic.description || '',
       level: topic.level || 'beginner',
       stage: topic.stage,
+            band: topic.band,
       estimatedMinutes: topic.estimatedMinutes,
       order: topicOrder,
       status: 'published',

@@ -10,6 +10,10 @@ const APP_ICON = {
   'Page Composer': 'layers',
   'Module source': 'code',
   'Jahia Studio': 'code',
+  'VS Code': 'code',
+  GitHub: 'github',
+  'MongoDB Compass': 'database',
+  Figma: 'palette',
   Terminal: 'desktop',
   Administration: 'sliders',
   'Jahia Tools': 'wrench',
@@ -22,7 +26,7 @@ const APP_ICON = {
  *
  *   where = [{ app: 'jContent', path: ['Media', 'Images', 'Upload'], note }]
  */
-export default function JahiaLocation({ where }) {
+export default function WhereIsThis({ where }) {
   const { pick } = useLang();
   const tx = useTx();
   if (!where?.length) return null;

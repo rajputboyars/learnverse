@@ -5,7 +5,7 @@ import { NT_SCOPES } from '@/data/jahia/nodeTypes';
  * "Written for", not "tested with": behaviour can shift between minor
  * versions, and the badge should not promise more than the lesson checked.
  */
-export default function JahiaVersionBadge({ version = 'Jahia 8.x', scope, note }) {
+export default function VersionBadge({ version = 'Jahia 8.x', scope, note }) {
   const s = scope ? NT_SCOPES[scope] : null;
   return (
     <span className="flex flex-wrap items-center gap-1.5">

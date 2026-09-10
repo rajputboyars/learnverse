@@ -11,8 +11,8 @@ import Quiz from './Quiz';
 import { useLang } from '../LanguageProvider';
 import Icon from '../Icon';
 import { pickText } from '@/lib/content';
-import JahiaLesson from '../jahia/JahiaLesson';
-import JahiaVersionBadge from '../jahia/JahiaVersionBadge';
+import CourseLesson from '../course/CourseLesson';
+import VersionBadge from '../course/VersionBadge';
 
 const RUNNABLE = new Set(['javascript', 'html']);
 
@@ -108,7 +108,7 @@ export default function ConceptReader({ concept, done, marking, onMarkDone, show
           )}
         </div>
 
-        {lesson && <JahiaVersionBadge version={lesson.version} scope={lesson.scope} />}
+        {lesson && <VersionBadge version={lesson.version} scope={lesson.scope} />}
 
         {/* Language: a real control, not a note. Bilingual reading is the point. */}
         <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5">
@@ -170,7 +170,7 @@ export default function ConceptReader({ concept, done, marking, onMarkDone, show
       )}
 
       {/* ══════════ Hands-on lesson (Jahia) ══════════ */}
-      {lesson && <JahiaLesson lesson={lesson} conceptId={concept._id} />}
+      {lesson && <CourseLesson lesson={lesson} conceptId={concept._id} />}
 
       {/* ══════════ Code ══════════ */}
       {concept.codeExample && (

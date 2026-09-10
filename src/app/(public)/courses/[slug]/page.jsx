@@ -5,7 +5,8 @@ import Topic from '@/models/Topic';
 import Concept from '@/models/Concept';
 import InterviewQuestion from '@/models/InterviewQuestion';
 import CourseView from '@/components/CourseView';
-import JahiaCourseHub from '@/components/jahia/JahiaCourseHub';
+import CourseHub from '@/components/course/CourseHub';
+import { hubConfig } from '@/data/courses';
 
 export const revalidate = 3600;
 
@@ -67,6 +68,7 @@ async function getCourse(slug) {
         title: t.title,
         description: t.description || '',
         stage: t.stage ?? null,
+        band: t.band ?? null,
         estimatedMinutes: t.estimatedMinutes ?? null,
         concepts: conceptsByTopic[t._id.toString()] || [],
       })),
@@ -125,6 +127,8 @@ export default async function CoursePage({ params }) {
   const { slug } = await params;
   const data = await getCourse(slug).catch(() => null);
   if (!data) notFound();
+  // Upgraded courses (a toolkit config in data/courses) get the hub.
+  const hub = hubConfig(slug);
 
   return (
     <CourseView
@@ -132,7 +136,7 @@ export default async function CoursePage({ params }) {
       levels={data.levels}
       totals={data.totals}
       questions={data.questions}
-      hub={slug === 'jahia' ? <JahiaCourseHub course={data.course} levels={data.levels} /> : null}
+      hub={hub ? <CourseHub course={data.course} levels={data.levels} config={hub} /> : null}
     />
   );
 }

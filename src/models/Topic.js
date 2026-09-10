@@ -11,6 +11,8 @@ const TopicSchema = new mongoose.Schema(
     slug: { type: String, required: true },
     // String (legacy, Hinglish) or { english, hinglish }. See lib/content.js.
     description: { type: mongoose.Schema.Types.Mixed, default: '' },
+    // Universal roadmap band (prerequisites … interview). Optional.
+    band: { type: String },
     level: {
       type: String,
       // 'project' is a capstone band after advanced (used by the Jahia path).
