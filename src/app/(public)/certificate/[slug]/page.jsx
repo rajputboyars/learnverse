@@ -35,16 +35,42 @@ export default async function CertificatePage({ params }) {
   const course = await Course.findOne({ slug, status: 'published' }).lean();
   if (!course) notFound();
 
-  const total = await Concept.countDocuments({ courseId: course._id, status: 'published' });
-  const readProgress = await UserProgress.find({
-    userId: session.user.id,
-    courseId: course._id,
-    read: true,
-  })
-    .select('updatedAt')
+  // Most courses certify on "every concept read". A course can ask for more
+  // through `certification.requireQuizzes`: every quiz passed as well, which is
+  // how the Jahia path makes labs, the final project and the final assessment
+  // count (each is a concept, the assessment's quiz must be passed).
+  const cert = course.certification || null;
+  const concepts = await Concept.find({ courseId: course._id, status: 'published' })
+    .select('_id lesson.kind quiz.correctIndex')
     .lean();
+  const total = concepts.length;
+  const progress = await UserProgress.find({ userId: session.user.id, courseId: course._id })
+    .select('conceptId read quizPassed updatedAt')
+    .lean();
+  const readProgress = progress.filter((p) => p.read);
+  const readIds = new Set(readProgress.map((p) => String(p.conceptId)));
+  const passedIds = new Set(progress.filter((p) => p.quizPassed).map((p) => String(p.conceptId)));
   const completed = readProgress.length;
-  const isComplete = total > 0 && completed >= total;
+
+  const withQuiz = concepts.filter((c) => c.quiz?.length);
+  const quizzesPassed = withQuiz.filter((c) => passedIds.has(String(c._id))).length;
+  const part = (kind) => {
+    const list = concepts.filter((c) => (kind ? c.lesson?.kind === kind : !['lab', 'project', 'assessment'].includes(c.lesson?.kind)));
+    return { total: list.length, done: list.filter((c) => readIds.has(String(c._id))).length };
+  };
+  const criteria = cert?.requireQuizzes
+    ? [
+        { label: 'Modules & lessons completed', ...part(null) },
+        { label: 'Labs completed', ...part('lab') },
+        { label: 'Quizzes passed', total: withQuiz.length, done: quizzesPassed },
+        { label: 'Final project completed', ...part('project') },
+        { label: 'Final assessment passed', ...part('assessment') },
+      ].filter((c) => c.total > 0)
+    : null;
+
+  const isComplete = criteria
+    ? total > 0 && criteria.every((c) => c.done >= c.total)
+    : total > 0 && completed >= total;
 
   if (!isComplete) {
     const pct = total ? Math.round((completed / total) * 100) : 0;
@@ -57,6 +83,17 @@ export default async function CertificatePage({ params }) {
         <div className="mx-auto mt-4 h-3 max-w-xs overflow-hidden rounded-full bg-slate-100">
           <div className="h-full rounded-full bg-indigo-600" style={{ width: `${pct}%` }} />
         </div>
+        {criteria && (
+          <ul className="mx-auto mt-5 flex max-w-xs flex-col gap-2 text-left text-sm">
+            {criteria.map((c) => (
+              <li key={c.label} className="flex items-center gap-2.5">
+                <Icon name={c.done >= c.total ? 'check-circle' : 'circle'} className={`h-4 w-4 ${c.done >= c.total ? 'text-green-600' : 'text-slate-400'}`} />
+                <span className="flex-1 text-slate-700">{c.label}</span>
+                <span className="font-mono text-xs text-slate-500">{c.done}/{c.total}</span>
+              </li>
+            ))}
+          </ul>
+        )}
         <Link href={`/courses/${slug}`} className="mt-6 inline-block rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700">
           <L hi="Course continue karo" en="Continue course" />
         </Link>
@@ -93,6 +130,11 @@ export default async function CertificatePage({ params }) {
           <h1 className="mt-2 text-3xl font-bold text-slate-800 sm:text-4xl">{session.user.name}</h1>
           <p className="mt-4 text-slate-500"><L hi="ne successfully ye course complete kiya" en="has successfully completed the course" /></p>
           <h2 className="mt-2 flex items-center justify-center gap-2 text-2xl font-semibold text-indigo-700"><Icon name={course.icon} brand className="h-6 w-6" />{course.title}</h2>
+          {cert?.title && (
+            <p className="mt-3 text-lg font-bold text-slate-800">{cert.title}</p>
+          )}
+          {cert?.subtitle && <p className="text-sm font-semibold text-indigo-600">{cert.subtitle}</p>}
+          {cert?.note && <p className="mt-1 text-sm text-slate-600">✓ {cert.note}</p>}
           <p className="mt-1 text-sm text-slate-500">{total} <L hi="concepts master kiye" en="concepts mastered" /></p>
 
           <div className="mt-10 flex items-end justify-between text-left text-xs text-slate-500">

@@ -5,6 +5,7 @@ import Topic from '@/models/Topic';
 import Concept from '@/models/Concept';
 import InterviewQuestion from '@/models/InterviewQuestion';
 import CourseView from '@/components/CourseView';
+import JahiaCourseHub from '@/components/jahia/JahiaCourseHub';
 
 export const revalidate = 3600;
 
@@ -13,6 +14,7 @@ const LEVELS = [
   { key: 'beginner', label: 'Beginner' },
   { key: 'intermediate', label: 'Intermediate' },
   { key: 'advanced', label: 'Advanced' },
+  { key: 'project', label: 'Project' },
 ];
 
 async function getCourse(slug) {
@@ -24,7 +26,7 @@ async function getCourse(slug) {
     Topic.find({ courseId: course._id }).sort({ order: 1 }).lean(),
     Concept.find({ courseId: course._id, status: 'published' })
       .sort({ order: 1 })
-      .select('title slug topicId difficulty order')
+      .select('title slug topicId difficulty order tags lesson.kind lesson.minutes lesson.searchTerms quiz.correctIndex')
       .lean(),
     InterviewQuestion.countDocuments({
       courseId: course._id,
@@ -45,6 +47,13 @@ async function getCourse(slug) {
       title: c.title,
       slug: c.slug,
       difficulty: c.difficulty,
+      // Hub-only fields (tag filter, lab/project counts, search). Cheap, and
+      // absent for courses whose concepts carry no lesson block.
+      tags: c.tags || [],
+      kind: c.lesson?.kind || null,
+      minutes: c.lesson?.minutes || null,
+      searchTerms: c.lesson?.searchTerms || [],
+      hasQuiz: (c.quiz?.length || 0) > 0,
     });
   }
 
@@ -57,6 +66,8 @@ async function getCourse(slug) {
         id: t._id.toString(),
         title: t.title,
         description: t.description || '',
+        stage: t.stage ?? null,
+        estimatedMinutes: t.estimatedMinutes ?? null,
         concepts: conceptsByTopic[t._id.toString()] || [],
       })),
   })).filter((lvl) => lvl.topics.length > 0);
@@ -121,6 +132,7 @@ export default async function CoursePage({ params }) {
       levels={data.levels}
       totals={data.totals}
       questions={data.questions}
+      hub={slug === 'jahia' ? <JahiaCourseHub course={data.course} levels={data.levels} /> : null}
     />
   );
 }

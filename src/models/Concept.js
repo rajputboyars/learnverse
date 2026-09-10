@@ -46,6 +46,11 @@ const ConceptSchema = new mongoose.Schema(
       enum: ['easy', 'medium', 'hard'],
       default: 'easy',
     },
+    // Optional hands-on lesson block: where-is-it paths, CMS mockups, steps,
+    // files, expected result, mistakes, debugging, challenge. Rendered by
+    // components/jahia/JahiaLesson. Concepts without it read exactly as before.
+    lesson: { type: mongoose.Schema.Types.Mixed, default: undefined },
+
     order: { type: Number, default: 0 },
     xpReward: { type: Number, default: 10 },
 

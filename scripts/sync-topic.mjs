@@ -194,6 +194,7 @@ async function run() {
       codeLanguage: CODE_LANG[COURSE_SLUG] || 'html',
       keyPoints: c.keyPoints || [],
       quiz: c.quiz || [],
+      lesson: c.lesson,
       tags: c.tags || [],
       difficulty: c.difficulty || 'easy',
       order,

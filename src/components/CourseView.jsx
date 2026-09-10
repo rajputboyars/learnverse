@@ -13,6 +13,7 @@ const LEVEL_TINT = {
   beginner: 'bg-green-50 text-green-700',
   intermediate: 'bg-indigo-50 text-indigo-700',
   advanced: 'bg-red-50 text-red-700',
+  project: 'bg-amber-50 text-amber-700',
 };
 
 const DIFFICULTY_TINT = {
@@ -25,7 +26,9 @@ const DIFFICULTY_TINT = {
 // makes it useful — progress bars, read ticks, the resume point — depends on
 // the caller's own progress, which arrives from /api/me/stats after mount.
 // Signed out (or before that lands) it renders as a plain, honest syllabus.
-export default function CourseView({ course, levels, totals, questions }) {
+// `hub` is an optional course-specific block (the Jahia roadmap, search and
+// toolkit) rendered between the toolbar and the curriculum.
+export default function CourseView({ course, levels, totals, questions, hub = null }) {
   const { pick, lang } = useLang();
   const { status } = useSession();
   const [readIds, setReadIds] = useState(null);
@@ -252,6 +255,8 @@ export default function CourseView({ course, levels, totals, questions }) {
           </button>
         )}
       </div>
+
+      {hub && <div className={`${SHELL} pt-5`}>{hub}</div>}
 
       {/* ══════════ Curriculum + rail ══════════ */}
       <div className={`${SHELL} flex flex-col items-start gap-5 pt-5 lg:flex-row`}>

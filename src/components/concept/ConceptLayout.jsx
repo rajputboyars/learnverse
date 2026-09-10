@@ -8,6 +8,7 @@ import BookmarkButton from './BookmarkButton';
 import { useLang } from '../LanguageProvider';
 import Icon from '../Icon';
 import LearningTimer from '../LearningTimer';
+import { lessonAnchors } from '../jahia/JahiaLesson';
 
 const SHELL = 'mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8';
 
@@ -284,6 +285,7 @@ export default function ConceptLayout({ concept, course, nav, topicTitle, positi
               {[
                 { id: 'explanation', label: pick('Samjho', 'The explanation'), on: true },
                 { id: 'daily-example', label: t('reader.dailyExample'), on: !!concept.dailyLifeExample },
+                ...lessonAnchors(concept.lesson).map((s) => ({ id: s.id, label: pick(s.hi, s.en), on: true })),
                 { id: 'code-example', label: t('reader.codeExample'), on: !!concept.codeExample },
                 { id: 'key-points', label: t('reader.keyPoints'), on: concept.keyPoints?.length > 0 },
                 { id: 'quiz', label: 'Quiz', on: concept.quiz?.length > 0 },
