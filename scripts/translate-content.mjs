@@ -320,7 +320,11 @@ async function run() {
   console.log(
     DRY
       ? '\n[dry] nothing was written. Re-run without --dry and with a provider key.'
-      : `\nTranslated ${done} fields (${failed} failed). Re-running picks up where this stopped.`
+      : `\nTranslated ${done} fields (${failed} failed).` +
+        (exhausted
+          ? '\nEvery model has spent its free daily quota. Run this again tomorrow —' +
+            '\nit resumes from exactly here.'
+          : '\nRe-running picks up where this stopped.')
   );
   await mongoose.disconnect();
 }
